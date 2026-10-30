@@ -45,3 +45,7 @@ Current-instance checks do not establish publication or fresh-machine restoratio
 5. Implement the admin-controlled starter hut/NPC before enabling the full contribution/reward milestone flow; establish the durable inventory-consumption/recovery contract.
 
 M1/M2 and the live Tier 1 feature are **not complete** at this checkpoint. Do not deploy this source as a production season release.
+
+## Resumed task after user-reported publication
+
+Retried the actual Gradle build after the user reported publishing dependency domains. The current running task still reports enforced revision 1 with no custom hosts; official metadata and `neoform-runtime:2.0.31` resolution still return HTTP 403. This task has not acquired the new network policy. Source compilation, NBT tests, server/client execution, and complete dependency verification remain blocked. See [environment handoff](ENVIRONMENT_HANDOFF.md) for preservation and safe continuation in a new task. No existing passing test result is reclassified as a full mod build.
