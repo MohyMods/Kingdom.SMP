@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-30 — Resume and first complete foundation build
+
+Restored remote `rebuild/royal-gilded` at `89c1ed9` without resetting existing code. Reviewed all specifications and the environment handoff. Verified that the selected published environment is running with current enforced unrestricted HTTP access. Official metadata confirms the existing NeoForge 21.1.265 pin; Minecraft server/client/mappings and assets downloaded successfully. Installed a checksum-verified full Java 21 JDK under ignored `work/` because the image has only a runtime.
+
+The real build exposed a Gradle configuration-cache closure violation and missing Minecraft dependencies for the test source set. Corrected metadata expansion and enabled ModDevGradle's supported JUnit integration. The complete Gradle build now succeeds, including the previously unexecuted NBT tests. No gameplay decisions changed. Dedicated-server lifecycle and physical-client rendering remain to be checked before they are claimed.
+
 ## 2026-10-30 — Planning baseline checkpoint
 
 Source: S1 user brief. Stage: planning and architecture only.

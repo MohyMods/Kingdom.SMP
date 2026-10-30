@@ -17,6 +17,10 @@ neoForge {
         configureEach { logLevel = org.slf4j.event.Level.INFO }
     }
     mods { kingdom_smp { sourceSet(sourceSets.main) } }
+    unitTest {
+        enable()
+        testedMod = mods.kingdom_smp
+    }
 }
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.11.4')
@@ -25,7 +29,8 @@ dependencies {
 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 21 }
 tasks.named('test', Test) { useJUnitPlatform() }
+def modMetadata = [version: project.version.toString(), neo_version: project.neo_version.toString()]
 processResources {
-    inputs.property 'version', project.version
-    filesMatching('META-INF/neoforge.mods.toml') { expand version: project.version, neo_version: project.neo_version }
+    inputs.properties modMetadata
+    filesMatching('META-INF/neoforge.mods.toml') { expand modMetadata }
 }

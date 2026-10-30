@@ -1,5 +1,11 @@
 # Validation checkpoint — 2026-10-30
 
+## Resumed published environment — foundation build verified
+
+The attached published environment now reports current, enforced unrestricted HTTP access. Official NeoForge Maven and Minecraft downloads succeed. Maven metadata confirms **21.1.265** as the latest stable 1.21.1 NeoForge release. The installed OpenJDK 21 is runtime-only; a full Temurin 21.0.13+9 JDK was downloaded and verified against Adoptium SHA-256 `d7f5d5cf865a2902b70ff549b97586a7d3f234e016f041ab447ea740c7d66d1c`.
+
+Executed `JAVA_HOME="$PWD/work/toolchains/jdk-21.0.13+9" scripts/gradle-cloud.sh build --console=plain`: **BUILD SUCCESSFUL**. Fixed the actual Gradle 9 configuration-cache violation in resource metadata expansion, and enabled documented ModDevGradle JUnit support so Minecraft/NBT types are available to tests. Main source compilation, resource processing, JAR assembly, and all existing tests now execute. Runtime/client/multiplayer validation remains separate. The earlier blocked reports below are historical.
+
 Branch: `rebuild/royal-gilded`. S2 fresh rebuild and S3 First Hearth/NPC construction authorization. This report distinguishes implemented source from observed runtime behavior.
 
 | Check | Actual outcome |
