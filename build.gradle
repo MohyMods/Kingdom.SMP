@@ -9,17 +9,35 @@ base { archivesName = 'kingdom-smp-core' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 repositories { mavenCentral() }
+sourceSets {
+    gameTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
 neoForge {
     version = project.neo_version
+    addModdingDependenciesTo sourceSets.gameTest
+    mods {
+        kingdom_smp { sourceSet(sourceSets.main) }
+        kingdom_smp_tests { sourceSet(sourceSets.gameTest) }
+    }
     runs {
-        client { client() }
-        server { server(); programArgument '--nogui' }
+        client { client(); gameDirectory = file('run-client'); loadedMods = [mods.kingdom_smp] }
+        server { server(); programArgument '--nogui'; loadedMods = [mods.kingdom_smp] }
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.gameTest
+            gameDirectory = file(providers.gradleProperty('kingdomTestRunDir').getOrElse('work/gametest'))
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'kingdom_smp_tests'
+            loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
+        }
         configureEach { logLevel = org.slf4j.event.Level.INFO }
     }
-    mods { kingdom_smp { sourceSet(sourceSets.main) } }
     unitTest {
         enable()
         testedMod = mods.kingdom_smp
+        loadedMods = [mods.kingdom_smp]
     }
 }
 dependencies {
@@ -29,6 +47,7 @@ dependencies {
 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 21 }
 tasks.named('test', Test) { useJUnitPlatform() }
+tasks.named('runServer', JavaExec) { standardInput = System.in }
 def modMetadata = [version: project.version.toString(), neo_version: project.neo_version.toString()]
 processResources {
     inputs.properties modMetadata

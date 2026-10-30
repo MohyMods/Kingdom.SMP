@@ -81,6 +81,12 @@ public final class KingdomOverviewScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // This screen draws its own solid backdrop. Screen.render would otherwise
+        // blur the panels and text already drawn before the vanilla widgets.
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         graphics.fill(0, 0, width, height, RoyalPalette.BACKDROP);
         if (smallWindow) {

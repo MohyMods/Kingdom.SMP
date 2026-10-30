@@ -1,5 +1,17 @@
 # Development log
 
+## 2026-10-30 — F2 furnished hut and Aldric checkpoint
+
+Implemented the next approved dependency after F1: an original 348-block furnished timber/stone hut with four rotated definitions, safe op-only preview/exact-token confirmation, stale-site revalidation, NeoForge multi-place cancellation/rollback, persistent single-hut reservation, non-destructive resume, and private audit messages. Native SavedData stores the hut and stable builder association; one-way filesystem markers prevent a delayed world save from reopening installation or NPC issuance. Corrupt/missing/mismatched reservation metadata fails closed. This is a conservative refusal/recovery boundary, not a claim of lossless arbitrary host-failure recovery.
+
+Aldric is a registered custom villager entity with no natural spawn/egg/summon, vanilla trading, breeding or item pickup. His configurable display name preserves UUID and home; a small day/night routine paths within his hut, pauses on blocked/unloaded/damaged context, and never teleports or force-loads. Persisted death and committed missing entities do not silently spawn replacements. Exact replacement/destructive repair policy remains unapproved.
+
+Connected actual right-click interaction to a Royal Gilded dialogue/catalogue: rendered portrait, subtle slate courses, gold/bronze controls, parchment, normal Minecraft typography, scrolling and Back/Leave. The server validates registered identity, hut integrity, distance and line of sight for every topic. Bounded correlated replies update only the active conversation; no rewards or gameplay mutations are accepted through dialogue. Live in-game testing found and fixed the vanilla late blur pass affecting both dialogue and the existing overview.
+
+Validation: full Gradle build passes **93 JUnit tests** with zero failures/skips. Isolated GameTest lifecycle runs pass against real blocks, commands, NPCs and native disk I/O. Normal dedicated server startup, save, reload of the same world, console status/save/stop, and physical-client integrated-world joins executed. The hut survived a full client/world restart and opened dialogue again. Exact runtime scope, initial failed attempts, and remaining multiplayer/host-loss/authentication limits are recorded in `VALIDATION.md`. Test code/resources are excluded from the production JAR.
+
+F3 live contributions/leaderboard/unique reward is still next; no inventory consumption, Town Hall construction, Elara, border behavior, Charter/Master unlock, or later-tier costs were silently enabled. This checkpoint implements the hut/NPC dependency rather than representing pure accounting or future catalogue descriptions as those completed services.
+
 ## 2026-10-30 — Resume and first complete foundation build
 
 Restored remote `rebuild/royal-gilded` at `89c1ed9` without resetting existing code. Reviewed all specifications and the environment handoff. Verified that the selected published environment is running with current enforced unrestricted HTTP access. Official metadata confirms the existing NeoForge 21.1.265 pin; Minecraft server/client/mappings and assets downloaded successfully. Installed a checksum-verified full Java 21 JDK under ignored `work/` because the image has only a runtime.

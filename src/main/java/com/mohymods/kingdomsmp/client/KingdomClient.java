@@ -2,6 +2,9 @@ package com.mohymods.kingdomsmp.client;
 
 import com.mohymods.kingdomsmp.KingdomSmp;
 import com.mohymods.kingdomsmp.network.KingdomNetworking;
+import com.mohymods.kingdomsmp.npc.KingdomNpcs;
+import net.minecraft.client.renderer.entity.VillagerRenderer;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
@@ -20,6 +23,9 @@ public final class KingdomClient {
 
     public KingdomClient(IEventBus modBus) {
         KingdomNetworking.installClientReceiver(ClientOverviewController::receive);
+        KingdomNetworking.installBuilderReceiver(BuilderDialogueController::receive);
+        modBus.addListener((EntityRenderersEvent.RegisterRenderers event) ->
+                event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), VillagerRenderer::new));
         modBus.addListener(this::keys);
         NeoForge.EVENT_BUS.addListener(this::tick);
     }
@@ -28,6 +34,7 @@ public final class KingdomClient {
 
     private void tick(ClientTickEvent.Post event) {
         ClientOverviewController.tick();
+        BuilderDialogueController.tick();
         while (OVERVIEW.consumeClick()) {
             if (net.minecraft.client.Minecraft.getInstance().screen == null) {
                 ClientOverviewController.request();

@@ -6,6 +6,20 @@ The attached published environment now reports current, enforced unrestricted HT
 
 Executed `JAVA_HOME="$PWD/work/toolchains/jdk-21.0.13+9" scripts/gradle-cloud.sh build --console=plain`: **BUILD SUCCESSFUL**. Fixed the actual Gradle 9 configuration-cache violation in resource metadata expansion, and enabled documented ModDevGradle JUnit support so Minecraft/NBT types are available to tests. Main source compilation, resource processing, JAR assembly, and all existing tests now execute. Runtime/client/multiplayer validation remains separate. The earlier blocked reports below are historical.
 
+## F2 implementation verification
+
+- Full build after the hut integration: **93 JUnit tests, 0 failed, 0 skipped**. Includes NBT persistence, four-rotation structure integrity, journal reissuance/corruption, and bounded dialogue codecs.
+- `scripts/test-runtime.sh`: **1 required GameTest lifecycle scenario passed**, with multiple assertions against real server blocks/entities/commands and native disk saves. Each invocation uses a fresh ignored test directory. The test mod and structure fixture are isolated from the production JAR.
+- Runtime scenario covers op denial; all rotation footprints; unloaded-site refusal; container obstruction; stale confirmation without reservation; protection-event cancellation and rollback; same-reservation resume; 348-block structural verification; single registered NPC; replay denial; configurable name preserving UUID; nearby/remote/damaged-hut dialogue rules; native SavedData disk write/read; entity UUID/home serialization; death marking and refusal to use restored copies after death.
+- A normal dedicated server reached `Done`, loaded Tier 1, stopped through its shutdown hook, restarted the same saved world, executed `/kingdom status` and `/save-all flush`, then stopped via the console with **BUILD SUCCESSFUL**. The initial run ended with process status 143 because its stdin was not forwarded; console forwarding is now configured. This is not classified as a successful initial Gradle run.
+- Physical client initialization and integrated-world join ran under Xvfb with software OpenGL. Actual interaction opened Aldric's custom dialogue. This exposed vanilla `Screen.render` applying its blur after custom drawing; both custom screens now suppress that late background pass.
+- A full client/world restart reloaded the existing hut and Aldric and opened the corrected dialogue. Real screenshots record the rendered result; no screenshot is a simulated web mockup.
+- After restart, `/execute if entity @e[type=kingdom_smp:aldric]` returned **count: 1**. Native entity UUID data reconstructed to the exact UUID recorded during the original setup. All four dialogue topics, catalogue, overview, refresh and progression navigation were exercised on the physical client.
+
+Runtime limitations: headless host has no audio device, so sound is disabled by Minecraft. Mojang public-key fetch logs a nonfatal connection refusal from Authlib; isolated development used local/offline sessions, so authenticated public multiplayer remains unverified. No two-client race, forced host-loss, external protection-mod compatibility, path-failure stress, or season performance claim is made. The protection-cancellation test verifies NeoForge's event contract, not every protection mod. Native saves and journal markers must be backed up together; journal mismatches fail closed rather than inventing a new NPC or hut.
+
+## Historical checkpoint before dependency access
+
 Branch: `rebuild/royal-gilded`. S2 fresh rebuild and S3 First Hearth/NPC construction authorization. This report distinguishes implemented source from observed runtime behavior.
 
 | Check | Actual outcome |

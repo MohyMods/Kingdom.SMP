@@ -1,5 +1,7 @@
 # Environment handoff — published policy not attached to this task
 
+> **Resolved in the resumed published environment.** The active instance now reports current enforced unrestricted access; NeoForge/Minecraft downloads and the complete Gradle build succeed. Java initially contained only a runtime, so a checksum-verified full JDK 21 was installed under ignored `work/toolchains/`. Use an available full JDK 21 via `JAVA_HOME`; the historical `/workspace/toolchains/` path below is not present on this instance. See `VALIDATION.md` and `DEVELOPMENT_LOG.md` for current evidence. The remainder records the previous environment's blocker and preservation history.
+
 The user confirmed reviewing and publishing the required dependency domains, then asked to continue the existing rebuild without resetting it. The resumed task still reports the old live policy: current observations, enforced restricted access, spec revision `1`, and an empty custom-host list. The local startup policy also lacks NeoForge/Minecraft domains. This does not disprove publication; it establishes that this running task has not acquired the new access.
 
 ## Actual retry results

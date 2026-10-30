@@ -3,6 +3,8 @@ package com.mohymods.kingdomsmp;
 import com.mohymods.kingdomsmp.network.KingdomNetworking;
 import com.mohymods.kingdomsmp.persistence.KingdomSavedData;
 import com.mohymods.kingdomsmp.kingdom.KingdomState;
+import com.mohymods.kingdomsmp.building.BuilderHutService;
+import com.mohymods.kingdomsmp.npc.KingdomNpcs;
 import com.mojang.brigadier.Command;
 import com.mojang.logging.LogUtils;
 import net.minecraft.commands.Commands;
@@ -21,12 +23,15 @@ public final class KingdomSmp {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public KingdomSmp(IEventBus modBus) {
+        KingdomNpcs.register(modBus);
+        BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
     }
 
     private void serverStarted(ServerStartedEvent event) {
+        BuilderHutService.initialize(event.getServer());
         KingdomState state = KingdomSavedData.get(event.getServer()).snapshot();
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());
@@ -34,6 +39,7 @@ public final class KingdomSmp {
 
     private void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("kingdom")
+                .then(BuilderHutService.commands())
                 .then(Commands.literal("status").executes(context -> {
                     KingdomState state = KingdomSavedData.get(context.getSource().getServer()).snapshot();
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",
