@@ -7,12 +7,15 @@ import com.mohymods.kingdomsmp.persistence.BuilderHutSavedData.Hut;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,14 +41,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /** Op-controlled starter installation. Public player blueprint construction is a separate milestone. */
 public final class BuilderHutService {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final long PREVIEW_TIMEOUT_NANOS = TimeUnit.MINUTES.toNanos(5);
     private static final Map<UUID, Preview> PREVIEWS = new HashMap<>();
     private static BiConsumer<ServerPlayer, AldricEntity> dialogueOpener;
-    private record Preview(BlockPos origin, Rotation rotation, UUID token, long expires, String reason) { }
+    record Preview(BlockPos origin, Rotation rotation, UUID token, long createdAtNanos, String reason) {
+        boolean expired(long nowNanos) {
+            return nowNanos - createdAtNanos >= PREVIEW_TIMEOUT_NANOS;
+        }
+    }
     private BuilderHutService() { }
 
     public static void installDialogueOpener(BiConsumer<ServerPlayer, AldricEntity> opener) {
@@ -133,20 +142,26 @@ public final class BuilderHutService {
             return fail(player.createCommandSourceStack(), "Stand within 64 blocks of the site.");
         }
         UUID token = UUID.randomUUID();
-        PREVIEWS.entrySet().removeIf(entry -> System.nanoTime() - entry.getValue().expires() >= 0);
-        PREVIEWS.put(player.getUUID(), new Preview(origin.immutable(), rotation, token,
-                System.nanoTime() + 30_000_000_000L, auditReason(reason)));
+        long now = System.nanoTime();
+        PREVIEWS.entrySet().removeIf(entry -> entry.getValue().expired(now));
+        PREVIEWS.put(player.getUUID(), new Preview(origin.immutable(), rotation, token, now, auditReason(reason)));
         var blueprint = BuilderHutBlueprint.create();
+        String command = "/kingdom hut confirm " + token;
+        Component confirmation = Component.literal("[Confirm Builder's Hut]").withStyle(style -> style
+                .withColor(ChatFormatting.GOLD).withUnderlined(true)
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
+                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        Component.literal("Confirm this reviewed site within 5 minutes. All placement checks run again.\n" + command))));
         player.sendSystemMessage(Component.literal("Review Builder's Hut: " + origin.toShortString() + " / " + rotation
                 + ", " + blueprint.width(rotation) + "×" + blueprint.depth(rotation) + "×" + BuilderHutBlueprint.HEIGHT
                 + ", " + blueprint.placements().size() + " blocks. Empty furnished containers; one builder. Reason: " + auditReason(reason)
-                + ". Confirm within 30 seconds: /kingdom hut confirm " + token));
+                + ". Confirm within 5 minutes: ").append(confirmation));
         return 1;
     }
 
     private static int confirm(ServerPlayer player, String token) {
         Preview preview = PREVIEWS.remove(player.getUUID());
-        if (preview == null || System.nanoTime() - preview.expires() >= 0 || !preview.token().toString().equals(token)) {
+        if (preview == null || preview.expired(System.nanoTime()) || !preview.token().toString().equals(token)) {
             return fail(player.createCommandSourceStack(), "Preview expired or token mismatched. Preview the exact site again.");
         }
         if (player.distanceToSqr(preview.origin().getX(), preview.origin().getY(), preview.origin().getZ()) > 64 * 64) {

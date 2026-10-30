@@ -1,6 +1,6 @@
 # Kingdom SMP Core
 
-[Download the tested checkpoint JAR, screenshots and validation evidence](docs/checkpoints/6a61f8c/CHECKPOINT.md).
+[Original F2 checkpoint JAR, screenshots and validation evidence (historical build)](docs/checkpoints/6a61f8c/CHECKPOINT.md). This archived JAR predates the five-minute clickable confirmation fix; build the current branch for the latest code.
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 
@@ -32,7 +32,7 @@ scripts/test-runtime.sh
 
 That JDK path is local to this instance; select an available full JDK on another machine. The launcher does not grant network access or disable TLS verification.
 
-The complete build passes **93 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering actual commands, placement/cancellation/resume, NPC identity/access/death and native disk saves. Dedicated-server startup/save/restart and a physical-client integrated-world join have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
+The complete build passes **96 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering clickable confirmation, permission/ownership/token/distance checks, placement/cancellation/resume, NPC identity/access/death and native disk saves. Dedicated-server startup/save/restart and a physical-client integrated-world join have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
 
 ```sh
 scripts/gradle-cloud.sh runServer
@@ -47,12 +47,12 @@ An operator with permission level **2** prepares a flat supported site in the Ov
 
 ```text
 /kingdom hut preview 100 65 100 north starter-camp
-/kingdom hut confirm <exact token returned by preview>
+/kingdom hut confirm <token shown in the confirmation link's hover text>
 /kingdom hut status
 /kingdom hut name Aldric Stonehand
 ```
 
-Rotations: `north`, `east`, `south`, `west`. Confirmation expires after 30 seconds. It installs 348 blocks, verifies the structure, then issues one registered builder. Right-click Aldric to speak; **K** still opens the kingdom overview.
+Rotations: `north`, `east`, `south`, `west`. Click **[Confirm Builder's Hut]** in the preview's chat message to confirm without copying its token; the manual command above still works. Confirmation expires after **5 minutes**. Permission, player identity, token, distance, and all placement checks are revalidated when confirming. It installs 348 blocks, verifies the structure, then issues one registered builder. Right-click Aldric to speak; **K** still opens the kingdom overview.
 
 For an interrupted reservation, inspect the server log and exact site first:
 

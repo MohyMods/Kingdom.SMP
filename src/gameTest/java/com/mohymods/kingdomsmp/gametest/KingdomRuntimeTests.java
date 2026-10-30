@@ -14,6 +14,8 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.Blocks;
@@ -31,6 +33,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -66,9 +69,35 @@ public final class KingdomRuntimeTests {
             helper.fail("Unprivileged setup command accepted");
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
         helper.assertTrue(dispatcher.execute(preview, operator.createCommandSourceStack().withPermission(4)) == 1, "Admin preview accepted");
-        String token = operator.token();
+        helper.assertTrue(operator.messages.getLast().getString().contains("within 5 minutes"), "Review advertises the five-minute deadline");
+        String clickedCommand = operator.confirmationCommand();
+        try {
+            dispatcher.execute(clickedCommand.substring(1), operator.createCommandSourceStack().withPermission(0));
+            helper.fail("Clickable confirmation bypassed operator permission");
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
+        var otherOperator = new RecordingPlayer(level);
+        otherOperator.moveTo(operator.getX(), operator.getY(), operator.getZ());
+        helper.assertTrue(dispatcher.execute(clickedCommand.substring(1), otherOperator.createCommandSourceStack().withPermission(4)) == 0,
+                "Copied chat link cannot confirm another player's preview");
+        helper.assertTrue(BuilderHutSavedData.get(server).hut().isEmpty(), "Copied link does not reserve a hut");
+        operator.moveTo(origin.getX() + 70, origin.getY() + 1, origin.getZ() + 4);
+        helper.assertTrue(dispatcher.execute(clickedCommand.substring(1), operator.createCommandSourceStack().withPermission(4)) == 0,
+                "Clickable confirmation retains the distance check");
+        operator.moveTo(origin.getX() - 2, origin.getY() + 1, origin.getZ() + 4);
+        dispatcher.execute(preview, operator.createCommandSourceStack().withPermission(4));
+        helper.assertTrue(dispatcher.execute("kingdom hut confirm " + UUID.randomUUID(), operator.createCommandSourceStack().withPermission(4)) == 0,
+                "Mismatched token cannot confirm a preview");
+        dispatcher.execute(preview, operator.createCommandSourceStack().withPermission(4));
+        String supersededCommand = operator.confirmationCommand();
+        dispatcher.execute(preview, operator.createCommandSourceStack().withPermission(4));
+        helper.assertTrue(!supersededCommand.equals(operator.confirmationCommand()), "Each preview issues a fresh token");
+        helper.assertTrue(dispatcher.execute(supersededCommand.substring(1), operator.createCommandSourceStack().withPermission(4)) == 0,
+                "A previous preview's chat link cannot confirm a newer site review");
+        helper.assertTrue(BuilderHutSavedData.get(server).hut().isEmpty(), "Rejected confirmations leave the world unreserved");
+        dispatcher.execute(preview, operator.createCommandSourceStack().withPermission(4));
+        clickedCommand = operator.confirmationCommand();
         level.setBlock(origin.above(), Blocks.STONE.defaultBlockState(), 18);
-        helper.assertTrue(dispatcher.execute("kingdom hut confirm " + token, operator.createCommandSourceStack().withPermission(4)) == 0,
+        helper.assertTrue(dispatcher.execute(clickedCommand.substring(1), operator.createCommandSourceStack().withPermission(4)) == 0,
                 "Confirmation revalidates stale site");
         helper.assertTrue(BuilderHutSavedData.get(server).hut().isEmpty(), "Stale preview does not reserve a hut");
         level.setBlock(origin.above(), Blocks.AIR.defaultBlockState(), 18);
@@ -76,7 +105,7 @@ public final class KingdomRuntimeTests {
         Consumer<BlockEvent.EntityMultiPlaceEvent> deny = event -> event.setCanceled(true);
         NeoForge.EVENT_BUS.addListener(deny);
         try {
-            helper.assertTrue(dispatcher.execute("kingdom hut confirm " + operator.token(), operator.createCommandSourceStack().withPermission(4)) == 0,
+            helper.assertTrue(dispatcher.execute(operator.confirmationCommand().substring(1), operator.createCommandSourceStack().withPermission(4)) == 0,
                     "Protection listener cancellation honored");
         } finally { NeoForge.EVENT_BUS.unregister(deny); }
         var data = BuilderHutSavedData.get(server);
@@ -92,7 +121,7 @@ public final class KingdomRuntimeTests {
         helper.assertTrue(builder != null && BuilderHutService.isRegistered(builder), "One registered builder with stable home and UUID");
         helper.assertTrue(dispatcher.execute("kingdom hut resume " + hut.id() + " duplicate", operator.createCommandSourceStack().withPermission(4)) == 0,
                 "Completed installation cannot be replayed");
-        helper.assertTrue(dispatcher.execute("kingdom hut confirm " + token, operator.createCommandSourceStack().withPermission(4)) == 0,
+        helper.assertTrue(dispatcher.execute(clickedCommand.substring(1), operator.createCommandSourceStack().withPermission(4)) == 0,
                 "Old confirmation cannot be replayed");
         dispatcher.execute("kingdom hut name Master Aldric", operator.createCommandSourceStack().withPermission(4));
         helper.assertTrue(builder.getName().getString().equals("Master Aldric") && builder.getUUID().equals(hut.npcId()), "Rename preserves stable identity");
@@ -129,16 +158,21 @@ public final class KingdomRuntimeTests {
     }
 
     private static final class RecordingPlayer extends FakePlayer {
-        private final List<String> messages = new ArrayList<>();
+        private final List<Component> messages = new ArrayList<>();
         RecordingPlayer(ServerLevel level) { super(level, new GameProfile(UUID.randomUUID(), "RuntimeOperator")); }
-        @Override public void sendSystemMessage(Component message) { messages.add(message.getString()); }
-        String token() {
-            var pattern = Pattern.compile("/kingdom hut confirm ([a-f0-9-]{36})");
+        @Override public void sendSystemMessage(Component message) { messages.add(message.copy()); }
+        String confirmationCommand() {
+            var pattern = Pattern.compile("/kingdom hut confirm [a-f0-9-]{36}");
             for (int index = messages.size() - 1; index >= 0; index--) {
-                var match = pattern.matcher(messages.get(index));
-                if (match.find()) return match.group(1);
+                Optional<String> command = messages.get(index).visit((style, text) -> {
+                    ClickEvent click = style.getClickEvent();
+                    return click != null && click.getAction() == ClickEvent.Action.RUN_COMMAND
+                            && text.equals("[Confirm Builder's Hut]") && pattern.matcher(click.getValue()).matches()
+                            ? Optional.of(click.getValue()) : Optional.empty();
+                }, Style.EMPTY);
+                if (command.isPresent()) return command.get();
             }
-            throw new IllegalStateException("No preview token delivered to operator");
+            throw new IllegalStateException("No clickable confirmation command delivered to operator");
         }
     }
 }

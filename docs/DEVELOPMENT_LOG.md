@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-30 — Five-minute clickable hut confirmation
+
+At the user's request, extended the server's monotonic preview lifetime from 30 seconds to five minutes. The review message now includes a gold, underlined **[Confirm Builder's Hut]** link with a native Minecraft `RUN_COMMAND` click event and hover text. Its server-generated command includes only the issued token and executes the existing confirmation handler; permissions, player-bound previews, expiry/token validation, distance, exact-site revalidation, reservation uniqueness, protection cancellation and issuance guards remain in place. The original archived F2 JAR is labeled historical rather than overwritten.
+
+Executed the full Gradle build: **96 JUnit tests passed, zero failures/errors/skips**. New timing tests cover validity beyond 30 seconds, the exact 300-second boundary and monotonic-clock wrap. Executed `scripts/test-runtime.sh`: **one required GameTest lifecycle scenario passed**. It now extracts and executes the actual `RUN_COMMAND` value from the emitted chat component and verifies unprivileged/cross-player/mismatched/superseded/out-of-range confirmation denial, stale-site rejection, protection cancellation/rollback, safe resume and replay denial. No fresh physical-client mouse-click test is claimed for this fix.
+
 ## 2026-10-30 — F2 furnished hut and Aldric checkpoint
 
 Source checkpoint `6a61f8c` is pushed to the development branch. Its exact tested JAR, checksums, real Minecraft screenshots and validation archive are preserved under `docs/checkpoints/6a61f8c/`; this cloud instance does not expose the chat output filesystem. The artifact commit adds documentation/evidence only and does not change the tested implementation.

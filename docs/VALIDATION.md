@@ -1,5 +1,15 @@
 # Validation checkpoint — 2026-10-30
 
+## Five-minute clickable confirmation fix
+
+Executed with the full local JDK 21:
+
+- `scripts/gradle-cloud.sh build --console=plain`: **BUILD SUCCESSFUL; 96 JUnit tests, zero failures/errors/skips**. New tests verify that a preview remains valid after 30 seconds, expires exactly at 300 seconds, and handles monotonic-clock wrap.
+- `scripts/test-runtime.sh`: **BUILD SUCCESSFUL; one required GameTest lifecycle scenario passed**. The test reads the native `RUN_COMMAND` click event from the preview's emitted chat component and runs that exact command through the real server dispatcher. It verifies the five-minute review text and denial for lost permissions, another player using the link, a mismatched token, a superseded preview, excessive distance and a stale/blocked site. Existing protection cancellation, reservation/resume, replay, NPC and save checks also pass.
+- `git diff --check`: passed. Only preview timing/chat presentation and related tests/documentation changed; placement validation and installation logic were preserved.
+
+Timing boundaries use a controlled monotonic timestamp in unit tests; the runtime test does not wait five wall-clock minutes. No additional physical-client mouse-click or two-client check is claimed for this fix. The earlier F2 archive remains unchanged and is explicitly historical.
+
 ## Resumed published environment — foundation build verified
 
 The attached published environment now reports current, enforced unrestricted HTTP access. Official NeoForge Maven and Minecraft downloads succeed. Maven metadata confirms **21.1.265** as the latest stable 1.21.1 NeoForge release. The installed OpenJDK 21 is runtime-only; a full Temurin 21.0.13+9 JDK was downloaded and verified against Adoptium SHA-256 `d7f5d5cf865a2902b70ff549b97586a7d3f234e016f041ab447ea740c7d66d1c`.
