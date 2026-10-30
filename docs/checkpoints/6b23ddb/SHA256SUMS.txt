@@ -1,0 +1,3 @@
+28ad3bca4ea888e053d0db530d61f76fff1d51f09104c6aeea326adac2c7c3c6  CHECKPOINT.md
+ba5b019cd62d9d0fa86400ef9c7195f64ce24c1ed1ef4e0bdc1bf5485dffdf8a  kingdom-smp-core-0.1.0-dev-6b23ddb.jar
+7b3b330f9561492d13f1e07599d561e6145d106fc97b167dc002bea3b2ab9749  validation-evidence.zip

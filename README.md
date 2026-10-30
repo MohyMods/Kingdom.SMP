@@ -1,6 +1,6 @@
 # Kingdom SMP Core
 
-[Original F2 checkpoint JAR, screenshots and validation evidence (historical build)](docs/checkpoints/6a61f8c/CHECKPOINT.md). This archived JAR predates the five-minute clickable confirmation fix; build the current branch for the latest code.
+[Download the updated JAR built from commit 6b23ddb, checksums and validation evidence](docs/checkpoints/6b23ddb/CHECKPOINT.md). Includes the five-minute clickable Builder’s Hut confirmation.
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 
