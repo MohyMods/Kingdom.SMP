@@ -23,6 +23,10 @@ The onboarding phase previously verified read-only GitHub access, remote `main` 
 
 The original master design, twelve tier milestone tables, profession quest sheets, reward and equipment catalogues, price/budget tables, technology gates, modpack manifest, UI assets/mockups, NPC/shop specifications, infrastructure plan, and any prior decision history have not been supplied. Their existence is reported, not verified. Do not substitute invented details for them.
 
-## This checkpoint
+## Historical planning checkpoint (before S2)
 
-Adds planning Markdown documents only. The existing `Home` file remains untouched. No gameplay, assets, build configuration, dependencies, or executable mod scaffolding are added. Documentation consistency and Git diff checks are the available validation; there are no application checks to execute.
+The initial planning checkpoint added planning Markdown documents only. The existing `Home` file remains untouched. No gameplay, assets, build configuration, dependencies, or executable mod scaffolding are added. Documentation consistency and Git diff checks are the available validation; there are no application checks to execute.
+
+## S2 rebuild authorization
+
+The subsequent complete-rebuild request authorizes actual implementation and a dedicated development branch. This initial inventory remains historical evidence, not a claim that the active checkout still contains no code. Consult the development log for current builds, runtime evidence, and commits. No previous gameplay implementation was available locally when the rebuild began.

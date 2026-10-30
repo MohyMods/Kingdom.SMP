@@ -29,6 +29,10 @@ Propose server-held escrow for listed items and funded buy orders so leaving, dy
 
 Open decisions: bid increments, reservation/refunds, outbid handling, anti-sniping, cancellation, expiry, fees/tax timing, partial fills, order priority, cross-profession Master sales, matching rules for item components/damage/containers, listing limits, and storage bounds. Recommend restricting complex container items initially until component-aware escrow is verified.
 
+## Dynamic prices and profession contracts (S2)
+
+Both systems are confirmed scope, not fully specified mechanics. Do not select a dynamic-price formula, elasticity, floor/ceiling, update interval, stock model, or reset policy silently. Profession contracts need eligibility, objectives, resource consumption, funding, reward amounts, attribution, assignment limits, expiry/cancellation and duplicate-claim policy before implementation. They are distinct from the removed Weekly Events feature.
+
 ## NPC inflation controls
 
 Need exact resource prices, buy/sell direction, budget funding/refill, quota scope/reset, per-player limits, day/timezone definition, and whether stock is persistent. Evaluate marginal cost under automated production; static high buy prices can become an unlimited currency faucet even with loose individual limits. Reset all related limits consistently; reject double spending at reset boundaries. Admin changes must be permission-checked and audited.

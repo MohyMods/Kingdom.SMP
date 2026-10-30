@@ -18,7 +18,7 @@ Confirmed roster and planned quest counts:
 | Librarian | 8 | 8 | 8 | 24 |
 | **Total** | **96** | **96** | **96** | **288** |
 
-Players may have at most three active professions. Switching costs 15,000 coins and preserves inactive progress. Rank names alone do not define rank advancement conditions. No quest objectives, item rewards, XP model, starting rank rules, or Master catalogues are supplied.
+Players may have at most three active professions. Switching costs 15,000 coins and preserves inactive progress. Rank names alone do not define rank advancement conditions. S2 confirms persistent profession XP, rank progression, profession permissions/shop access, and one complete profession before expanding. No quest objectives, item rewards, XP sources/awards/thresholds, starting rank rules, or Master catalogues are supplied. Admin quest approval is required but which quests need approval, reviewer permissions, and evidence rules are missing.
 
 ## Proposed implementation boundaries
 
