@@ -1,5 +1,7 @@
 # Kingdom SMP Core
 
+[Download the tested checkpoint JAR, screenshots and validation evidence](docs/checkpoints/6a61f8c/CHECKPOINT.md).
+
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 
 ## Working features

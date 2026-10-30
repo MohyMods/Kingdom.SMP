@@ -2,6 +2,8 @@
 
 ## 2026-10-30 — F2 furnished hut and Aldric checkpoint
 
+Source checkpoint `6a61f8c` is pushed to the development branch. Its exact tested JAR, checksums, real Minecraft screenshots and validation archive are preserved under `docs/checkpoints/6a61f8c/`; this cloud instance does not expose the chat output filesystem. The artifact commit adds documentation/evidence only and does not change the tested implementation.
+
 Implemented the next approved dependency after F1: an original 348-block furnished timber/stone hut with four rotated definitions, safe op-only preview/exact-token confirmation, stale-site revalidation, NeoForge multi-place cancellation/rollback, persistent single-hut reservation, non-destructive resume, and private audit messages. Native SavedData stores the hut and stable builder association; one-way filesystem markers prevent a delayed world save from reopening installation or NPC issuance. Corrupt/missing/mismatched reservation metadata fails closed. This is a conservative refusal/recovery boundary, not a claim of lossless arbitrary host-failure recovery.
 
 Aldric is a registered custom villager entity with no natural spawn/egg/summon, vanilla trading, breeding or item pickup. His configurable display name preserves UUID and home; a small day/night routine paths within his hut, pauses on blocked/unloaded/damaged context, and never teleports or force-loads. Persisted death and committed missing entities do not silently spawn replacements. Exact replacement/destructive repair policy remains unapproved.
