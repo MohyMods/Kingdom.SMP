@@ -25,6 +25,9 @@ public final class KingdomSmp {
 
     public KingdomSmp(IEventBus modBus) {
         KingdomNpcs.register(modBus);
+        com.mohymods.kingdomsmp.building.KingdomBlueprints.register(modBus);
+        com.mohymods.kingdomsmp.building.ConstructionProtection.register(NeoForge.EVENT_BUS);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.building.ConstructionService::tick);
         NeoForge.EVENT_BUS.addListener(ContributionService::login);
         NeoForge.EVENT_BUS.addListener(ContributionService::logout);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
@@ -36,6 +39,7 @@ public final class KingdomSmp {
     private void serverStarted(ServerStartedEvent event) {
         BuilderHutService.initialize(event.getServer());
         ContributionService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.building.ConstructionService.initialize(event.getServer());
         KingdomState state = ContributionService.kingdom(event.getServer());
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());
@@ -44,6 +48,7 @@ public final class KingdomSmp {
     private void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("kingdom")
                 .then(BuilderHutService.commands())
+                .then(com.mohymods.kingdomsmp.building.ConstructionService.commands())
                 .then(Commands.literal("status").executes(context -> {
                     KingdomState state = ContributionService.kingdom(context.getSource().getServer());
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",

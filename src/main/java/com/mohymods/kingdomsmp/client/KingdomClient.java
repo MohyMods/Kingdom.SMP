@@ -25,8 +25,12 @@ public final class KingdomClient {
         KingdomNetworking.installClientReceiver(ClientOverviewController::receive);
         com.mohymods.kingdomsmp.network.ContributionNetworking.install(ContributionController::receive);
         KingdomNetworking.installBuilderReceiver(BuilderDialogueController::receive);
-        modBus.addListener((EntityRenderersEvent.RegisterRenderers event) ->
-                event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), VillagerRenderer::new));
+        com.mohymods.kingdomsmp.network.ConstructionNetworking.install(ConstructionController::receive);
+        modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
+                event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), VillagerRenderer::new);
+                event.registerEntityRenderer(KingdomNpcs.REEVE.get(), VillagerRenderer::new);
+        });
+        NeoForge.EVENT_BUS.addListener(ConstructionPreview::render);
         modBus.addListener(this::keys);
         NeoForge.EVENT_BUS.addListener(this::tick);
     }
@@ -37,6 +41,7 @@ public final class KingdomClient {
         ClientOverviewController.tick();
         ContributionController.tick();
         BuilderDialogueController.tick();
+        ConstructionController.tick();
         while (OVERVIEW.consumeClick()) {
             if (net.minecraft.client.Minecraft.getInstance().screen == null) {
                 ClientOverviewController.request();

@@ -44,11 +44,14 @@ public final class KingdomOverviewScreen extends Screen {
             return;
         }
         layout = RoyalLayout.fit(width, height);
-        int tabWidth = Math.min(128, (layout.contentWidth() - 8) / 2);
+        int tabWidth = Math.min(128, (layout.contentWidth() - 16) / 3);
         addRenderableWidget(new RoyalTab(layout.contentX(), layout.y() + 48, tabWidth,
                 text("overview"), !progression, button -> selectTab(false), text("overview.help")));
         addRenderableWidget(new RoyalTab(layout.contentX() + tabWidth + 8, layout.y() + 48, tabWidth,
                 text("progression"), progression, button -> selectTab(true), text("progression.help")));
+        addRenderableWidget(new RoyalButton(layout.contentX()+2*(tabWidth+8),layout.y()+48,tabWidth,20,
+                Component.literal("Construction"),button->com.mohymods.kingdomsmp.client.ConstructionController.open(),
+                Component.literal("Blueprint claim, approved sites, Aldric's projects and the Royal construction administration.")));
         if (progression) {
             for (int tier = 1; tier <= 12; tier++) {
                 final int selected = tier;
@@ -57,9 +60,11 @@ public final class KingdomOverviewScreen extends Screen {
                         button -> selectTier(selected), tierTooltip(tier)).selected(tier == selectedTier));
             }
         }
-        refresh = addRenderableWidget(new RoyalButton(layout.contentX(), layout.footerY(), 100, 20,
+        int footerWidth=(layout.contentWidth()-12)/3;
+        int refreshWidth=Math.min(100,footerWidth);
+        refresh = addRenderableWidget(new RoyalButton(layout.contentX(), layout.footerY(), refreshWidth, 20,
                 text("refresh"), button -> ClientOverviewController.request(), text("refresh.help")));
-        addRenderableWidget(new RoyalButton(layout.contentX() + 106, layout.footerY(), 90, 20,
+        addRenderableWidget(new RoyalButton(layout.contentX() + refreshWidth+6, layout.footerY(), Math.min(90,footerWidth), 20,
                 Component.literal("Contribute"), button -> com.mohymods.kingdomsmp.client.ContributionController.open(),
                 Component.literal("Donate resources and inspect the kingdom leaderboard.")));
         addRenderableWidget(new RoyalButton(layout.x() + layout.width() - 94, layout.footerY(), 80, 20,

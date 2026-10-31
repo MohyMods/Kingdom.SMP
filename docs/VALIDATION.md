@@ -1,5 +1,9 @@
 # Validation checkpoint — 2026-10-30
 
+## 2026-10-31 — Lodge server lifecycle checkpoint
+
+Version 0.3.0-dev / protocol 3. Executed the full Gradle build: **118 JUnit tests, zero failures/errors/skips**. The native-server lifecycle passes **all 1 required GameTests**, now including winner-only/full-inventory/old-copy plan claim and recovery, permission loss, superseded/stale/blocked approvals, one redemption, Aldric proximity, one block per step, protection cancellation and rollback, active break protection, native journal reload, obstruction/missing-prefix refusal, inspected resume, all furnished blocks and one persistent Reeve, damage/death refusal, unloaded work without chunk loading and a delayed neighbor-update check. Direct test-fixture work steps accelerate the full build; production cadence is one block per ten ticks. Real client rendering, actual Aldric travel, live client/admin interaction and full native world restart remain pending for this new slice.
+
 ## 2026-10-31 — Reconnected workspace and reproducible build
 
 Recovered the existing workspace without replacing source or worlds. The saved tested JAR has SHA-256 `67eedb7cf5e56e4ef0c1d42a2d49490d99eb2aabaef20b1951eb9032ac2ec9e9`. A forced full build (`build --rerun-tasks --no-build-cache`) executed all nine tasks successfully, including **108 JUnit tests with zero failures/errors/skips**, and reproduced that exact JAR checksum. Earlier physical-client/two-client screenshots and server logs remain intact. The completed normal server stop passed before the interruption; the later multiplayer restart loaded revision 2, but no subsequent two-client rejoin is claimed. Old QA processes were stopped after reconnection.

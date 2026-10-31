@@ -71,6 +71,8 @@ public final class BuilderDialogueScreen extends Screen {
         readingHeight = layout.footerY() - 10 - readingY;
         back = addRenderableWidget(new RoyalButton(layout.contentX(), layout.footerY(), 72, 20,
                 text("Back"), button -> BuilderDialogueController.request(0), text("Return to the greeting.")));
+        addRenderableWidget(new RoyalButton(layout.contentX()+78,layout.footerY(),96,20,text("Construction"),
+                button->com.mohymods.kingdomsmp.client.ConstructionController.open(),text("Open the actual blueprint and construction service.")));
         addRenderableWidget(new RoyalButton(layout.x() + layout.width() - 90, layout.footerY(), 76, 20,
                 text("Leave"), button -> onClose(), text("End this conversation.")));
     }
@@ -105,10 +107,10 @@ public final class BuilderDialogueScreen extends Screen {
         for (RoyalButton topic : topics) topic.active = !waiting;
         back.active = !waiting && snapshot.topic() != 0;
         if (!BuilderDialogueController.status().getString().isEmpty()) {
-            int statusX = layout.contentX() + 80;
-            int statusWidth = layout.contentWidth() - 164;
+            int statusX = layout.contentX();
+            int statusWidth = layout.contentWidth();
             String status = font.plainSubstrByWidth(BuilderDialogueController.status().getString(), statusWidth);
-            graphics.drawString(font, status, statusX, layout.footerY() + 6, RoyalPalette.MUTED, false);
+            graphics.drawString(font, status, statusX, layout.footerY() - 12, RoyalPalette.MUTED, false);
         }
         super.render(graphics, mouseX, mouseY, partialTick);
     }
@@ -179,12 +181,12 @@ public final class BuilderDialogueScreen extends Screen {
                     text("The highest contributor earns the exclusive Founders’ Lodge construction privilege. Materials are included; the completed hall belongs to the kingdom."),
                     text("Shared milestone: 1,024 logs • 2,048 cobblestone • 512 wheat • 128 iron ingots."),
                     text("Each category has equal weight. Ties go to the first player to reach the tied score."),
-                    text("Founders’ Lodge plans are being prepared. The ultimate Town Hall is reserved for Tier 12."));
+                    text("Open Construction below to claim or recover the winning plan, propose a site and follow Aldric's work. Administrator site approval is required. Town Hall remains Tier 12."));
             case 2 -> List.of(text("CURRENT WORK"), text(snapshot.status()),
-                    text("The hut is my home and workshop. No building project is currently assigned."));
+                    text("The hut is my home and workshop. Construction shows the actual project and any pause reason."));
             case 3 -> List.of(text("BUILD TIME"), text(snapshot.status()),
-                    text("Good work takes the time it takes. There is no active construction schedule to estimate yet."),
-                    text("Ask me again when a building project has been assigned."));
+                    text("I set one block every half second when the site is loaded, clear and within reach of my work post."),
+                    text("Travel, blocked paths, damage and unloaded chunks pause the schedule. Construction shows the actual placed-block count."));
             case 4 -> List.of(text(snapshot.name() + " • MASTER BUILDER"),
                     text("I've spent enough winters setting stone to know that a straight wall begins with a sound foundation."),
                     text("Bring patience, a clear site, and respect for the craft. We'll give this kingdom buildings worth keeping."));

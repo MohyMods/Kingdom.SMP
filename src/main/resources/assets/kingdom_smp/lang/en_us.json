@@ -40,5 +40,7 @@
   "kingdomsmp.screen.shared.progress": "First Hearth · saved shared contributions: logs %s / 1,024; cobblestone %s / 2,048; wheat %s / 512; iron ingots %s / 128.",
   "kingdomsmp.screen.personal.score": "Your First Hearth weighted contribution: %s / 2,048 points (exact fraction).",
   "kingdomsmp.screen.gate.founders_lodge": "Completing The First Hearth advances the kingdom to Tier 2. Highest contributor earns the Founders’ Lodge construction privilege, with included materials.",
-  "kingdomsmp.screen.tier.ultimate_hall": "Ultimate Town Hall"
+  "kingdomsmp.screen.tier.ultimate_hall": "Ultimate Town Hall",
+  "item.kingdom_smp.founders_lodge_blueprint": "Founders' Lodge Construction Blueprint",
+  "entity.kingdom_smp.reeve": "Reeve"
 }

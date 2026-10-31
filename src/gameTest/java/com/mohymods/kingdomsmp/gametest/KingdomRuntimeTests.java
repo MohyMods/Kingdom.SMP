@@ -9,6 +9,11 @@ import net.minecraft.world.level.GameType;
 
 import com.mohymods.kingdomsmp.building.BuilderHutBlueprint;
 import com.mohymods.kingdomsmp.building.BuilderHutService;
+import com.mohymods.kingdomsmp.building.ConstructionService;
+import com.mohymods.kingdomsmp.building.BlueprintRegistry;
+import com.mohymods.kingdomsmp.persistence.ConstructionStore;
+import com.mohymods.kingdomsmp.persistence.ConstructionStore.Phase;
+import com.mohymods.kingdomsmp.npc.ReeveEntity;
 import com.mohymods.kingdomsmp.kingdom.KingdomState;
 import com.mohymods.kingdomsmp.npc.AldricEntity;
 import com.mohymods.kingdomsmp.npc.KingdomNpcs;
@@ -155,11 +160,15 @@ public final class KingdomRuntimeTests {
         restoredEntity.load(entityTag);
         helper.assertTrue(restoredEntity.getUUID().equals(builder.getUUID()) && restoredEntity.hutId().equals(hut.id())
                 && restoredEntity.home().equals(builder.home()), "Entity serialization preserves registered identity/home");
+        contributionLifecycle(helper, operator, otherOperator);
+        constructionLifecycle(helper,operator,otherOperator,builder,origin);
         builder.hurt(level.damageSources().genericKill(), Float.MAX_VALUE);
         helper.assertTrue(data.hut().orElseThrow().npcDead(), "Death is persisted and cannot reissue a builder");
         helper.assertTrue(!BuilderHutService.canInteract(operator, restoredEntity), "Restored entity cannot bypass persisted death");
-        contributionLifecycle(helper, operator, otherOperator);
-        helper.succeed();
+        helper.runAfterDelay(30,()->{
+            helper.assertTrue(ConstructionService.structureIntact(level,ConstructionService.lodge(server)),"Furnished Lodge remains intact after scheduled neighbor updates");
+            helper.succeed();
+        });
     }
 
     private static void contributionLifecycle(GameTestHelper helper, RecordingPlayer alice, RecordingPlayer bob) throws Exception {
@@ -250,6 +259,88 @@ public final class KingdomRuntimeTests {
         ContributionService.login(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent(alice));
         helper.assertTrue(ContributionService.eligible(alice, Resource.LOGS) == 0, "Stale integrated-host inventory reconciles from durable native checkpoint");
     }
+    private static void constructionLifecycle(GameTestHelper helper,RecordingPlayer alice,RecordingPlayer bob,AldricEntity builder,BlockPos hutOrigin) throws Exception {
+        ServerLevel level=helper.getLevel();var server=level.getServer();ConstructionService.initialize(server);
+        var awarded=ConstructionService.lodge(server);
+        helper.assertTrue(awarded.owner().equals(alice.getUUID())&&awarded.phase()==Phase.AVAILABLE,"Permanent winner owns one available Lodge entitlement");
+        try{ConstructionService.review(bob,1);helper.fail("Other player claimed winner's blueprint");}catch(IllegalStateException expected){ }
+        for(int i=0;i<36;i++)alice.getInventory().setItem(i,new ItemStack(Items.STONE,64));
+        try{ConstructionService.review(alice,1);helper.fail("Full inventory accepted a claim");}catch(IllegalStateException expected){ }
+        helper.assertTrue(ConstructionService.lodge(server).token()==null,"Full-inventory failure leaves entitlement untouched");
+        alice.getInventory().clearContent();var claim=ConstructionService.review(alice,1);
+        try{ConstructionService.confirm(bob,claim.nonce(),2);helper.fail("Copied blueprint claim nonce accepted");}catch(IllegalStateException expected){ }
+        ConstructionService.confirm(alice,claim.nonce(),2);var claimed=ConstructionService.lodge(server);
+        helper.assertTrue(ConstructionService.hasPlan(alice,claimed),"Authenticated physical plan delivered");
+        ItemStack oldPlan=alice.getInventory().getItem(0).copy();UUID oldToken=claimed.token();
+        var recovery=ConstructionService.review(alice,1);ConstructionService.confirm(alice,recovery.nonce(),2);
+        var recovered=ConstructionService.lodge(server);ItemStack currentPlan=alice.getInventory().getItem(0).copy();
+        helper.assertTrue(!oldToken.equals(recovered.token()),"Recovery durably invalidates the previous generation");
+        alice.getInventory().setItem(0,oldPlan);
+        helper.assertTrue(!ConstructionService.hasPlan(alice,recovered),"Restored old item has no entitlement authority");
+        alice.getInventory().setItem(0,currentPlan);
+        BlockPos origin=hutOrigin.offset(20,0,0);
+        // Explicit fixture preparation, distinct from the engine: no production chunk tickets.
+        for(BlockPos pos:BlockPos.betweenClosed(hutOrigin.offset(-3,-1,-3),origin.offset(20,-1,20)))level.setBlock(pos,Blocks.STONE.defaultBlockState(),18);
+        alice.moveTo(origin.getX()-2,origin.getY()+1,origin.getZ());bob.moveTo(origin.getX()-3,origin.getY()+1,origin.getZ());
+        for(Rotation rotation:Rotation.values()){
+            var preview=ConstructionService.preview(alice,origin,rotation);helper.assertTrue(preview.denial().isEmpty(),"Clear rotated Lodge footprint accepted: "+rotation+" "+preview.denial());
+        }
+        BlockPos far=new BlockPos(24_000_000,80,24_000_000);
+        helper.assertTrue(!level.hasChunkAt(far),"Distant test chunk starts unloaded");
+        var distant=recovered.propose(far,Rotation.NONE);
+        helper.assertTrue(ConstructionService.validateSite(level,distant,false).contains("loaded")&&!level.hasChunkAt(far),"Unloaded site refused without loading it");
+        ConstructionService.preview(alice,origin,Rotation.NONE);var siteReview=ConstructionService.view(alice,1,false,"").review();
+        level.setBlock(origin.above(),Blocks.CHEST.defaultBlockState(),18);
+        try{ConstructionService.confirm(alice,siteReview,4);helper.fail("Stale obstructed proposal accepted");}catch(IllegalStateException expected){ }
+        helper.assertTrue(ConstructionService.lodge(server).phase()==Phase.CLAIMED,"Failed proposal consumes no entitlement");
+        level.setBlock(origin.above(),Blocks.AIR.defaultBlockState(),18);
+        ConstructionService.preview(alice,origin,Rotation.NONE);siteReview=ConstructionService.view(alice,2,false,"").review();ConstructionService.confirm(alice,siteReview,4);
+        try{ConstructionService.review(bob,5);helper.fail("Unprivileged site approval accepted");}catch(IllegalStateException expected){ }
+        bob.administrator=true;var approval=ConstructionService.review(bob,5);bob.administrator=false;
+        try{ConstructionService.confirm(bob,approval.nonce(),6);helper.fail("Lost administrator permission bypassed");}catch(IllegalStateException expected){ }
+        bob.administrator=true;approval=ConstructionService.review(bob,5);
+        ConstructionService.preview(alice,origin,Rotation.NONE);ConstructionService.confirm(alice,ConstructionService.view(alice,3,false,"").review(),4);
+        try{ConstructionService.confirm(bob,approval.nonce(),6);helper.fail("Superseded proposal approval accepted");}catch(IllegalStateException expected){ }
+        approval=ConstructionService.review(bob,5);ConstructionService.confirm(bob,approval.nonce(),6);
+        var start=ConstructionService.review(alice,7);level.setBlock(origin.above(),Blocks.CHEST.defaultBlockState(),18);
+        try{ConstructionService.confirm(alice,start.nonce(),8);helper.fail("Stale blocked redemption accepted");}catch(IllegalStateException expected){ }
+        helper.assertTrue(ConstructionService.hasPlan(alice,ConstructionService.lodge(server)),"Failed redemption retains current plan");
+        level.setBlock(origin.above(),Blocks.AIR.defaultBlockState(),18);start=ConstructionService.review(alice,7);ConstructionService.confirm(alice,start.nonce(),8);
+        var p=ConstructionService.lodge(server);helper.assertTrue(p.phase()==Phase.BUILDING&&p.token()==null&&alice.getInventory().getItem(0).isEmpty(),"Reservation and token revocation precede physical plan removal");
+        try{ConstructionService.confirm(alice,start.nonce(),8);helper.fail("Construction redemption replayed");}catch(IllegalStateException expected){ }
+        try{ConstructionService.review(alice,1);helper.fail("Redeemed privilege recovered again");}catch(IllegalStateException expected){ }
+        alice.getInventory().setItem(0,currentPlan);helper.assertTrue(!ConstructionService.hasPlan(alice,p),"Lagging restored physical plan cannot redeem again");alice.getInventory().clearContent();
+        ConstructionService.step(server,p.id());helper.assertTrue(ConstructionService.lodge(server).placed()==0,"No remote block work before Aldric reaches his work post");
+        BlockPos post=BlueprintRegistry.lodge().workPost(p.origin(),p.rotation());builder.moveTo(post.getX()+0.5,post.getY(),post.getZ()+0.5);
+        Consumer<BlockEvent.EntityMultiPlaceEvent> denied=e->{if(e.getEntity()==builder)e.setCanceled(true);};NeoForge.EVENT_BUS.addListener(denied);
+        try{ConstructionService.step(server,p.id());}finally{NeoForge.EVENT_BUS.unregister(denied);}
+        helper.assertTrue(ConstructionService.lodge(server).placed()==0&&level.getBlockState(origin).isAir(),"Protection cancellation rolls back and grants no progress");
+        ConstructionService.step(server,p.id());helper.assertTrue(ConstructionService.lodge(server).placed()==1,"One scheduler step places exactly one physical block");
+        helper.assertTrue(NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level,origin,level.getBlockState(origin),bob)).isCanceled(),"Active construction denies block extraction");
+        ConstructionService.initialize(server);p=ConstructionService.lodge(server);helper.assertTrue(p.placed()==1,"Native construction restart retains exact project and progress");
+        var blocks=BlueprintRegistry.lodge().blocks(p.rotation());BlockPos next=p.origin().offset(blocks.get(1).offset());
+        level.setBlock(next,Blocks.CHEST.defaultBlockState(),18);ConstructionService.step(server,p.id());
+        helper.assertTrue(ConstructionService.lodge(server).placed()==1&&level.getBlockState(next).is(Blocks.CHEST),"Player edits preserved and construction paused");
+        level.setBlock(next,Blocks.AIR.defaultBlockState(),18);level.setBlock(origin,Blocks.AIR.defaultBlockState(),18);ConstructionService.initialize(server);ConstructionService.step(server,p.id());
+        helper.assertTrue(ConstructionService.lodge(server).placed()==1&&level.getBlockState(origin).isAir(),"Missing credited materials are never automatically regenerated");
+        level.setBlock(origin,blocks.getFirst().state(),18);var resume=ConstructionService.review(bob,9);ConstructionService.confirm(bob,resume.nonce(),10);
+        for(int i=1;i<=blocks.size()+1;i++)ConstructionService.step(server,p.id());
+        var complete=ConstructionService.lodge(server);helper.assertTrue(complete.phase()==Phase.COMPLETE,"Full native progressive construction completes");
+        helper.assertTrue(ConstructionService.structureIntact(level,complete),"Furnished Lodge passes required-block verification after neighbor updates");
+        ReeveEntity reeve=(ReeveEntity)level.getEntity(complete.npc());helper.assertTrue(reeve!=null&&ConstructionService.registeredReeve(reeve),"Exactly one named registered Reeve arrives after completion");
+        helper.assertTrue(reeve.getName().getString().equals("Mira Ashford"),"Original Reeve name present");
+        ConstructionService.step(server,p.id());ConstructionService.initialize(server);
+        helper.assertTrue(ConstructionService.lodge(server).npc().equals(reeve.getUUID())&&ConstructionService.lodge(server).phase()==Phase.COMPLETE,"Completed building and stable NPC identity survive reload");
+        var saved=reeve.saveWithoutId(new CompoundTag());var copy=KingdomNpcs.REEVE.get().create(level);copy.load(saved);
+        helper.assertTrue(copy.getUUID().equals(reeve.getUUID())&&copy.buildingId().equals(complete.id())&&copy.home().equals(reeve.home()),"Reeve native entity persistence retains identity and home");
+        level.setBlock(origin,Blocks.AIR.defaultBlockState(),18);helper.assertTrue(!ConstructionService.structureIntact(level,complete),"Building damage suspends Reeve services");level.setBlock(origin,blocks.getFirst().state(),18);
+        reeve.hurt(level.damageSources().genericKill(),Float.MAX_VALUE);ConstructionService.initialize(server);
+        helper.assertTrue(ConstructionService.lodge(server).npcDead()&&!ConstructionService.registeredReeve(copy),"Persisted Reeve death refuses restored copies or automatic replacement");
+        var unloaded=new ConstructionStore.Project(UUID.randomUUID(),"unloaded_test",complete.blueprint(),1,alice.getUUID(),"RuntimeOperator",Phase.BUILDING,null,far,Rotation.NONE,UUID.randomUUID(),bob.getUUID(),0,UUID.randomUUID(),false,false);
+        ConstructionService.store(server).save(unloaded,bob.getUUID(),"TEST_UNLOADED_FIXTURE");ConstructionService.step(server,unloaded.id());
+        helper.assertTrue(!level.hasChunkAt(far)&&ConstructionService.store(server).get(unloaded.id()).placed()==0,"Unloaded work pauses without creating chunk tickets or progress");
+    }
+
     private static void give(RecordingPlayer player, Item item, int count) {
         player.getInventory().clearContent();
         for (int slot = 0; count > 0; slot++) { int size = Math.min(64, count); player.getInventory().setItem(slot, new ItemStack(item, size)); count -= size; }
@@ -257,7 +348,9 @@ public final class KingdomRuntimeTests {
 
     private static final class RecordingPlayer extends FakePlayer {
         private final List<Component> messages = new ArrayList<>();
+        private boolean administrator;
         RecordingPlayer(ServerLevel level) { super(level, new GameProfile(UUID.randomUUID(), "RuntimeOperator")); }
+        @Override public boolean hasPermissions(int level){return administrator&&level<=2;}
         @Override public void sendSystemMessage(Component message) { messages.add(message.copy()); }
         String confirmationCommand() {
             var pattern = Pattern.compile("/kingdom hut confirm [a-f0-9-]{36}");

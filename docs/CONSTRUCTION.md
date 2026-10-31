@@ -8,7 +8,7 @@ An administrator installs the original furnished timber/stone Builder’s Hut. I
 
 ## Reusable blueprint engine
 
-Use stable blueprint IDs, versioned footprint/required-block definitions, supported rotations, preview data and an ordered build sequence. Make buildings progressively larger and more impressive as approved tiers unlock them. The winner chooses a location under the approved land/protection policy; absence of an adapter is not permission to bypass protection. Public placement policy is being clarified before enabling construction.
+Use stable blueprint IDs, versioned footprint/required-block definitions, supported rotations, preview data and an ordered build sequence. Make buildings progressively larger and more impressive as approved tiers unlock them. The winner chooses a location under the approved land/protection policy; absence of an adapter is not permission to bypass protection. D-019 authorizes winner-proposed clear supported Overworld sites, exact-footprint administrator approval and no property destruction. Initial construction never alters terrain; prepare supported clear ground separately.
 
 Flow: inspect catalogue/entitlement → transparent preview and footprint/rotation → server validation → exact-site confirmation → persistent site/entitlement reservation → progressive Aldric work → required-block verification → completed building registration and assigned NPC.
 

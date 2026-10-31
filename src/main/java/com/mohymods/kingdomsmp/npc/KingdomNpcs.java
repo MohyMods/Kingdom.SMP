@@ -18,6 +18,9 @@ public final class KingdomNpcs {
             "aldric", () -> EntityType.Builder.of(AldricEntity::new, MobCategory.MISC)
                     .sized(0.6F, 1.95F).clientTrackingRange(8).noSummon()
                     .build(KingdomSmp.MOD_ID + ":aldric"));
+    public static final DeferredHolder<EntityType<?>, EntityType<ReeveEntity>> REEVE = TYPES.register(
+            "reeve", () -> EntityType.Builder.of(ReeveEntity::new, MobCategory.MISC)
+                    .sized(0.6F,1.95F).clientTrackingRange(8).noSummon().build(KingdomSmp.MOD_ID+":reeve"));
 
     private KingdomNpcs() {}
 
@@ -28,5 +31,6 @@ public final class KingdomNpcs {
 
     private static void attributes(EntityAttributeCreationEvent event) {
         event.put(ALDRIC.get(), Villager.createAttributes().build());
+        event.put(REEVE.get(), Villager.createAttributes().build());
     }
 }

@@ -1,5 +1,13 @@
 # Development log
 
+## 2026-10-31 — Founders’ Lodge construction server checkpoint
+
+Applied the user's complete-project directive and D-019 administrator-approved placement policy. Added permanent master completion/continuation trackers with all 12 tiers, 12 professions and 288 unapproved quest slots, plus economy/integration/admin/UI dependencies and explicit acceptance. Existing 0.2.0 persistence and tested code are preserved.
+
+Implemented immutable versioned original Lodge definitions/rotations, durable reward/project/NPC journal and private audit, noncraftable authenticated plan claim/recovery, copied/old-token invalidation, reviewed owner proposal/admin approval/one-use redemption, bounded progressive physical placements, protection events and reservations, conservative missing-prefix recovery, actual Aldric work assignment/door travel support and a named registered Reeve, Mira Ashford. Added connected Royal Gilded construction/project/admin screens, footprint overlay, existing overview/catalogue navigation and real milestone/kingdom service routes. No bank/trading/Charter or early Town Hall grant. Safe ordinary engineering policies are recorded in FOUNDERS_LODGE_IMPLEMENTATION.md; missing NPC resurrection/destructive repair remain explicit limits.
+
+Full build passes 118 JUnit tests. Expanded native lifecycle passes against actual blocks/entities/commands/NBT and delayed neighbor updates. The first build exposed a client entity-lookup API mismatch, corrected to the actual client entity iterable. Current code is server-tested; actual new UI/client travel/world-restart verification is next. Do not mark the whole Lodge or project complete from these results alone.
+
 ## 2026-10-31 — Recovered contribution checkpoint
 
 Source commit `7e9968a` has now been published to `rebuild/royal-gilded` through the authenticated GitHub API. Remote blob, tree and commit hashes matched the local objects exactly before a guarded fast-forward. The following artifact-only commit packages the installable JAR, real screenshots, SHA-256 checksums and validation evidence under `docs/checkpoints/7e9968a/`; it does not change compiled source.

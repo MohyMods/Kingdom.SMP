@@ -35,7 +35,8 @@ public final class KingdomNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("2");
+        var registrar = event.registrar("3");
+        ConstructionNetworking.register(registrar);
         ContributionNetworking.register(registrar);
         registrar.playToServer(RequestBuilderDialoguePayload.TYPE, RequestBuilderDialoguePayload.STREAM_CODEC,
                 (payload, context) -> {

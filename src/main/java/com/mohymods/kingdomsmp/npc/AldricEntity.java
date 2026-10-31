@@ -1,6 +1,7 @@
 package com.mohymods.kingdomsmp.npc;
 
 import com.mohymods.kingdomsmp.building.BuilderHutService;
+import com.mohymods.kingdomsmp.building.ConstructionService;
 import com.mohymods.kingdomsmp.persistence.BuilderHutSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +15,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
@@ -37,6 +40,7 @@ public final class AldricEntity extends Villager {
         setPersistenceRequired();
         setCanPickUpLoot(false);
         setVillagerData(new VillagerData(VillagerType.PLAINS, VillagerProfession.MASON, 1));
+        if(getNavigation() instanceof GroundPathNavigation navigation)navigation.setCanOpenDoors(true);
     }
 
     public void configure(UUID buildingId, BlockPos home, String name) {
@@ -54,6 +58,7 @@ public final class AldricEntity extends Villager {
     @Override
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(1,new OpenDoorGoal(this,true));
         goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
         goalSelector.addGoal(3, new RandomLookAroundGoal(this));
     }
@@ -62,7 +67,7 @@ public final class AldricEntity extends Villager {
     protected void customServerAiStep() {
         // Deliberately replace the vanilla trading/POI brain. The tiny routine
         // paths only through already loaded hut context and never teleports.
-        if (tickCount % 100 != 0 || !(level() instanceof ServerLevel level)) return;
+        if (tickCount % 40 != 0 || !(level() instanceof ServerLevel level)) return;
         if (!BuilderHutService.isRegistered(this)) {
             getNavigation().stop();
             routineStatus = "Home association unavailable; routine paused.";
@@ -75,15 +80,27 @@ public final class AldricEntity extends Villager {
             routineStatus = "Hut damaged or unloaded; routine paused.";
             return;
         }
-        BlockPos target = level.isNight() ? home : home.offset(0, 0, -1);
+        BlockPos assigned = ConstructionService.workTarget(this);
+        BlockPos target = assigned != null ? assigned : level.isNight() ? home : home.offset(0, 0, -1);
+        restrictTo(assigned != null ? assigned : home,4);
+        if(assigned!=null&&!level.hasChunkAt(assigned)){
+            getNavigation().stop();routineStatus="Construction site unloaded; travel paused.";return;
+        }
+        // Bound every route search even when an administrator approves a distant site.
+        double dx=target.getX()+0.5-getX(),dz=target.getZ()+0.5-getZ(),length=Math.sqrt(dx*dx+dz*dz);
+        if(assigned!=null&&length>24)target=BlockPos.containing(getX()+dx*24/length,getY(),getZ()+dz*24/length);
         if (!level.hasChunkAt(target) || !level.hasChunkAt(blockPosition())) {
             getNavigation().stop();
             routineStatus = "Home chunk unavailable; routine paused.";
             return;
         }
+        // The navigation search must not acquire unloaded context along the route.
+        for(int x=(Math.min(blockPosition().getX(),target.getX())-16)>>4;x<=(Math.max(blockPosition().getX(),target.getX())+16)>>4;x++)
+            for(int z=(Math.min(blockPosition().getZ(),target.getZ())-16)>>4;z<=(Math.max(blockPosition().getZ(),target.getZ())+16)>>4;z++)
+                if(!level.hasChunk(x,z)){getNavigation().stop();routineStatus="Route chunk unloaded; construction travel paused.";return;}
         if (distanceToSqr(target.getX() + 0.5, target.getY(), target.getZ() + 0.5) < 1.0) {
             getNavigation().stop();
-            routineStatus = level.isNight() ? "Resting at the hut; no construction assigned."
+            routineStatus = assigned != null ? "Working at the approved construction site." : level.isNight() ? "Resting at the hut; no construction assigned."
                     : "At the workbench; no construction assigned.";
             return;
         }
@@ -93,7 +110,7 @@ public final class AldricEntity extends Villager {
             routineStatus = "Path to home is blocked; routine paused.";
         } else {
             getNavigation().moveTo(path, 0.5);
-            routineStatus = level.isNight() ? "Returning to the hut for the night."
+            routineStatus = assigned != null ? "Walking to the approved construction work post." : level.isNight() ? "Returning to the hut for the night."
                     : "Walking to the work area.";
         }
     }

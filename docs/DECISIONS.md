@@ -92,3 +92,7 @@ Intermediate-location proposals only: Royal Storehouse for community storage wit
 ## 2026-10-30 — D-018, approved Tier 2 Founders’ Lodge
 
 The user selected the furnished Founders’ Lodge meeting/milestone building, a named Reeve, included materials and no additional service unlocks. First Hearth’s permanent winner earns this exclusive construction privilege. This resolves the Tier 2 reward identity; public site/protection policy is being clarified separately before enabling placement. Elara and the ultimate Town Hall remain Tier 12.
+
+## 2026-10-31 — D-019, administrator-approved Lodge placement
+
+The complete-project directive authorizes the initial construction policy: the winning player proposes a clear supported Overworld site; an administrator reviews the exact footprint and approves before work begins. No existing player property may be destroyed. Initial implementation performs no terrain changes; a site requiring them is denied, so permission is never inferred. This resolves Q-22 for the initial safe policy while specific external protection-mod compatibility remains unverified. Preserve D-018 reward scope, D-017 Hall at Tier 12 and all existing persistence/security. Maintain MASTER_COMPLETION_TRACKER.md and CODEX_CONTINUATION.md. Independent completion of sufficiently specified systems is authorized; missing balance/content is proposed separately.
