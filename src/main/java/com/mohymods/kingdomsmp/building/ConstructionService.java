@@ -363,7 +363,7 @@ public final class ConstructionService {
             }else if(!p.id().equals(((ReeveEntity)existing).buildingId())){pause(p,"Reeve identity association mismatch.");return;}
             store.save(p.complete(),p.owner(),"COMPLETE_LODGE");
             for(var b:BlueprintRegistry.get(p.blueprint(),p.blueprintVersion()).blocks(p.rotation()))level.updateNeighborsAt(p.origin().offset(b.offset()),b.state().getBlock());
-            level.getServer().getPlayerList().broadcastSystemMessage(Component.literal("The Founders' Lodge is complete! Mira Ashford, the Reeve, welcomes the kingdom. Town Hall remains Tier 12."),false);
+            level.getServer().getPlayerList().broadcastSystemMessage(Component.literal("The Founders' Lodge is complete! Mira Ashford, the Reeve, welcomes the kingdom."),false);
             pause(p,"Lodge complete. Mira Ashford records community milestones; no bank, trading or Charter service was unlocked.");
         }catch(IOException|RuntimeException error){pause(p,"Completion interrupted; identity/reservation retained for recovery.");LogUtils.getLogger().error("Lodge completion interrupted",error);}
     }

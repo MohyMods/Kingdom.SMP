@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-31 — Physical QA, waypoint recovery and vanilla End correction
+
+Actual whole Lodge/roof hologram, rotation, height invalidation/highlights, natural right-click review, legacy approval and one-time redemption ran in a copied fixture. Found/fixed raised-Hut intermediate-waypoint height on routes >24 blocks using loaded supported cells only; no teleport or terrain edits. Added native regression coverage. Corrected vanilla End boundary to12 and retired stale Hall labels; no historical record changes. Automatic approval review rejected a proposed unapproved catalogue resource/reward rebase; it was not executed. Inactive catalogue values were preserved and labeled historical drafts. Final build142 and native lifecycle pass. Actual full-pack claim adapters and other Phase B features remain incomplete.
+
 ## 2026-10-31 — D-023 implementation resumes; reported full pack replaces prior snapshot
 
 Audited existing verified source and new master directive. Archived exact directive and supplied full mod list, recorded every reported mod/version separately from compatibility verification, and created explicit supersession/implementation matrix. Began connected held-Lodge hologram: natural targeting, remappable rotate/height controls, amber pending/green server-valid/red blocked geometry, whole-model/roof rendering, bounded collision/support markers and existing Royal Gilded review. Read-only rate-limited server probes verify current held entitlement and do not replace a GUI review or edit world blocks. Foreign FTB Chunks/OPAC permissions fail closed until adapters are verified. Full build 142 JUnit tests and expanded native lifecycle pass; actual client verification remains in progress. Other Phase B features are still incomplete; no new-world Hall/market/economy or mod integration claim.

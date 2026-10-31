@@ -88,7 +88,11 @@ public final class AldricEntity extends Villager {
         }
         // Bound every route search even when an administrator approves a distant site.
         double dx=target.getX()+0.5-getX(),dz=target.getZ()+0.5-getZ(),length=Math.sqrt(dx*dx+dz*dz);
-        if(assigned!=null&&length>24)target=BlockPos.containing(getX()+dx*24/length,getY(),getZ()+dz*24/length);
+        if(assigned!=null&&length>24){
+            BlockPos estimate=BlockPos.containing(getX()+dx*24/length,getY(),getZ()+dz*24/length);
+            target=com.mohymods.kingdomsmp.building.ConstructionRoute.supportedWaypoint(level,estimate);
+            if(target==null){getNavigation().stop();routineStatus="Next loaded route waypoint is unsupported or obstructed; travel paused.";return;}
+        }
         if (!level.hasChunkAt(target) || !level.hasChunkAt(blockPosition())) {
             getNavigation().stop();
             routineStatus = "Home chunk unavailable; routine paused.";

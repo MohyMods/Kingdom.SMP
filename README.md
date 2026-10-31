@@ -4,7 +4,9 @@
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 
-**Latest design update (D-021):** future Tier 1 completion awards a **19 × 15, two-floor Town Hall at Tier 2**, with physical blueprint items and full holographic placement. **Implementation is on hold for roadmap/plan/migration approval.** The existing JAR still runs the preserved Lodge-based gameplay below; no saves or rewards are automatically changed. [Updated design](docs/CONSTRUCTION.md) · [Implementation/migration plan for approval](docs/BLUEPRINT_IMPLEMENTATION_PLAN.md).
+**D-023 implementation resumed:** The master directive supersedes the review-only hold. Current 0.5.0-dev work adds a connected held-Lodge full hologram and vanilla End12 gate while preserving legacy data. New-world Hall/owner Hut/automatic foundations/marketplace are not complete. Both reported claim mods deliberately block site/work pending real adapters; full-pack compatibility is unverified. See docs/MASTER_SUPERSESSION_MATRIX.md.
+
+**Historical design update (D-021):** future Tier 1 completion awards a **19 × 15, two-floor Town Hall at Tier 2**, with physical blueprint items and full holographic placement. **Implementation is on hold for roadmap/plan/migration approval.** The existing JAR still runs the preserved Lodge-based gameplay below; no saves or rewards are automatically changed. [Updated design](docs/CONSTRUCTION.md) · [Implementation/migration plan for approval](docs/BLUEPRINT_IMPLEMENTATION_PLAN.md).
 
 **Latest dimension plan (D-022): End at Tier 12**, Aether 4, Nether 5, Twilight Forest 6, Otherside 8 and reviewed Ad Astra stages 10–11. Pre-12 requirements must have no End dependency; Dragon/End exploration follows the unlock, with Royal Legacy Monument proposed as the finale reward. [Schedule and dependency audit](docs/DIMENSION_PROGRESSION.md). **Planning only: the downloadable 0.4.0-dev JAR still uses End Tier 9 and does not enforce this new schedule.** No new code or requirements activated.
 
@@ -47,7 +49,7 @@ scripts/test-runtime.sh
 
 That JDK path is local to this instance; select an available full JDK on another machine. The launcher does not grant network access or disable TLS verification.
 
-The complete build passes **139 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
+The complete build passes **142 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
 
 ```sh
 scripts/gradle-cloud.sh runServer

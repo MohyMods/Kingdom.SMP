@@ -207,7 +207,7 @@ public final class KingdomOverviewScreen extends Screen {
         return text(switch (tier) {
             case 1, 2 -> "gate.founders_lodge";
             case 5 -> "gate.nether";
-            case 9 -> "gate.end";
+            case 9 -> "gate.waystones";
             case 12 -> "gate.town_hall";
             default -> "gate.unspecified";
         });

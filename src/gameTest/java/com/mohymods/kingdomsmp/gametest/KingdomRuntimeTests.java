@@ -288,6 +288,9 @@ public final class KingdomRuntimeTests {
         // Explicit fixture preparation, distinct from the engine: no production chunk tickets.
         for(BlockPos pos:BlockPos.betweenClosed(hutOrigin.offset(-3,-1,-3),origin.offset(20,-1,20)))level.setBlock(pos,Blocks.STONE.defaultBlockState(),18);
         alice.moveTo(origin.getX()-2,origin.getY()+1,origin.getZ());bob.moveTo(origin.getX()-3,origin.getY()+1,origin.getZ());
+        helper.assertTrue(com.mohymods.kingdomsmp.building.ConstructionRoute.supportedWaypoint(level,origin.above()).equals(origin),"A raised hut route finds supported lower ground instead of an unreachable air waypoint");
+        BlockPos unloadedWaypoint=new BlockPos(24_000_000,80,24_000_000);
+        helper.assertTrue(com.mohymods.kingdomsmp.building.ConstructionRoute.supportedWaypoint(level,unloadedWaypoint)==null&&!level.hasChunkAt(unloadedWaypoint),"Waypoint search refuses unloaded columns without acquiring chunks");
         for(Rotation rotation:Rotation.values()){
             var preview=ConstructionService.preview(alice,origin,rotation);helper.assertTrue(preview.denial().isEmpty(),"Clear rotated Lodge footprint accepted: "+rotation+" "+preview.denial());
         }

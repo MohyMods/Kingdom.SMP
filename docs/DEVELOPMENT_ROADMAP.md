@@ -40,3 +40,7 @@ Each future implementation checkpoint still requires builds, relevant tests, per
 ## D-022 review hold
 
 DIMENSION_PROGRESSION.md records the confirmed schedule, revised dependency graph, End-independent pre-12 path, Ad Astra/mod recipe and alternate-teleport audit blockers, post-unlock Dragon/End finale and proposed Royal Legacy Monument. The current binary remains End-9; new dimensions/End-12 enforcement are NOT STARTED. Actual mod recipes/compatibility are UNVERIFIED. No data migration, runtime tests or new resource activation in this documentation checkpoint. Review these dependencies and existing-player/finale credit policies before coding.
+
+## D-023 execution sequence — current
+
+Phase A audit/supersession and full replacement inventory are recorded in MASTER_SUPERSESSION_MATRIX and MOD_INTEGRATION_MATRIX.csv. Phase B has begun with a connected held-Lodge full model preview and read-only server probes; actual client full-model/rotation/unsupported-height/Royal Gilded review passed. Next: actual both-claim-system adapters, durable new/legacy world profiles, owner Hut item/bootstrap, new-world two-floor Hall, four-block foundations and automatic valid-site confirmation. Then early payment/Architect market → Bank/mailbox foundations → representative profession and Tier 3 services → aircraft/Waystones/dimension integrations → real FTB Quests/title chapters → full admin and end-to-end validation. Admin testing tools expand with each real feature. Current partial implementation is not the full Phase B or release.

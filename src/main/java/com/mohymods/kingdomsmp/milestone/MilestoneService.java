@@ -72,6 +72,7 @@ public final class MilestoneService {
     private static String describe(MinecraftServer server,Snapshot s,int tier){
         if(s.catalog()==null)return "Milestone requirements need administrator review. Saved history and rewards are unchanged; new donations are paused.";
         Milestone m=s.catalog().tier(tier);StringBuilder out=new StringBuilder();
+        if(tier>1)out.append("HISTORICAL DRAFT — NOT ACTIVE. Resource/reward bindings await the revised progression review. No new costs are accepted.\n");
         out.append(tier==1?"APPROVED · FIRST HEARTH":"PROPOSAL — NOT ENABLED").append("\n").append(m.title()).append(" · ").append(tier==12?"Tier 12 finale":"Tier "+tier+" → "+m.nextTier()).append('\n');
         var progress=ContributionService.ledger(server).progress();
         for(Requirement r:m.requirements()){
@@ -88,8 +89,8 @@ public final class MilestoneService {
         }
         out.append("Reward: ").append(switch(m.reward()){
             case "kingdom_smp:founders_lodge"->"Founders' Lodge Blueprint";
-            case "kingdom_smp:royal_storehouse"->"Royal Storehouse Blueprint";
-            case "kingdom_smp:town_hall"->"Ultimate Town Hall Blueprint (Tier 12; award policy pending)";
+            case "kingdom_smp:royal_storehouse"->"Retired Storehouse draft; no new-world award";
+            case "kingdom_smp:town_hall"->"Retired Hall reward draft; future Hall is Tier 2 under a new-world profile";
             default->"Awaiting approval";
         }).append('\n');
         if(tier>1)out.append("No donation, advancement, scoring or blueprint award is enabled for this proposal. Future scoring fairness awaits approval.\n");

@@ -7,7 +7,7 @@ class KingdomTravelRulesTest {
     @Test void approvedGateBoundariesHoldAtEveryKingdomTier(){
         for(int tier=1;tier<=12;tier++){
             assertEquals(tier>=5,KingdomTravelRules.allowed(tier,"minecraft:the_nether"));
-            assertEquals(tier>=9,KingdomTravelRules.allowed(tier,"minecraft:the_end"));
+            assertEquals(tier>=12,KingdomTravelRules.allowed(tier,"minecraft:the_end"));
             assertTrue(KingdomTravelRules.allowed(tier,"minecraft:overworld"));
         }
     }

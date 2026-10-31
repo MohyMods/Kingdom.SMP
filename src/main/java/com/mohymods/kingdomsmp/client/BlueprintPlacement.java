@@ -75,10 +75,11 @@ public final class BlueprintPlacement {
     }
     public static void hud(RenderGuiEvent.Post event){
         var c=Minecraft.getInstance();if(!active()||c.screen!=null||c.options.hideGui)return;
-        var g=event.getGuiGraphics();int y=c.getWindow().getGuiScaledHeight()-84,w=Math.min(510,c.getWindow().getGuiScaledWidth()-20);
+        var g=event.getGuiGraphics();int y=14,w=Math.min(510,c.getWindow().getGuiScaledWidth()-20);
         int color=!current()?0xFFE4B858:result.valid()?0xFF65E68A:0xFFFF7474;
         g.fill(6,y-5,Math.min(c.getWindow().getGuiScaledWidth()-6,w+16),y+74,0xDA171A22);
-        g.drawString(c.font,"Founders' Lodge · "+(current()?(result.valid()?"VALID":"BLOCKED"):"PENDING"),12,y,color,false);
+        g.fill(6,y-5,Math.min(c.getWindow().getGuiScaledWidth()-6,w+16),y-4,0xFFB99A5B);
+        g.drawString(c.font,"Founders' Lodge · "+new String[]{"North","East","South","West"}[rotation]+" · "+(current()?(result.valid()?"VALID":"BLOCKED"):"PENDING"),12,y,color,false);
         g.drawString(c.font,ROTATE.getTranslatedKeyMessage().getString()+" rotate · Shift reverse · "+UP.getTranslatedKeyMessage().getString()+" / "+DOWN.getTranslatedKeyMessage().getString()+" height "+height+" · Use: review",12,y+13,0xFFE6D1A4,false);
         String reason=current()?result.reason():"Aim at loaded ground; waiting for the server's site checks.";
         var lines=c.font.split(net.minecraft.network.chat.Component.literal(reason),w);for(int i=0;i<Math.min(3,lines.size());i++)g.drawString(c.font,lines.get(i),12,y+28+i*11,0xFFE8E4DA,false);

@@ -31,7 +31,7 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | Dependency graph and acquisition validation | TESTED | Fixed realm boundaries, source-tier availability, unknown refs, cycles/overlap; unverified mod/recipe/profession paths blocked |
 | Catalogue reload / First Hearth history compatibility | TESTED | Invalidate old offers; incompatible/corrupt definitions block new consumption; preserve existing recovery/history/winner |
 | Generalized live later-tier transaction/history/scoring adapter | IN DEVELOPMENT | Approved future scoring and pinned definitions; native interruption/receipt tests before any proposed consumption |
-| Royal Storehouse / Quartermaster / secure shared storage | BLOCKED — REQUIRES DECISION | Reward scope specified; costs/scoring, road evidence and storage access/capacity unresolved; one legitimate future entitlement |
+| Royal Storehouse legacy compatibility | NOT STARTED | D-023 removes new-world Storehouse implementation/awards; preserve historical records if encountered |
 | Generic building/NPC registry and safe recovery | IN DEVELOPMENT | Shared typed identity/assignments, verification, bounded routines, audited conservative recovery |
 | Future Tier 2 Town Hall and full physical-plan holograms | NOT STARTED | D-021 design specified; implementation and migration plan require approval first |
 | Legacy-world migration / initial Hut bootstrap | BLOCKED — REQUIRES DECISION | Preserve all existing identities/projects; approve profile/conversion/bootstrap rules before implementation |
@@ -151,3 +151,29 @@ CONSTRUCTION.md defines complete physical/holographic placement coverage. BLUEPR
 ## D-022 review hold
 
 DIMENSION_PROGRESSION.md records the confirmed schedule, revised dependency graph, End-independent pre-12 path, Ad Astra/mod recipe and alternate-teleport audit blockers, post-unlock Dragon/End finale and proposed Royal Legacy Monument. The current binary remains End-9; new dimensions/End-12 enforcement are NOT STARTED. Actual mod recipes/compatibility are UNVERIFIED. No data migration, runtime tests or new resource activation in this documentation checkpoint. Review these dependencies and existing-player/finale credit policies before coding.
+
+## D-023 active feature status (supersedes conflicting historical rows above)
+
+| Feature | Status | Exact scope / next acceptance |
+| --- | --- | --- |
+| Full replacement mod inventory | TESTED | Parsed all 278 reported entries; raw snapshot archived; actual artifact/API/pack compatibility remains unverified |
+| Held physical Lodge hologram / natural targeting | TESTED | Actual full-scale block models/roof, R rotations, height keys, green server-valid / red blocked / pending amber; connected Royal Gilded review |
+| Read-only probe authorization and diagnostics | TESTED | Native identity/copy/current-held checks, no review replacement, collision/support cell bounds; 142 JUnit tests/full native lifecycle |
+| FTB Chunks + OPAC permissions | IN DEVELOPMENT | Actual APIs/JARs must be verified; current safe behavior refuses site validation/work when either mod is present. No adapter compatibility claim |
+| New-world Town Hall vs existing Lodge profiles | NOT STARTED | New rule approved; versioned classification/pinning and safe legacy detection required before changing reward binding |
+| Owner Hut physical blueprint/bootstrap | NOT STARTED | Immediate bootstrap exception now approved; owner identity selection and durable single entitlement pending |
+| 19×15 two-floor Hall / Steward / services | NOT STARTED | Implement real structure and services incrementally; preserve Aldric/Mira and old projects |
+| Automatic validated site authorization | NOT STARTED | Legacy admin flow remains in this slice; new behavior must recheck full protection/support/reservations without client trust |
+| Four-block safe supports | NOT STARTED | Existing prepared-support checks preserved, not a working automatic foundation engine |
+| Architect first-buyer market / early payments | NOT STARTED | One primary entitlement; atomic charge/stock, reviewed individual 500–15k prices and pre-Bank funding/payment path |
+| Tier 3 Bank / transfers / mailboxes / auctions | NOT STARTED | Real transaction/escrow recovery and reviewed unresolved policies before consumption |
+| Bounty Hall / Fisherman's Wharf | NOT STARTED | Confirmed Tier 3 scope; proposed blueprint prices not final; actual service/contracts/economy tests required |
+| Royal Aerodrome / aircraft gates | NOT STARTED | Confirmed ≥6 AND completed building; per-aircraft schedule proposed; reported version is not a working adapter |
+| Vanilla End Tier 12 gate | TESTED | All-tier boundary unit checks and native pre-unlock transfer denial; no world/history rewrite. Third-party bypasses/legacy-inside handling not verified |
+| Waystones Tier 9 / other dimension routes | NOT STARTED | Reported versions only; actual adapters and metadata/recipe reconciliation pending. Inactive old catalogue remains historical, not active requirements |
+| Royal Legacy Monument | NOT STARTED | Confirmed capstone scope; exact geometry/award/participation and services pending |
+| FTB Quests synchronization | NOT STARTED | Now reported installed 2101.1.37; full loaded quest data/chapters/team/personal/security integration unverified |
+| Founder titles / chosen new NPC display names | NOT STARTED | Stable identities and no honorary permission elevation; preserve existing names |
+| Complete `/kingdom admin` sandbox/test suite | NOT STARTED | Existing real command subset documented; no fake admin controls or production-history resets |
+
+The new directive authorizes implementation; no review-only hold remains. Exact future prices, quest/XP definitions, economy edge policies and planet/type schedules are still unapproved where specified. Follow Phase B dependencies before expanding services.

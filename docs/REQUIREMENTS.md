@@ -108,3 +108,9 @@ Sources: S1, S2, and S3 in [overview](PROJECT_OVERVIEW.md). IDs are stable refer
 ## Evidence expected later
 
 Feature acceptance must include relevant unit/state-machine tests, in-game functional checks, two-client race/disconnect tests, and recovery tests where persistent mutations occur. Exact test plans belong to each reviewed phase; proposed examples appear in the subsystem specifications. These are future checks, not test results.
+
+## D-023 explicit replacements — current
+
+New-world Tier 1 winner gets Town Hall; existing worlds keep Lodge awards/projects. Owner Hut is free and established immediately through its physical plan before Aldric. Later building plans are Architect purchases with one primary entitlement per kingdom, first successful buyer only, reviewed 500–15,000 prices and payment available before Bank. New-world Royal Storehouse is removed; Royal Bank is separate at Tier 3 with money transfers. Routine valid-site placement needs no admin click; supports may extend safely four blocks without destructive work; claim ambiguity fails closed. Future differing NPC display names follow holder choice without changing entity identities.
+
+Bounty Hall and Fisherman's Wharf at Tier 3, Aerodrome at Tier 6 with completion AND tier aircraft gates, Waystones at 9, End at 12 and Legacy Monument are confirmed scope. Aircraft subtypes/prices/quests/economic quantities still need review where stated. Profession Master purchases occur at matching buildings; later rare/difficult resource scores weigh more than common ones without rewriting Tier 1. Full FTB Quests chapters/sync and real admin sandbox/reference are required; the replacement snapshot reports FTB Quests already installed, superseding its earlier absent status. No honorary founder title grants financial/admin powers. Exact canonical directive is archived in sources; use it over conflicting historical requirement rows.

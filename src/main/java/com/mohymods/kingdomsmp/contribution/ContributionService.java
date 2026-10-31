@@ -126,7 +126,7 @@ public final class ContributionService {
         try {
             var ledger = ledger(player.server); verifyLoadedReceipt(player, ledger);
             if (ledger.progress().complete()) player.sendSystemMessage(Component.literal("The First Hearth is complete. Kingdom Tier 2. Highest contributor: "
-                    + name(ledger, ledger.progress().winner().orElseThrow()) + ". Founders' Lodge privilege earned; Town Hall is Tier 12."));
+                    + name(ledger, ledger.progress().winner().orElseThrow()) + ". Legacy Founders' Lodge privilege earned."));
         }
         catch (RuntimeException error) {
             LogUtils.getLogger().error("Player contribution checkpoint mismatch: {}", player.getUUID(), error);
