@@ -35,7 +35,8 @@ public final class KingdomNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("5");
+        var registrar = event.registrar("6");
+        com.mohymods.kingdomsmp.placement.PlacementNetworking.register(registrar);
         ConstructionNetworking.register(registrar);
         ContributionNetworking.register(registrar);
         registrar.playToServer(RequestBuilderDialoguePayload.TYPE, RequestBuilderDialoguePayload.STREAM_CODEC,

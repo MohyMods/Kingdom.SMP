@@ -110,14 +110,19 @@ public final class ConstructionService {
         Review review=new Review(UUID.randomUUID(),action+1,p.id(),p.proposal(),store(player.server).revision(),System.nanoTime());REVIEWS.put(player,review);return review;
     }
     public static Preview preview(ServerPlayer player,BlockPos origin,Rotation rotation){
+        Preview inspected=inspectCandidate(player,origin,rotation);
+        Project p=owned(player);
+        PREVIEWS.put(player,inspected);REVIEWS.remove(player);
+        if(inspected.denial().isBlank())REVIEWS.put(player,new Review(UUID.randomUUID(),4,p.id(),p.proposal(),store(player.server).revision(),System.nanoTime()));
+        return inspected;
+    }
+    /** Read-only candidate inspection; hologram probes never invalidate/authorize a GUI review. */
+    public static Preview inspectCandidate(ServerPlayer player,BlockPos origin,Rotation rotation){
         Project p=owned(player);ownerAlive(player,p);
         if(!hasPlan(player,p)||p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Claim a current unused blueprint first.");
         nearby(player,origin);
         Project candidate=p.propose(origin,rotation);String denied=validateSite(player.serverLevel(),candidate,false);
-        Preview preview=new Preview(origin.immutable(),rotation,denied==null?"":denied,System.nanoTime());PREVIEWS.put(player,preview);
-        REVIEWS.remove(player);
-        if(denied==null)REVIEWS.put(player,new Review(UUID.randomUUID(),4,p.id(),p.proposal(),store(player.server).revision(),System.nanoTime()));
-        return preview;
+        return new Preview(origin.immutable(),rotation,denied==null?"":denied,System.nanoTime());
     }
     public static String confirm(ServerPlayer player,UUID nonce,int action){
         Review review=REVIEWS.remove(player);
@@ -194,6 +199,15 @@ public final class ConstructionService {
             if(tag.hasUUID("store")&&tag.hasUUID("token")&&tag.getUUID("store").equals(store.identity())&&tag.getUUID("token").equals(p.token()))return true;
         }return false;
     }
+    public static boolean heldPlan(ServerPlayer player,Project p){
+        if(p==null||p.token()==null||!p.owner().equals(player.getUUID()))return false;
+        var store=store(player.server);
+        for(var stack:List.of(player.getMainHandItem(),player.getOffhandItem())){
+            if(!isProjectPlan(stack,p))continue;
+            var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            if(tag.hasUUID("store")&&tag.hasUUID("token")&&tag.getUUID("store").equals(store.identity())&&tag.getUUID("token").equals(p.token()))return true;
+        }return false;
+    }
     private static int claimSlot(ServerPlayer player,Project p){for(int i=0;i<36;i++)if(player.getInventory().getItem(i).isEmpty()||isProjectPlan(player.getInventory().getItem(i),p))return i;return -1;}
     private static void syncInventory(ServerPlayer player){player.getInventory().setChanged();player.inventoryMenu.sendAllDataToRemote();}
     private static Project owned(ServerPlayer player){
@@ -229,6 +243,7 @@ public final class ConstructionService {
     }
     /** Validate the complete air volume and its support, without acquiring chunk tickets. */
     public static String validateSite(ServerLevel level,Project p,boolean resuming){
+        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.denial();if(protection!=null)return protection;
         if(level.dimension()!=Level.OVERWORLD)return "Construction is restricted to the Overworld.";
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());BlockPos o=p.origin();
         if(o==null)return "No site has been selected.";
@@ -277,6 +292,7 @@ public final class ConstructionService {
     public static void step(MinecraftServer server,UUID project){
         ConstructionStore store=store(server);Project p=store.get(project);if(p.phase()!=Phase.BUILDING||store.quarantined())return;
         ServerLevel level=server.overworld();var blueprint=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
+        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.denial();if(protection!=null){pause(p,protection);return;}
         if(!loaded(level,p)){pause(p,"Site unloaded; waiting without chunk tickets.");return;}
         var hut=BuilderHutSavedData.get(server).hut().orElse(null);
         if(hut==null||hut.npcDead()||!BuilderHutService.structureIntact(level,hut)){pause(p,"Builder's Hut damaged/unloaded or builder unavailable.");return;}
@@ -415,7 +431,7 @@ public final class ConstructionService {
     public static LiteralArgumentBuilder<CommandSourceStack> commands(){
         return Commands.literal("lodge")
                 .then(Commands.literal("open").executes(c->{ConstructionNetworking.open(c.getSource().getPlayerOrException(),"");return 1;}))
-                .then(Commands.literal("preview").then(Commands.argument("origin",BlockPosArgument.blockPos()).then(Commands.argument("rotation",StringArgumentType.word()).executes(c->{
+                .then(Commands.literal("preview").requires(s->s.hasPermission(2)).then(Commands.argument("origin",BlockPosArgument.blockPos()).then(Commands.argument("rotation",StringArgumentType.word()).executes(c->{
                     ServerPlayer player=c.getSource().getPlayerOrException();
                     try{String r=StringArgumentType.getString(c,"rotation");Rotation rotation=switch(r){case "north"->Rotation.NONE;case "east"->Rotation.CLOCKWISE_90;case "south"->Rotation.CLOCKWISE_180;case "west"->Rotation.COUNTERCLOCKWISE_90;default->throw new IllegalArgumentException("Use north, east, south or west.");};
                         preview(player,BlockPosArgument.getBlockPos(c,"origin"),rotation);ConstructionNetworking.open(player,"Review the outlined site before submitting it.");return 1;

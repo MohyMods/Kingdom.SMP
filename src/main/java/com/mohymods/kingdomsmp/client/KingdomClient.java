@@ -21,7 +21,12 @@ public final class KingdomClient {
     private static final KeyMapping OVERVIEW = new KeyMapping("key.kingdom_smp.overview",
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, "key.categories.kingdom_smp");
 
-    public KingdomClient(IEventBus modBus) {
+    public KingdomClient(IEventBus modBus, net.neoforged.fml.ModContainer container) {
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT,BlueprintPlacement.CONFIG);
+        com.mohymods.kingdomsmp.placement.PlacementNetworking.install(BlueprintPlacement::receive);
+        NeoForge.EVENT_BUS.addListener(BlueprintPlacement::render);
+        NeoForge.EVENT_BUS.addListener(BlueprintPlacement::hud);
+        NeoForge.EVENT_BUS.addListener(BlueprintPlacement::use);
         KingdomNetworking.installClientReceiver(ClientOverviewController::receive);
         com.mohymods.kingdomsmp.network.ContributionNetworking.install(ContributionController::receive);
         KingdomNetworking.installBuilderReceiver(BuilderDialogueController::receive);
@@ -35,13 +40,14 @@ public final class KingdomClient {
         NeoForge.EVENT_BUS.addListener(this::tick);
     }
 
-    private void keys(RegisterKeyMappingsEvent event) { event.register(OVERVIEW); }
+    private void keys(RegisterKeyMappingsEvent event) { event.register(OVERVIEW);event.register(BlueprintPlacement.ROTATE);event.register(BlueprintPlacement.UP);event.register(BlueprintPlacement.DOWN); }
 
     private void tick(ClientTickEvent.Post event) {
         ClientOverviewController.tick();
         ContributionController.tick();
         BuilderDialogueController.tick();
         ConstructionController.tick();
+        BlueprintPlacement.tick();
         while (OVERVIEW.consumeClick()) {
             if (net.minecraft.client.Minecraft.getInstance().screen == null) {
                 ClientOverviewController.request();

@@ -1,5 +1,7 @@
 # Confirmed requirements
 
+> **D-023 — current implementation authority:** The [master directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) authorizes incremental coding and supersedes the D-021/D-022 review-only hold. New-world Town Hall / existing-world Lodge profiles, owner Hut bootstrap, blueprint-market acquisition, automatic server-valid placement, supports up to four blocks, Tier 3 Bank (no new-world Storehouse), updated profession/economy/quest/admin scope apply. End remains Tier 12. The [full replacement mod snapshot](sources/MOD_SNAPSHOT_2026-10-31.txt) now reports FTB Quests installed. See [supersession and actual status](MASTER_SUPERSESSION_MATRIX.md); old descriptions below are historical where they conflict.
+
 Sources: S1, S2, and S3 in [overview](PROJECT_OVERVIEW.md). IDs are stable references, not implementation-completion labels. Existing IDs preserve the S1 baseline; rows marked S2/S3 add approved rebuild requirements. Implementation status and executed checks belong in [development log](DEVELOPMENT_LOG.md), not inferred from this requirements register.
 
 ## Product and platform

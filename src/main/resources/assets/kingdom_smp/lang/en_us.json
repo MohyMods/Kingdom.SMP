@@ -42,5 +42,8 @@
   "kingdomsmp.screen.gate.founders_lodge": "Complete The First Hearth to reach Tier 2. The highest contributor can claim the Founders’ Lodge plan in Construction. Materials are included; administrator site approval is required.",
   "kingdomsmp.screen.tier.ultimate_hall": "Ultimate Town Hall",
   "item.kingdom_smp.founders_lodge_blueprint": "Founders' Lodge Construction Blueprint",
-  "entity.kingdom_smp.reeve": "Reeve"
+  "entity.kingdom_smp.reeve": "Reeve",
+  "key.kingdom_smp.rotate": "Rotate blueprint hologram",
+  "key.kingdom_smp.height_up": "Raise blueprint hologram",
+  "key.kingdom_smp.height_down": "Lower blueprint hologram"
 }

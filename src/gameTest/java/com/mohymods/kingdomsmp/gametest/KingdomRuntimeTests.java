@@ -299,6 +299,18 @@ public final class KingdomRuntimeTests {
         var distant=recovered.propose(far,Rotation.NONE);
         helper.assertTrue(ConstructionService.validateSite(level,distant,false).contains("loaded")&&!level.hasChunkAt(far),"Unloaded site refused without loading it");
         ConstructionService.preview(alice,origin,Rotation.NONE);var siteReview=ConstructionService.view(alice,1,false,"").review();
+        var probe=new com.mohymods.kingdomsmp.placement.PlacementProbe(1,origin,0);
+        var checked=com.mohymods.kingdomsmp.placement.PlacementNetworking.inspect(alice,probe);
+        helper.assertTrue(checked.valid()&&ConstructionService.view(alice,1,false,"").review().equals(siteReview),"Read-only hologram probe validates native site without replacing a reviewed proposal");
+        helper.assertTrue(!com.mohymods.kingdomsmp.placement.PlacementNetworking.inspect(bob,probe).valid(),"A copied candidate cannot authorize another player");
+        level.setBlock(origin.above(),Blocks.CHEST.defaultBlockState(),18);
+        var collision=com.mohymods.kingdomsmp.placement.PlacementNetworking.inspect(alice,probe);
+        helper.assertTrue(!collision.valid()&&collision.collisions().contains(origin.above()),"Server returns exact bounded collision highlights");
+        level.setBlock(origin.above(),Blocks.AIR.defaultBlockState(),18);
+        level.setBlock(origin.below(),Blocks.AIR.defaultBlockState(),18);
+        var unsupported=com.mohymods.kingdomsmp.placement.PlacementNetworking.inspect(alice,probe);
+        helper.assertTrue(!unsupported.valid()&&unsupported.unsupported().contains(origin.below()),"Unsafe foundation gaps are highlighted without world modification");
+        level.setBlock(origin.below(),Blocks.STONE.defaultBlockState(),18);
         level.setBlock(origin.above(),Blocks.CHEST.defaultBlockState(),18);
         try{ConstructionService.confirm(alice,siteReview,4);helper.fail("Stale obstructed proposal accepted");}catch(IllegalStateException expected){ }
         helper.assertTrue(ConstructionService.lodge(server).phase()==Phase.CLAIMED,"Failed proposal consumes no entitlement");

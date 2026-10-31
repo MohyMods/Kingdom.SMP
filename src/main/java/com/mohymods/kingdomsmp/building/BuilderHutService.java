@@ -183,6 +183,7 @@ public final class BuilderHutService {
 
     /** Returns a bounded actionable denial. Never causes chunk loading. Null means valid. */
     public static String validateSite(ServerLevel level, BlockPos origin, Rotation rotation, boolean resuming) {
+        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.denial();if(protection!=null)return protection;
         if (level.dimension() != Level.OVERWORLD) return "The starter hut must be in the Overworld.";
         BuilderHutBlueprint blueprint = BuilderHutBlueprint.create();
         BlockPos last = origin.offset(blueprint.width(rotation) - 1, BuilderHutBlueprint.HEIGHT - 1, blueprint.depth(rotation) - 1);

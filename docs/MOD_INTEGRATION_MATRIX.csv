@@ -1,0 +1,279 @@
+mod_id,reported_name,reported_version,verification
+Mod Id,Name,Version,user-reported; artifact/API/live compatibility unverified
+skinlayers3d,3d-Skin-Layers,1.11.4,user-reported; artifact/API/live compatibility unverified
+accessories,Accessories,1.1.0-beta.54+1.21.1,user-reported; artifact/API/live compatibility unverified
+ad_astra,Ad Astra,1.16.26,user-reported; artifact/API/live compatibility unverified
+aiimprovements,AI-Improvements,0.5.3,user-reported; artifact/API/live compatibility unverified
+alltheleaks,All The Leaks,1.1.14+1.21.1-neoforge,user-reported; artifact/API/live compatibility unverified
+almanac,Almanac,1.26.10.3,user-reported; artifact/API/live compatibility unverified
+almostunified,AlmostUnified,1.21.1-1.4.2,user-reported; artifact/API/live compatibility unverified
+ambientsounds,AmbientSounds,6.3.11,user-reported; artifact/API/live compatibility unverified
+apollib,Apollib,1.2.0,user-reported; artifact/API/live compatibility unverified
+apothic_attributes,Apothic Attributes,2.11.0,user-reported; artifact/API/live compatibility unverified
+aquaculture,Aquaculture 2,2.7.21,user-reported; artifact/API/live compatibility unverified
+architectury,Architectury,13.0.11,user-reported; artifact/API/live compatibility unverified
+ars_creo,Ars Creo,5.4.0,user-reported; artifact/API/live compatibility unverified
+ars_nouveau,Ars Nouveau,5.13.3,user-reported; artifact/API/live compatibility unverified
+artifacts,Artifacts,13.2.5,user-reported; artifact/API/live compatibility unverified
+atmosphere,Atmosphere,1.0.18,user-reported; artifact/API/live compatibility unverified
+bwncr,Bad Wither No Cookie Reloaded,3.20.4,user-reported; artifact/API/live compatibility unverified
+baguettelib,BaguetteLib,2.0.7,user-reported; artifact/API/live compatibility unverified
+balm,Balm,21.0.66,user-reported; artifact/API/live compatibility unverified
+bettercombat,Better Combat,2.4.0+1.21.1,user-reported; artifact/API/live compatibility unverified
+bcc,Better Compatibility Checker,21.1.8,user-reported; artifact/API/live compatibility unverified
+betterf3,BetterF3,11.0.3,user-reported; artifact/API/live compatibility unverified
+betterfpsdist,betterfpsdist mod,6.1,user-reported; artifact/API/live compatibility unverified
+biolith,Biolith,3.0.14,user-reported; artifact/API/live compatibility unverified
+biomesoplenty,Biomes O' Plenty,21.1.0.14,user-reported; artifact/API/live compatibility unverified
+bookshelf,Bookshelf,21.1.81,user-reported; artifact/API/live compatibility unverified
+bountiful,Bountiful,8.0.0-beta.2,user-reported; artifact/API/live compatibility unverified
+carryon,Carry On,2.2.6,user-reported; artifact/API/live compatibility unverified
+ctov,ChoiceTheorem's Overhauled Village,3.6.3,user-reported; artifact/API/live compatibility unverified
+chunksending,chunksending mod,4.1,user-reported; artifact/API/live compatibility unverified
+chunky,Chunky,1.4.23,user-reported; artifact/API/live compatibility unverified
+clientcrafting,clientcrafting mod,2.1,user-reported; artifact/API/live compatibility unverified
+cloth_config,Cloth Config v15 API,15.0.140,user-reported; artifact/API/live compatibility unverified
+clumps,Clumps,19.0.0.1,user-reported; artifact/API/live compatibility unverified
+codecui,CodecUI,1.21.1-1.4.7,user-reported; artifact/API/live compatibility unverified
+common_storage_lib,Common Storage Lib: Core,0.0.10,user-reported; artifact/API/live compatibility unverified
+common_storage_lib_data,Common Storage Lib: Data,0.0.10,user-reported; artifact/API/live compatibility unverified
+common_storage_lib_lookup,Common Storage Lib: Lookup,0.0.10,user-reported; artifact/API/live compatibility unverified
+common_storage_lib_resources,Common Storage Lib: Resources,0.0.10,user-reported; artifact/API/live compatibility unverified
+conditional_mixin,conditional mixin,0.6.4,user-reported; artifact/API/live compatibility unverified
+connectedglass,Connected Glass,1.1.14,user-reported; artifact/API/live compatibility unverified
+connectivity,Connectivity Mod,7.7,user-reported; artifact/API/live compatibility unverified
+connectorextras,Connector Extras,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_emi_bridge,Connector Extras EMI Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_energy_bridge,Connector Extras Energy Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_jei_bridge,Connector Extras JEI Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_kubejs_bridge,Connector Extras KubeJS Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_modmenu_bridge,Connector Extras ModMenu Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_pehkui_bridge,Connector Extras Pehkui Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_rei_bridge,Connector Extras REI Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+connectorextras_terrablender_bridge,Connector Extras Terrablender Bridge,1.12.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+continuity,Continuity,3.0.0_1.21.neoforge,user-reported; artifact/API/live compatibility unverified
+controlling,Controlling,19.0.5,user-reported; artifact/API/live compatibility unverified
+cookingforblockheads,Cooking for Blockheads,21.1.24,user-reported; artifact/API/live compatibility unverified
+coroutil,CoroUtil,1.21.0-1.3.9,user-reported; artifact/API/live compatibility unverified
+corpse,Corpse,1.21.1-1.1.22,user-reported; artifact/API/live compatibility unverified
+corpsecurioscompat,Corpse Curios Compatibility,3.1.3,user-reported; artifact/API/live compatibility unverified
+create,Create,6.0.10,user-reported; artifact/API/live compatibility unverified
+create_hypertube,Create Hypertube,0.6.0,user-reported; artifact/API/live compatibility unverified
+sliceanddice,Create Slice & Dice,4.3.4,user-reported; artifact/API/live compatibility unverified
+create_central_kitchen,Create: Central Kitchen,2.6.2b,user-reported; artifact/API/live compatibility unverified
+create_dragons_plus,Create: Dragons Plus,1.11.9,user-reported; artifact/API/live compatibility unverified
+creativecore,CreativeCore,2.13.51,user-reported; artifact/API/live compatibility unverified
+cristellib,Cristel Lib,3.1.7,user-reported; artifact/API/live compatibility unverified
+crittersandcompanions,Critters and Companions,2.7.0,user-reported; artifact/API/live compatibility unverified
+cucumber,Cucumber Library,8.0.16,user-reported; artifact/API/live compatibility unverified
+cumulus_menus,Cumulus,2.0.7,user-reported; artifact/API/live compatibility unverified
+cupboard,Cupboard mod,4.2,user-reported; artifact/API/live compatibility unverified
+curios,Curios API,9.5.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+deeperdarker,Deeper and Darker,1.4.1,user-reported; artifact/API/live compatibility unverified
+diagonalblocks,Diagonal Blocks,21.1.2,user-reported; artifact/API/live compatibility unverified
+diagonalfences,Diagonal Fences,21.1.1,user-reported; artifact/API/live compatibility unverified
+diagonalwalls,Diagonal Walls,21.1.2,user-reported; artifact/API/live compatibility unverified
+domum_ornamentum,Domum Ornamentum,1.0.231,user-reported; artifact/API/live compatibility unverified
+dungeonconfig,Dungeon Config,1.26.10.3,user-reported; artifact/API/live compatibility unverified
+dynamic_fps,Dynamic FPS,3.11.4,user-reported; artifact/API/live compatibility unverified
+easyanvils,Easy Anvils,21.1.0,user-reported; artifact/API/live compatibility unverified
+enchdesc,EnchantmentDescriptions,21.1.11,user-reported; artifact/API/live compatibility unverified
+enhancedvisuals,EnhancedVisuals,1.8.34,user-reported; artifact/API/live compatibility unverified
+expandability,ExpandAbility,12.0.0,user-reported; artifact/API/live compatibility unverified
+explorify,Explorify,1.6.5,user-reported; artifact/API/live compatibility unverified
+fallingtree,FallingTree,1.21.1.11,user-reported; artifact/API/live compatibility unverified
+farmersdelight,Farmer's Delight,1.3.4,user-reported; artifact/API/live compatibility unverified
+farmers_structures,FarmersStructures,1.0.6,user-reported; artifact/API/live compatibility unverified
+farmingforblockheads,Farming for Blockheads,21.1.14,user-reported; artifact/API/live compatibility unverified
+fastpaintings,Fast Paintings,1.21-1.3.1,user-reported; artifact/API/live compatibility unverified
+fastsuite,Fast Suite,6.0.7,user-reported; artifact/API/live compatibility unverified
+fastbench,Fast Workbench,9.1.3,user-reported; artifact/API/live compatibility unverified
+fastasyncworldsave,fastasyncworldsave mod,2.6,user-reported; artifact/API/live compatibility unverified
+fastfurnace,FastFurnace,9.0.1,user-reported; artifact/API/live compatibility unverified
+flywheel,Flywheel,1.0.6,user-reported; artifact/API/live compatibility unverified
+fabric_api,Forgified Fabric API,0.116.15+2.3.6+1.21.1,user-reported; artifact/API/live compatibility unverified
+fabric_api_base,Forgified Fabric API Base,0.4.42+d1308ded19,user-reported; artifact/API/live compatibility unverified
+fabric_api_lookup_api_v1,Forgified Fabric API Lookup API (v1),1.6.72+6244b11119,user-reported; artifact/API/live compatibility unverified
+fabric_biome_api_v1,Forgified Fabric Biome API (v1),13.0.31+1e62d33c19,user-reported; artifact/API/live compatibility unverified
+fabric_block_api_v1,Forgified Fabric Block API (v1),1.1.0+b0c22bb819,user-reported; artifact/API/live compatibility unverified
+fabric_blockrenderlayer_v1,Forgified Fabric BlockRenderLayer Registration (v1),1.1.52+c290471319,user-reported; artifact/API/live compatibility unverified
+fabric_block_view_api_v2,Forgified Fabric BlockView API (v2),1.0.10+9afaaf8c19,user-reported; artifact/API/live compatibility unverified
+fabric_client_tags_api_v1,Forgified Fabric Client Tags,1.2.0+5adff2d719,user-reported; artifact/API/live compatibility unverified
+fabric_command_api_v2,Forgified Fabric Command API (v2),2.2.28+36d727be19,user-reported; artifact/API/live compatibility unverified
+fabric_content_registries_v0,Forgified Fabric Content Registries (v0),8.0.19+5e0d320019,user-reported; artifact/API/live compatibility unverified
+fabric_convention_tags_v1,Forgified Fabric Convention Tags,2.1.7+7f945d5b19,user-reported; artifact/API/live compatibility unverified
+fabric_convention_tags_v2,Forgified Fabric Convention Tags (v2),2.12.0+75d3639619,user-reported; artifact/API/live compatibility unverified
+fabric_data_attachment_api_v1,Forgified Fabric Data Attachment API (v1),1.4.7+26d408aa19,user-reported; artifact/API/live compatibility unverified
+fabric_data_generation_api_v1,Forgified Fabric Data Generation API (v1),20.3.0+3e2bcb4b19,user-reported; artifact/API/live compatibility unverified
+fabric_entity_events_v1,Forgified Fabric Entity Events (v1),1.8.0+e46a02ca19,user-reported; artifact/API/live compatibility unverified
+fabric_events_interaction_v0,Forgified Fabric Events Interaction (v0),0.7.14+057f5afd19,user-reported; artifact/API/live compatibility unverified
+fabric_game_rule_api_v1,Forgified Fabric Game Rule API (v1),1.0.53+36d727be19,user-reported; artifact/API/live compatibility unverified
+fabric_gametest_api_v1,Forgified Fabric Game Test API (v1),2.0.5+29f188ce19,user-reported; artifact/API/live compatibility unverified
+fabric_item_api_v1,Forgified Fabric Item API (v1),11.3.0+b24c12f719,user-reported; artifact/API/live compatibility unverified
+fabric_item_group_api_v1,Forgified Fabric Item Group API (v1),4.1.7+e324903319,user-reported; artifact/API/live compatibility unverified
+fabric_key_binding_api_v1,Forgified Fabric Key Binding API (v1),1.0.47+62cc7ce119,user-reported; artifact/API/live compatibility unverified
+fabric_lifecycle_events_v1,Forgified Fabric Lifecycle Events (v1),2.6.0+e40d8add19,user-reported; artifact/API/live compatibility unverified
+fabric_loot_api_v2,Forgified Fabric Loot API (v2),3.0.15+a3ee712d19,user-reported; artifact/API/live compatibility unverified
+fabric_loot_api_v3,Forgified Fabric Loot API (v3),1.0.3+333dfad919,user-reported; artifact/API/live compatibility unverified
+fabric_message_api_v1,Forgified Fabric Message API (v1),6.0.14+6a754fce19,user-reported; artifact/API/live compatibility unverified
+fabric_model_loading_api_v1,Forgified Fabric Model Loading API (v1),2.1.0+6e8f52c719,user-reported; artifact/API/live compatibility unverified
+fabric_networking_api_v1,Forgified Fabric Networking API (v1),4.3.1+204211bf19,user-reported; artifact/API/live compatibility unverified
+fabric_object_builder_api_v1,Forgified Fabric Object Builder API (v1),15.2.1+cc242efd19,user-reported; artifact/API/live compatibility unverified
+fabric_particles_v1,Forgified Fabric Particles (v1),4.0.2+824f924c19,user-reported; artifact/API/live compatibility unverified
+fabric_recipe_api_v1,Forgified Fabric Recipe API (v1),5.0.16+59440bcc19,user-reported; artifact/API/live compatibility unverified
+fabric_registry_sync_v0,Forgified Fabric Registry Sync (v0),5.3.2+f9aace1619,user-reported; artifact/API/live compatibility unverified
+fabric_renderer_indigo,Forgified Fabric Renderer - Indigo,1.7.1+9125b6dc19,user-reported; artifact/API/live compatibility unverified
+fabric_renderer_api_v1,Forgified Fabric Renderer API (v1),3.4.1+9125b6dc19,user-reported; artifact/API/live compatibility unverified
+fabric_renderer_registries_v1,Forgified Fabric Renderer Registries (v1),3.2.69+df3654b319,user-reported; artifact/API/live compatibility unverified
+fabric_rendering_v1,Forgified Fabric Rendering (v1),5.1.0+1a09bd5a19,user-reported; artifact/API/live compatibility unverified
+fabric_rendering_data_attachment_v1,Forgified Fabric Rendering Data Attachment (v1),0.3.48+73761d2e19,user-reported; artifact/API/live compatibility unverified
+fabric_rendering_fluids_v1,Forgified Fabric Rendering Fluids (v1),3.1.6+ddc51b4719,user-reported; artifact/API/live compatibility unverified
+fabric_resource_conditions_api_v1,Forgified Fabric Resource Conditions API (v1),4.3.0+5bdd099819,user-reported; artifact/API/live compatibility unverified
+fabric_resource_loader_v0,Forgified Fabric Resource Loader (v0),1.3.1+4ea8954419,user-reported; artifact/API/live compatibility unverified
+fabric_screen_api_v1,Forgified Fabric Screen API (v1),2.0.26+9991ca2f19,user-reported; artifact/API/live compatibility unverified
+fabric_screen_handler_api_v1,Forgified Fabric Screen Handler API (v1),1.3.91+8dbc56dd19,user-reported; artifact/API/live compatibility unverified
+fabric_sound_api_v1,Forgified Fabric Sound API (v1),1.0.23+10b84f8419,user-reported; artifact/API/live compatibility unverified
+fabric_tag_api_v1,Forgified Fabric Tag API (v1),1.3.0+3e2bcb4b19,user-reported; artifact/API/live compatibility unverified
+fabric_transfer_api_v1,Forgified Fabric Transfer API (v1),5.4.4+6244b11119,user-reported; artifact/API/live compatibility unverified
+fabric_transitive_access_wideners_v1,Forgified Fabric Transitive Access Wideners (v1),6.2.0+6c854b6f19,user-reported; artifact/API/live compatibility unverified
+framework,Framework,0.13.11,user-reported; artifact/API/live compatibility unverified
+ftbchunks,FTB Chunks,2101.1.22,user-reported; artifact/API/live compatibility unverified
+ftblibrary,FTB Library,2101.1.39,user-reported; artifact/API/live compatibility unverified
+ftbquests,FTB Quests,2101.1.37,user-reported; artifact/API/live compatibility unverified
+ftbranks,FTB Ranks,2101.1.5,user-reported; artifact/API/live compatibility unverified
+ftbteams,FTB Teams,2101.1.11,user-reported; artifact/API/live compatibility unverified
+fusion,Fusion,1.3.16,user-reported; artifact/API/live compatibility unverified
+geckolib,GeckoLib 4,4.9.3,user-reported; artifact/API/live compatibility unverified
+glitchcore,GlitchCore,2.1.0.2,user-reported; artifact/API/live compatibility unverified
+goblintraders,Goblin Traders,1.11.2,user-reported; artifact/API/live compatibility unverified
+gpumemleakfix,Gpu memory leak fix,1.8,user-reported; artifact/API/live compatibility unverified
+handcrafted,Handcrafted,4.0.3,user-reported; artifact/API/live compatibility unverified
+immersive_aircraft,Immersive Aircraft,1.7.0+1.21.1,user-reported; artifact/API/live compatibility unverified
+infiniverse,Infiniverse,2.0.1.0,user-reported; artifact/API/live compatibility unverified
+inventoryhud,Inventory HUD+,3.4.28,user-reported; artifact/API/live compatibility unverified
+ironfurnaces,Iron Furnaces,4.3.2,user-reported; artifact/API/live compatibility unverified
+irons_lib,Iron's Lib,1.21.1-2.3.0,user-reported; artifact/API/live compatibility unverified
+irons_spellbooks,Iron's Spells 'n Spellbooks,1.21.1-3.16.3,user-reported; artifact/API/live compatibility unverified
+itemcollectors,Item Collectors,1.1.10,user-reported; artifact/API/live compatibility unverified
+jade,Jade,15.10.6+neoforge,user-reported; artifact/API/live compatibility unverified
+jadeaddons,Jade Addons,6.1.2+neoforge,user-reported; artifact/API/live compatibility unverified
+jamlib,JamLib,1.3.6+1.21.1,user-reported; artifact/API/live compatibility unverified
+jei_plus_plus,JEI++,1.0.8a-1.21.1,user-reported; artifact/API/live compatibility unverified
+jumpboat,Jumpy Boats,1.21.0-1.0.5,user-reported; artifact/API/live compatibility unverified
+jei,Just Enough Items,19.64.0.455,user-reported; artifact/API/live compatibility unverified
+jeresources,Just Enough Resources,1.6.0.57,user-reported; artifact/API/live compatibility unverified
+kambrik,Kambrik,8.0.0-beta.2,user-reported; artifact/API/live compatibility unverified
+kingdom_smp,Kingdom SMP Core,0.1.0-dev,user-reported; artifact/API/live compatibility unverified
+kotlinforforge,Kotlin For Forge,5.12.0,user-reported; artifact/API/live compatibility unverified
+kuma_api,KumaAPI,21.0.8,user-reported; artifact/API/live compatibility unverified
+cataclysm,L_Ender's Cataclysm 1.21.1,3.33,user-reported; artifact/API/live compatibility unverified
+lambdynlights_api,LambDynamicLights (API),4.5.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+letmedespawn,LetMeDespawn,1.26.10.2,user-reported; artifact/API/live compatibility unverified
+lionfishapi,lionfishapi,3.1,user-reported; artifact/API/live compatibility unverified
+lithium,Lithium,0.15.4+mc1.21.1,user-reported; artifact/API/live compatibility unverified
+lithostitched,Lithostitched,1.8.1,user-reported; artifact/API/live compatibility unverified
+lmft,Load My F***ing Tags,1.1.1+1.21.9,user-reported; artifact/API/live compatibility unverified
+lootintegrations,Lootintegrations mod,4.7,user-reported; artifact/API/live compatibility unverified
+lootr,Lootr,1.21.1-1.11.38.127,user-reported; artifact/API/live compatibility unverified
+lostcities,LostCities,1.21-8.4.6,user-reported; artifact/API/live compatibility unverified
+mcwbridges,Macaw's Bridges,3.1.2,user-reported; artifact/API/live compatibility unverified
+mcwdoors,Macaw's Doors,1.1.5,user-reported; artifact/API/live compatibility unverified
+mcwfences,Macaw's Fences and Walls,1.2.1,user-reported; artifact/API/live compatibility unverified
+mcwlights,Macaw's Lights and Lamps,1.1.5,user-reported; artifact/API/live compatibility unverified
+mcwroofs,Macaw's Roofs,2.3.2,user-reported; artifact/API/live compatibility unverified
+mcwstairs,Macaw's Stairs and Balconies,1.0.2,user-reported; artifact/API/live compatibility unverified
+mcwtrpdoors,Macaw's Trapdoors,1.1.5,user-reported; artifact/API/live compatibility unverified
+mcwwindows,Macaw's Windows,2.4.2,user-reported; artifact/API/live compatibility unverified
+mekanism,Mekanism,10.7.19,user-reported; artifact/API/live compatibility unverified
+mekanismgenerators,Mekanism: Generators,10.7.19,user-reported; artifact/API/live compatibility unverified
+memorysettings,memorysettings mod,6.0,user-reported; artifact/API/live compatibility unverified
+mezz_config,MezzConfig,0.6.9,user-reported; artifact/API/live compatibility unverified
+minecolonies,MineColonies,1.1.1403-1.21.1,user-reported; artifact/API/live compatibility unverified
+minecraft,Minecraft,1.21.1,user-reported; artifact/API/live compatibility unverified
+mob_grinding_utils,Mob Grinding Utils,1.1.10+mc1.21.1,user-reported; artifact/API/live compatibility unverified
+modernfix,ModernFix,5.27.27+mc1.21.1,user-reported; artifact/API/live compatibility unverified
+modonomicon,Modonomicon,1.122.0,user-reported; artifact/API/live compatibility unverified
+moogs_structures,Moog's Structure Lib,3.4.2,user-reported; artifact/API/live compatibility unverified
+mvs,MoogsVoyagerStructures,5.1.3,user-reported; artifact/API/live compatibility unverified
+moonlight,Moonlight Lib,1.21.1-3.7.2,user-reported; artifact/API/live compatibility unverified
+mowziesmobs,Mowzie's Mobs,1.8.2,user-reported; artifact/API/live compatibility unverified
+refurbished_furniture,MrCrayfish's Furniture Mod: Refurbished,1.0.22,user-reported; artifact/API/live compatibility unverified
+multipiston,Multi-Piston,1.2.58-1.21.1,user-reported; artifact/API/live compatibility unverified
+mutantmonsters,Mutant Monsters,21.1.1,user-reported; artifact/API/live compatibility unverified
+mysticalagriculture,Mystical Agriculture,8.0.29,user-reported; artifact/API/live compatibility unverified
+naturalist,Naturalist,2.0.7,user-reported; artifact/API/live compatibility unverified
+neoforge,NeoForge,21.1.265,user-reported; artifact/API/live compatibility unverified
+netherportalfix,NetherPortalFix,21.1.1,user-reported; artifact/API/live compatibility unverified
+nitrogen_internals,Nitrogen,1.1.25,user-reported; artifact/API/live compatibility unverified
+notenoughanimations,NotEnoughAnimations,1.12.6,user-reported; artifact/API/live compatibility unverified
+nuggets,Nuggets,1.1.0.48,user-reported; artifact/API/live compatibility unverified
+occultism,Occultism,1.224.6,user-reported; artifact/API/live compatibility unverified
+oceansdelight,Ocean's Delight,1.0.4,user-reported; artifact/API/live compatibility unverified
+ohthetreesyoullgrow,Oh The Trees You'll Grow,5.3.5,user-reported; artifact/API/live compatibility unverified
+openpartiesandclaims,Open Parties and Claims,0.33.0,user-reported; artifact/API/live compatibility unverified
+overflowingbars,Overflowing Bars,21.1.1,user-reported; artifact/API/live compatibility unverified
+owo,oωo,0.12.15.6-beta.1+1.21,user-reported; artifact/API/live compatibility unverified
+packetfixer,PacketFixer,3.3.1,user-reported; artifact/API/live compatibility unverified
+percale,Percale,1.0.0-beta.1,user-reported; artifact/API/live compatibility unverified
+pipez,Pipez,1.21.1-1.2.31,user-reported; artifact/API/live compatibility unverified
+placebo,Placebo,9.9.4,user-reported; artifact/API/live compatibility unverified
+playeranimator,Player Animator,2.0.4+1.21.1,user-reported; artifact/API/live compatibility unverified
+polymorph,Polymorph,1.1.0+1.21.1,user-reported; artifact/API/live compatibility unverified
+ponder,Ponder,1.0.82+mc1.21.1,user-reported; artifact/API/live compatibility unverified
+prickle,PrickleMC,21.1.11,user-reported; artifact/API/live compatibility unverified
+productivebees,Productive Bees,1.21.1-13.14.0,user-reported; artifact/API/live compatibility unverified
+productivelib,Productive Lib,1.21.1-0.2.0,user-reported; artifact/API/live compatibility unverified
+puzzleslib,Puzzles Lib,21.1.66,user-reported; artifact/API/live compatibility unverified
+quark,Quark,4.1-488,user-reported; artifact/API/live compatibility unverified
+recipeessentials,recipeessentials mod,4.7,user-reported; artifact/API/live compatibility unverified
+regions_unexplored,Regions Unexplored,0.6.3,user-reported; artifact/API/live compatibility unverified
+resourcefullib,Resourceful Lib,3.0.12,user-reported; artifact/API/live compatibility unverified
+resourcefulconfig,Resourcefulconfig,3.0.11,user-reported; artifact/API/live compatibility unverified
+rightclickharvest,Right Click Harvest,4.6.1+1.21.1,user-reported; artifact/API/live compatibility unverified
+sablecompanion,Sable Companion,1.6.0,user-reported; artifact/API/live compatibility unverified
+searchables,Searchables,1.0.2,user-reported; artifact/API/live compatibility unverified
+securitycraft,SecurityCraft,1.10.2.1,user-reported; artifact/API/live compatibility unverified
+sereneseasons,Serene Seasons,10.1.0.3,user-reported; artifact/API/live compatibility unverified
+voicechat,Simple Voice Chat,1.21.1-2.6.22,user-reported; artifact/API/live compatibility unverified
+connector,Sinytra Connector,2.0.0-beta.17+1.21.1,user-reported; artifact/API/live compatibility unverified
+smartbrainlib,SmartBrainLib,1.16.11,user-reported; artifact/API/live compatibility unverified
+smoothchunk,Smoothchunk mod,4.4,user-reported; artifact/API/live compatibility unverified
+sodium,Sodium,0.8.13+mc1.21.1,user-reported; artifact/API/live compatibility unverified
+sophisticatedbackpacks,Sophisticated Backpacks,3.26.17,user-reported; artifact/API/live compatibility unverified
+sophisticatedbackpackscreateintegration,Sophisticated Backpacks Create Integration,0.2.3,user-reported; artifact/API/live compatibility unverified
+sophisticatedcore,Sophisticated Core,1.5.19,user-reported; artifact/API/live compatibility unverified
+sophisticatedstorage,Sophisticated Storage,1.6.10,user-reported; artifact/API/live compatibility unverified
+sophisticatedstoragecreateintegration,Sophisticated Storage Create Integration,0.1.23,user-reported; artifact/API/live compatibility unverified
+sound_physics_remastered,Sound Physics Remastered,1.21.1-1.5.2,user-reported; artifact/API/live compatibility unverified
+structureessentials,Structure Essentials mod,5.1,user-reported; artifact/API/live compatibility unverified
+structurize,Structurize,1.0.832-1.21.1,user-reported; artifact/API/live compatibility unverified
+supermartijn642configlib,SuperMartijn642's Config Library,1.1.8,user-reported; artifact/API/live compatibility unverified
+supermartijn642corelib,SuperMartijn642's Core Lib,1.1.26,user-reported; artifact/API/live compatibility unverified
+supplementaries,Supplementaries,1.21.1-4.0.2,user-reported; artifact/API/live compatibility unverified
+terrablender,TerraBlender,4.1.0.8,user-reported; artifact/API/live compatibility unverified
+terralith,Terralith,2.6.2,user-reported; artifact/API/live compatibility unverified
+aether,The Aether,1.5.10,user-reported; artifact/API/live compatibility unverified
+twilightforest,The Twilight Forest,4.8.3345,user-reported; artifact/API/live compatibility unverified
+tiny_config,Tiny Config,3.1.0,user-reported; artifact/API/live compatibility unverified
+torchmaster,Torchmaster,21.1.13,user-reported; artifact/API/live compatibility unverified
+t_and_t,Towns and Towers,1.13.11,user-reported; artifact/API/live compatibility unverified
+towntalk,Towntalk,1.2.0,user-reported; artifact/API/live compatibility unverified
+transition,TRansition,1.0.27,user-reported; artifact/API/live compatibility unverified
+trashcans,Trash Cans,1.1.2,user-reported; artifact/API/live compatibility unverified
+trender,TRender,1.0.17,user-reported; artifact/API/live compatibility unverified
+txnilib,TxniLib,1.0.24,user-reported; artifact/API/live compatibility unverified
+blockui,UI Library Mod,1.0.209-1.21.1,user-reported; artifact/API/live compatibility unverified
+sawmill,Universal Sawmill,1.21-1.8.1,user-reported; artifact/API/live compatibility unverified
+visualworkbench,Visual Workbench,21.1.2,user-reported; artifact/API/live compatibility unverified
+waystones,Waystones,21.1.46,user-reported; artifact/API/live compatibility unverified
+watut,What Are They Up To,1.21.0-1.2.7,user-reported; artifact/API/live compatibility unverified
+dungeons_arise,When Dungeons Arise,2.1.68,user-reported; artifact/API/live compatibility unverified
+xaerominimap,Xaero's Minimap,26.6.0,user-reported; artifact/API/live compatibility unverified
+xaeroworldmap,Xaero's World Map,1.47.0,user-reported; artifact/API/live compatibility unverified
+xaerolib,XaeroLib,1.7.3,user-reported; artifact/API/live compatibility unverified
+xpbook,XP Tome,2.4,user-reported; artifact/API/live compatibility unverified
+weaponmaster_ydm,YDM's Weapon Master,4.2.7,user-reported; artifact/API/live compatibility unverified
+yet_another_config_lib_v3,YetAnotherConfigLib,3.8.2+1.21.1-neoforge,user-reported; artifact/API/live compatibility unverified
+yungsapi,YUNG's API,1.21.1-NeoForge-5.1.9,user-reported; artifact/API/live compatibility unverified
+betterfortresses,YUNG's Better Nether Fortresses,1.21.1-NeoForge-3.1.5,user-reported; artifact/API/live compatibility unverified
+zeta,Zeta,1.1-40,user-reported; artifact/API/live compatibility unverified

@@ -19,7 +19,7 @@ public final class ConstructionPreview {
     public static void clear(){view=null;connection=null;}
     public static void render(RenderLevelStageEvent event){
         var client=Minecraft.getInstance();
-        if(event.getStage()!=RenderLevelStageEvent.Stage.AFTER_PARTICLES||view==null||client.level==null
+        if(BlueprintPlacement.active()||event.getStage()!=RenderLevelStageEvent.Stage.AFTER_PARTICLES||view==null||client.level==null
                 ||client.level.dimension()!=Level.OVERWORLD||connection!=client.getConnection()||System.nanoTime()-seen>300_000_000_000L)return;
         var origin=view.origin();var camera=event.getCamera().getPosition();
         if(camera.distanceToSqr(origin.getX(),origin.getY(),origin.getZ())>128*128)return;

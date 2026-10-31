@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-31 — D-023 implementation resumes; reported full pack replaces prior snapshot
+
+Audited existing verified source and new master directive. Archived exact directive and supplied full mod list, recorded every reported mod/version separately from compatibility verification, and created explicit supersession/implementation matrix. Began connected held-Lodge hologram: natural targeting, remappable rotate/height controls, amber pending/green server-valid/red blocked geometry, whole-model/roof rendering, bounded collision/support markers and existing Royal Gilded review. Read-only rate-limited server probes verify current held entitlement and do not replace a GUI review or edit world blocks. Foreign FTB Chunks/OPAC permissions fail closed until adapters are verified. Full build 142 JUnit tests and expanded native lifecycle pass; actual client verification remains in progress. Other Phase B features are still incomplete; no new-world Hall/market/economy or mod integration claim.
+
 ## 2026-10-31 — D-022 dimension/finale planning; no code
 
 Recorded End at Tier 12 and Aether/Nether/Twilight/Otherside/Ad Astra schedule. Revised the planning dependency graph and pre-12 resource proposals, withdrawing direct End ingredients and both unverified stabilizer candidates. Added explicit recipe/rocket/planet/Master acquisition audit blockers; actual compatible artifacts and pack recipe data are absent, so no verified compatibility or complete recipe-closure claim. Preserved proposed Royal Legacy Monument finale reward, future Tier 2 Hall, legacy-world/history requirements and review holds. Updated Royal Gilded design, requirements, decisions, roadmap, tracker and continuation. Only Markdown changed; executable End-9 rules/data, saves and JARs remain untouched. No build/game tests or new enforcement claimed.
