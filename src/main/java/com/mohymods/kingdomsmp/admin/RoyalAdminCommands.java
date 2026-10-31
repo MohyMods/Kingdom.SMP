@@ -18,6 +18,8 @@ public final class RoyalAdminCommands {
         return Commands.literal("admin").requires(source -> source.hasPermission(2))
                 .executes(context -> overview(context.getSource()))
                 .then(ownerCommands())
+                .then(com.mohymods.kingdomsmp.progression.TierTwoService.commands())
+                .then(com.mohymods.kingdomsmp.economy.CommerceService.adminCommands())
                 .then(Commands.literal("inspect").executes(context -> overview(context.getSource())))
                 .then(Commands.literal("construction")
                         .then(Commands.literal("inspect")

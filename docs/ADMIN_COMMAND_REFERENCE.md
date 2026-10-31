@@ -1,3 +1,9 @@
+## Commerce and Tier 3 testing (0.7.0)
+
+Real commands: `/kingdom commerce balance`, `/kingdom commerce open`; `/kingdom admin economy inspect <online-player>`; permission4 `/kingdom admin economy set <player> <coins>` then append `confirm <reason>`; `/kingdom admin milestone inspect`; permission4 `/kingdom admin milestone road` then append `confirm <reason>` after inspecting the actual connection. These mutate real journals, not simulated status. Normal trading/coin conversion requires Survival/Adventure, empty cursor, native inventory, proximity and the registered completed service building. Admin adjustments are audited. Do not use live-world resets to test exclusivity; use the isolated native fixtures.
+
+Native commands: `JAVA_HOME=/jdk21 python3 scripts/test-claims.py --namespace kingdom_smp_bank_tests` runs the full Hut/Hall/earning/Farmer/Tier3/Bank loop with two embedded test peers, actual claim mods and controlled construction acceleration. It is not two real graphical clients. `scripts/test-runtime.sh -PkingdomTestNamespace=kingdom_smp_geometry_tests` validates the remaining workshop geometries in all rotations.
+
 ## Fresh-world owner and Hall diagnostics (0.6.0)
 
 `/kingdom admin owner <online-player>` reviews the permanent free-Hut owner assignment; repeat with `confirm` to pin it. Permission level 4 is required. Integrated fresh worlds infer their actual owner. Legacy worlds reject reassignment and never receive this additional entitlement.

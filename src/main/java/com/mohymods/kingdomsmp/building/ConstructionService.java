@@ -76,18 +76,42 @@ public final class ConstructionService {
     public static String rewardTitle(MinecraftServer server){return royal(server)?"Royal Town Hall":"Founders' Lodge";}
     public static boolean hut(Project p){return p!=null&&p.blueprint().equals(BlueprintRegistry.HUT);}
     public static boolean hall(Project p){return p!=null&&p.blueprint().equals(TownHallBlueprint.ID);}
-    public static String resident(MinecraftServer server,Project p){return hall(p)?WorldProgression.get(server).resident(p.id()):hut(p)?"Aldric Stonehand":"Mira Ashford";}
+    public static boolean purchased(Project p){return p!=null&&p.reward().startsWith("market:");}
+    public static String resident(MinecraftServer server,Project p){
+        return hall(p)||purchased(p)?WorldProgression.get(server).resident(p.id(),BlueprintRegistry.defaultResident(p.blueprint())):hut(p)?"Aldric Stonehand":"Mira Ashford";
+    }
+    private static void requireTier(MinecraftServer server,Project p){
+        if(purchased(p)&&ContributionService.kingdom(server).attainedTier()<BlueprintRegistry.requiredTier(p.blueprint()))
+            throw new IllegalStateException(BlueprintRegistry.title(p.blueprint())+" requires Kingdom Tier "+BlueprintRegistry.requiredTier(p.blueprint())+".");
+    }
     public static Project current(ServerPlayer player){
+        var store=store(player.server);
+        var selected=SELECTION.get(player);if(selected!=null)for(var p:store.projects())if(p.id().equals(selected)&&!(hut(p)&&p.phase()==Phase.COMPLETE&&store.reward(FIRST_HEARTH).isPresent()))return p;
+        var starter=store.reward(STARTING_HUT).orElse(null);
+        if(starter!=null&&starter.phase()!=Phase.COMPLETE)return starter;
+        var first=lodge(player.server);
+        if(first!=null&&first.owner().equals(player.getUUID())&&first.phase().ordinal()<Phase.BUILDING.ordinal())return first;
+        var active=store.projects().stream().filter(p->purchased(p)&&p.owner().equals(player.getUUID())&&p.phase()==Phase.BUILDING).findFirst().orElse(null);
+        if(active!=null)return active;
+        return store.projects().stream().filter(p->purchased(p)&&p.owner().equals(player.getUUID())&&p.phase().ordinal()<Phase.BUILDING.ordinal())
+                .sorted(Comparator.comparing(Project::reward)).findFirst().orElse(first);
+    }
+    /** Held placement is resolved separately from an explicitly inspected mailbox/board project. */
+    public static Project heldProject(ServerPlayer player){
         var store=store(player.server);
         for(var stack:List.of(player.getMainHandItem(),player.getOffhandItem())){
             var type=KingdomBlueprints.definition(stack);if(type==null)continue;
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            if(tag.hasUUID("project"))for(var p:store.projects())if(p.id().equals(tag.getUUID("project"))&&p.blueprint().equals(type)&&hasPlan(player,p)){SELECTION.put(player,p.id());break;}
+            if(tag.hasUUID("store")&&tag.hasUUID("project")&&tag.hasUUID("token")&&tag.getUUID("store").equals(store.identity())){
+                for(var p:store.projects())if(p.id().equals(tag.getUUID("project"))&&p.blueprint().equals(type)&&p.owner().equals(player.getUUID())&&Objects.equals(p.token(),tag.getUUID("token"))){
+                    return p;
+                }
+            }
+            throw new IllegalStateException("The held plan is stale or copied. Recover its current plan through your mailbox.");
         }
-        var selected=SELECTION.get(player);if(selected!=null)for(var p:store.projects())if(p.id().equals(selected)&&!(hut(p)&&p.phase()==Phase.COMPLETE&&store.reward(FIRST_HEARTH).isPresent()))return p;
-        var starter=store.reward(STARTING_HUT).orElse(null);
-        return starter!=null&&starter.phase()!=Phase.COMPLETE?starter:lodge(player.server);
+        throw new IllegalStateException("Hold your authenticated physical blueprint.");
     }
+    public static Project selectHeld(ServerPlayer player){var p=heldProject(player);if(!p.id().equals(SELECTION.get(player)))select(player,p.id());return p;}
     public static void select(ServerPlayer player,UUID id){store(player.server).get(id);SELECTION.put(player,id);REVIEWS.remove(player);PREVIEWS.remove(player);}
     public static void closeReview(ServerPlayer player){REVIEWS.remove(player);PREVIEWS.remove(player);SELECTION.remove(player);}
 
@@ -107,7 +131,7 @@ public final class ConstructionService {
     }
     public static void openPlan(ServerPlayer player,BlockPos origin){
         try{
-            Project p=owned(player);if(!hasPlan(player,p))throw new IllegalStateException("This plan is stale, copied, or belongs to another player. The winner can recover it in Construction.");
+            selectHeld(player);Project p=owned(player);if(!hasPlan(player,p))throw new IllegalStateException("This plan is stale, copied, or belongs to another player. The winner can recover it in Construction.");
             if(origin!=null)preview(player,origin,Rotation.NONE);
             ConstructionNetworking.open(player,BlueprintRegistry.title(p.blueprint())+" — supplied materials, one kingdom building.");
         }catch(IllegalArgumentException|IllegalStateException e){player.sendSystemMessage(Component.literal(e.getMessage()));}
@@ -115,6 +139,7 @@ public final class ConstructionService {
     public static Review review(ServerPlayer player,int action){
         if(store(player.server).quarantined())throw new IllegalStateException("Construction storage is quarantined. Administrator recovery is required.");
         Project p=current(player);if(p==null)throw new IllegalStateException("Complete the First Hearth first, or have the server owner initialize the starter entitlement.");
+        requireTier(player.server,p);
         if(action==1){
             ownerAlive(player,p);if(p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("The blueprint was already redeemed.");
             if(claimSlot(player,p)<0)throw new IllegalStateException("Make a free main-inventory slot before claiming or recovering the plan.");
@@ -142,8 +167,9 @@ public final class ConstructionService {
         return inspected;
     }
     /** Read-only candidate inspection; hologram probes never invalidate/authorize a GUI review. */
-    public static Preview inspectCandidate(ServerPlayer player,BlockPos origin,Rotation rotation){
-        Project p=owned(player);ownerAlive(player,p);
+    public static Preview inspectCandidate(ServerPlayer player,BlockPos origin,Rotation rotation){return inspectCandidate(player,owned(player),origin,rotation);}
+    public static Preview inspectCandidate(ServerPlayer player,Project p,BlockPos origin,Rotation rotation){
+        ownerAlive(player,p);requireTier(player.server,p);
         if(!hasPlan(player,p)||p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Claim a current unused blueprint first.");
         nearby(player,origin);
         Project candidate=p.propose(origin,rotation);String denied=validateSite(player.serverLevel(),candidate,false);
@@ -155,7 +181,7 @@ public final class ConstructionService {
         if(store.quarantined())throw new IllegalStateException("Construction storage is quarantined. Administrator recovery is required.");
         if(review==null||review.action()!=action||!review.nonce().equals(nonce)||System.nanoTime()-review.issued()>=REVIEW_NANOS
                 ||review.revision()!=store.revision())throw new IllegalStateException("Review expired or state changed. Review the exact action again.");
-        Project p=store.get(review.project());
+        Project p=store.get(review.project());requireTier(player.server,p);
         if(!Objects.equals(review.proposal(),p.proposal()))throw new IllegalStateException("The proposal changed; review again.");
         try{
             switch(action){
@@ -239,12 +265,12 @@ public final class ConstructionService {
     private static void syncInventory(ServerPlayer player){player.getInventory().setChanged();player.inventoryMenu.sendAllDataToRemote();}
     private static Project owned(ServerPlayer player){
         Project p=current(player);if(p==null)throw new IllegalStateException("Complete the First Hearth to earn this reward, or initialize the owner Hut plan.");
-        if(!p.owner().equals(player.getUUID()))throw new IllegalStateException("Only the permanent highest contributor can claim or place this blueprint.");return p;
+        if(!p.owner().equals(player.getUUID()))throw new IllegalStateException("Only this registered blueprint holder can claim or place the plan.");return p;
     }
     private static void ownerAlive(ServerPlayer player,Project p){
         GameType type=player.gameMode.getGameModeForPlayer();
         if(!p.owner().equals(player.getUUID())||!player.isAlive()||type!=GameType.SURVIVAL&&type!=GameType.ADVENTURE||player.containerMenu!=player.inventoryMenu)
-            throw new IllegalStateException("The winner must be alive in Survival/Adventure with other containers closed.");
+            throw new IllegalStateException("The blueprint holder must be alive in Survival/Adventure with other containers closed.");
     }
     private static void administrator(ServerPlayer player){if(!player.hasPermissions(2)||!player.isAlive()||player.isSpectator())throw new IllegalStateException("Administrator permission level 2 is required.");}
     private static void requireBuilder(MinecraftServer server){
@@ -280,6 +306,7 @@ public final class ConstructionService {
     /** Validate the complete air volume and its support, without acquiring chunk tickets. */
     public static String validateSite(ServerLevel level,Project p,boolean resuming){
         if(level.dimension()!=Level.OVERWORLD)return "Construction is restricted to the Overworld.";
+        try{requireTier(level.getServer(),p);}catch(IllegalStateException denied){return denied.getMessage();}
         if(hut(p)){
             if(p.origin()==null)return "No site selected.";
             for(var other:store(level.getServer()).projects())if(other.origin()!=null&&!other.id().equals(p.id())&&bounds(p).intersects(bounds(other)))return "Site overlaps another kingdom reservation.";
@@ -317,6 +344,11 @@ public final class ConstructionService {
         if(p.placed()>blocks.size())return "Saved blueprint version/progress mismatch.";
         for(int i=0;i<p.placed();i++){
             var b=blocks.get(i);BlockPos pos=p.origin().offset(b.offset());
+            // Only completed purchased farm crop/field cells are renewable gameplay space.
+            // Harvesting/trampling does not suspend the resident, and never regenerates crops.
+            // Foundations, walls, roof, workstation and every in-progress prefix remain required.
+            if(p.phase()==Phase.COMPLETE&&purchased(p)&&p.blueprint().equals(ProfessionBlueprints.FARMER)
+                    &&(b.state().getBlock() instanceof CropBlock||b.state().getBlock() instanceof FarmBlock))continue;
             if(!ConstructionBlueprint.matches(level.getBlockState(pos),b.state()))return "Saved progress differs at "+pos.toShortString()+". Administrator inspection required; missing materials are not regenerated.";
         }return null;
     }
@@ -334,6 +366,7 @@ public final class ConstructionService {
     public static void step(MinecraftServer server,UUID project){
         ConstructionStore store=store(server);Project p=store.get(project);if(p.phase()!=Phase.BUILDING||store.quarantined())return;
         ServerLevel level=server.overworld();var blueprint=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
+        try{requireTier(server,p);}catch(IllegalStateException denied){pause(p,denied.getMessage());return;}
         if(!loaded(level,p)){pause(p,"Site unloaded; waiting without chunk tickets.");return;}
         if(hut(p)){bootstrap(server,p.id());return;}
         String protection=claimDenial(level,p);if(protection!=null){pause(p,protection);return;}
@@ -411,14 +444,15 @@ public final class ConstructionService {
                     pause(p,"Move occupants away from the Reeve's home before her arrival.");return;
                 }
                 store.save(p.issueNpc(),p.owner(),"RESERVE_REEVE_IDENTITY");p=store.get(p.id());
-                ReeveEntity reeve=(hall(p)?KingdomNpcs.STEWARD:KingdomNpcs.REEVE).get().create(level);if(reeve==null){pause(p,"Reeve creation failed; issuance retained.");return;}
+                ReeveEntity reeve=(purchased(p)?KingdomNpcs.RESIDENT:hall(p)?KingdomNpcs.STEWARD:KingdomNpcs.REEVE).get().create(level);if(reeve==null){pause(p,"Reeve creation failed; issuance retained.");return;}
                 reeve.setUUID(p.npc());
                 reeve.configure(p.id(),home,resident(level.getServer(),p));reeve.moveTo(home.getX()+0.5,home.getY(),home.getZ()+0.5,180,0);
                 if(!level.addFreshEntity(reeve)){pause(p,"Reeve spawn rejected; identity remains reserved.");return;}
-            }else if(!p.id().equals(((ReeveEntity)existing).buildingId())){pause(p,"Reeve identity association mismatch.");return;}
-            store.save(p.complete(),p.owner(),"COMPLETE_LODGE");
+            }else if(existing.getType()!=(purchased(p)?KingdomNpcs.RESIDENT:hall(p)?KingdomNpcs.STEWARD:KingdomNpcs.REEVE).get()
+                    ||!p.id().equals(((ReeveEntity)existing).buildingId())){pause(p,"Resident identity association mismatch.");return;}
+            store.save(p.complete(),p.owner(),purchased(p)?"COMPLETE_PURCHASED_BUILDING":"COMPLETE_LODGE");
             for(var b:BlueprintRegistry.get(p.blueprint(),p.blueprintVersion()).blocks(p.rotation()))level.updateNeighborsAt(p.origin().offset(b.offset()),b.state().getBlock());
-            level.getServer().getPlayerList().broadcastSystemMessage(Component.literal(BlueprintRegistry.title(p.blueprint())+" is complete! "+resident(level.getServer(),p)+(hall(p)?", the Royal Steward":", the Reeve")+", welcomes the kingdom."),false);
+            level.getServer().getPlayerList().broadcastSystemMessage(Component.literal(BlueprintRegistry.title(p.blueprint())+" is complete! "+resident(level.getServer(),p)+", the "+BlueprintRegistry.occupation(p.blueprint())+", welcomes the kingdom."),false);
             pause(p,BlueprintRegistry.title(p.blueprint())+" complete. Kingdom and milestone services available; future services remain locked.");
         }catch(IOException|RuntimeException error){pause(p,"Completion interrupted; identity/reservation retained for recovery.");LogUtils.getLogger().error("Building completion interrupted",error);}
     }
@@ -427,24 +461,34 @@ public final class ConstructionService {
         for(Project p:store(level.getServer()).projects())if(p.phase()==Phase.BUILDING)return BlueprintRegistry.get(p.blueprint(),p.blueprintVersion()).workPost(p.origin(),p.rotation());
         return null;
     }
+    /** Resolve by immutable project association, never by name or the First Hearth singleton. */
+    public static Project projectForResident(ReeveEntity reeve){
+        if(!(reeve.level() instanceof ServerLevel level)||level.dimension()!=Level.OVERWORLD||reeve.buildingId()==null)return null;
+        return store(level.getServer()).projects().stream().filter(p->p.id().equals(reeve.buildingId())).findFirst().orElse(null);
+    }
     public static boolean registeredReeve(ReeveEntity reeve){
-        if(!(reeve.level() instanceof ServerLevel level)||level.dimension()!=Level.OVERWORLD)return false;
-        Project p=lodge(level.getServer());if(p==null||reeve.getType()!=(hall(p)?KingdomNpcs.STEWARD.get():KingdomNpcs.REEVE.get())||p.phase()!=Phase.COMPLETE||!p.npcIssued()||p.npcDead()||!p.npc().equals(reeve.getUUID())||!p.id().equals(reeve.buildingId()))return false;
+        Project p=projectForResident(reeve);
+        if(p==null||reeve.getType()!=(purchased(p)?KingdomNpcs.RESIDENT.get():hall(p)?KingdomNpcs.STEWARD.get():KingdomNpcs.REEVE.get())
+                ||p.phase()!=Phase.COMPLETE||!p.npcIssued()||p.npcDead()||!p.npc().equals(reeve.getUUID()))return false;
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());return p.origin().offset(b.rotate(b.home(),p.rotation())).equals(reeve.home());
     }
     public static void openReeve(ServerPlayer player,ReeveEntity reeve){
-        Project p=lodge(player.server);
+        Project p=projectForResident(reeve);
         if(p==null||!registeredReeve(reeve)||!player.isAlive()||player.isSpectator()||!reeve.isAlive()||player.level()!=reeve.level()
                 ||player.distanceToSqr(reeve)>64||!player.hasLineOfSight(reeve)||!structureIntact(player.serverLevel(),p)){
             player.sendSystemMessage(Component.literal("The resident is unavailable: check the completed building, proximity and registered identity."));return;
+        }
+        if(purchased(p)){
+            try{requireTier(player.server,p);}catch(IllegalStateException denied){player.sendSystemMessage(Component.literal(denied.getMessage()));return;}
+            com.mohymods.kingdomsmp.economy.CommerceService.openResident(player,reeve);return;
         }
         select(player,p.id());
         ConstructionNetworking.open(player,resident(player.server,p)+(hall(p)?" — Royal Steward: A kingdom is a promise kept together. I will keep our accounts of progress; you decide our future.":" — Reeve: Every beam has a builder, every gift a name. I keep the record; you write our history.")+" Choose Community milestone or Kingdom overview below.");
     }
     public static void reeveDied(ReeveEntity reeve){
         if(!registeredReeve(reeve))return;
-        var level=(ServerLevel)reeve.level();var p=lodge(level.getServer());
-        try{store(level.getServer()).save(p.markDead(),p.owner(),"REEVE_DIED_NO_AUTOMATIC_REPLACEMENT");}
+        var level=(ServerLevel)reeve.level();var p=projectForResident(reeve);
+        try{store(level.getServer()).save(p.markDead(),p.owner(),"RESIDENT_DIED_NO_AUTOMATIC_REPLACEMENT");}
         catch(IOException e){storageFailure(e);}
     }
     public static String activity(UUID project){return ACTIVITY.getOrDefault(project,"Waiting for loaded context and verification.");}
@@ -475,14 +519,14 @@ public final class ConstructionService {
                     structureIntact(player.server.overworld(),p)?"The furnished Lodge is complete. Mira Ashford is the kingdom's Reeve.":"Lodge damaged or unloaded; Reeve services are suspended.";
         };
         if(p==null&&royal(player.server))status=WorldProgression.get(player.server).owner()==null?"Server owner initialization required: the host can review /kingdom admin owner <player>, then confirm.":"Finish the four First Hearth targets to earn the Royal Town Hall. The owner's Hut comes first.";
-        if(p!=null&&royal(player.server)){
+        if(p!=null&&(royal(player.server)||purchased(p))){
             status=switch(p.phase()){
                 case AVAILABLE->"Claim or recover your unique "+BlueprintRegistry.title(p.blueprint())+" plan. Materials are included.";
                 case CLAIMED->"Hold your plan and aim at a clear, loaded, supported site. Server validation authorizes normal placement.";
                 case PROPOSED->"Review the selected site.";
                 case APPROVED->"Complete site validated. Open Project to review and begin construction.";
                 case BUILDING->activity(p.id());
-                case COMPLETE->hut(p)?"Builder's Hut complete. Aldric is ready; contribute to First Hearth.":p.npcDead()?"Steward unavailable; identity retained for recovery.":"Town Hall complete. "+resident(player.server,p)+" serves the kingdom. Architect, banking and mailbox remain locked pending implementation.";
+                case COMPLETE->hut(p)?"Builder's Hut complete. Aldric is ready; contribute to First Hearth.":p.npcDead()?"Resident unavailable; identity retained for recovery.":purchased(p)?BlueprintRegistry.title(p.blueprint())+" complete. Visit "+resident(player.server,p)+", "+BlueprintRegistry.occupation(p.blueprint())+", for building services.":"Town Hall complete. "+resident(player.server,p)+" serves the kingdom.";
             };
         }
         if(preview!=null&&!preview.denial().isBlank())status=preview.denial();
@@ -501,9 +545,9 @@ public final class ConstructionService {
                     var player=c.getSource().getPlayerOrException();
                     try{
                         var p=owned(player);ownerAlive(player,p);
-                        if(!hall(p)||p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Only the unused Town Hall holder can name the new Steward before construction.");
+                        if((!hall(p)&&!purchased(p))||p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Only the unused building-plan holder can name its new resident before construction.");
                         String name=StringArgumentType.getString(c,"name").trim();WorldProgression.get(player.server).name(p.id(),name);
-                        audit(player,p,"NAME_NEW_STEWARD");c.getSource().sendSuccess(()->Component.literal("New Steward display name: "+name+". Persistent identity unchanged."),false);return 1;
+                        audit(player,p,"NAME_NEW_RESIDENT");c.getSource().sendSuccess(()->Component.literal("New resident display name: "+name+". Persistent identity unchanged."),false);return 1;
                     }catch(IOException|IllegalArgumentException|IllegalStateException error){c.getSource().sendFailure(Component.literal(error.getMessage()));return 0;}
                 })))
                 .then(Commands.literal("open").executes(c->{ConstructionNetworking.open(c.getSource().getPlayerOrException(),"");return 1;}))

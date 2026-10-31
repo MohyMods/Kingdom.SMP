@@ -1,3 +1,11 @@
+## 1 November 2026 — Commerce, fresh Tier 3 and physical Royal Bank
+
+Implemented and tested Royal Architect first-buyer purchases, durable balances, inventory-consuming early income, private blueprint/coin mail, four physical coin denominations and in-person banking/transfers. Paid Farmer/Builder/Lumberjack premises release at Tier 2 under the explicit new approval; the Bank at Tier 3. A fresh-profile eight-resource journal plus inspected road advances Tier 2→3 without changing historical Tier 1 results. Generalized authenticated construction/NPC assignment preserves the original Hut/Hall and legacy Lodge/Mira.
+
+Full build: 186 passing JUnit tests. Core, normal-dedicated claims, marketplace, Bank and rotated purchased-geometry native suites passed. Actual client earning→Farmer purchase/construction→Tier 3 donations→Bank purchase/construction→banking loop ran with both claim systems. Mid-build and completed-world restarts retained progress, wallets, physical coins and identities. Legacy client upgrade retained all ten original kingdom files and the same two residents. Narrow-screen testing found and fixed clipped/blank trade detail; preview polling no longer mutates selected GUI projects. Detailed executed checks and disclosed host funding/tick acceleration are in VALIDATION.md.
+
+Still a development build: auctions/general item escrow, dynamic shops/contracts, professions/288 quests, later buildings/tiers, FTB campaign, full mod integrations and full-pack acceptance remain. The final project directive continues to authorize dependent work; no main merge or 1.0 claim.
+
 # Development log
 
 ## 2026-10-31 — Tested optional claims, 0.5.1

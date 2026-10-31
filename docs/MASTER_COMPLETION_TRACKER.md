@@ -1,3 +1,5 @@
+> **0.7.0 current checkpoint:** [Commerce and Tier3 Bank](COMMERCE_CHECKPOINT.md) implements the new approved Tier2 paid premises, resource income, recoverable plan mailbox, fresh-profile Tier2→3 and physical banking. [Validation](VALIDATION.md) / [current matrix](PRODUCTION_COMPLETION_MATRIX.md) qualify tested scope; historical missing-status text below is superseded only for these implemented slices. Full1.0 remains incomplete.
+
 > **0.6.0 current milestone:** The fresh-world Hall loop and legacy profile preservation are implemented. [Checkpoint acceptance](TOWN_HALL_CHECKPOINT.md) and [current matrix](PRODUCTION_COMPLETION_MATRIX.md) supersede older per-row statuses below for this milestone only. Next priority: Architect first-buyer marketplace and early economy.
 
 > **D-024 current authority:** [Final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md) supersedes older holds. [Audited feature inventory](PRODUCTION_COMPLETION_MATRIX.md) records verified slices and gaps. No1.0.0 release claim. Current work adds operator diagnostics alongside existing systems; new-world profiles/Hall remain the critical path.

@@ -1,4 +1,6 @@
-Latest 0.6.0 fresh-world Town Hall checkpoint: [JAR, actual screenshots, tests and continuation](docs/checkpoints/25aa1dc/CHECKPOINT.md). **1.0.0 is not ready.** [Verified-slice feature inventory](docs/PRODUCTION_COMPLETION_MATRIX.md).
+Latest **0.7.0-dev**: [Royal Architect, currency, Tier 3 Bank and validation](docs/COMMERCE_CHECKPOINT.md). **The full game is not finished; 1.0.0 is not ready.** [Current completion matrix](docs/PRODUCTION_COMPLETION_MATRIX.md).
+
+Previous 0.6.0 fresh-world Town Hall checkpoint: [JAR, actual screenshots, tests and continuation](docs/checkpoints/25aa1dc/CHECKPOINT.md). **1.0.0 is not ready.** [Verified-slice feature inventory](docs/PRODUCTION_COMPLETION_MATRIX.md).
 
 # Kingdom SMP — Royal Gilded development
 
@@ -6,7 +8,7 @@ Latest 0.6.0 fresh-world Town Hall checkpoint: [JAR, actual screenshots, tests a
 
 **Tested claim subset; full pack unverified:** exact FTB Chunks2101.1.22 + OPAC0.33.0 adapters now validate both systems over the full site and every progressive step. Revocation pauses and restored access resumes. The actual owner must be alive, non-spectator and online in the building dimension. Other versions/API failures refuse safely. All five locked dependencies ran together on a normal dedicated server and real graphical client; the complete277-entry pack and other providers remain unverified. [Compatibility evidence](docs/CLAIM_COMPATIBILITY_AUDIT.md).
 
-The [master directive](docs/sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) supersedes previous planning holds. New worlds receive the 19×15, two-floor **Town Hall at Tier 2**; existing Lodge worlds must remain intact. Versioned profiles, the free owner Hut plan, automatic server-valid site authorization, furnished Hall and permanent Elara services are implemented and tested. Irregular foundations, Architect marketplace and early economy remain pending. [Current rules and implementation status](docs/MASTER_SUPERSESSION_MATRIX.md).
+The [master directive](docs/sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) supersedes previous planning holds. New worlds receive the 19×15, two-floor **Town Hall at Tier 2**; existing Lodge worlds must remain intact. Versioned profiles, the free owner Hut plan, automatic server-valid site authorization, furnished Hall and permanent Elara services are implemented and tested. Architect marketplace, early income, mail, physical coins and the Tier 3 Bank are now implemented in 0.7.0; irregular foundations remain pending. [Current rules and implementation status](docs/MASTER_SUPERSESSION_MATRIX.md).
 
 ## Implemented and tested core gameplay
 
@@ -18,7 +20,7 @@ The [master directive](docs/sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.m
 - Bounded GPU geometry caching survives rotation eviction, hand switching and resource reload. Actual normal/narrow Minecraft frames and process-restart construction checks accompany this build.
 - Vanilla **Nether entry requires Tier 5; End entry requires Tier 12**, server-enforced for tested player/item transfer paths. Unknown mod routes and imported characters already inside locked realms remain unverified. Other dimension adapters/Ad Astra recipes are not implemented.
 
-The whole mod is not complete. Existing worlds were not converted. Bank/trading/Charter, marketplace, professions, auctions and later costs remain inactive. [Checkpoint scope and limits](docs/HELD_BLUEPRINT_CHECKPOINT.md) · [completion tracker](docs/MASTER_COMPLETION_TRACKER.md). Historical builds remain archived separately.
+The whole mod is not complete. Existing worlds were not converted. The 0.7.0 checkpoint adds the marketplace, early supplies exchange, mail, fresh Tier 3 and Bank. Professions, auctions, later tiers and Charter remain unfinished. [Checkpoint scope and limits](docs/HELD_BLUEPRINT_CHECKPOINT.md) · [completion tracker](docs/MASTER_COMPLETION_TRACKER.md). Historical builds remain archived separately.
 
 ## Flexible milestone definitions
 

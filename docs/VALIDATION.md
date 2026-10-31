@@ -1,3 +1,28 @@
+## 1 November 2026 — Royal Gilded 0.7.0-dev commerce and Bank
+
+Full Gradle build passed with **186 JUnit tests, zero failures, errors or skips** (`commerce-published-build.log`). This is a development milestone, not release 1.0.0. The resubmitted final end-to-end directive matches the archived authority after trailing-whitespace normalization. All user-facing dates here use Asia/Riyadh.
+
+Executed native validation:
+
+- Existing legacy/core lifecycle: `commerce-core-fixed.log`, BUILD SUCCESSFUL, 44 seconds. An earlier run caught preview probes invalidating GUI selection/reviews; the fix makes held-plan inspection read-only and selection explicit.
+- Normal dedicated FTB Chunks 2101.1.22 + OPAC 0.33.0 regression: `commerce-claims-regression.log`, SUITE_PASSED, 53 seconds. Actual protection checks, revocation, owner logout and restart behavior remain enforced.
+- Connected marketplace lifecycle: `commerce-native-third.log`, SUITE_PASSED, 1 minute 20 seconds. Actual Hall, inventory-consuming resource sales, native receipts, stale/range refusals, first-buyer competition, one debit, private/recoverable authenticated Farmer plan, claims, progressive construction, one resident and reload.
+- Connected Bank lifecycle: `bank-native-accepted.log`, SUITE_PASSED, 2 minutes 14 seconds. Actual eight-resource Tier 2 completion and road approval, non-operator denial, Tier 3, paid Bank, 921-block progressive construction, four coin denominations, native receipts, replay/capacity/cursor/distance refusals, atomic nearby-player transfers and reload. A changed iron-bar connection remains a legitimate completed Bank. Test funds were explicitly supplied for the Bank purchase.
+- Actual Builder/Lumberjack furnishing and navigation in all four rotations: `commerce-geometry-grounded.log`, BUILD SUCCESSFUL, 30 seconds. This checks native block support, resident/lectern positions and pathfinding; it is not a claim of complete real-client construction of both premises.
+
+Real graphical client and normal dedicated server, with the exact five pinned claim dependencies:
+
+1. Non-operator Dev sold 1,024 ordinary wheat through actual reviewed UI, receiving 1,024 coins. Bought the Farmer plan for 1,000, saw sold-out stock and private mailbox, claimed the authenticated item, placed its full hologram under both claim systems and constructed all 600 blocks at normal production cadence. One Rowan Fenwick arrived.
+2. Donated all eight actual configured Tier 2 resource requirements through the Progress screen. The host placed and inspected an isolated test road, then used the permission-checked audited approval command. The kingdom reached Tier 3 without a force-tier or bonus blueprint.
+3. The host explicitly set the QA wallet to 5,000 coins with an audited reason. Dev bought the Bank for 2,500 and placed it through the normal plan/hologram/review interface. Construction ran at normal cadence to 459/921; a complete server restart retained that exact prefix and all economy/tier hashes. After reconnection, vanilla `tick rate 100` shortened the remainder, then returned to 20. One Oswin Fairmark arrived at 921/921.
+4. Used the real counter to withdraw one Gold coin (100), then deposited it back with no balance gain. Withdrew one Silver coin (10), leaving 2,490 virtual coins, saved and stopped both actual client and server, then restarted both. The same physical Silver coin and balance survived. Depositing it restored exactly 2,500. Four permanent NPC identities were preserved.
+5. The initial 854×480 UI inspection found a blank detail region. Fixed the narrow layout; the final actual narrow-window capture shows readable details, navigation and quantity controls. Normal and narrow screenshots were inspected, not replaced by mockups.
+6. Loaded a separate copied legacy Lodge world in the actual client, interacted with Mira and saved/quitted. **All ten pre-existing kingdom files remained byte-for-byte identical**, the same Aldric/Mira UUIDs remained, and no Tier 2 journal, Hall, Steward or duplicate resident was introduced. Only the new empty economy journal/seal were added. `commerce-legacy-proof.json` contains the comparisons. The original save was untouched.
+
+The current checkpoint includes these logs, native result XML, screenshots, restart proofs and isolated QA world. Host give commands supplied test resources; this is functional verification, not survival effort/balance certification. Native peers test contention and transfers; two simultaneous real-client acceptance remains pending. The full 277-entry pack/configuration and recipe closure have not been validated. See [scope and remaining limits](COMMERCE_CHECKPOINT.md), [artifact/API audit](VERIFIED_INTEGRATION_ARTIFACTS.md) and [completion matrix](PRODUCTION_COMPLETION_MATRIX.md).
+
+Earlier reports below remain historical evidence for their respective source checkpoints.
+
 # 0.6.0 fresh-world Hall acceptance — 31 October 2026
 
 Baseline `9fb65ec`, Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. This is a connected development milestone, not release 1.0 or full-pack certification. [Implementation and in-game instructions](TOWN_HALL_CHECKPOINT.md).

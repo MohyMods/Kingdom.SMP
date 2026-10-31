@@ -28,13 +28,15 @@ public final class ConstructionProtection {
         bus.addListener((PlayerInteractEvent.RightClickBlock e)->{
             if(!(e.getEntity() instanceof ServerPlayer player))return;
             if(ConstructionService.protectedAt(player.serverLevel(),e.getPos())){e.setCanceled(true);e.setCancellationResult(InteractionResult.FAIL);return;}
-            var p=ConstructionService.lodge(player.server);
-            if(p!=null&&p.phase()==Phase.COMPLETE&&player.serverLevel()==player.server.overworld()){
+            if(!player.isAlive()||player.isSpectator()||e.getHand()!=net.minecraft.world.InteractionHand.MAIN_HAND||player.serverLevel()!=player.server.overworld()
+                    ||player.distanceToSqr(e.getPos().getX()+0.5,e.getPos().getY()+0.5,e.getPos().getZ()+0.5)>64)return;
+            for(var p:ConstructionService.store(player.server).projects())if(p.phase()==Phase.COMPLETE){
                 var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
                 if(e.getPos().equals(p.origin().offset(b.rotate(b.board(),p.rotation())))&&ConstructionService.structureIntact(player.serverLevel(),p)){
                     e.setCanceled(true);e.setCancellationResult(InteractionResult.SUCCESS);
                     ConstructionService.select(player,p.id());
-                    ConstructionNetworking.open(player,"Community milestone board — inspect the kingdom or contribute through the live milestone interface.");
+                    ConstructionNetworking.open(player,ConstructionService.purchased(p)?"Building records — inspect the registered project; visit its resident for services.":"Community milestone board — inspect the kingdom or contribute through the live milestone interface.");
+                    return;
                 }
             }
         });

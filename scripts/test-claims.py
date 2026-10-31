@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
-parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests'],default='kingdom_smp_claim_tests')
+parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests'],default='kingdom_smp_claim_tests')
 args=parser.parse_args()
-marker='TOWN_HALL_TEST_ASSERTIONS_PASSED:' if args.namespace=='kingdom_smp_townhall_tests' else 'CLAIM_TEST_ASSERTIONS_PASSED:'
+marker={'kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:'}[args.namespace]
 root = Path(__file__).resolve().parent.parent
 subprocess.run(['python3', str(root / 'scripts/download-claim-test-mods.py')], check=True)
 fixture = Path(tempfile.mkdtemp(prefix='claim-server.', dir=root / 'work'))

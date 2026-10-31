@@ -53,7 +53,8 @@ public final class WorldProgression {
         if(owner!=null&&!owner.equals(player))throw new IllegalStateException("The starting owner is already pinned.");
         if(owner==null){owner=player;try{save();}catch(IOException e){owner=null;throw e;}}
     }
-    public String resident(UUID project){healthy();return names.getOrDefault(project,"Elara Vale");}
+    public String resident(UUID project){return resident(project,"Elara Vale");}
+    public String resident(UUID project,String fallback){healthy();return names.getOrDefault(project,fallback);}
     public void name(UUID project,String value)throws IOException{healthy();validateName(value);String previous=names.put(project,value);try{save();}catch(IOException e){if(previous==null)names.remove(project);else names.put(project,previous);throw e;}}
     private static void validateName(String value){if(value.isBlank()||value.length()>48||value.codePoints().anyMatch(c->Character.isISOControl(c)||c==167))throw new IllegalArgumentException("Use a readable resident name of 1–48 characters without formatting codes.");}
     private void save()throws IOException{

@@ -45,7 +45,7 @@ public final class ContributionService {
     public static KingdomState kingdom(MinecraftServer server) {
         KingdomState baseline = KingdomSavedData.get(server).snapshot();
         var progress = ledger(server).progress();
-        return new KingdomState(baseline.schemaVersion(), progress.revision(), Math.max(baseline.attainedTier(), progress.complete() ? 2 : 1));
+        return new KingdomState(baseline.schemaVersion(), Math.addExact(progress.revision(),com.mohymods.kingdomsmp.building.ConstructionService.royal(server)?com.mohymods.kingdomsmp.progression.TierTwoService.ledger(server).revision():0), Math.max(Math.max(baseline.attainedTier(), progress.complete() ? 2 : 1),com.mohymods.kingdomsmp.progression.TierTwoService.attainedTier(server)));
     }
     public static int eligible(ServerPlayer player, Resource resource) {
         int amount = 0;
@@ -125,7 +125,7 @@ public final class ContributionService {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         try {
             var ledger = ledger(player.server); verifyLoadedReceipt(player, ledger);
-            if (ledger.progress().complete()) player.sendSystemMessage(Component.literal("The First Hearth is complete. Kingdom Tier 2. Highest contributor: "
+            if (ledger.progress().complete()) player.sendSystemMessage(Component.literal("First Hearth complete (reached Tier 2). Current Kingdom Tier "+kingdom(player.server).attainedTier()+". Highest contributor: "
                     + name(ledger, ledger.progress().winner().orElseThrow()) + ". "+com.mohymods.kingdomsmp.building.ConstructionService.rewardTitle(player.server)+" privilege earned."));
         }
         catch (RuntimeException error) {
@@ -140,7 +140,7 @@ public final class ContributionService {
             if(hut==null||hut.phase()!=com.mohymods.kingdomsmp.persistence.BuilderHutSavedData.Phase.ACTIVE)throw new IllegalStateException("Establish the owner's Builder's Hut before contributing to First Hearth.");
         }
         GameType type = player.gameMode.getGameModeForPlayer();
-        if (!player.isAlive() || type != GameType.SURVIVAL && type != GameType.ADVENTURE || player.containerMenu != player.inventoryMenu) {
+        if (!player.isAlive() || type != GameType.SURVIVAL && type != GameType.ADVENTURE || player.containerMenu != player.inventoryMenu || !player.containerMenu.getCarried().isEmpty()) {
             throw new IllegalStateException("Donate while alive in Survival or Adventure mode, with other containers closed.");
         }
     }

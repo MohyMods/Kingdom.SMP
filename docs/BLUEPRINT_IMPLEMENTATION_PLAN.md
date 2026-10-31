@@ -1,3 +1,5 @@
+> **0.7.0 current checkpoint:** [Commerce and Tier3 Bank](COMMERCE_CHECKPOINT.md) implements the new approved Tier2 paid premises, resource income, recoverable plan mailbox, fresh-profile Tier2→3 and physical banking. [Validation](VALIDATION.md) / [current matrix](PRODUCTION_COMPLETION_MATRIX.md) qualify tested scope; historical missing-status text below is superseded only for these implemented slices. Full1.0 remains incomplete.
+
 > **Current Town Hall implementation:** [0.6.0 checkpoint](TOWN_HALL_CHECKPOINT.md) implements pinned fresh-world Hall versus preserved legacy Lodge profiles, free owner Hut plans, progressive furnished Hall and Elara services. Historical text below does not authorize converting existing saves or awarding another historical reward. See the checkpoint validation report for actual executed acceptance and remaining work.
 
 # Physical blueprint implementation and migration plan — for approval

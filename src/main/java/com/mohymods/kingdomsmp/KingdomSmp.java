@@ -25,11 +25,16 @@ public final class KingdomSmp {
 
     public KingdomSmp(IEventBus modBus) {
         KingdomNpcs.register(modBus);
+        com.mohymods.kingdomsmp.economy.CurrencyItems.register(modBus);
         com.mohymods.kingdomsmp.building.KingdomBlueprints.register(modBus);
         com.mohymods.kingdomsmp.building.ConstructionProtection.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.building.ConstructionService::tick);
         NeoForge.EVENT_BUS.addListener(ContributionService::login);
         NeoForge.EVENT_BUS.addListener(ContributionService::logout);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.economy.CommerceService::login);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.economy.CommerceService::logout);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.progression.TierTwoService::login);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.progression.TierTwoService::logout);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.kingdom.KingdomTravel::travel);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.milestone.MilestoneService::sync);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
@@ -44,6 +49,8 @@ public final class KingdomSmp {
         BuilderHutService.initialize(event.getServer());
         ContributionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.building.ConstructionService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.progression.TierTwoService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.economy.CommerceService.initialize(event.getServer());
         KingdomState state = ContributionService.kingdom(event.getServer());
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());
@@ -55,6 +62,7 @@ public final class KingdomSmp {
                 .then(BuilderHutService.commands())
                 .then(com.mohymods.kingdomsmp.building.ConstructionService.commands())
                 .then(com.mohymods.kingdomsmp.milestone.MilestoneService.commands())
+                .then(com.mohymods.kingdomsmp.economy.CommerceService.commands())
                 .then(Commands.literal("status").executes(context -> {
                     KingdomState state = ContributionService.kingdom(context.getSource().getServer());
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",

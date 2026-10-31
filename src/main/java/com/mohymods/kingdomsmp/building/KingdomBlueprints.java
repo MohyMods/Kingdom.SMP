@@ -15,6 +15,10 @@ public final class KingdomBlueprints {
     public static final DeferredItem<Item> LODGE=register("founders_lodge_blueprint");
     public static final DeferredItem<Item> HUT=register("builders_hut_blueprint");
     public static final DeferredItem<Item> HALL=register("town_hall_blueprint");
+    public static final DeferredItem<Item> FARMER=register("farmer_blueprint");
+    public static final DeferredItem<Item> BUILDER=register("builder_blueprint");
+    public static final DeferredItem<Item> LUMBERJACK=register("lumberjack_blueprint");
+    public static final DeferredItem<Item> BANK=register("royal_bank_blueprint");
     private static DeferredItem<Item> register(String id){return ITEMS.register(id,()->new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)){
         @Override public InteractionResultHolder<ItemStack> use(Level level,net.minecraft.world.entity.player.Player player,InteractionHand hand){
             if(player instanceof ServerPlayer p)ConstructionService.openPlan(p,null);
@@ -25,8 +29,25 @@ public final class KingdomBlueprints {
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
     });}
-    public static Item item(net.minecraft.resources.ResourceLocation id){return id.equals(BlueprintRegistry.HUT)?HUT.get():id.equals(TownHallBlueprint.ID)?HALL.get():LODGE.get();}
-    public static net.minecraft.resources.ResourceLocation definition(ItemStack stack){return stack.is(HUT.get())?BlueprintRegistry.HUT:stack.is(HALL.get())?TownHallBlueprint.ID:stack.is(LODGE.get())?FoundersLodgeBlueprint.ID:null;}
+    public static Item item(net.minecraft.resources.ResourceLocation id){
+        if(id.equals(BlueprintRegistry.HUT))return HUT.get();
+        if(id.equals(TownHallBlueprint.ID))return HALL.get();
+        if(id.equals(FoundersLodgeBlueprint.ID))return LODGE.get();
+        if(id.equals(ProfessionBlueprints.FARMER))return FARMER.get();
+        if(id.equals(ProfessionBlueprints.BUILDER))return BUILDER.get();
+        if(id.equals(ProfessionBlueprints.LUMBERJACK))return LUMBERJACK.get();
+        if(id.equals(RoyalBankBlueprint.ID))return BANK.get();
+        throw new IllegalArgumentException("Unsupported blueprint item");
+    }
+    public static net.minecraft.resources.ResourceLocation definition(ItemStack stack){
+        if(stack.is(HUT.get()))return BlueprintRegistry.HUT;
+        if(stack.is(HALL.get()))return TownHallBlueprint.ID;
+        if(stack.is(LODGE.get()))return FoundersLodgeBlueprint.ID;
+        if(stack.is(FARMER.get()))return ProfessionBlueprints.FARMER;
+        if(stack.is(BUILDER.get()))return ProfessionBlueprints.BUILDER;
+        if(stack.is(LUMBERJACK.get()))return ProfessionBlueprints.LUMBERJACK;
+        return stack.is(BANK.get())?RoyalBankBlueprint.ID:null;
+    }
     private KingdomBlueprints() { }
     public static void register(IEventBus bus){ITEMS.register(bus);}
 }

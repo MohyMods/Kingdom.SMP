@@ -31,10 +31,12 @@ public final class KingdomClient {
         com.mohymods.kingdomsmp.network.ContributionNetworking.install(ContributionController::receive);
         KingdomNetworking.installBuilderReceiver(BuilderDialogueController::receive);
         com.mohymods.kingdomsmp.network.ConstructionNetworking.install(ConstructionController::receive);
+        com.mohymods.kingdomsmp.network.CommerceNetworking.install(CommerceController::receive);
         modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
                 event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), AldricRenderer::new);
                 event.registerEntityRenderer(KingdomNpcs.REEVE.get(), VillagerRenderer::new);
                 event.registerEntityRenderer(KingdomNpcs.STEWARD.get(), VillagerRenderer::new);
+                event.registerEntityRenderer(KingdomNpcs.RESIDENT.get(), VillagerRenderer::new);
         });
         NeoForge.EVENT_BUS.addListener(ConstructionPreview::render);
         modBus.addListener((net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent event)->event.registerReloadListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener)manager->BlueprintPlacement.invalidateMeshes()));
@@ -49,6 +51,7 @@ public final class KingdomClient {
         ContributionController.tick();
         BuilderDialogueController.tick();
         ConstructionController.tick();
+        CommerceController.tick();
         BlueprintPlacement.tick();
         while (OVERVIEW.consumeClick()) {
             if (net.minecraft.client.Minecraft.getInstance().screen == null) {

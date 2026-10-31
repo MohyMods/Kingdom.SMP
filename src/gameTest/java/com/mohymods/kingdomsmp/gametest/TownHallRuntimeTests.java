@@ -17,6 +17,10 @@ import net.neoforged.neoforge.gametest.*;
 public final class TownHallRuntimeTests {
     @GameTest(template="empty",timeoutTicks=1800)
     public static void newWorldLoop(GameTestHelper h)throws Exception{
+        newWorldLoop(h,()->{h.succeed();com.mojang.logging.LogUtils.getLogger().info("TOWN_HALL_TEST_ASSERTIONS_PASSED: owner Hut, real contributions, exclusive winner Hall, both claim APIs, furnished two floors, progressive handover, unique named Steward and persistent records");});
+    }
+    /** Shared real-world fixture; completion runs only after full native Hall handover checks. */
+    public static void newWorldLoop(GameTestHelper h,Runnable completion)throws Exception{
         var level=h.getLevel();var server=level.getServer();
         var profile=WorldProgression.get(server);
         h.assertTrue(profile.mode()==WorldProgression.Mode.ROYAL_HALL&&profile.owner()==null,"Actual new dedicated world uses new profile and requires explicit owner");
@@ -97,7 +101,9 @@ public final class TownHallRuntimeTests {
                     h.assertTrue(level.getBlockState(site.offset(b.board())).is(Blocks.LECTERN),"Service board is an actual unobstructed furnished lectern");
                     var route=resident.getNavigation().createPath(site.offset(10,6,11),0);
                     h.assertTrue(route!=null&&route.canReach(),"Physical ground-to-gallery stairs are navigable: "+(route==null?"no path":route.getEndNode().asBlockPos()));
-                    h.succeed();com.mojang.logging.LogUtils.getLogger().info("TOWN_HALL_TEST_ASSERTIONS_PASSED: owner Hut, real contributions, exclusive winner Hall, both claim APIs, furnished two floors, progressive handover, unique named Steward and persistent records");
+                    // GameTestInfo iterates its scheduled-callback map here. Queue the
+                    // next phase outside that iterator before it registers another per-tick task.
+                    server.tell(new net.minecraft.server.TickTask(server.getTickCount()+1,completion));
                 });
             }catch(Exception e){h.fail(e.getMessage()==null?e.toString():e.getMessage());}
         });

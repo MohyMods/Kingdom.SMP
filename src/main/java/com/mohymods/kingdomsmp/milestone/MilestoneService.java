@@ -70,6 +70,12 @@ public final class MilestoneService {
         for(int tier=1;tier<=12;tier++)result.add(limit(describe(server,s,tier),4096));return List.copyOf(result);
     }
     private static String describe(MinecraftServer server,Snapshot s,int tier){
+        if(tier==2&&ConstructionService.royal(server)){
+            var active=com.mohymods.kingdomsmp.progression.TierTwoService.ledger(server);var out=new StringBuilder("VERSIONED LIVE DEFAULTS · Roads of Commerce · Tier 2 → 3\n");
+            out.append("Requires completed Town Hall and inspected Hut connection. Road: ").append(active.road().isPresent()?"approved":"awaiting administrator approval").append('\n');
+            for(var r:com.mohymods.kingdomsmp.progression.TierTwoService.Resource.values())out.append(r.title).append(": ").append(active.total(r.id)).append(" / ").append(active.requirements().get(r.id)).append('\n');
+            return out.append("Tier 3 unlocks the Royal Bank. Building blueprints remain first-buyer purchases. Exact normalized contribution recognition is persistent. Later historical proposals remain inactive.").toString();
+        }
         if(s.catalog()==null)return "Milestone requirements need administrator review. Saved history and rewards are unchanged; new donations are paused.";
         Milestone m=s.catalog().tier(tier);StringBuilder out=new StringBuilder();
         if(tier>1)out.append("HISTORICAL DRAFT — NOT ACTIVE. Resource/reward bindings await the revised progression review. No new costs are accepted.\n");
@@ -106,7 +112,7 @@ public final class MilestoneService {
                 .then(Commands.literal("inspect").then(Commands.argument("tier",IntegerArgumentType.integer(1,12)).executes(c->{int tier=IntegerArgumentType.getInteger(c,"tier");c.getSource().sendSuccess(()->Component.literal(descriptions(c.getSource().getServer()).get(tier-1)),false);return 1;})))
                 .then(Commands.literal("validate").requires(s->s.hasPermission(2)).executes(c->{
                     Snapshot s=current(c.getSource().getServer());if(s.catalog()==null){c.getSource().sendFailure(Component.literal(limit(s.error(),1000)));return 0;}
-                    String active=consumptionDenial(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal(active.isEmpty()?"First Hearth contract validated. All later costs remain disabled.":active),false);
+                    String active=consumptionDenial(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal(active.isEmpty()?"First Hearth contract validated. Fresh-world Tier 2 uses pinned versioned defaults; later catalogue proposals remain disabled.":active),false);
                     for(String issue:s.report().catalogIssues().stream().limit(16).toList())c.getSource().sendFailure(Component.literal(limit(issue,1000)));
                     for(int tier=1;tier<=12;tier++){String label="Tier "+tier+": ";List<String> issues=s.report().issues(tier);String line=label+(issues.isEmpty()?"known prerequisites/registry validated":String.join(" | ",issues));c.getSource().sendSuccess(()->Component.literal(limit(line,4000)),false);}
                     return 1;

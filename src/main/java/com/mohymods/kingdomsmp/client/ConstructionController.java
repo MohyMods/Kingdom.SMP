@@ -24,7 +24,7 @@ public final class ConstructionController {
     public static void receive(ConstructionView view){
         tick();var client=Minecraft.getInstance();if(client.player==null||client.getConnection()==null)return;
         if(view.requestId()==0){
-            if(view.open()&&client.screen==null)client.setScreen(new ConstructionScreen(view,null));
+            if(view.open()&&(client.screen==null||client.screen instanceof com.mohymods.kingdomsmp.client.screen.CommerceScreen))client.setScreen(new ConstructionScreen(view,null));
             else if(!view.open()&&client.screen instanceof ConstructionScreen screen)screen.accept(view);
             ConstructionPreview.accept(view);return;
         }

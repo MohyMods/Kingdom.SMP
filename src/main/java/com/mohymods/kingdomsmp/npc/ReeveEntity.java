@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import java.util.UUID;
 
-/** Mira Ashford: a meticulous, dryly humorous keeper of the community's record. */
+/** Persistent named civic/profession resident; immutable building identity drives service authority. */
 public final class ReeveEntity extends Villager {
     private UUID building;
     private BlockPos home=BlockPos.ZERO;
@@ -27,16 +27,24 @@ public final class ReeveEntity extends Villager {
     }
     public void configure(UUID building,BlockPos home,String name){
         this.building=building;this.home=home.immutable();restrictTo(home,4);setCustomName(Component.literal(name));setCustomNameVisible(true);
+        if(getType()==KingdomNpcs.RESIDENT.get()&&level() instanceof ServerLevel server){
+            var project=ConstructionService.projectForResident(this);
+            if(project!=null){
+                var id=project.blueprint();
+                var profession=id.equals(ProfessionBlueprints.FARMER)?VillagerProfession.FARMER:id.equals(ProfessionBlueprints.BUILDER)?VillagerProfession.MASON:id.equals(ProfessionBlueprints.LUMBERJACK)?VillagerProfession.FLETCHER:VillagerProfession.CARTOGRAPHER;
+                setVillagerData(new VillagerData(VillagerType.PLAINS,profession,1));
+            }
+        }
     }
     public UUID buildingId(){return building;}
     public BlockPos home(){return home;}
     @Override protected void registerGoals(){goalSelector.addGoal(0,new FloatGoal(this));goalSelector.addGoal(1,new OpenDoorGoal(this,true));goalSelector.addGoal(2,new LookAtPlayerGoal(this,Player.class,6));goalSelector.addGoal(3,new RandomLookAroundGoal(this));}
     @Override protected void customServerAiStep(){
         if(tickCount%100!=0||!(level() instanceof ServerLevel level))return;
-        var p=ConstructionService.lodge(level.getServer());
+        var p=ConstructionService.projectForResident(this);
         if(p==null||!ConstructionService.registeredReeve(this)||!ConstructionService.structureIntact(level,p)){getNavigation().stop();return;}
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
-        BlockPos target=level.isNight()&&!ConstructionService.hall(p)?p.origin().offset(b.rotate(new BlockPos(3,1,5),p.rotation())):home;
+        BlockPos target=level.isNight()&&!ConstructionService.hall(p)&&!ConstructionService.purchased(p)?p.origin().offset(b.rotate(new BlockPos(3,1,5),p.rotation())):home;
         if(!level.hasChunkAt(target)||!level.hasChunkAt(blockPosition())){getNavigation().stop();return;}
         if(distanceToSqr(target.getX()+0.5,target.getY(),target.getZ()+0.5)<1){getNavigation().stop();return;}
         var path=getNavigation().createPath(target,0);

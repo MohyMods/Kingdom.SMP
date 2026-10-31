@@ -38,6 +38,19 @@ public record ConstructionBlueprint(ResourceLocation id, int version, int width,
         return origin.offset(rotate(new BlockPos(width/2,0,-1),r));
     }
     public static boolean matches(BlockState current, BlockState expected) {
+        if(current.getBlock()!=expected.getBlock())return false;
+        // Derived connections, crop growth, farmland hydration and furnace operation
+        // change during ordinary use; never permit replacement by another block type.
+        for(var property:expected.getProperties()){
+            String name=property.getName();var block=expected.getBlock();
+            if(block instanceof net.minecraft.world.level.block.CropBlock&&name.equals("age")
+                ||block instanceof net.minecraft.world.level.block.FarmBlock&&name.equals("moisture")
+                ||block instanceof net.minecraft.world.level.block.AbstractFurnaceBlock&&name.equals("lit")
+                ||(block instanceof net.minecraft.world.level.block.FenceBlock||block instanceof net.minecraft.world.level.block.IronBarsBlock)&&java.util.Set.of("north","south","east","west").contains(name)
+                ||block instanceof net.minecraft.world.level.block.WallBlock&&java.util.Set.of("north","south","east","west","up").contains(name)
+                ||block instanceof net.minecraft.world.level.block.StairBlock&&name.equals("shape"))current=normalize(current,expected,property);
+        }
         return BuilderHutService.matchesRequired(current, expected);
     }
+    private static <T extends Comparable<T>> BlockState normalize(BlockState current,BlockState expected,net.minecraft.world.level.block.state.properties.Property<T> property){return current.setValue(property,expected.getValue(property));}
 }
