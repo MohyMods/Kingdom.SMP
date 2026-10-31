@@ -1,4 +1,4 @@
-Latest **0.8.0-dev**: [fixed-price auctions, native item mail, two-client restart tests and limits](docs/AUCTION_CHECKPOINT.md). Auction taxes permanently leave circulation under explicit D-029 approval. [Optional public NPC claim setup](docs/PUBLIC_NPC_CLAIM_SETUP.md). **This is not the full1.0.0 release.**
+Latest **0.8.0-dev** — [download JAR, screenshots and test evidence](docs/checkpoints/03e1674/CHECKPOINT.md): [fixed-price auctions, native item mail, two-client restart tests and limits](docs/AUCTION_CHECKPOINT.md). Auction taxes permanently leave circulation under explicit D-029 approval. [Optional public NPC claim setup](docs/PUBLIC_NPC_CLAIM_SETUP.md). **This is not the full1.0.0 release.**
 
 Latest **0.7.0-dev** — [download JAR, screenshots and test evidence](docs/checkpoints/a211428/CHECKPOINT.md): [Royal Architect, currency, Tier 3 Bank and validation](docs/COMMERCE_CHECKPOINT.md). **The full game is not finished; 1.0.0 is not ready.** [Current completion matrix](docs/PRODUCTION_COMPLETION_MATRIX.md).
 
