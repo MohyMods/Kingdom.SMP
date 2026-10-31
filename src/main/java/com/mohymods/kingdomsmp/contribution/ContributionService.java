@@ -26,6 +26,8 @@ public final class ContributionService {
     private static final Map<ServerPlayer, Offer> OFFERS = new WeakHashMap<>();
     public record Offer(UUID id, long revision, Resource resource, int amount, long issued, List<ItemStack> inventory) { }
     private ContributionService() { }
+    public static void catalogueReloaded(MinecraftServer server){OFFERS.keySet().removeIf(player->player.server==server);}
+    private static void requireMilestone(MinecraftServer server){String denial=com.mohymods.kingdomsmp.milestone.MilestoneService.consumptionDenial(server);if(!denial.isEmpty())throw new IllegalStateException(denial);}
     public static void initialize(MinecraftServer server) { LEDGERS.remove(server); OFFERS.clear(); ledger(server); }
     public static ContributionLedger ledger(MinecraftServer server) {
         var existing = LEDGERS.get(server);
@@ -56,6 +58,7 @@ public final class ContributionService {
     }
     public static Offer quote(ServerPlayer player, Resource resource, int requested) {
         requirePlayer(player);
+        requireMilestone(player.server);
         var ledger = ledger(player.server);
         if (ledger.quarantined() || ledger.pending().isPresent()) throw new IllegalStateException("Contributions are paused for recovery.");
         if (requested < 1 || requested > resource.required()) throw new IllegalArgumentException("Invalid donation quantity.");
@@ -67,6 +70,7 @@ public final class ContributionService {
     }
     public static String confirm(ServerPlayer player, UUID id) {
         requirePlayer(player);
+        requireMilestone(player.server);
         Offer offer = OFFERS.remove(player);
         if (offer == null || !offer.id().equals(id) || System.nanoTime() - offer.issued() >= 30_000_000_000L) {
             throw new IllegalStateException("Donation review expired. Review the amount again.");

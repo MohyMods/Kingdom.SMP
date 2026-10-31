@@ -21,7 +21,7 @@ A permanent winner record is distinct from a claimed physical plan, unused entit
 | Tier | Confirmed name / gate | Requirements / reward |
 | --- | --- | --- |
 | 1 | The First Hearth | Exact resources above; completion advances to 2; highest contributor earns Founders’ Lodge privilege |
-| 2 | Roads of Commerce | Founders’ Lodge available; next milestone values pending |
+| 2 | Roads of Commerce | Lodge available; revised eight-resource + Lodge/road milestone is proposed, not active; Royal Storehouse reward scope approved |
 | 3 | Name pending | Requirements and reward pending |
 | 4 | Name pending | Requirements and reward pending |
 | 5 | Nether access gate | Requirements and reward pending |
@@ -36,3 +36,7 @@ A permanent winner record is distinct from a claimed physical plan, unused entit
 The **Royal Guild Charter remains available after Tier 2**, independently of the Tier 12 Town Hall. Whether that means Tier 2 completion or Tier 3 entry remains unresolved. Do not silently activate it. Earlier banking and Royal Trading need intermediate premises and separately approved unlock gates; a Founders’ Lodge does not grant them.
 
 Later tier tables, names, border dimensions/centers/sizes/timing and profession/technology rules remain configurable design dependencies. Do not populate arbitrary values or imply unimplemented gate enforcement. Historical checkpoint archives preserve earlier designs; they are not current authority.
+
+## Progressive resource framework (D-020)
+
+Use diversity, processing, rarity, acquisition and cooperation as well as quantity. The revised Tier 2 candidates and all later proposed lists, effort assumptions and availability explanations are in [the balance review](PROGRESSIVE_RESOURCE_BALANCE.md). Runtime schema/commands/activation limits are in [server milestone data](MILESTONE_DATA_FORMAT.md). Future costs are inspectable but disabled; modifying an approval label cannot enable them. Existing First Hearth counts, winner, exact normalization and inventory/state recovery are retained. Any generalized live scoring/consumption migration must pin its approved definition before accepting resources.

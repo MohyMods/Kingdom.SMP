@@ -1,5 +1,13 @@
 # Validation checkpoint — 2026-10-30
 
+## 2026-10-31 — Flexible milestone data, dependencies and safe reload
+
+Version 0.4.0-dev / protocol 5. Full build passes **139 JUnit tests, zero failures/errors/skips** (`work/milestones-final-build.log`). The expanded native lifecycle passes **all 1 required GameTests**, BUILD SUCCESSFUL (`work/milestones-runtime.log`), including generic registry/tag matching, pre-reload quote invalidation without consumption, preserved history/winner, actual completed-Lodge objective and public/operator command separation, alongside the entire previous contribution/construction/NPC suite. Final subsequent changes compact only UI text/layout and labels; they passed the full build.
+
+A real matching client joined an isolated normal dedicated-server copy at Tier 1/revision 2. Its progression screen loaded actual server definitions and the revised disabled Tier 2 targets. Operator `/reload` with a deliberately duplicate JSON field rejected the catalogue. Actual donation review was refused; 164 held logs and revision 2 remained unchanged. Restoring the valid datapack and reloading allowed a fresh reviewed/confirmed donation of exactly 64 logs, leaving 100, with revision 3 and unchanged pre-existing iron credit. Console inventory output and actual screenshots substantiate the check. The server saved/stopped with BUILD SUCCESSFUL. The earlier UI showed redundant headings; the final panel removes them and uses clear reward names/full visible lines. Final restart/render evidence is recorded with the delivered checkpoint.
+
+All later costs remain disabled, including the user's eight revised Tier 2 quantities. This checkpoint implements server-data definitions, dependency/registry validation, diagnostics, live inspection and safeguards around existing First Hearth consumption. It does not claim generalized later-tier transactions, approved future score weights, road evidence approval, Royal Storehouse storage, mod recipe compatibility or AFK-provenance enforcement. See MILESTONE_DATA_FORMAT.md and PROGRESSIVE_RESOURCE_BALANCE.md.
+
 ## 2026-10-31 — Final Lodge gameplay and rendering verification
 
 Version **0.3.0-dev**, network protocol **4**. Full Gradle build: **BUILD SUCCESSFUL; 121 JUnit tests, zero failures/errors/skips** (`work/lodge-final-build.log`). Expanded native lifecycle: **BUILD SUCCESSFUL; all 1 required GameTests passed** (`work/lodge-final-runtime.log`). The test covers the entire furnished structure, claim/recovery/redemption, permissions/stale requests, interruption, weather cleanup without drops, protected blocks, NPC identity/death, unloaded work and vanilla realm gates. The final weather case also checks that player snow placed after completion is preserved.

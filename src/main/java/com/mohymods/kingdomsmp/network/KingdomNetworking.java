@@ -35,7 +35,7 @@ public final class KingdomNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("4");
+        var registrar = event.registrar("5");
         ConstructionNetworking.register(registrar);
         ContributionNetworking.register(registrar);
         registrar.playToServer(RequestBuilderDialoguePayload.TYPE, RequestBuilderDialoguePayload.STREAM_CODEC,
@@ -90,6 +90,7 @@ public final class KingdomNetworking {
         context.reply(new KingdomSnapshotPayload(state.attainedTier(), state.revision(), payload.requestId(),
                 progress.total(Resource.LOGS), progress.total(Resource.COBBLESTONE),
                 progress.total(Resource.WHEAT), progress.total(Resource.IRON_INGOTS),
-                personal == null ? 0 : personal.scoreUnits()));
+                personal == null ? 0 : personal.scoreUnits(),
+                com.mohymods.kingdomsmp.milestone.MilestoneService.descriptions(player.server)));
     }
 }

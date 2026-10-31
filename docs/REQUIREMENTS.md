@@ -16,13 +16,16 @@ Sources: S1, S2, and S3 in [overview](PROJECT_OVERVIEW.md). IDs are stable refer
 
 | ID | Requirement |
 | --- | --- |
-| KING-01 | Twelve kingdom tiers with increasingly difficult shared milestones. |
+| KING-01 | Twelve sequential shared tiers grow in resource diversity, rarity, processing, acquisition methods and cooperative objectives as well as quantities, balanced for about ten active players; avoid bulk-only or AFK-trivial progression. |
 | KING-02 | Royal Guild Charter becomes available after Tier 2. Exact boundary semantics remain open. |
 | KING-03 | Nether unlocks at Tier 5; End unlocks at Tier 9. |
 | KING-05 | S2: Shared resource contributions, persistent kingdom progress, tier-specific unlocks, and world border expansion. Border sizes/centers/timing and later milestone resource tables are missing; S3 defines the first milestone set below. |
 | KING-06 | S3: A new kingdom starts automatically at Tier 1, First Hearth; no Tier 0. Completing Tier 1 advances to Tier 2, Roads of Commerce. The ultimate Town Hall is reserved for Tier 12. The first milestone requirements are fixed for ten players and do not scale with player count. |
 | KING-07 | S3: First Hearth shared contributions consume accepted resources: 1,024 logs (tag-based), 2,048 cobblestone, 512 wheat, and 128 iron ingots. Accept partial submissions only up to outstanding requirements; never consume excess. |
 | KING-08 | S3: Persist shared totals and individual credited statistics, with live updates. Rank contributors by the sum of four equally weighted normalized category contributions (maximum score 4); tie-break by first reaching the tied score, with stable fallback. |
+| KING-10 | D-020: Every tier has server-data milestone definitions with item ID/tag, quantity, category, prerequisites, contribution tracking and optional display information. Validate running registries and dependency cycles; never require a resource before its dimension, technology, profession or crafting prerequisites are accessible. |
+| KING-11 | D-020: Revised Tier 2 → 3 quantities are candidates only: logs 2,048; cobblestone 3,072; wheat 768; iron 192; copper 384; glass 256; individual bricks 384; leather 64. No proposed cost may be enabled until the final balance table is approved. Retain completed Lodge and administrator-approved connecting road objectives. |
+| KING-12 | D-020: Tier 2 completion’s highest contributor earns the Royal Storehouse Blueprint, included construction materials, named Quartermaster and secure shared storage. Storage access/capacity and future score weights require explicit definitions; no bank/trading service is implied. Preserve already awarded Tier 1 results. |
 | KING-09 | D-018: Highest contributor receives the unique Founders’ Lodge construction privilege at Tier 2, with included materials and a named Reeve; one redemption, persistent/admin-safe recovery and duplication prevention. |
 | BUILD-01 | S3: Admin sets up a furnished original timber-and-stone Builder’s Hut before the Town Hall; it houses Master Builder Aldric Stonehand with configurable display name and stable identity. |
 | BUILD-02 | S3: Blueprint registry defines footprints and rotation; placement uses preview and authoritative land/protection/collision validation followed by confirmation. |

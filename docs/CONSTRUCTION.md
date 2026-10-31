@@ -24,6 +24,10 @@ Bound concurrent jobs and blocks per tick. Pause unloaded chunks without force-l
 
 Create an original furnished meeting chamber, milestone interaction point, Reeve workstation, storage, lighting and navigable entrances. Included materials are an entitlement, not a repeatable resource grant. Verify all required structural/furnishing blocks before completion and Reeve assignment. Persist kingdom ownership and exactly one assigned NPC. Exact floor plan and NPC personality are ordinary design work; additional gameplay services are not implied.
 
+## Royal Storehouse — next approved reward scope
+
+D-020 identifies the highest Tier 2 contributor’s Tier 3 reward as a Royal Storehouse Blueprint, with included construction materials, a named Quartermaster and secure shared storage. The revised milestone costs/scoring are unapproved; no reward is issued yet. Reuse exact administrator-approved placement and durable one-use reservation/construction. Storage must have server-authoritative atomic interactions and tested inventory/persistence recovery; ordinary barrels alone are not a secure transactional service. Access/capacity, administrative recovery and attribution need explicit definitions before activation. Never withdraw consumed contribution stock or silently add banking/trading.
+
 ## Tier 12 Town Hall
 
 The final centerpiece includes a grand meeting/throne chamber, Royal Steward area, progression/community milestone interfaces, Bank and Royal Trading locations, workstations, decoration, lighting, functional entrances, storage and administration spaces. Aldric constructs it progressively from the approved Tier 12 blueprint entitlement. **Elara Vale** arrives only after verified completion. Its award policy, requirements and service connections must be approved separately; it does not grant Charter/Master services automatically.

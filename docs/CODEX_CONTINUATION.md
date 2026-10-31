@@ -2,6 +2,14 @@
 
 Branch `rebuild/royal-gilded`; Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. Never merge main. Latest published gameplay checkpoint: `33b62fef7a1ad00a2caeeddf3e0a526ed64d6dda`; installable 0.3.0-dev JAR, actual screenshots and build/test evidence: `docs/checkpoints/33b62fe/`. The artifact-only commit does not change compiled source. Historical 0.2.0-dev package is `5baf285` / source `7e9968a`.
 
+## Current progressive-resource checkpoint
+
+Current source 0.4.0-dev / protocol 5 adds strict server datapack milestone definitions, registry/tag checks, conservative acquisition profiles, cycle/forward-gate validation, actual Royal Gilded tier inspection and safe guards/review invalidation around First Hearth. Full build: **139 JUnit tests, zero failures/errors/skips**; native expanded lifecycle: all 1 required tests passed. Real invalid datapack/reload refused donation without changing 164 logs/revision 2; valid reload/fresh review consumed 64, left 100 and saved revision 3. Final logs are work/milestones-final-build.log, milestones-runtime.log, milestone-data-server.log and milestone-final-server.log.
+
+D-020 supersedes the earlier Tier 2 proposal: logs 2,048 / cobblestone 3,072 / wheat 768 / iron 192 / copper 384 / glass 256 / brick items 384 / leather 64; completed Lodge and administrator-approved road. **Quantities remain proposed until approval.** Royal Storehouse Blueprint, included materials, named Quartermaster and secure shared storage is the next reward scope; future scoring, road evidence and storage access/capacity are still unsettled. All later data rows are disabled. PROGRESSIVE_RESOURCE_BALANCE.md has all twelve proposed lists, availability/effort/dependency assumptions; MILESTONE_DATA_FORMAT.md records configuration and limits.
+
+Exact next implementation dependency: generalized per-milestone pinned history/inventory transaction adapter under approved future normalized scoring, then road objective approval and Royal Storehouse services under defined access/capacity. Existing Tier 1 legacy contract is deliberately pinned; do not change awarded scores or assume that a configurable catalogue means twelve live progression engines. Unknown mod items/recipes/Master access stay blocked, not substituted. Prepare concrete policy choices if still missing; do not fabricate quests or financial rules.
+
 ## Completed and tested
 
 - Original furnished Builder’s Hut/Aldric identity/dialogue/routine, five-minute clickable admin confirmation.

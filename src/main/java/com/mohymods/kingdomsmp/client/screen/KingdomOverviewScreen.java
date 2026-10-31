@@ -143,9 +143,9 @@ public final class KingdomOverviewScreen extends Screen {
         Component state = Component.translatable("kingdomsmp.screen.selected", selectedTier, state(selectedTier));
         List<Component> paragraphs = new ArrayList<>();
         if (!ClientOverviewController.status().getString().isEmpty()) paragraphs.add(ClientOverviewController.status());
-        paragraphs.addAll(List.of(state, tierTitle(selectedTier), gate(selectedTier)));
-        if (selectedTier == 1) paragraphs.add(text("tier.first_hearth.targets"));
-        paragraphs.add(text("contributions.unavailable"));
+        paragraphs.add(state);
+        paragraphs.add(Component.literal(snapshot.milestoneDetails().get(selectedTier-1)));
+        if(selectedTier==5||selectedTier==9||selectedTier==12)paragraphs.add(gate(selectedTier));
         renderParagraphs(graphics, paragraphs,
                 layout.contentX() + 6, y + 5, layout.contentWidth() - 12, height - 10);
     }
@@ -162,7 +162,7 @@ public final class KingdomOverviewScreen extends Screen {
         graphics.enableScissor(x, y, x + width, y + height);
         for (int i = 0; i < lines.size(); i++) {
             int lineY = y + i * 12 - scroll;
-            if (lineY + 9 >= y && lineY < y + height) {
+            if (lineY >= y && lineY + font.lineHeight <= y + height) {
                 graphics.drawString(font, lines.get(i), x, lineY,
                         progression ? RoyalPalette.INK : RoyalPalette.TEXT, false);
             }
@@ -201,15 +201,6 @@ public final class KingdomOverviewScreen extends Screen {
 
     private Component state(int tier) {
         return text(tier < snapshot.tier() ? "state.attained" : tier == snapshot.tier() ? "state.current" : "state.locked");
-    }
-
-    private Component tierTitle(int tier) {
-        return text(switch (tier) {
-            case 1 -> "tier.first_hearth";
-            case 2 -> "tier.roads_commerce";
-            case 12 -> "tier.ultimate_hall";
-            default -> "tier.future";
-        });
     }
 
     private Component gate(int tier) {

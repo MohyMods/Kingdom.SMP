@@ -162,6 +162,7 @@ public final class KingdomRuntimeTests {
                 && restoredEntity.home().equals(builder.home()), "Entity serialization preserves registered identity/home");
         contributionLifecycle(helper, operator, otherOperator);
         constructionLifecycle(helper,operator,otherOperator,builder,origin);
+        milestoneLifecycle(helper,operator);
         travelGateLifecycle(helper,operator);
         builder.hurt(level.damageSources().genericKill(), Float.MAX_VALUE);
         helper.assertTrue(data.hut().orElseThrow().npcDead(), "Death is persisted and cannot reissue a builder");
@@ -181,6 +182,10 @@ public final class KingdomRuntimeTests {
         alice.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         bob.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         var offer = ContributionService.quote(alice, Resource.LOGS, 1024);
+        com.mohymods.kingdomsmp.milestone.MilestoneService.reload(server);
+        try{ContributionService.confirm(alice,offer.id());helper.fail("Pre-reload donation review accepted");}catch(IllegalStateException expected){}
+        helper.assertTrue(ContributionService.eligible(alice,Resource.LOGS)==100&&ContributionService.ledger(server).progress().total(Resource.LOGS)==0,"Catalogue reload invalidates reviews without consuming or crediting resources");
+        offer=ContributionService.quote(alice,Resource.LOGS,1024);
         helper.assertTrue(offer.amount() == 100, "Partial contribution capped to actual inventory");
         try { ContributionService.confirm(bob, offer.id()); helper.fail("Copied donation quote accepted"); }
         catch (IllegalStateException expected) { }
@@ -361,6 +366,21 @@ public final class KingdomRuntimeTests {
         helper.assertTrue(!level.hasChunkAt(far)&&ConstructionService.store(server).get(unloaded.id()).placed()==0,"Unloaded work pauses without creating chunk tickets or progress");
     }
 
+    private static void milestoneLifecycle(GameTestHelper helper,RecordingPlayer player)throws Exception{
+        var server=helper.getLevel().getServer();var service=com.mohymods.kingdomsmp.milestone.MilestoneService.current(server);
+        helper.assertTrue(service.catalog()!=null&&service.report().issues(1).isEmpty()&&service.report().catalogIssues().isEmpty(),"Bundled server data resolves native item/tag registries and valid dependency graph");
+        var glass=service.catalog().tier(2).requirements().stream().filter(r->r.ingredient().equals("minecraft:glass")).findFirst().orElseThrow();
+        helper.assertTrue(glass.quantity()==256&&com.mohymods.kingdomsmp.milestone.MilestoneService.matches(new ItemStack(Items.GLASS),glass)&&!com.mohymods.kingdomsmp.milestone.MilestoneService.matches(new ItemStack(Items.GLASS_PANE),glass),"Generic exact ingredient matching accepts glass and refuses a different crafted item");
+        helper.assertTrue(com.mohymods.kingdomsmp.milestone.MilestoneService.matches(new ItemStack(Items.BIRCH_LOG),service.catalog().tier(2).requirements().getFirst()),"Generic tag requirement matches native loaded log variants");
+        helper.assertTrue(!service.report().issues(6).isEmpty(),"Absent/unverified technology recipes stay blocked rather than defaulting to Overworld availability");
+        var before=ContributionService.ledger(server).progress();int inventory=ContributionService.eligible(player,Resource.LOGS);
+        com.mohymods.kingdomsmp.milestone.MilestoneService.reload(server);
+        var detail=com.mohymods.kingdomsmp.milestone.MilestoneService.descriptions(server).get(1);
+        helper.assertTrue(detail.contains("PROPOSAL — NOT ENABLED")&&detail.contains("3072")&&detail.contains("completed in this world"),"Actual Lodge completion appears with disabled revised candidate costs in the server projection");
+        helper.assertTrue(ContributionService.ledger(server).progress().equals(before)&&ContributionService.eligible(player,Resource.LOGS)==inventory&&ContributionService.kingdom(server).attainedTier()==2,"Reload and inspection preserve prior winner, exact scores, inventory and attained tier");
+        try{server.getCommands().getDispatcher().execute("kingdom milestones validate",player.createCommandSourceStack().withPermission(0));helper.fail("Non-admin diagnostics command accepted");}catch(com.mojang.brigadier.exceptions.CommandSyntaxException expected){}
+        helper.assertTrue(server.getCommands().getDispatcher().execute("kingdom milestones inspect 2",player.createCommandSourceStack().withPermission(0))==1,"Public read-only proposal inspection works without admin mutation authority");
+    }
     private static void travelGateLifecycle(GameTestHelper helper,RecordingPlayer player){
         var server=helper.getLevel().getServer();var original=player.serverLevel();
         for(var key:List.of(net.minecraft.world.level.Level.NETHER,net.minecraft.world.level.Level.END)){

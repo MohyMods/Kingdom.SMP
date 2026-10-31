@@ -31,6 +31,7 @@ public final class KingdomSmp {
         NeoForge.EVENT_BUS.addListener(ContributionService::login);
         NeoForge.EVENT_BUS.addListener(ContributionService::logout);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.kingdom.KingdomTravel::travel);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.milestone.MilestoneService::sync);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
@@ -38,6 +39,7 @@ public final class KingdomSmp {
     }
 
     private void serverStarted(ServerStartedEvent event) {
+        com.mohymods.kingdomsmp.milestone.MilestoneService.reload(event.getServer());
         BuilderHutService.initialize(event.getServer());
         ContributionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.building.ConstructionService.initialize(event.getServer());
@@ -50,6 +52,7 @@ public final class KingdomSmp {
         event.getDispatcher().register(Commands.literal("kingdom")
                 .then(BuilderHutService.commands())
                 .then(com.mohymods.kingdomsmp.building.ConstructionService.commands())
+                .then(com.mohymods.kingdomsmp.milestone.MilestoneService.commands())
                 .then(Commands.literal("status").executes(context -> {
                     KingdomState state = ContributionService.kingdom(context.getSource().getServer());
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",

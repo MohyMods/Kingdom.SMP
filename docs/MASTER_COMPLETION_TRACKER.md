@@ -21,6 +21,11 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | Construction protection and interruption recovery | TESTED | Stale/edited site, break/explosion/piston/protection cancellation, no item or material duplication |
 | Furnished Founders’ Lodge | TESTED | Original structure, working entrance/storage/meeting space/milestone station, required-block verification |
 | Reeve identity/dialogue/routines/services | TESTED | Named persistent resident; milestone/kingdom screens; no unapproved service grants; restart/damage checks |
+| Server-data requirements catalogue and generic ID/tag matching | TESTED | Strict bounded JSON; registered materials/tags, categories/prerequisites/display; twelve inspectable definitions; future consumption remains disabled |
+| Dependency graph and acquisition validation | TESTED | Fixed realm boundaries, source-tier availability, unknown refs, cycles/overlap; unverified mod/recipe/profession paths blocked |
+| Catalogue reload / First Hearth history compatibility | TESTED | Invalidate old offers; incompatible/corrupt definitions block new consumption; preserve existing recovery/history/winner |
+| Generalized live later-tier transaction/history/scoring adapter | IN DEVELOPMENT | Approved future scoring and pinned definitions; native interruption/receipt tests before any proposed consumption |
+| Royal Storehouse / Quartermaster / secure shared storage | BLOCKED — REQUIRES DECISION | Reward scope specified; costs/scoring, road evidence and storage access/capacity unresolved; one legitimate future entitlement |
 | Generic building/NPC registry and safe recovery | IN DEVELOPMENT | Shared typed identity/assignments, verification, bounded routines, audited conservative recovery |
 | Tier 12 Town Hall and Elara | NOT STARTED | Tier 12 award policy and progression first; furnished functional final hall; one steward |
 
@@ -29,17 +34,17 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | Tier | Approved identity/gate | Status | Acceptance / dependency |
 | --- | --- | --- | --- |
 | 1 | The First Hearth | TESTED | 1,024 logs / 2,048 cobblestone / 512 wheat / 128 iron; consumption/history/winner; advance 2 |
-| 2 | Roads of Commerce; Founders’ Lodge privilege | IN DEVELOPMENT | Complete Lodge loop; next milestone quantities/reward still require approval |
-| 3 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 4 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 5 | Nether gate | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 6 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 7 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 8 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 9 | End gate | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 10 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 11 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
-| 12 | Ultimate Town Hall; Creative Energy Cube + active Master Mechanic | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
+| 2 | Roads of Commerce; Founders’ Lodge privilege | IN DEVELOPMENT | Lodge loop tested; revised eight-resource + Lodge/road costs proposed; Royal Storehouse reward scope specified; scoring/service rules pending |
+| 3 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 4 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 5 | Nether gate | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 6 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 7 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 8 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 9 | End gate | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 10 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 11 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 12 | Ultimate Town Hall; Creative Energy Cube + active Master Mechanic | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
 
 World border expansion: **BLOCKED — REQUIRES DECISION** (centers, sizes, dimensions, timing, safety). Charter after Tier 2: **BLOCKED — REQUIRES DECISION** (exact boundary/content); it must not depend on the Tier 12 Hall. Vanilla Nether/End entry enforcement: **TESTED** for approved Tier 5/9 boundaries and native player changeDimension, direct cross-realm teleportTo and item transfers. Unknown mod dimensions and characters already inside a locked realm on import are not rewritten or claimed covered. Third-party routes remain dependent on verified integration APIs.
 
@@ -110,6 +115,7 @@ Acquisition/use route coverage: **NOT STARTED** (crafting, machines, loot, shops
 | --- | --- | --- |
 | Reusable Royal Gilded controls/layout | TESTED | Slate/gold/parchment, normal readable font, focus/help/scrolling and actual scaled screenshots |
 | Overview / progression / contributions / ranking / history | TESTED | Server-backed values, correlation/timeout/reconnect, actual two-client rendering |
+| Server-backed twelve-tier proposal inspection | IMPLEMENTED — UNTESTED | Existing Royal Gilded progression panel; automated bounded codec; actual normal/narrow rendering and datapack refresh checks pending |
 | Blueprint / placement / construction / Reeve interfaces | TESTED | Connected secure actions, progress/pause reasons, advisory preview, multiple sizes and screenshots |
 | Profession grid / quest trees / profile/statistics | NOT STARTED | Actual approved progression and privacy rules; no fabricated quest content |
 | Banking / NPC shop / Master shop / market / contract interfaces | NOT STARTED | Actual secure services first; reviewed confirmations/quotes; no generic chest substitute |
@@ -125,3 +131,8 @@ Acquisition/use route coverage: **NOT STARTED** (crafting, machines, loot, shops
 Release remains **NOT STARTED**: all approved content functional, all 12 tiers/professions/288 approved quests/economy/integrations/admin/interfaces usable; native restart and multiplayer/exploit tests; actual screenshots; full build and installable release JAR/install guide; honest limitations. A green build alone cannot mark the project COMPLETE.
 
 Current validation: full build passes 121 JUnit tests. The substantial native lifecycle covers contributions, claims/recovery, admin approval, redemption, full progressive construction, protection, interruption, identity, scheduled updates and realm-entry denial. Actual Minecraft UI claim → proposal → exact administrator approval → redemption → physical Aldric work → 782-block furnished Lodge → Mira dialogue/lectern services ran. An in-progress process restart retained progress; the final completed-world restart retained exactly one original Reeve. Two actual clients joined the normal dedicated server; Mira’s real contribution service worked for the non-admin, with Royal Admin controls hidden. Details are recorded in VALIDATION.md. Next task: continue approved unblocked framework work after the delivered Lodge checkpoint. Missing numeric/content rules receive a separate proposed review specification, not silently enabled defaults. Update this tracker and CODEX_CONTINUATION.md after meaningful checkpoints.
+
+
+## D-020 progressive resource checkpoint
+
+PROGRESSIVE_RESOURCE_BALANCE.md contains all twelve resource rows with approved/proposed status, acquisition rationale, dependency graph, explicit mod/Master blockers and indicative ten-player effort. The server catalogue/validator and native matching/reload checks pass a full build with 139 JUnit tests and the expanded required GameTest. Proposed later costs remain disabled, including the user’s revised Tier 2 list. Generic definition support is not a claim of live twelve-tier transactions, Storehouse services, mod compatibility, AFK provenance or approved future scoring. Physical reload/render verification is recorded in VALIDATION.md as executed.

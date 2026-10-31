@@ -19,6 +19,12 @@ Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues 
 
 Town Hall and Elara belong to Tier 12 and are not implemented. Later milestone quantities/rewards, borders, profession quests and economy policies remain explicit decisions; see the master tracker and proposed review specification. The project is not complete.
 
+## Flexible milestone definitions
+
+Server datapacks now define all twelve inspectable resource/objective proposals. **K → Progression** shows server targets, approved/proposed status and real Lodge completion. `/kingdom milestones inspect <tier>` is read-only; permission-level-2 operators can use `/kingdom milestones validate`. Invalid definitions block new donations safely; existing First Hearth scoring/history/recovery remain pinned. Proposed later costs are **disabled**.
+
+See [the proposed twelve-tier resource/effort table](docs/PROGRESSIVE_RESOURCE_BALANCE.md) and [the server-data schema](docs/MILESTONE_DATA_FORMAT.md). Generic live later-tier transactions and Storehouse storage are not enabled by these definitions.
+
 ## Build and verification
 
 Use a full **JDK 21**, including `javac`:
@@ -37,7 +43,7 @@ scripts/test-runtime.sh
 
 That JDK path is local to this instance; select an available full JDK on another machine. The launcher does not grant network access or disable TLS verification.
 
-The complete build passes **121 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
+The complete build passes **139 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
 
 ```sh
 scripts/gradle-cloud.sh runServer
