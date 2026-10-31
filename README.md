@@ -1,8 +1,8 @@
 # Kingdom SMP — Royal Gilded development
 
-[Download 0.5.0-dev, actual Minecraft screenshots and execution evidence](docs/checkpoints/deaf558/CHECKPOINT.md). Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development branch: `rebuild/royal-gilded`; never merged into main.
+[Download 0.5.1-dev, actual Minecraft screenshots and execution evidence](docs/checkpoints/c0889d3/CHECKPOINT.md). Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development branch: `rebuild/royal-gilded`; never merged into main.
 
-**Core development checkpoint, not full-pack-ready:** the replacement snapshot contains 277 reported entries, including both FTB Chunks and OPAC. Their presence currently refuses new sites and pauses construction until verified permission adapters exist. Existing buildings, records and NPCs are preserved. [Compatibility audit](docs/CLAIM_COMPATIBILITY_AUDIT.md).
+**Tested claim subset; full pack unverified:** exact FTB Chunks2101.1.22 + OPAC0.33.0 adapters now validate both systems over the full site and every progressive step. Revocation pauses and restored access resumes. The actual owner must be alive, non-spectator and online in the building dimension. Other versions/API failures refuse safely. All five locked dependencies ran together on a normal dedicated server and real graphical client; the complete277-entry pack and other providers remain unverified. [Compatibility evidence](docs/CLAIM_COMPATIBILITY_AUDIT.md).
 
 The [master directive](docs/sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) supersedes previous planning holds. New worlds are intended to receive the 19×15, two-floor **Town Hall at Tier 2**; existing Lodge worlds must remain intact. Versioned new-world profiles/Hall, owner Hut plan, automatic foundations/site authorization, Architect market and other Phase B services are **not implemented yet**. [Current rules and implementation status](docs/MASTER_SUPERSESSION_MATRIX.md).
 
@@ -41,7 +41,7 @@ scripts/test-runtime.sh
 
 That JDK path is local to this instance; select an available full JDK on another machine. The launcher does not grant network access or disable TLS verification.
 
-The complete build passes **142 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
+The complete build passes **142 JUnit tests**. A separate opt-in normal-dedicated lifecycle runs both exact claim APIs, independent denials, cross-chunk ownership, revocation/resume/offline pause and actual native writes; `JAVA_HOME=/path/to/jdk21 python3 scripts/test-claims.py` reproduces it with checksum-pinned downloads. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
 
 ```sh
 scripts/gradle-cloud.sh runServer
