@@ -1,4 +1,4 @@
-Latest **0.7.0-dev**: [Royal Architect, currency, Tier 3 Bank and validation](docs/COMMERCE_CHECKPOINT.md). **The full game is not finished; 1.0.0 is not ready.** [Current completion matrix](docs/PRODUCTION_COMPLETION_MATRIX.md).
+Latest **0.7.0-dev** — [download JAR, screenshots and test evidence](docs/checkpoints/a211428/CHECKPOINT.md): [Royal Architect, currency, Tier 3 Bank and validation](docs/COMMERCE_CHECKPOINT.md). **The full game is not finished; 1.0.0 is not ready.** [Current completion matrix](docs/PRODUCTION_COMPLETION_MATRIX.md).
 
 Previous 0.6.0 fresh-world Town Hall checkpoint: [JAR, actual screenshots, tests and continuation](docs/checkpoints/25aa1dc/CHECKPOINT.md). **1.0.0 is not ready.** [Verified-slice feature inventory](docs/PRODUCTION_COMPLETION_MATRIX.md).
 
