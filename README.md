@@ -14,7 +14,10 @@ Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues 
 - **Aldric Stonehand** has one persistent registered UUID, configurable name, hut/home association and a safe daytime/nighttime routine. Damaged or unloaded hut context pauses interaction/work. Missing/dead builders are not silently replaced.
 - A real custom **Royal Gilded dialogue/catalogue** with slate surfaces, gold/bronze trim, parchment, rendered NPC portrait, readable text and keyboard/mouse scrolling. Topic requests revalidate identity, distance and line of sight on the server. Replies cannot reopen a closed conversation.
 
-**Physical reward claim/redemption, progressive blueprint construction, the furnished Founders’ Lodge and its named Reeve remain unfinished.** Town Hall and Elara belong to Tier 12 and are not implemented. Later tier costs, borders and travel/profession gates are not fabricated or claimed implemented.
+- The winner can claim or recover the unique **Founders’ Lodge Blueprint**, propose a rotated clear supported Overworld site, receive exact administrator approval and redeem it once. Aldric physically walks to its work post and constructs **782 blocks**, with saved progress and safe unloaded pauses. The furnished Lodge introduces **Mira Ashford**, Reeve, with real milestone/kingdom services and a functional lectern. Open **Construction** from K or use `/kingdom lodge open`.
+- Vanilla **Nether entry requires Tier 5** and **End entry requires Tier 9**, enforced server-side for player/item transfers. Unknown mod routes and legacy characters already inside locked realms are not claimed covered.
+
+Town Hall and Elara belong to Tier 12 and are not implemented. Later milestone quantities/rewards, borders, profession quests and economy policies remain explicit decisions; see the master tracker and proposed review specification. The project is not complete.
 
 ## Build and verification
 
@@ -34,7 +37,7 @@ scripts/test-runtime.sh
 
 That JDK path is local to this instance; select an available full JDK on another machine. The launcher does not grant network access or disable TLS verification.
 
-The complete build passes **108 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
+The complete build passes **121 JUnit tests**. The runtime runner passes one substantial NeoForge GameTest lifecycle scenario in a fresh isolated world, covering donation replay/stale/racing requests, actual inventory consumption, injected native-save failure/recovery, completion/winner/history/reload and all existing hut/NPC checks. Dedicated-server startup/save/restart and physical-client integrated-world contributions have also run. See [validation](docs/VALIDATION.md) for exact scope and limits; compilation is not full multiplayer or release acceptance.
 
 ```sh
 scripts/gradle-cloud.sh runServer
@@ -66,7 +69,7 @@ Resume fills only air or accepts matching existing blocks. It refuses conflictin
 
 ## Donate in Minecraft
 
-Use the same development JAR on the server and all clients. In Survival or Adventure mode, close other containers, press **K**, choose **Contribute**, select a resource and quantity, then **Review donation** and **Confirm donation**. The review expires after 30 seconds; this is separate from the hut placement’s five-minute preview. The server caps acceptance to inventory and outstanding requirements. Leaderboard and Your history show accepted donations. Donations cannot be withdrawn. After all four targets fill, the kingdom reaches Tier 2 and announces its winner. No Lodge claim/build control is enabled yet.
+Use the same development JAR on the server and all clients. In Survival or Adventure mode, close other containers, press **K**, choose **Contribute**, select a resource and quantity, then **Review donation** and **Confirm donation**. The review expires after 30 seconds; this is separate from the hut placement’s five-minute preview. The server caps acceptance to inventory and outstanding requirements. Leaderboard and Your history show accepted donations. Donations cannot be withdrawn. After all four targets fill, the kingdom reaches Tier 2 and announces its winner. Choose Construction to claim the winner’s plan and review placement. The winner must hold the current valid plan; an administrator with permission level 2 must approve the exact site before construction. The plan includes building materials, not loose item grants.
 
 ## Persistence and recovery
 
@@ -74,6 +77,6 @@ Back up the complete world. Kingdom state lives in `data/kingdomsmp_kingdom.dat`
 
 Live contribution state is canonical in `data/kingdomsmp_contributions.dat` with a matching `data/kingdomsmp_contributions.created` identity marker and native playerdata receipts. Retain these, playerdata and level.dat in the same complete backup. [Contribution recovery](docs/CONTRIBUTION_RECOVERY.md) explains interruption handling, quarantine and the boundaries of the guarantee.
 
-The user approved the furnished Founders’ Lodge, named Reeve and included construction materials as the Tier 2 reward, with no extra service unlocks. Public site/protection policy is being clarified before enabling construction. NPC replacement and destructive repairs remain explicit future decisions.
+The user approved the furnished Founders’ Lodge, named Reeve and included construction materials as the Tier 2 reward, with no extra service unlocks. The approved initial placement policy requires a clear supported Overworld site and exact administrator approval; all terrain replacement is disabled. Construction state and its `.created` identity marker live in `data/kingdomsmp_construction.dat` and must be backed up with the whole world. See [construction behavior and recovery](docs/FOUNDERS_LODGE_IMPLEMENTATION.md). NPC replacement and destructive repairs remain explicit future decisions.
 
 See [requirements](docs/REQUIREMENTS.md), [roadmap](docs/DEVELOPMENT_ROADMAP.md), [hut design](docs/BUILDER_HUT_DESIGN.md), [dialogue design](docs/BUILDER_DIALOGUE_UI.md), and [development log](docs/DEVELOPMENT_LOG.md).

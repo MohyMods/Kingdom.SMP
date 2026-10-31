@@ -62,6 +62,7 @@ public final class ConstructionScreen extends Screen {
                 mutations.add(addRenderableWidget(button(x+bw+4,box.bodyY()+38,bw,"Site here",b->{BlockPos p=minecraft.player.blockPosition();xField.setValue(Integer.toString(p.getX()));yField.setValue(Integer.toString(p.getY()));zField.setValue(Integer.toString(p.getZ()));remember();},"Use your standing position as the minimum foundation corner; prepare clear supported ground.")));
                 RoyalButton preview=addRenderableWidget(button(x+2*(bw+4),box.bodyY()+38,bw,"Preview",b->{try{ConstructionController.request(3,coordinates(),rotation,ConstructionRequest.NONE);localNotice="";}catch(IllegalArgumentException error){localNotice="Enter whole foundation coordinates within the world limits.";}},"Validate and outline the whole site before submitting it to an administrator."));
                 preview.active=editable;mutations.add(preview);
+                if(!editable)mutations.forEach(control->control.active=false);
                 RoyalButton claim=addRenderableWidget(button(x,box.bodyY()+64,Math.min(180,w),view.phase().equals("AVAILABLE")?"Claim blueprint":"Recover blueprint",b->send(1),"Review recovery: all previous copies and approvals will be invalidated."));
                 claim.active=view.owner()&&!view.phase().equals("BUILDING")&&!view.phase().equals("COMPLETE");mutations.add(claim);
             }else if(tab==1){
@@ -136,7 +137,10 @@ public final class ConstructionScreen extends Screen {
     private void paragraphs(GuiGraphics g,List<Component> paragraphs,int x,int y,int w,int h){
         if(h<=0)return;List<FormattedCharSequence> lines=new ArrayList<>();for(var p:paragraphs){if(p.getString().isBlank())continue;lines.addAll(font.split(p,w-6));lines.add(FormattedCharSequence.EMPTY);}
         maxScroll=Math.max(0,lines.size()*12-h);scroll=Math.clamp(scroll,0,maxScroll);g.enableScissor(x,y,x+w,y+h);
-        for(int i=0;i<lines.size();i++)g.drawString(font,lines.get(i),x,y+i*12-scroll,RoyalPalette.INK,false);g.disableScissor();
+        for(int i=0;i<lines.size();i++){
+            int lineY=y+i*12-scroll;
+            if(lineY>=y&&lineY+font.lineHeight<=y+h)g.drawString(font,lines.get(i),x,lineY,RoyalPalette.INK,false);
+        }g.disableScissor();
         if(maxScroll>0){int thumb=Math.max(6,h*h/(h+maxScroll)),top=y+(h-thumb)*scroll/maxScroll;g.fill(x+w-2,top,x+w,top+thumb,RoyalPalette.BRONZE);}
     }
     @Override public boolean mouseScrolled(double x,double y,double h,double v){scroll=Math.clamp(scroll-(int)(v*18),0,maxScroll);return true;}

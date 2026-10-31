@@ -1,6 +1,6 @@
 # Kingdom SMP — master completion tracker
 
-Authority: latest user completion directive (31 October 2026, Asia/Riyadh), the requirements register and subsequent decisions. Preserve current source/persistence; Town Hall is Tier 12 only. Latest published verified source: `7e9968a`, packaged by `5baf285` (0.2.0-dev). This tracker records observed implementation, not promises. No complete-project claim.
+Authority: latest user completion directive (31 October 2026, Asia/Riyadh), the requirements register and subsequent decisions. Preserve current source/persistence; Town Hall is Tier 12 only. Latest published verified source: `3096559` (Lodge/weather/realm gates); the current 0.3.0-dev delivery adds final client subscription/scaling and weather handover corrections. Historical 0.2.0-dev package: `5baf285`. This tracker records observed implementation, not promises. No complete-project claim.
 
 Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTED**, **TESTED**, **BLOCKED — REQUIRES DECISION**, **COMPLETE**. TESTED records the documented executed checks; COMPLETE additionally requires all acceptance criteria for that feature. Missing approved content stays blocked even if a framework could compile.
 
@@ -15,12 +15,12 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | Exact scores, leaderboard and history | TESTED | Equal normalized weights; deterministic ties; bounded pages; two real clients and restart |
 | Tier 1 → 2 and permanent winner | TESTED | All four caps; exactly one winner; announcement and persisted result |
 | Founders’ Lodge unique blueprint claim/recovery | TESTED | Winner-bound generation; durable revoke before recovery; full inventory; cloned/old/other-player denial |
-| Rotated blueprint preview and exact-site proposal | IN DEVELOPMENT | Server footprint/loaded supported clear volume; client advisory visualization; no property destruction |
-| Administrator site review/confirmation | IN DEVELOPMENT | Exact current footprint/proposal; permission and proximity; revalidate; audit; no terrain replacement |
+| Rotated blueprint preview and exact-site proposal | TESTED | Server footprint/loaded supported clear volume; client advisory visualization; no property destruction |
+| Administrator site review/confirmation | TESTED | Exact current footprint/proposal; permission and proximity; revalidate; audit; no terrain replacement |
 | Progressive construction and scheduling | TESTED | One reserved project; bounded work; physical Aldric activity; pause unloaded/blocked paths; persisted resume |
 | Construction protection and interruption recovery | TESTED | Stale/edited site, break/explosion/piston/protection cancellation, no item or material duplication |
-| Furnished Founders’ Lodge | IN DEVELOPMENT | Original structure, working entrance/storage/meeting space/milestone station, required-block verification |
-| Reeve identity/dialogue/routines/services | IN DEVELOPMENT | Named persistent resident; milestone/kingdom screens; no unapproved service grants; restart/damage checks |
+| Furnished Founders’ Lodge | TESTED | Original structure, working entrance/storage/meeting space/milestone station, required-block verification |
+| Reeve identity/dialogue/routines/services | TESTED | Named persistent resident; milestone/kingdom screens; no unapproved service grants; restart/damage checks |
 | Generic building/NPC registry and safe recovery | IN DEVELOPMENT | Shared typed identity/assignments, verification, bounded routines, audited conservative recovery |
 | Tier 12 Town Hall and Elara | NOT STARTED | Tier 12 award policy and progression first; furnished functional final hall; one steward |
 
@@ -110,7 +110,7 @@ Acquisition/use route coverage: **NOT STARTED** (crafting, machines, loot, shops
 | --- | --- | --- |
 | Reusable Royal Gilded controls/layout | TESTED | Slate/gold/parchment, normal readable font, focus/help/scrolling and actual scaled screenshots |
 | Overview / progression / contributions / ranking / history | TESTED | Server-backed values, correlation/timeout/reconnect, actual two-client rendering |
-| Blueprint / placement / construction / Reeve interfaces | IN DEVELOPMENT | Connected secure actions, progress/pause reasons, advisory preview, multiple sizes and screenshots |
+| Blueprint / placement / construction / Reeve interfaces | TESTED | Connected secure actions, progress/pause reasons, advisory preview, multiple sizes and screenshots |
 | Profession grid / quest trees / profile/statistics | NOT STARTED | Actual approved progression and privacy rules; no fabricated quest content |
 | Banking / NPC shop / Master shop / market / contract interfaces | NOT STARTED | Actual secure services first; reviewed confirmations/quotes; no generic chest substitute |
 | Royal Administration shell | IN DEVELOPMENT | Start with real construction site approval; per-action permissions, exact revision confirmations, audit |
@@ -124,4 +124,4 @@ Acquisition/use route coverage: **NOT STARTED** (crafting, machines, loot, shops
 
 Release remains **NOT STARTED**: all approved content functional, all 12 tiers/professions/288 approved quests/economy/integrations/admin/interfaces usable; native restart and multiplayer/exploit tests; actual screenshots; full build and installable release JAR/install guide; honest limitations. A green build alone cannot mark the project COMPLETE.
 
-Current validation: full build passes 118 JUnit tests; the native lifecycle constructs the furnished Lodge, persists progress, elects/claims/recovers/redeems once, checks admin/stale/protected cases and one Reeve, then checks scheduled updates. Physical-client rendering/travel and full world restart remain pending for this slice. Next task: finish physical-client validation of the connected Founders’ Lodge loop under D-019; then continue approved unblocked framework work. Missing numeric/content rules receive a separate proposed review specification, not silently enabled defaults. Update this tracker and CODEX_CONTINUATION.md after meaningful checkpoints.
+Current validation: full build passes 121 JUnit tests. The substantial native lifecycle covers contributions, claims/recovery, admin approval, redemption, full progressive construction, protection, interruption, identity, scheduled updates and realm-entry denial. Actual Minecraft UI claim → proposal → exact administrator approval → redemption → physical Aldric work → 782-block furnished Lodge → Mira dialogue/lectern services ran. An in-progress process restart retained progress; final completed-world restart and packaged matching-client checks are recorded in VALIDATION.md. Next task: continue approved unblocked framework work after the delivered Lodge checkpoint. Missing numeric/content rules receive a separate proposed review specification, not silently enabled defaults. Update this tracker and CODEX_CONTINUATION.md after meaningful checkpoints.

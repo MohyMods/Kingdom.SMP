@@ -321,10 +321,17 @@ public final class ConstructionService {
         if(!structureIntact(level,p)){pause(p,"Final required-block verification failed; no completion or NPC reward granted.");return;}
         var store=store(level.getServer());
         try{
+            // The reservation was empty and protected throughout work. Clear only weather
+            // layers before handover, including spaces not occupied by blueprint blocks.
+            // Never run this on a completed building where players may have placed snow.
+            var definition=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
+            BlockPos last=p.origin().offset(definition.width(p.rotation())-1,definition.height()-1,definition.depth(p.rotation())-1);
+            for(BlockPos space:BlockPos.betweenClosed(p.origin(),last))
+                if(level.getBlockState(space).is(Blocks.SNOW))level.setBlock(space,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE);
             Entity existing=level.getEntity(p.npc());
             if(!(existing instanceof ReeveEntity)){
                 if(p.npcIssued()){pause(p,"Reeve issuance is already committed; missing entity requires inspection, never an automatic duplicate.");return;}
-                var definition=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());BlockPos home=p.origin().offset(definition.rotate(definition.home(),p.rotation()));
+                BlockPos home=p.origin().offset(definition.rotate(definition.home(),p.rotation()));
                 for(BlockPos space:List.of(home,home.above())){
                     if(level.getBlockState(space).is(Blocks.SNOW))level.setBlock(space,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE);
                     if(!level.getBlockState(space).isAir()){pause(p,"Reeve's verified home is obstructed; no NPC issuance committed.");return;}

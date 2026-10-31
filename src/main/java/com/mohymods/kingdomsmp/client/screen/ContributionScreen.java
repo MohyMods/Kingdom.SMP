@@ -147,7 +147,11 @@ public final class ContributionScreen extends Screen {
     private String score(List<Integer> p){return String.format(Locale.ROOT,"%.4f",(p.get(0)*2+p.get(1)+p.get(2)*4+p.get(3)*16)/2048.0);}
     @Override public boolean mouseScrolled(double x,double y,double h,double v){scroll=Math.clamp(scroll-(int)(v*18),0,maxScroll);return true;}
     @Override public boolean keyPressed(int key,int scan,int mods){if(key==GLFW.GLFW_KEY_PAGE_UP||key==GLFW.GLFW_KEY_PAGE_DOWN){scroll=Math.clamp(scroll+(key==GLFW.GLFW_KEY_PAGE_DOWN?36:-36),0,maxScroll);return true;}return super.keyPressed(key,scan,mods);}
-    @Override public void onClose(){ContributionController.close();minecraft.setScreen(parent);if(parent instanceof KingdomOverviewScreen)com.mohymods.kingdomsmp.client.ClientOverviewController.request();}
+    @Override public void onClose(){
+        ContributionController.close();minecraft.setScreen(parent);
+        if(parent instanceof KingdomOverviewScreen)com.mohymods.kingdomsmp.client.ClientOverviewController.request();
+        if(parent instanceof ConstructionScreen)com.mohymods.kingdomsmp.client.ConstructionController.open();
+    }
     @Override public boolean isPauseScreen(){return false;}
     private static Component text(String s){return Component.literal(s);}
 }

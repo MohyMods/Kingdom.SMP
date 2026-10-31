@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-31 — Completed Lodge loop and final verification
+
+Finished actual Minecraft construction at production cadence through 782 blocks and Mira Ashford’s arrival. Verified her dialogue, real contribution navigation, milestone lectern, doors/storage and normal/narrow rendering. A full process restart with the final client retained the same COMPLETE project and exactly one Reeve with unchanged UUID. Fixed remaining weather layers in unfurnished aisles at handover, preserving post-completion player snow; expanded the native test. Fixed contribution-return resubscription, complete-line clipping, disabled unavailable site controls and bumped protocol to 4 so mismatched clients are rejected. Full Gradle build passes 121 JUnit tests; expanded native lifecycle passes all 1 required tests. Updated current roadmap/tracker; proposed later balance/content remains unapproved and is not enabled. Final delivery records dedicated checks, artifacts and precise remaining work.
+
 ## 2026-10-31 — Live Lodge review, weather correction and realm-entry restrictions
 
 Published the server-tested Lodge core as 64d085f and continued actual Minecraft verification. The custom claim, preview, proposal, administrator review and one-use redemption worked; Aldric walked out of the existing hut to his post and began physical construction. A complete process/world restart retained the same project. Live winter weather exposed snow accumulation stopping a future wall. Added tightly scoped post-reservation snow handling without drops, while initial snow/terrain/player blocks still deny, plus clear safe Reeve arrival space before reserving her identity. Native tests verify both cases. Polished readable review language, retained Reeve greeting, explicit exterior work-post overlay, bounded route searches, visible builder arm motion, safe coordinate input and subscription close so closed screens stop receiving progress packets.
