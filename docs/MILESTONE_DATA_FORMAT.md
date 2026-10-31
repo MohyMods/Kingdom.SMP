@@ -1,5 +1,7 @@
 # Server milestone data and validation
 
+> D-021 changes future building reward timing: Town Hall at Tier 2, subject to separately approved save migration. Lodge/road/final-Hall references below remain existing runtime or older proposals and need review for the new profile. No resource quantities are newly approved and no executable milestone data changes in this documentation task. See CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md.
+
 The running server loads `data/kingdom_smp/kingdom/milestones.json` from server datapacks, after registry tags are bound. The bundled file defines all twelve milestones: only First Hearth has an implemented, approved consumption adapter. All subsequent costs are inspectable **proposals**, with no donation, tier advancement or reward issuance. Editing `approval` to `approved` cannot activate a future milestone. This is an implemented catalogue/dependency framework, not a claim that all twelve donation engines are complete.
 
 ## Installation and reload

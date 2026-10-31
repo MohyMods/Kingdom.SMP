@@ -1,5 +1,12 @@
 # Codex continuation — Kingdom SMP
 
+## Latest instruction — D-021, documentation only
+
+**Do not code yet.** The user approves physical blueprints/full building holograms as design requirements but is finalizing the building roadmap and explicitly requires an implementation plan for approval. Read CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md first. Future First Hearth reward is the **Tier 2 Town Hall, 19 × 15 blocks, two floors**; this supersedes the prior Tier 12 Hall/future Lodge policy. Existing 0.4.0-dev and every Lodge/Mira/save/entitlement/project stay unchanged. No migration, datapack edit, new item/structure or gameplay implementation is authorized yet.
+
+Next task: review/clarify the proposed initial Hut/Aldric bootstrap, final building/service/controls roadmap and separate grandfather/profile/optional-unused-entitlement migration plan. Implement only after explicit approval; do not follow old immediate implementation instructions below. Future Tier 12 reward is undecided; other fixed realm/profession/service gates remain unchanged. Existing building objectives must be re-reviewed for future profiles, never automatically renamed.
+
+
 Branch `rebuild/royal-gilded`; Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. Never merge main. Latest published gameplay checkpoint: `7ce19a818e98452daaf6fe0fd0665032478dd88b`; installable 0.4.0-dev JAR, actual screenshots and evidence: `docs/checkpoints/7ce19a8/`. Previous Lodge package remains `docs/checkpoints/33b62fe/`. The artifact-only commit does not change compiled source. Historical 0.2.0-dev package is `5baf285` / source `7e9968a`.
 
 ## Current progressive-resource checkpoint
@@ -30,7 +37,7 @@ The whole project is **not complete**. See MASTER_COMPLETION_TRACKER.md: all 12 
 
 NPC death/resurrection, missing-issued identity reissuance and destructive repair remain unapproved. Current recovery conservatively refuses duplication; restore complete matching backups. No remote/authenticated multiplayer, external protection-mod compatibility, Windows storage, arbitrary partial restores/host loss or season TPS claim. Local/offline Authlib fetch refusals and no sound device are environment limitations. Thin weather snow may be removed without drops only during active construction/handover, never after completion; original terrain/pre-existing snow/player blocks still deny placement.
 
-## Exact next task
+## Prior implementation sequence — superseded by D-021 review hold
 
 Preserve the published Lodge checkpoint and all save formats. Audit the tracker and proposed balance review against any new user answers. Implement the next sufficiently approved dependency: a reviewed representative Farmer profession with actual approved quest/XP/activation definitions before expanding other professions, or approved Tier 2 → 3 community requirements/reward. If those remain unanswered, continue non-gameplay-changing recovery/administration improvements tied to existing services; do not enable arbitrary financial/progression defaults. General NPC replacement needs the explicit policy above. Keep Town Hall/Elara at Tier 12 and early service locations separately gated.
 

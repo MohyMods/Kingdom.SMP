@@ -1,39 +1,64 @@
-# Blueprint and construction specification — current authority
+# Physical blueprints and holographic construction — approved design
 
-The user's latest progression correction reserves the **ultimate Town Hall for Tier 12**. The approved Tier 2 highest-contributor privilege is the **Founders’ Lodge**, with included materials, a furnished meeting/milestone interior and a named Reeve. This supersedes all early Town Hall construction and reward plans. No banking, trading, Charter or unrelated unlock follows from the Lodge.
+**D-021, 31 October 2026 (Asia/Riyadh). Design only. Do not implement until the building roadmap, implementation plan and save migration are approved.** This instruction supersedes the former Tier 12 Town Hall / future Tier 2 Founders’ Lodge policy. The existing 0.4.0-dev implementation and saves remain unchanged.
 
-## Existing first building
+For future gameplay, the **Town Hall is the Tier 1 highest-contributor reward, unlocked at Tier 2**, with a **19 × 15 block footprint and two floors**. It replaces the Lodge in the future roadmap, subject to separately approved migration. Total height, foundation envelope, floor plan, furnishing layout and NPC/service assignments require the remaining building review; do not invent them. An early Town Hall does not automatically unlock banking, trading, Charter or profession services. Nether 5, End 9 and Creative Energy Cube Tier 12 plus Master Mechanic remain unchanged. Tier 12's replacement centerpiece/reward is undecided.
 
-An administrator installs the original furnished timber/stone Builder’s Hut. Its stable named builder **Aldric Stonehand**, identity/home, dialogue, safe routine, four rotated layouts, clear-site checks and five-minute clickable admin confirmation must be preserved. See the implemented hut design and runtime evidence. This admin installation is distinct from player blueprint construction.
+## Coverage and acquisition
 
-## Reusable blueprint engine
+Every kingdom building receives a distinct carryable Blueprint item type; each legitimate entitlement also has its own authoritative identity. Distinct artwork/name/item type is not redemption authority. Shared implementation components should serve all building types.
 
-Use stable blueprint IDs, versioned footprint/required-block definitions, supported rotations, preview data and an ordered build sequence. Make buildings progressively larger and more impressive as approved tiers unlock them. The winner chooses a location under the approved land/protection policy; absence of an adapter is not permission to bypass protection. D-019 authorizes winner-proposed clear supported Overworld sites, exact-footprint administrator approval and no property destruction. Initial construction never alters terrain; prepare supported clear ground separately.
+| Building coverage | Acquisition authority | Outstanding roadmap detail |
+| --- | --- | --- |
+| Builder’s Hut | Initial administrator/owner blueprint | Initial owner identification and Aldric bootstrap policy |
+| Town Hall | Tier 1 highest contributor; available at Tier 2; authorized reward materials included | Approved 19 × 15, two floors; remaining structural/service design and migration |
+| Royal Bank | Physical blueprint under the eventual approved building roadmap | Acquisition route, tier, banker and services; no early bank gate inferred |
+| Royal Storehouse | Physical reward blueprint under approved contributor policy; included authorized materials | D-020 Quartermaster/shared-storage scope retained; final placement in revised roadmap, capacity/access and transaction rules pending |
+| Other major tier rewards | Unique highest-contributor blueprints | Final per-tier buildings and awards pending |
+| All twelve profession buildings | Approved community construction projects | Each project's prerequisites, approval/evidence, authorized blueprint holder and NPC/building design pending |
+| Existing Founders’ Lodge | Preserve original plan type, entitlement, projects and Mira Ashford | Legacy compatibility; no automatic replacement or additional Town Hall grant |
 
-Flow: inspect catalogue/entitlement → transparent preview and footprint/rotation → server validation → exact-site confirmation → persistent site/entitlement reservation → progressive Aldric work → required-block verification → completed building registration and assigned NPC.
+Profession coverage is explicit: **Farmer, Blacksmith, Miner, Builder, Lumberjack, Merchant, Engineer, Mechanic, Mage, Adventurer, Alchemist and Librarian**. This approves blueprint support for their buildings, not twelve invented building names, new unlock tiers or automatic awards. Every major functional building retains a designated named NPC; existing Aldric/Mira identities remain intact.
 
-Every confirmation revalidates ownership, unused entitlement, dimension, loaded chunks, support, bounds, collisions, overlap and protection. Never destroy existing structures, containers, valuable terrain or fluids to conceal invalid placement. A stale preview must not consume an entitlement or overwrite player edits. Clients render advisory previews only.
+## Player flow
 
-## Persistence and safe work
+1. Claim an authorized physical plan, or recover the same unused entitlement through a Royal Gilded service. No player must copy a UUID or enter coordinates.
+2. Holding the plan activates its complete, full-scale translucent building hologram. Crosshair targeting moves the candidate naturally over terrain. Previewing never edits world blocks, spawns real construction entities, creates chunk tickets or consumes an entitlement.
+3. Rotate by 90° and adjust vertical placement using configurable controls. An on-screen legend names the player's actual bindings, rotation, height offset and current status. Input details below are proposals pending plan approval.
+4. Show the **entire building, including roof, both Town Hall floors and exterior footprint**. A boundary-only wireframe is insufficient. A full model may naturally occlude its own interior; a cutaway must not replace the complete exterior preview.
+5. Green means the exact current candidate passed server validation; red means blocked. Highlight collision cells and unsupported terrain columns, and explain failures with readable text/icons. Pending, stale, unloaded or unavailable checks must never appear as valid green.
+6. Open a Royal Gilded confirmation screen. Freeze the exact candidate while reviewing; summarize building, orientation, height, footprint, materials-included status, obstruction/support results and approval state. Cancel returns to preview without consuming the plan.
+7. Submit the exact candidate for administrator site approval. Public buildings cannot begin work before a permissioned administrator reviews and confirms that exact site. A moved/rotated/height-adjusted proposal invalidates prior approval. Profession/community buildings use the same safe approval workflow unless a later approved policy explicitly defines an exception.
+8. After approval, the authorized holder confirms construction in Royal Gilded UI. The server revalidates and commits one reservation/redemption before consuming the physical plan. Aldric physically constructs it progressively using the existing bounded work framework. Initial-Hut bootstrap remains a review decision, not a silently implemented exception.
+9. Progress, interruption/pause reasons and completion remain inspectable. Verify required blocks before final building registration and NPC assignment. A building's completion does not implement or unlock an absent service.
 
-Separate winner eligibility, physical plan issue/recovery, one-use redemption, project reservation, progress and completion. A cloned/lost/restored item does not authorize another building. Pending/failed/restarted work must keep the same project/entitlement identity. Administrative abandonment/tamper recovery requires an explicit policy, exact-target confirmation, permissions and audit.
+Coordinate placement commands become **administrator-only recovery/debugging tools**, preserving permissions, exact-target review, audit and all normal checks. Ordinary placement must use held plans, crosshair targeting and interfaces. Technical record IDs may remain in private administrative diagnostics; players need not type them.
 
-Bound concurrent jobs and blocks per tick. Pause unloaded chunks without force-loading. Aldric reaches safe work positions, reports blocked paths, swings/works near the active site where feasible, and never teleports or destroys obstructions to hide failure. Save/reconcile actual block results; do not advance a timer while chunks are unloaded. Revalidate targets before each placement and preserve unrelated edits.
+## Hologram and input contract
 
-## Tier 2 Founders’ Lodge
+- Keep Royal Gilded slate, gold/bronze and parchment styling; use green/red for placement geometry/status, with text and symbols for color accessibility.
+- Proposed defaults for approval: **R** rotates clockwise, **Shift+R** reverses; **Page Up/Page Down** adjust height by one block; blueprint **Use/right-click** opens review; **Escape** cancels review. All remappable; do not consume normal camera movement or rebind attack to confirm. Exact initial targeting range, offset limits and offhand precedence remain configuration proposals, not settled gameplay rules.
+- Preview permission is separate from item appearance. A copied/obsolete plan must show an invalid/recoverable status and cannot submit an authorized project. Bound caches and requests to connection, held entitlement generation and blueprint version.
+- Revalidate the complete foundation/support and three-dimensional occupied/reserved envelope, entrances and builder work area. Ninety-degree rotations transform both positions and directional states. Height changes move the whole candidate rather than floating or cutting off the foundation.
+- A server-validated green result expires when the candidate, relevant permissions or world conditions change. Approval is never a guarantee of future placement: begin and each physical placement recheck the current state.
+- Hold the last candidate only as a clearly stale preview if context is lost. Close/hide it on disconnect, incompatible blueprint data, loss of item/entitlement or inappropriate UI context. Handling hand swaps and menus must not consume authority.
 
-Create an original furnished meeting chamber, milestone interaction point, Reeve workstation, storage, lighting and navigable entrances. Included materials are an entitlement, not a repeatable resource grant. Verify all required structural/furnishing blocks before completion and Reeve assignment. Persist kingdom ownership and exactly one assigned NPC. Exact floor plan and NPC personality are ordinary design work; additional gameplay services are not implied.
+## Server authority and security
 
-## Royal Storehouse — next approved reward scope
+Bind each physical plan to a durable world/server construction record, building/version, authorized holder, source award/community project and current issue generation. Never trust client-supplied owner, winner, validity color, material credit, building block list, approval flag or copied item data. Exact record fields and compatibility format are proposed in the implementation plan.
 
-D-020 identifies the highest Tier 2 contributor’s Tier 3 reward as a Royal Storehouse Blueprint, with included construction materials, a named Quartermaster and secure shared storage. The revised milestone costs/scoring are unapproved; no reward is issued yet. Reuse exact administrator-approved placement and durable one-use reservation/construction. Storage must have server-authoritative atomic interactions and tested inventory/persistence recovery; ordinary barrels alone are not a secure transactional service. Access/capacity, administrative recovery and attribution need explicit definitions before activation. Never withdraw consumed contribution stock or silently add banking/trading.
+Revalidate complete block collisions, protected locations, terrain support, build height/world border, player/mob/item entities, existing buildings/reservations and builder work space on the server. Unknown protection capability is not permission to bypass it. Preview diagnostics must be bounded and limited to the relevant loaded/permitted site; do not send inventories, arbitrary block-entity data or remote-world scans to the client.
 
-## Tier 12 Town Hall
+No terrain or player structure is destroyed without explicit authorization. The initial recommended implementation retains **zero terrain replacement**; sites requiring excavation/grading stay red. The existing narrow post-reservation weather-snow behavior is a documented compatibility rule, not permission to clear pre-existing snow/terrain. Any expanded terrain-change workflow requires its own exact change list, approval and protection review.
 
-The final centerpiece includes a grand meeting/throne chamber, Royal Steward area, progression/community milestone interfaces, Bank and Royal Trading locations, workstations, decoration, lighting, functional entrances, storage and administration spaces. Aldric constructs it progressively from the approved Tier 12 blueprint entitlement. **Elara Vale** arrives only after verified completion. Its award policy, requirements and service connections must be approved separately; it does not grant Charter/Master services automatically.
+Failed, stale or canceled pre-construction placement leaves the entitlement unused and recoverable. Once construction is durably reserved, interruptions resume the same project; they do not refund a second blueprint or loose materials. A retry after an uncertain reply inspects the saved result. Lost unused items are recovered by durably revoking the previous issue generation before delivery; all old copies and approvals cease to authorize work. Full-inventory and interrupted delivery cases must remain recoverable.
 
-## Earlier service locations — proposals only
+## Persistence and migration
 
-A separate counting house could host banking; a market office could host Royal Trading; the Founders’ Lodge may host community milestone interaction. Exact building names, service unlock tiers, bank replacement of the old Town Hall-only location rule, and Charter premises/boundary need approval. Keep those services gated and unimplemented until defined rather than binding them to an early Town Hall.
+Preserve all existing structures, footprint/version definitions, earned winners, redeemed/unused entitlements, construction progress, original building/NPC identities, homes, inventories and world files. Never relabel a built/in-progress Lodge as Town Hall, expand it into neighboring terrain, auto-spawn another NPC, re-elect the winner or replay included materials.
 
-Acceptance: rotated/stale/protected/blocked sites; one-use entitlement and duplicate item/request denial; concurrent reservations; progressive physical blocks; interruption/restart; unloaded pause/resume; bounded work; blocked path; player edits; full structure verification; one building/NPC registration; and explicit damage/recovery behavior. Do not call these complete solely from compilation.
+**No migration strategy is approved by this document.** Recommended review strategy: preserve existing-world Lodge entitlements/projects by default, use the new Hall reward only for explicitly selected future-world profiles, and separately review any optional one-for-one conversion of unused legacy entitlements. Completed or redeemed projects cannot be converted through the unused-plan path. Existing unfinished First Hearth worlds also require an explicit profile choice; their promised reward must not change silently. See [the implementation and migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md).
+
+## Acceptance
+
+Actual full-building rendering, four rotations, height/crosshair control, green/red/unknown states, obstruction/support highlights, accessible errors, Royal Gilded normal/scaled screens and no coordinate/UUID workflow. Native server tests must exercise copied plans, replay/concurrency, approvals, protection, interrupted delivery/redemption, pause/unload and restart. Migration must preserve fixtures at every legacy stage. Performance testing must use the actual two-floor Hall and representative larger structures before claiming large-building support. No screenshots, performance result, API verification, new JAR or implementation completion is claimed for this design-only update.

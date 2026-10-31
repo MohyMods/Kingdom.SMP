@@ -1,5 +1,7 @@
 # Founders’ Lodge implementation contract
 
+> Legacy implemented behavior preserved by D-021. This is not the future new-world Tier 2 reward specification. Existing Lodge/Mira projects and entitlements remain intact; no automatic Town Hall conversion. See CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md.
+
 D-019 authorizes the winner’s clear supported Overworld proposal and exact-footprint administrator approval before construction. Terrain replacement is disabled entirely. Included materials are construction authority, never a repeated grant of loose resources.
 
 The versioned original Lodge definition is 17 × 13 × 12, timber/plaster/stone with a steep roof, lit porch and meeting chamber, communal table/benches, empty storage, Reeve’s desk/books/bed and a milestone lectern. Rotations transform coordinates and block states. Reeve **Mira Ashford** is practical, dryly humorous and meticulous about recording everyone’s work; she opens real kingdom/milestone views, without granting bank/trading/Charter services.

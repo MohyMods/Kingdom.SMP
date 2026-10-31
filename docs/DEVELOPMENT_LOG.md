@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-31 — D-021 physical blueprint design and migration review; no code
+
+Updated construction requirements for all physical building plans, full crosshair/rotation/height holograms, server-confirmed validity/diagnostics, Royal Gilded confirmation and exact administrator approval. Recorded the explicit superseding future Tier 2 Town Hall (19 × 15, two floors), preserving current Lodge-world behavior and all saves. Prepared phased implementation/performance/security acceptance and separate per-state grandfather/optional unused-reward conversion proposals. Identified initial Hut/Aldric bootstrap and the pinned legacy First Hearth reward as concrete dependencies. Updated requirements, current-authority notices, roadmap, tracker and continuation to prevent accidental execution of stale Tier 12 Hall or immediate-code instructions. Source/resources/JARs/worlds unchanged; no build, game test, screenshots or performance verification claimed for this design. Await plan/roadmap/migration approval before implementing.
+
 ## 2026-10-31 — Progressive material definitions and prerequisite graph
 
 Applied D-020 without enabling proposed costs. Replaced obsolete Tier 2 numbers in current proposals, recorded Royal Storehouse/Quartermaster/shared-storage reward scope, and prepared twelve resource rows with acquisition rationale, prerequisite/deadlock checks, conditional mod dependencies and ten-player effort hypotheses. Added strict bounded server datapack definitions, immutable catalogue, native ID/tag matching, independent vanilla prerequisites, concrete cycle detection, unsupported mod/Master blockers, operator diagnostics and actual server-backed Royal Gilded tier inspection. Existing First Hearth quote/confirm refuses incompatible/invalid definitions; reload invalidates reviews while preserving receipts/history/scoring/winner. No legacy persistence rewrite.

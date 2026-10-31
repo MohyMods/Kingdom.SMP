@@ -1,5 +1,7 @@
 # Proposed balance review — not approved or enabled
 
+> D-021 changes future building reward timing: Town Hall at Tier 2, subject to separately approved save migration. Lodge/road/final-Hall references below remain existing runtime or older proposals and need review for the new profile. No resource quantities are newly approved and no executable milestone data changes in this documentation task. See CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md.
+
 This file supplies concrete review candidates where approved definitions are missing. It is **not** a gameplay specification, approved balance, a configured gate or implemented content. No proposed value below is loaded by the mod. Preserve fixed First Hearth requirements and all approved gates. Review against actual ten-player output and the final modpack before activation.
 
 ## Next community milestone candidate

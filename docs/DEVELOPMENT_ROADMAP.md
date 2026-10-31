@@ -1,6 +1,9 @@
 # Kingdom SMP delivery roadmap — current authority
 
-Preserve the working project on `rebuild/royal-gilded`; no main merge. The user has tested and approved the hut, Aldric and Royal Gilded visual direction. The ultimate Town Hall is Tier 12. Tier 1 completion advances to Tier 2 and awards the highest contributor the Founders’ Lodge construction privilege, with a named Reeve and included materials. No early Town Hall reward remains approved.
+> **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
+
+Existing verified runtime milestones below are historical implementation facts. New building-system work is paused for design/roadmap/migration approval.
+
 
 | Milestone | Current state | Completion gate / next action |
 | --- | --- | --- |
@@ -16,7 +19,9 @@ Preserve the working project on `rebuild/royal-gilded`; no main merge. The user 
 | Tier 2 → 3 / Royal Storehouse | Revised user quantities remain proposals; reward scope specified | Eight diverse resources + Lodge/road; review final costs/scoring/evidence; secure Quartermaster storage access/capacity before activation |
 | Tiers 3–12 resource proposals | Drafted for review, disabled | Availability rationale and ten-player effort estimates in PROGRESSIVE_RESOURCE_BALANCE; verify actual technology/profession/recipe dependencies before enabling |
 | Generalized live later-tier contributions | IN DEVELOPMENT / blocked on approved policy | Per-milestone pinned history/transaction adapter, objective approvals, future score weights and winner entitlements; current generic catalogue does not activate these |
-| Tier 12 ultimate Town Hall and Elara | Approved final-building scope; not implemented | Separate Tier 12 contribution/blueprint award policy, full furnished hall, verified completion and one steward |
+| D-021 physical blueprints / full holograms | Approved requirements; implementation plan pending | Review building roadmap, Hut bootstrap, controls and migration before coding; all 16 named building types covered |
+| Future Tier 2 Town Hall | Approved 19 × 15 / two floors; not implemented | Tier 1 winning entitlement; full Hall design/services and approved migration; no automatic Lodge replacement |
+| Tier 12 final building/reward | BLOCKED — REQUIRES DECISION | Former Hall role superseded; retain cube eligibility and sequential progression; no replacement invented |
 | Representative profession | Definitions missing | Approved 24 quests/XP/ranks, meaningful 2–3 week Master target, three-active cap, preserved inactive progress; validate one before eleven more |
 | Bank/economy/markets | Gates and numeric policies missing | Earlier premises proposed independently of final Town Hall; prove coin/balance recovery, budgets, tax/rounding, contracts and escrow before activation |
 | Technology/magic integrations | Exact artifacts/policies missing | Verify each supported mod/version and alternative acquisition routes with that mod installed |
@@ -24,6 +29,6 @@ Preserve the working project on `rebuild/royal-gilded`; no main merge. The user 
 
 ## Current dependency order
 
-The tested Phase A source checkpoint is `7e9968a`; its packaged JAR, screenshots and evidence are in [the checkpoint directory](checkpoints/7e9968a/CHECKPOINT.md). The Founders’ Lodge loop now runs through Mira’s arrival and functional milestone services. Next: review revised eight-resource Tier 2 balance/future scoring, then generalize the live per-tier inventory/history adapter and implement the Royal Storehouse/Quartermaster storage service under approved access rules. Flexible server definitions and dependency validation are implemented; all future proposals remain disabled. Representative profession and separately gated economy remain dependent on exact definitions. Vanilla Nether 5 / End 9 entry gates are implemented and tested. Town Hall/Elara are reserved for Tier 12. Charter remains available after Tier 2 independently; its exact boundary and other service gates remain explicit decisions.
+**Design review first; no implementation yet.** Review [the phased plan](BLUEPRINT_IMPLEMENTATION_PLAN.md), initial Hut/Aldric bootstrap, final building roadmap/controls and separate save-migration policy. Existing 0.4.0-dev remains the tested runtime, including the Lodge and former reward binding. After explicit approval, follow compatibility/identity → one complete held-plan hologram → secure Royal Gilded approval/construction → reviewed two-floor Tier 2 Hall → other approved buildings → measured large-building/migration rollout. Later resource/scoring, professions/economy/integration policies remain separate approvals. Do not silently rebind the existing Lodge/road objectives.
 
-Each checkpoint requires a real build, relevant unit and server tests, persistence/restart evidence, client screenshots, exploit review, clear limitations, installable JAR and a pushed development commit. A declaration or compiling class does not complete a milestone. If execution ends, push verified work and provide an exact continuation prompt without claiming background work continues.
+Each future implementation checkpoint still requires builds, relevant tests, persistence/multiplayer evidence, real screenshots, installable JAR and a development push. This documentation checkpoint changes no executable resources and claims no new runtime verification.

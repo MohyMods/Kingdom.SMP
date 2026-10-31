@@ -1,6 +1,9 @@
 # Architecture proposal
 
-> **Current authority — 2026-10-30 progression correction:** Town Hall and its blueprint are Tier 12 only. Tier 1 completion advances to Tier 2 and recognizes the highest contributor; its approved building reward is the Founders’ Lodge. No early Town Hall, Elara, Bank or Royal Trading dependency may be implemented from historical descriptions below. Earlier bank/trading locations and exact gates require separate approval; the Charter remains available after Tier 2 independently of the Town Hall. The existing hut, Aldric and Royal Gilded design are approved.
+> **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
+
+The earlier sections below describe historical design or the existing runtime where they conflict with D-021.
+
 
 Status: rebuild architecture under S2 implementation authorization. The following boundaries guide incremental code; absent modules are not claimed implemented. One deployable NeoForge mod is recommended initially. Logical modules/packages keep responsibilities separate without premature multi-project Gradle complexity. Use Java 21 and Minecraft 1.21.1; exact dependencies require later verification.
 

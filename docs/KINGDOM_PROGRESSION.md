@@ -1,5 +1,7 @@
 # Kingdom progression — current authority
 
+> **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
+
 The user's 2026-10-30 progression correction supersedes all earlier early-Town-Hall designs. The kingdom begins at **Tier 1 — The First Hearth**. Completing its resources advances to **Tier 2 — Roads of Commerce**. Progression is sequential through twelve tiers; exact later requirements must be approved before activation.
 
 ## The First Hearth
@@ -10,7 +12,7 @@ Each category has equal maximum weight 1. Score is the sum of personal quantity/
 
 Use the durable protocol in [contribution recovery](CONTRIBUTION_RECOVERY.md) before consuming items. Completion, the permanent winner and Tier 2 advancement derive from one canonical accepted history. Inventory checkpoints and ledger receipts reconcile process interruption without removing resources a second time. Unknown save/restore mismatches fail closed.
 
-## Approved Tier 2 reward
+## Existing 0.4.0-dev Tier 2 reward — preserved legacy behavior
 
 The user selected **Founders’ Lodge**: a furnished meeting and milestone building, a named **Reeve**, and included construction materials. The highest First Hearth contributor earns its exclusive construction privilege. The building belongs to the kingdom. No banking, Royal Trading, Charter or unrelated service is granted by constructing it.
 
@@ -31,7 +33,7 @@ A permanent winner record is distinct from a claimed physical plan, unused entit
 | 9 | End access gate | Requirements and reward pending |
 | 10 | Name pending | Requirements and reward pending |
 | 11 | Name pending | Requirements and reward pending |
-| 12 | Ultimate Town Hall; Creative Energy Cube also requires active Master Mechanic | Town Hall blueprint requires a separately approved Tier 12 contribution/award policy |
+| 12 | Creative Energy Cube also requires active Master Mechanic | Former Town Hall reward superseded by D-021; new final reward/building pending |
 
 The **Royal Guild Charter remains available after Tier 2**, independently of the Tier 12 Town Hall. Whether that means Tier 2 completion or Tier 3 entry remains unresolved. Do not silently activate it. Earlier banking and Royal Trading need intermediate premises and separately approved unlock gates; a Founders’ Lodge does not grant them.
 
@@ -40,3 +42,5 @@ Later tier tables, names, border dimensions/centers/sizes/timing and profession/
 ## Progressive resource framework (D-020)
 
 Use diversity, processing, rarity, acquisition and cooperation as well as quantity. The revised Tier 2 candidates and all later proposed lists, effort assumptions and availability explanations are in [the balance review](PROGRESSIVE_RESOURCE_BALANCE.md). Runtime schema/commands/activation limits are in [server milestone data](MILESTONE_DATA_FORMAT.md). Future costs are inspectable but disabled; modifying an approval label cannot enable them. Existing First Hearth counts, winner, exact normalization and inventory/state recovery are retained. Any generalized live scoring/consumption migration must pin its approved definition before accepting resources.
+
+For future profiles, replace only the approved reward binding after migration review: First Hearth → Tier 2 Town Hall. Current table entries describing Lodge remain existing-runtime/legacy behavior. Initial quantities and historical normalized scores remain unchanged; existing unfinished worlds need an explicit profile decision. Proposed later construction objectives must be re-reviewed, not mechanically renamed.

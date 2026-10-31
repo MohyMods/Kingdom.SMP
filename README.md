@@ -4,7 +4,9 @@
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 
-## Working features
+**Latest design update (D-021):** future Tier 1 completion awards a **19 × 15, two-floor Town Hall at Tier 2**, with physical blueprint items and full holographic placement. **Implementation is on hold for roadmap/plan/migration approval.** The existing JAR still runs the preserved Lodge-based gameplay below; no saves or rewards are automatically changed. [Updated design](docs/CONSTRUCTION.md) · [Implementation/migration plan for approval](docs/BLUEPRINT_IMPLEMENTATION_PLAN.md).
+
+## Working features in the existing 0.4.0-dev binary
 
 - Persistent kingdom state starts at **Tier 1 — The First Hearth**. The Royal Gilded overview opens with **K** and supports twelve inspectable tiers, saved resource totals, personal weighted score, refresh, tooltips and scrolling.
 - **Contribute** opens a custom donation review/confirmation interface, exact weighted leaderboard and paginated personal history. Shared targets are 1,024 logs, 2,048 cobblestone, 512 wheat and 128 iron ingots. Only accepted resources are consumed, with durable inventory checkpoints and restart reconciliation.

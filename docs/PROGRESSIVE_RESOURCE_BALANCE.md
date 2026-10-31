@@ -1,5 +1,7 @@
 # Progressive resource balance — proposal for review
 
+> D-021 changes future building reward timing: Town Hall at Tier 2, subject to separately approved save migration. Lodge/road/final-Hall references below remain existing runtime or older proposals and need review for the new profile. No resource quantities are newly approved and no executable milestone data changes in this documentation task. See CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md.
+
 Authority: the user's 31 October 2026 (Asia/Riyadh) progressive resource directive. The **philosophy, sequential dependency safety, configurable definitions and Royal Storehouse reward scope are approved**. **All new numerical targets, later rewards, technology/profession availability, objective evidence and future scoring remain proposals.** Only First Hearth costs are active. Nothing in this document authorizes new resource consumption or grants a service.
 
 ## Reading the stages correctly

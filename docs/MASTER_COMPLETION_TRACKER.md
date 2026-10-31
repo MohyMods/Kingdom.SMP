@@ -1,6 +1,8 @@
 # Kingdom SMP — master completion tracker
 
-Authority: latest user completion directive (31 October 2026, Asia/Riyadh), the requirements register and subsequent decisions. Preserve current source/persistence; Town Hall is Tier 12 only. Latest published verified source: `7ce19a8` (0.4.0-dev server milestone definitions/validation/inspection, preserving the tested Lodge/weather/realm gates). Historical 0.2.0-dev package: `5baf285`. This tracker records observed implementation, not promises. No complete-project claim.
+> **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
+
+Authority: latest user completion directive (31 October 2026, Asia/Riyadh), the requirements register and subsequent decisions. Preserve current source/persistence. D-021 changes future Hall timing to Tier 2; existing binary behavior is unchanged. Latest published verified source: `7ce19a8` (0.4.0-dev server milestone definitions/validation/inspection, preserving the tested Lodge/weather/realm gates). Historical 0.2.0-dev package: `5baf285`. This tracker records observed implementation, not promises. No complete-project claim.
 
 Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTED**, **TESTED**, **BLOCKED — REQUIRES DECISION**, **COMPLETE**. TESTED records the documented executed checks; COMPLETE additionally requires all acceptance criteria for that feature. Missing approved content stays blocked even if a framework could compile.
 
@@ -27,7 +29,8 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | Generalized live later-tier transaction/history/scoring adapter | IN DEVELOPMENT | Approved future scoring and pinned definitions; native interruption/receipt tests before any proposed consumption |
 | Royal Storehouse / Quartermaster / secure shared storage | BLOCKED — REQUIRES DECISION | Reward scope specified; costs/scoring, road evidence and storage access/capacity unresolved; one legitimate future entitlement |
 | Generic building/NPC registry and safe recovery | IN DEVELOPMENT | Shared typed identity/assignments, verification, bounded routines, audited conservative recovery |
-| Tier 12 Town Hall and Elara | NOT STARTED | Tier 12 award policy and progression first; furnished functional final hall; one steward |
+| Future Tier 2 Town Hall and full physical-plan holograms | NOT STARTED | D-021 design specified; implementation and migration plan require approval first |
+| Legacy-world migration / initial Hut bootstrap | BLOCKED — REQUIRES DECISION | Preserve all existing identities/projects; approve profile/conversion/bootstrap rules before implementation |
 
 ## All twelve tiers
 
@@ -44,7 +47,7 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | 9 | End gate | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
 | 10 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
 | 11 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
-| 12 | Ultimate Town Hall; Creative Energy Cube + active Master Mechanic | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
+| 12 | Replacement final reward pending; Creative Energy Cube + active Master Mechanic | BLOCKED — REQUIRES DECISION | Proposed resource/dependency table drafted; approve balance/reward/unlocks; implement sequential transactions, recognition and native persistence tests |
 
 World border expansion: **BLOCKED — REQUIRES DECISION** (centers, sizes, dimensions, timing, safety). Charter after Tier 2: **BLOCKED — REQUIRES DECISION** (exact boundary/content); it must not depend on the Tier 12 Hall. Vanilla Nether/End entry enforcement: **TESTED** for approved Tier 5/9 boundaries and native player changeDimension, direct cross-realm teleportTo and item transfers. Unknown mod dimensions and characters already inside a locked realm on import are not rewritten or claimed covered. Third-party routes remain dependent on verified integration APIs.
 
@@ -136,3 +139,7 @@ Current validation: full build passes 121 JUnit tests. The substantial native li
 ## D-020 progressive resource checkpoint
 
 PROGRESSIVE_RESOURCE_BALANCE.md contains all twelve resource rows with approved/proposed status, acquisition rationale, dependency graph, explicit mod/Master blockers and indicative ten-player effort. The server catalogue/validator and native matching/reload checks pass a full build with 139 JUnit tests and the expanded required GameTest. Proposed later costs remain disabled, including the user’s revised Tier 2 list. Generic definition support is not a claim of live twelve-tier transactions, Storehouse services, mod compatibility, AFK provenance or approved future scoring. Physical reload/render verification is recorded in VALIDATION.md as executed.
+
+## D-021 design-only checkpoint
+
+CONSTRUCTION.md defines complete physical/holographic placement coverage. BLUEPRINT_IMPLEMENTATION_PLAN.md records observed reusable code/gaps, authoritative requests, complete rendering/performance plan, review UI, approval decisions, phased acceptance and per-state preservation/migration proposals. No code/resources/save changes or new runtime results. The older Lodge entries are tested legacy-runtime facts, not future-roadmap authority. All new hologram/building implementation is paused until approval.
