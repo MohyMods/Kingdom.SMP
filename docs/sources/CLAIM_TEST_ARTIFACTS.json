@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "ftb-chunks-neoforge-2101.1.22.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-chunks-neoforge/2101.1.22/ftb-chunks-neoforge-2101.1.22.jar",
+    "size": 655807,
+    "sha256": "4ba1b3352184fa7f6e2aa4bca76edd074867697d62344dfa50dcccdb4dab5217"
+  },
+  {
+    "filename": "ftb-library-neoforge-2101.1.39.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-library-neoforge/2101.1.39/ftb-library-neoforge-2101.1.39.jar",
+    "size": 1477833,
+    "sha256": "ca64bd1b5f335406900f74eeafacea5a3580a3933d61de6b6600a64eb12a9a95"
+  },
+  {
+    "filename": "ftb-teams-neoforge-2101.1.11.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-teams-neoforge/2101.1.11/ftb-teams-neoforge-2101.1.11.jar",
+    "size": 308236,
+    "sha256": "e6bcd670493624e6906df872a9c6af4a33fe6405cac57a32c59cd4cd5838c655"
+  },
+  {
+    "filename": "architectury-neoforge-13.0.11.jar",
+    "url": "https://maven.architectury.dev/dev/architectury/architectury-neoforge/13.0.11/architectury-neoforge-13.0.11.jar",
+    "size": 592446,
+    "sha256": "1295bfb3e23149904dd12da025319a9764fb2806dfd6f2f816753a61144cae46"
+  },
+  {
+    "filename": "open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "url": "https://cdn.modrinth.com/data/gF3BGWvG/versions/yWmXD7GW/open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "size": 1903256,
+    "sha256": "77eadbbb7cbd7298d9a99070ebde552b765dd91bdad5054c9f845a17d2931765"
+  }
+]

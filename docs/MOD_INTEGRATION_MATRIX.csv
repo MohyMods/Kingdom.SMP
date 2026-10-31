@@ -10,7 +10,7 @@ ambientsounds,AmbientSounds,6.3.11,user-reported; artifact/API/live compatibilit
 apollib,Apollib,1.2.0,user-reported; artifact/API/live compatibility unverified
 apothic_attributes,Apothic Attributes,2.11.0,user-reported; artifact/API/live compatibility unverified
 aquaculture,Aquaculture 2,2.7.21,user-reported; artifact/API/live compatibility unverified
-architectury,Architectury,13.0.11,user-reported; artifact/API/live compatibility unverified
+architectury,Architectury,13.0.11,Exact artifact hash pinned; loaded in dedicated claim lifecycle and real client; wider pack/API integrations unverified
 ars_creo,Ars Creo,5.4.0,user-reported; artifact/API/live compatibility unverified
 ars_nouveau,Ars Nouveau,5.13.3,user-reported; artifact/API/live compatibility unverified
 artifacts,Artifacts,13.2.5,user-reported; artifact/API/live compatibility unverified
@@ -136,11 +136,11 @@ fabric_tag_api_v1,Forgified Fabric Tag API (v1),1.3.0+3e2bcb4b19,user-reported; 
 fabric_transfer_api_v1,Forgified Fabric Transfer API (v1),5.4.4+6244b11119,user-reported; artifact/API/live compatibility unverified
 fabric_transitive_access_wideners_v1,Forgified Fabric Transitive Access Wideners (v1),6.2.0+6c854b6f19,user-reported; artifact/API/live compatibility unverified
 framework,Framework,0.13.11,user-reported; artifact/API/live compatibility unverified
-ftbchunks,FTB Chunks,2101.1.22,2101.1.22 binary metadata/API signatures inspected; live adapter/compatibility unverified
-ftblibrary,FTB Library,2101.1.39,user-reported; artifact/API/live compatibility unverified
+ftbchunks,FTB Chunks,2101.1.22,"Exact artifact/API tested together on normal dedicated server: independent denials, cross-chunk permissions, revoke/resume, offline pause; real client initialized/owned preview; full-pack compatibility unverified"
+ftblibrary,FTB Library,2101.1.39,Exact artifact hash pinned; loaded in dedicated claim lifecycle and real client; wider pack/API integrations unverified
 ftbquests,FTB Quests,2101.1.37,user-reported; artifact/API/live compatibility unverified
 ftbranks,FTB Ranks,2101.1.5,user-reported; artifact/API/live compatibility unverified
-ftbteams,FTB Teams,2101.1.11,user-reported; artifact/API/live compatibility unverified
+ftbteams,FTB Teams,2101.1.11,Exact artifact hash pinned; loaded in dedicated claim lifecycle and real client; wider pack/API integrations unverified
 fusion,Fusion,1.3.16,user-reported; artifact/API/live compatibility unverified
 geckolib,GeckoLib 4,4.9.3,user-reported; artifact/API/live compatibility unverified
 glitchcore,GlitchCore,2.1.0.2,user-reported; artifact/API/live compatibility unverified
@@ -209,7 +209,7 @@ nuggets,Nuggets,1.1.0.48,user-reported; artifact/API/live compatibility unverifi
 occultism,Occultism,1.224.6,user-reported; artifact/API/live compatibility unverified
 oceansdelight,Ocean's Delight,1.0.4,user-reported; artifact/API/live compatibility unverified
 ohthetreesyoullgrow,Oh The Trees You'll Grow,5.3.5,user-reported; artifact/API/live compatibility unverified
-openpartiesandclaims,Open Parties and Claims,0.33.0,0.33.0 NeoForge binary/source hashes verified against Modrinth; API inspected; live adapter/compatibility unverified
+openpartiesandclaims,Open Parties and Claims,0.33.0,"Exact artifact/API tested together on normal dedicated server: independent denials, cross-chunk permissions, revoke/resume, offline pause; real client initialized/owned preview; full-pack compatibility unverified"
 overflowingbars,Overflowing Bars,21.1.1,user-reported; artifact/API/live compatibility unverified
 owo,oωo,0.12.15.6-beta.1+1.21,user-reported; artifact/API/live compatibility unverified
 packetfixer,PacketFixer,3.3.1,user-reported; artifact/API/live compatibility unverified

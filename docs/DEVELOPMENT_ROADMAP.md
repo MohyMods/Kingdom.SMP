@@ -12,7 +12,7 @@ Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECT
 | Raised-Hut construction route recovery | Fixed and native/physically tested | Loaded supported waypoints; same restarted project completed 782/782; no terrain edit or chunk tickets |
 | Server-data milestone catalogue | Implemented and tested | Registry/dependency/cycle checks, safe reload, historical First Hearth pinned; later costs disabled |
 | Replacement 277-entry inventory | Recorded; compatibility incomplete | Exact FTB Chunks binary and OPAC binary/sources downloaded/audited; full pack not installed |
-| FTB Chunks + OPAC permission adapters | Next dependency; not implemented | Both systems must allow complete site and every write; current presence guard pauses construction |
+| FTB Chunks + OPAC permission adapters | Tested exact five-mod subset | Independent vetoes, cross-chunk volume, revocation/resume/offline pause and real client initialization; owner online/in dimension required; full pack/providers unverified |
 | Versioned new-world Hall / legacy Lodge profiles | Not implemented | Classify/pin safely; no conversion, deleted records or second historical reward |
 | Owner physical Hut plan/bootstrap | Not implemented | Durable owner entitlement, whole preview, approved safe immediate bootstrap; then Aldric |
 | 19×15 two-floor Town Hall / Steward | Not implemented | Original furnished structure, reusable engine, named NPC/service gates; no legacy Lodge replacement |
@@ -31,6 +31,8 @@ Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECT
 
 The Royal Storehouse is removed from **new-world** progression by D-023. Old inactive catalogue references are historical, not authority to award it. Preserve any legacy records. All other unresolved unlock gates remain separate; no building name silently grants a service.
 
-Continue: **both claim adapters → versioned world profiles and owner bootstrap → new-world Hall → safe supports/automatic authorization/generalized structures → Architect/early economy**, expanding actual admin/test and quest identifiers with each service. Full third-party APIs/live compatibility must be tested before marking integration complete.
+Continue: **versioned world profiles and owner bootstrap → new-world Hall → safe supports/automatic authorization/generalized structures → Architect/early economy**, expanding actual admin/test and quest identifiers with each service. Full third-party APIs/live compatibility must be tested before marking integration complete.
 
 Latest checkpoint: 0.5.0-dev/protocol6, **142 JUnit tests, one substantial native lifecycle passed**, actual client full-model/rotation/height/review/resource-reload/scaling and full-process resumed construction; normal dedicated startup/NPC counts/save/stop. No new two-client preview race or full-pack test. [Validation](VALIDATION.md) · [checkpoint download/evidence](checkpoints/deaf558/CHECKPOINT.md) · [continuation](CODEX_CONTINUATION.md).
+
+0.5.1 adds the verified optional claim adapters on top of that 0.5 preview baseline. See CLAIM_COMPATIBILITY_AUDIT and current delivery evidence; do not deploy the historical 0.5.0 binary expecting these adapters.

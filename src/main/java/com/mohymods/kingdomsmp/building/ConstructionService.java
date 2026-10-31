@@ -241,9 +241,17 @@ public final class ConstructionService {
             for(int z=p.origin().getZ()>>4;z<=(p.origin().getZ()+b.depth(p.rotation())-1)>>4;z++)if(!level.hasChunk(x,z))return false;
         return level.hasChunkAt(b.workPost(p.origin(),p.rotation()));
     }
+    private static String claimDenial(ServerLevel level,Project p){
+        if(!com.mohymods.kingdomsmp.placement.PlacementProtection.installed())return null;
+        var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
+        BlockPos last=p.origin().offset(b.width(p.rotation())-1,b.height()-1,b.depth(p.rotation())-1);
+        String denial=com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,p.owner(),p.origin().below(),last);
+        if(denial!=null)return denial;
+        BlockPos post=b.workPost(p.origin(),p.rotation());
+        return com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,p.owner(),post.below(),post.above());
+    }
     /** Validate the complete air volume and its support, without acquiring chunk tickets. */
     public static String validateSite(ServerLevel level,Project p,boolean resuming){
-        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.denial();if(protection!=null)return protection;
         if(level.dimension()!=Level.OVERWORLD)return "Construction is restricted to the Overworld.";
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());BlockPos o=p.origin();
         if(o==null)return "No site has been selected.";
@@ -251,6 +259,7 @@ public final class ConstructionService {
         if(level.isOutsideBuildHeight(o.below())||level.isOutsideBuildHeight(last)||!level.getWorldBorder().isWithinBounds(o)
                 ||!level.getWorldBorder().isWithinBounds(last)||!level.getWorldBorder().isWithinBounds(post))return "The whole site must fit the world border and build height.";
         if(!loaded(level,p))return "Every site and work-post chunk must already be loaded. No chunks are force-loaded.";
+        String protection=claimDenial(level,p);if(protection!=null)return protection;
         for(var other:store(level.getServer()).projects())if(other.origin()!=null&&!other.id().equals(p.id())&&bounds(p).intersects(bounds(other)))return "Site overlaps another kingdom reservation or building.";
         var hut=BuilderHutSavedData.get(level.getServer()).hut().orElse(null);
         if(hut!=null){var h=BuilderHutBlueprint.create();if(bounds(p).intersects(new AABB(hut.origin().getX(),hut.origin().getY(),hut.origin().getZ(),hut.origin().getX()+h.width(hut.rotation()),hut.origin().getY()+BuilderHutBlueprint.HEIGHT,hut.origin().getZ()+h.depth(hut.rotation()))))return "Site overlaps the Builder's Hut.";}
@@ -292,8 +301,8 @@ public final class ConstructionService {
     public static void step(MinecraftServer server,UUID project){
         ConstructionStore store=store(server);Project p=store.get(project);if(p.phase()!=Phase.BUILDING||store.quarantined())return;
         ServerLevel level=server.overworld();var blueprint=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
-        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.denial();if(protection!=null){pause(p,protection);return;}
         if(!loaded(level,p)){pause(p,"Site unloaded; waiting without chunk tickets.");return;}
+        String protection=claimDenial(level,p);if(protection!=null){pause(p,protection);return;}
         var hut=BuilderHutSavedData.get(server).hut().orElse(null);
         if(hut==null||hut.npcDead()||!BuilderHutService.structureIntact(level,hut)){pause(p,"Builder's Hut damaged/unloaded or builder unavailable.");return;}
         Entity entity=level.getEntity(hut.npcId());
@@ -321,7 +330,7 @@ public final class ConstructionService {
                 placing=true;
                 try{
                     if(!level.setBlock(pos,block.state(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE)){pause(p,"Block placement failed; reservation retained.");return;}
-                    if(NeoForge.EVENT_BUS.post(new BlockEvent.EntityMultiPlaceEvent(List.of(snapshot),level.getBlockState(pos.below()),builder)).isCanceled()){
+                    if(NeoForge.EVENT_BUS.post(new BlockEvent.EntityMultiPlaceEvent(List.of(snapshot),level.getBlockState(pos.below()),com.mohymods.kingdomsmp.placement.PlacementProtection.eventActor(level,p.owner(),builder))).isCanceled()){
                         if(level.getBlockState(pos).equals(block.state())&&(!(level.getBlockEntity(pos) instanceof Container c)||c.isEmpty()))level.setBlock(pos,before,Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE);
                         pause(p,"A protection listener denied construction. Administrator inspection required.");return;
                     }

@@ -159,7 +159,7 @@ DIMENSION_PROGRESSION.md records the confirmed schedule, revised dependency grap
 | Full replacement mod inventory | RECORDED | Parsed all 277 reported entries; raw snapshot archived; actual artifact/API/pack compatibility remains unverified |
 | Held physical Lodge hologram / natural targeting | TESTED | Actual full-scale block models/roof, R rotations, height keys, green server-valid / red blocked / pending amber; connected Royal Gilded review |
 | Read-only probe authorization and diagnostics | TESTED | Native identity/copy/current-held checks, no review replacement, collision/support cell bounds; 142 JUnit tests/full native lifecycle |
-| FTB Chunks + OPAC permissions | IN DEVELOPMENT | Actual APIs/JARs must be verified; current safe behavior refuses site validation/work when either mod is present. No adapter compatibility claim |
+| FTB Chunks + OPAC permissions | TESTED — PINNED SUBSET | Actual exact APIs tested together on normal dedicated server; independent veto/revocation/resume/offline pause and real client init/owned preview. Owner online/same dimension required; full-pack/providers unverified |
 | New-world Town Hall vs existing Lodge profiles | NOT STARTED | New rule approved; versioned classification/pinning and safe legacy detection required before changing reward binding |
 | Owner Hut physical blueprint/bootstrap | NOT STARTED | Immediate bootstrap exception now approved; owner identity selection and durable single entitlement pending |
 | 19×15 two-floor Hall / Steward / services | NOT STARTED | Implement real structure and services incrementally; preserve Aldric/Mira and old projects |

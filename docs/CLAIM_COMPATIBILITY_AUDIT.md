@@ -1,18 +1,34 @@
 # Claim integration evidence — 2026-10-31
 
-The replacement snapshot contains **277 mod entries**, excluding its `Name Version (Mod Id)` heading. It reports both FTB Chunks 2101.1.22 and Open Parties and Claims 0.33.0. They must both authorize a site; permission from one cannot override a refusal from the other. The current 0.5.0-dev implementation deliberately refuses construction while either is loaded. **No permission adapter or full-pack compatibility test is complete.**
+Current source **0.5.1-dev** replaces the 0.5.0 presence-only refusal with tested optional adapters for **FTB Chunks 2101.1.22** and **Open Parties and Claims 0.33.0**. Both must permit a site; one cannot override the other. No bypass/full-pass flags, fake-player privileges or cached permission decisions are granted.
 
-## Verified artifacts and remaining access limits
+## Actual authority and safety
 
-The [artifact manifest](sources/CLAIM_ARTIFACT_AUDIT_2026-10-31.json) records successful download URLs, sizes and SHA-256 digests. Third-party binaries remain outside the repository.
+Preview/confirmation check the entire footprint volume, ground support and exterior work post against both real APIs. Progressive construction rechecks the whole site before every step; Hut installation also rechecks each block. Existing collisions, support, entities, reservations, loaded chunks, world limits and place-event cancellation remain enforced. Neither API is loaded or called when its mod is absent. Exact tested versions are required; missing/changed APIs, unready managers and unresolved actors refuse safely.
 
-- FTB Maven returned HTTP 200 for `ftb-chunks-neoforge-2101.1.22.jar`. Its embedded NeoForge metadata confirms the exact version, Minecraft ≥1.21.1, NeoForge ≥21.1.0, Architectury ≥13.0.8, FTB Library ≥2101.1.34 and Teams ≥2101.1.9. Public method signatures were inspected with Java 21 `javap`; this verifies their existence, not their complete semantics. The corresponding `-sources.jar` URL returned **HTTP 403**. It was not repeatedly retried. Binary access succeeded, so this is not evidence that the whole cloud environment lacks network access.
-- Modrinth version `yWmXD7GW` supplies the exact **NeoForge 1.21.1 / 0.33.0** OPAC binary and sources. Both downloaded successfully and matched the published SHA-512 values. Embedded metadata permits Minecraft 1.21–1.21.1 and NeoForge 21.0.0-beta–before21.2; Create ≥6.0.0 is optional. These ranges include the core target, but do not establish live interoperability.
+With either claim mod present, **the authoritative owner must be alive, non-spectator and online in the building dimension** so permission checks and place events use that actual server player. Going offline or to another dimension pauses safely without redeeming a second reward or discarding progress. This is the current adapter limitation, not a finalized general offline-automation balance policy. No changes to claim ownership, force-loading, team settings or bypass modes are made by the production adapter.
 
-## API entry points inspected
+FTB uses public `FTBChunksAPI.api()`, manager readiness and `ClaimedChunkManager.shouldPreventInteraction(..., Protection.EDIT_BLOCK, ...)`. OPAC uses `OpenPACServerAPI.get(server).getChunkProtection().onEntityPlaceBlock(entity, level, pos)`. Null state ignores item-specific placement exemptions for the whole public site. Optional reflection binds those exact public interface signatures, keeping missing third-party classes off the core class path. Native place events under claims use the actual authorizing owner; Aldric remains the physical worker. The ordinary no-claim event actor remains unchanged.
 
-FTB's `FTBChunksAPI.API` exposes manager readiness; `ClaimedChunkManager.shouldPreventInteraction(Entity, InteractionHand, BlockPos, Protection, Entity)` and `Protection.EDIT_BLOCK` exist in this exact binary. Before using them, inspect implementation semantics, player/team context, bypass behavior and world selection. No bypass flags should be granted by Kingdom construction.
+## Exact artifacts and download diagnosis
 
-OPAC's published source exposes `OpenPACServerAPI.get(MinecraftServer).getChunkProtection()`. `IChunkProtectionAPI.onEntityPlaceBlock(BlockState, Entity, ServerLevel, BlockPos)` reports whether placement should be protected against. Full-pass APIs exist, but should not be used to evade claims. Verify real claimant, party, server/admin claims and offline construction semantics rather than equating NPC identity with the blueprint holder.
+[Five-artifact test lock](sources/CLAIM_TEST_ARTIFACTS.json) pins direct public URLs, sizes and SHA-256: Chunks2101.1.22, Library2101.1.39, Teams2101.1.11, Architectury13.0.11 and OPAC0.33.0. OPAC binary/sources additionally matched published Modrinth SHA-512. Third-party binaries are not committed or bundled in Kingdom's JAR.
 
-Next implementation must pass both systems for the whole footprint, supports, exterior work area and each progressive write. Changed/revoked permissions must pause safely. Missing actors, unavailable managers, changed APIs and unresolved authority must refuse safely. Test permission-allowed and denied cases, cross-chunk sites, changed claims after confirmation, offline owners, both systems together and save/restart. Existing block collision, reservations, terrain, entity and world-limit checks remain required. Do not remove the current guard until real adapter tests replace it.
+FTB requests with Python's default agent returned **HTTP403 / Cloudflare1010**. Matching the identified `KingdomSMP-compatibility-audit/0.5` header used for the successful Chunks download resolved Library, Teams and Chunks sources downloads (HTTP200). This is a diagnosed request difference, not an inactive environment or blanket network failure. No repeated blind retries or credential changes were needed. The earlier 0.5 audit manifest remains historical evidence.
+
+## Reproduce executed tests
+
+```sh
+python3 scripts/download-claim-test-mods.py
+JAVA_HOME=/path/to/jdk21 python3 scripts/test-claims.py
+```
+
+The runner creates a new isolated void normal dedicated world and ephemeral port, enables only the claim test namespace, runs assertions, flushes saves and stops. It never reuses production worlds. **Standalone Minecraft GameTestServer fails during OPAC initialization because that harness has a null profile cache.** The normal dedicated fixture supplies the real service rather than patching OPAC or the production mod.
+
+Actual lifecycle passed: unclaimed and owned cross-chunk volumes; each mod independently refusing an unrelated non-operator; OPAC refusal despite FTB ownership; native protected Hut installation/NPC; real progressive placements through both event listeners; changed work-area/footprint claims pausing before a write; restoration resuming; owner logout pausing; exact durable construction prefix reload. Registered ServerPlayer test peers use embedded channels with explicitly declared actual payload IDs; this does **not test a real client handshake**. No such fixture code is packaged in the playable JAR.
+
+A separate actual graphical client loaded the five exact mods, retained the existing copied legacy world and displayed the full green hologram after ordinary FTB/OPAC claim commands. Exact Royal Gilded review and restart outcomes are included with the checkpoint. Existing 142 unit tests and the separate core-only native lifecycle also pass.
+
+## Remaining compatibility limits
+
+The full replacement list has **277 entries**, not all installed here. FTB Quests2101.1.37 is reported but its integration is still absent. This subset uses OPAC's default party/permission providers; Argonauts/Prometheus provider behavior, other full-pack configs, authenticated remote play, a two-real-client claim race, maximum building size and season-scale performance remain unverified. No claim adapter result proves Ad Astra recipes, all alternate teleport routes or the rest of the roadmap. New-world Hall profiles/owner Hut/bootstrap/foundations/marketplace are still separate unfinished dependencies.

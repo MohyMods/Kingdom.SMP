@@ -23,8 +23,6 @@ public final class PlacementNetworking {
             var project=ConstructionService.lodge(player.server);
             if(project==null||!ConstructionService.hasPlan(player,project)||!ConstructionService.heldPlan(player,project))throw new IllegalStateException("Hold your current unused blueprint. Recover a lost or stale plan through Construction.");
             if(project.phase().ordinal()>=com.mohymods.kingdomsmp.persistence.ConstructionStore.Phase.BUILDING.ordinal())throw new IllegalStateException("This construction right has already been redeemed.");
-            // Existing foreign claim data must never be treated as unclaimed land.
-            String protection=PlacementProtection.denial();if(protection!=null)throw new IllegalStateException(protection);
             var preview=ConstructionService.inspectCandidate(player,probe.origin(),Rotation.values()[probe.rotation()]);
             var candidate=project.propose(probe.origin(),Rotation.values()[probe.rotation()]);var level=player.serverLevel();
             List<BlockPos> collisions=new ArrayList<>(),unsupported=new ArrayList<>();

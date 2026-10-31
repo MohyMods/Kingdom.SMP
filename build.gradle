@@ -24,12 +24,21 @@ neoForge {
     }
     runs {
         client { client(); gameDirectory = file('run-client'); loadedMods = [mods.kingdom_smp] }
-        server { server(); programArgument '--nogui'; loadedMods = [mods.kingdom_smp] }
+        server {
+            server(); programArgument '--nogui'; loadedMods = [mods.kingdom_smp]
+            gameDirectory = file(providers.gradleProperty('kingdomServerRunDir').getOrElse('run'))
+            if (providers.gradleProperty('kingdomTestNamespace').isPresent()) {
+                sourceSet = sourceSets.gameTest
+                loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
+                systemProperty 'neoforge.enableGameTest', 'true'
+                systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').get()
+            }
+        }
         gameTestServer {
             type = 'gameTestServer'
             sourceSet = sourceSets.gameTest
             gameDirectory = file(providers.gradleProperty('kingdomTestRunDir').getOrElse('work/gametest'))
-            systemProperty 'neoforge.enabledGameTestNamespaces', 'kingdom_smp_tests'
+            systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests')
             loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
         }
         configureEach { logLevel = org.slf4j.event.Level.INFO }
@@ -41,6 +50,12 @@ neoForge {
     }
 }
 dependencies {
+    // Explicit opt-in compatibility fixture; never bundle or silently install third-party mods.
+    if (providers.gradleProperty('kingdomClaimTestMods').isPresent()) {
+        def claimJars = fileTree(providers.gradleProperty('kingdomClaimTestMods').get()) { include '*.jar' }
+        runtimeOnly claimJars
+        gameTestRuntimeOnly claimJars
+    }
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

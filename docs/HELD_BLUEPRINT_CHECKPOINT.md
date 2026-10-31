@@ -1,3 +1,5 @@
+> Historical 0.5.0 scope. Current 0.5.1 implements tested pinned claim adapters; see [current compatibility evidence](CLAIM_COMPATIBILITY_AUDIT.md). Remaining owner-Hut/Hall/foundations/market dependencies are still unfinished.
+
 # Held-blueprint checkpoint — actual scope
 
 0.5.0-dev / protocol 6 continues the existing **legacy Lodge** workflow. Holding a current plan shows its complete translucent block model/roof and footprint; crosshair targeting, R/Shift+R, Page Up/Down and Use open the same server-reviewed Royal Gilded flow without coordinate or UUID input. Controls are remappable; client TOML controls targeting reach and height bounds. Green is a recent matching server result, red is blocked, amber is pending/stale. Diagnostic cells are capped at 32 collisions and 32 unsupported positions. A read-only probe must not replace an outstanding confirmation or reserve a project.

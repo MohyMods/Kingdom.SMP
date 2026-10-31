@@ -16,3 +16,5 @@ The D-023 comprehensive `/kingdom admin` namespace and isolated sandbox are requ
 | `/kingdom lodge preview <x> <y> <z> <rotation>` | Coordinate site debugging/review | Now permission level 2; ordinary held-plan use pre-fills the same server review without typing coordinates |
 
 No balance/tier/rank grants, auction tests, shop restock, aircraft/Waystone overrides, FTB quest reset or test blueprint minting are registered in this slice. Implement these in a durable explicitly isolated test mode alongside their services. Existing native GameTest fixtures are isolated server worlds, not a player-facing admin sandbox.
+
+0.5.1 optional claims: site checks now query exact FTB Chunks2101.1.22 and OPAC0.33.0 APIs together. Under claims the actual authorizing owner must be alive, non-spectator and online in the building dimension; other versions, unready/failed APIs and denied locations refuse. This adds no bypass/reset/claim-ownership command. See CLAIM_COMPATIBILITY_AUDIT for test scope.

@@ -136,7 +136,7 @@ public final class BuilderHutService {
     private static int preview(ServerPlayer player, BlockPos origin, Rotation rotation, String reason) {
         verifyReservation(player.server);
         if (BuilderHutSavedData.get(player.server).hut().isPresent()) return fail(player.createCommandSourceStack(), "The kingdom already has a hut reservation.");
-        String denied = validateSite(player.serverLevel(), origin, rotation, false);
+        String denied = validateSite(player.serverLevel(), origin, rotation, false, player);
         if (denied != null) return fail(player.createCommandSourceStack(), denied);
         if (player.distanceToSqr(origin.getX(), origin.getY(), origin.getZ()) > 64 * 64) {
             return fail(player.createCommandSourceStack(), "Stand within 64 blocks of the site.");
@@ -167,7 +167,7 @@ public final class BuilderHutService {
         if (player.distanceToSqr(preview.origin().getX(), preview.origin().getY(), preview.origin().getZ()) > 64 * 64) {
             return fail(player.createCommandSourceStack(), "Stand within 64 blocks of the site.");
         }
-        String denied = validateSite(player.serverLevel(), preview.origin(), preview.rotation(), false);
+        String denied = validateSite(player.serverLevel(), preview.origin(), preview.rotation(), false, player);
         if (denied != null) return fail(player.createCommandSourceStack(), denied);
         BuilderHutSavedData data = BuilderHutSavedData.get(player.server);
         if (data.hut().isPresent() || Files.exists(marker(player.server, "reserved"))) {
@@ -183,7 +183,10 @@ public final class BuilderHutService {
 
     /** Returns a bounded actionable denial. Never causes chunk loading. Null means valid. */
     public static String validateSite(ServerLevel level, BlockPos origin, Rotation rotation, boolean resuming) {
-        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.denial();if(protection!=null)return protection;
+        return validateSite(level, origin, rotation, resuming, null);
+    }
+
+    public static String validateSite(ServerLevel level, BlockPos origin, Rotation rotation, boolean resuming, ServerPlayer actor) {
         if (level.dimension() != Level.OVERWORLD) return "The starter hut must be in the Overworld.";
         BuilderHutBlueprint blueprint = BuilderHutBlueprint.create();
         BlockPos last = origin.offset(blueprint.width(rotation) - 1, BuilderHutBlueprint.HEIGHT - 1, blueprint.depth(rotation) - 1);
@@ -194,6 +197,8 @@ public final class BuilderHutService {
         for (BlockPos position : BlockPos.betweenClosed(origin.below(), last)) {
             if (!level.hasChunkAt(position)) return "Every footprint chunk must already be loaded.";
         }
+        String protection=com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,actor,origin.below(),last);
+        if(protection!=null)return protection;
         Map<BlockPos, BlockState> expected = new HashMap<>();
         if (resuming) for (var block : blueprint.placements(rotation)) expected.put(origin.offset(block.offset()), block.state());
         for (int x = 0; x < blueprint.width(rotation); x++) for (int z = 0; z < blueprint.depth(rotation); z++) {
@@ -219,7 +224,7 @@ public final class BuilderHutService {
         if (player.distanceToSqr(hut.origin().getX(), hut.origin().getY(), hut.origin().getZ()) > 64 * 64) {
             return fail(player.createCommandSourceStack(), "Stand within 64 blocks of the reserved site.");
         }
-        String denied = validateSite(level, hut.origin(), hut.rotation(), true);
+        String denied = validateSite(level, hut.origin(), hut.rotation(), true, player);
         if (denied != null) return fail(player.createCommandSourceStack(), denied);
         BuilderHutSavedData data = BuilderHutSavedData.get(player.server);
         HutReservationJournal.verify(marker(player.server, "reserved"), reservationText(hut));
@@ -229,6 +234,8 @@ public final class BuilderHutService {
             for (int index = 0; index < blocks.size(); index++) {
                 var block = blocks.get(index);
                 BlockPos position = hut.origin().offset(block.offset());
+                String changedPermission=com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,player,position,position);
+                if(changedPermission!=null)return fail(player.createCommandSourceStack(),changedPermission);
                 BlockState current = level.getBlockState(position);
                 if (!matchesRequired(current, block.state())) {
                     if (!current.isAir()) return fail(player.createCommandSourceStack(), "Site changed; installation paused without overwriting blocks.");
