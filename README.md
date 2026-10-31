@@ -1,27 +1,28 @@
-Latest D-024 operator-inspection development checkpoint: [JAR, tests and continuation](docs/checkpoints/production-admin/CHECKPOINT.md). **1.0.0 is not ready.** [Verified-slice feature inventory](docs/PRODUCTION_COMPLETION_MATRIX.md).
+Latest 0.6.0 fresh-world Town Hall checkpoint: [JAR, actual screenshots, tests and continuation](docs/checkpoints/25aa1dc/CHECKPOINT.md). **1.0.0 is not ready.** [Verified-slice feature inventory](docs/PRODUCTION_COMPLETION_MATRIX.md).
 
 # Kingdom SMP — Royal Gilded development
 
-[Download 0.5.1-dev, actual Minecraft screenshots and execution evidence](docs/checkpoints/c0889d3/CHECKPOINT.md). Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development branch: `rebuild/royal-gilded`; never merged into main.
+[Download 0.6.0-dev, actual Minecraft screenshots and execution evidence](docs/checkpoints/25aa1dc/CHECKPOINT.md). Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development branch: `rebuild/royal-gilded`; never merged into main.
 
 **Tested claim subset; full pack unverified:** exact FTB Chunks2101.1.22 + OPAC0.33.0 adapters now validate both systems over the full site and every progressive step. Revocation pauses and restored access resumes. The actual owner must be alive, non-spectator and online in the building dimension. Other versions/API failures refuse safely. All five locked dependencies ran together on a normal dedicated server and real graphical client; the complete277-entry pack and other providers remain unverified. [Compatibility evidence](docs/CLAIM_COMPATIBILITY_AUDIT.md).
 
-The [master directive](docs/sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) supersedes previous planning holds. New worlds are intended to receive the 19×15, two-floor **Town Hall at Tier 2**; existing Lodge worlds must remain intact. Versioned new-world profiles/Hall, owner Hut plan, automatic foundations/site authorization, Architect market and other Phase B services are **not implemented yet**. [Current rules and implementation status](docs/MASTER_SUPERSESSION_MATRIX.md).
+The [master directive](docs/sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) supersedes previous planning holds. New worlds receive the 19×15, two-floor **Town Hall at Tier 2**; existing Lodge worlds must remain intact. Versioned profiles, the free owner Hut plan, automatic server-valid site authorization, furnished Hall and permanent Elara services are implemented and tested. Irregular foundations, Architect marketplace and early economy remain pending. [Current rules and implementation status](docs/MASTER_SUPERSESSION_MATRIX.md).
 
 ## Implemented and tested core gameplay
 
 - Persistent **Tier 1 — The First Hearth**, shared consumed contributions, personal history, exact normalized leaderboard, deterministic permanent winner and advancement to Tier 2. Targets: 1,024 logs, 2,048 cobblestone, 512 wheat and 128 iron ingots. Inventory receipts and durable recovery guard interruptions.
-- Furnished 11×9×9 Builder's Hut, Aldric Stonehand, persistent NPC identity/routine and Royal Gilded dialogue. Protected administrator setup has a **five-minute clickable chat confirmation**. Owner physical Hut blueprint is still pending.
+- Furnished 11×9×9 Builder's Hut, Aldric Stonehand, persistent NPC identity/routine and Royal Gilded dialogue. Protected administrator setup has a **five-minute clickable chat confirmation**. Fresh owners claim the authenticated free physical Hut plan through K → Construction.
 - Preserved legacy winner's Lodge entitlement: claim/recover one authenticated plan, review/approve an exact site, redeem once, then Aldric physically constructs 782 blocks and introduces **Mira Ashford**, Reeve. Construction persists and pauses safely; no terrain clearing or chunk tickets.
-- Holding the current Lodge plan displays a full translucent model/roof and footprint. Aim naturally, **R / Shift+R** rotate, **Page Up/Down** adjust height, **Use** opens the exact Royal Gilded review. Keys are remappable. Green requires a fresh matching server result; red marks refusal, amber is pending. Collision/support diagnostics are bounded. Legacy administrator approval is still required.
+- New-profile highest contributors receive the 19×15 two-floor Hall plan at Tier2. Aldric constructs 1,815 verified blocks and introduces Elara Vale; Steward and lectern open actual kingdom/contribution services. Existing Lodge records are never converted.
+- Holding any supported current plan displays a full translucent model/roof and footprint. Aim naturally, **R / Shift+R** rotate, **Page Up/Down** adjust height, **Use** opens the exact Royal Gilded review. Keys are remappable. Green requires a fresh matching server result; red marks refusal, amber is pending. Collision/support diagnostics are bounded. Legacy administrator approval is still required.
 - Bounded GPU geometry caching survives rotation eviction, hand switching and resource reload. Actual normal/narrow Minecraft frames and process-restart construction checks accompany this build.
 - Vanilla **Nether entry requires Tier 5; End entry requires Tier 12**, server-enforced for tested player/item transfer paths. Unknown mod routes and imported characters already inside locked realms remain unverified. Other dimension adapters/Ad Astra recipes are not implemented.
 
-The whole mod is not complete. No new-world Hall conversion, extra building rewards, bank/trading/Charter, professions, auctions or later costs were activated. [Checkpoint scope and limits](docs/HELD_BLUEPRINT_CHECKPOINT.md) · [completion tracker](docs/MASTER_COMPLETION_TRACKER.md). Historical builds remain archived separately.
+The whole mod is not complete. Existing worlds were not converted. Bank/trading/Charter, marketplace, professions, auctions and later costs remain inactive. [Checkpoint scope and limits](docs/HELD_BLUEPRINT_CHECKPOINT.md) · [completion tracker](docs/MASTER_COMPLETION_TRACKER.md). Historical builds remain archived separately.
 
 ## Flexible milestone definitions
 
-Server datapacks now define all twelve inspectable resource/objective proposals. **K → Progression** shows server targets, approved/proposed status and real Lodge completion. `/kingdom milestones inspect <tier>` is read-only; permission-level-2 operators can use `/kingdom milestones validate`. Invalid definitions block new donations safely; existing First Hearth scoring/history/recovery remain pinned. Proposed later costs are **disabled**.
+Server datapacks now define all twelve inspectable resource/objective proposals. **K → Progression** shows server targets, approved/proposed status and actual building completion. `/kingdom milestones inspect <tier>` is read-only; permission-level-2 operators can use `/kingdom milestones validate`. Invalid definitions block new donations safely; existing First Hearth scoring/history/recovery remain pinned. Proposed later costs are **disabled**.
 
 See [the proposed twelve-tier resource/effort table](docs/PROGRESSIVE_RESOURCE_BALANCE.md) and [the server-data schema](docs/MILESTONE_DATA_FORMAT.md). Generic live later-tier transactions and Storehouse storage are not enabled by these definitions.
 
