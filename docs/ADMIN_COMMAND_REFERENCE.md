@@ -1,3 +1,5 @@
+Current 0.8 auction command: `/kingdom admin auctions inspect` (operator-only) inspects actual active escrow, journal, tax reserve and recovery state. Player auction actions are reviewed through the Bank's Auctions/Mailbox screens; `/kingdom commerce open` is a view, never a remote transaction authorization. [Auction scope](AUCTION_CHECKPOINT.md) · [public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md).
+
 ## Commerce and Tier 3 testing (0.7.0)
 
 Real commands: `/kingdom commerce balance`, `/kingdom commerce open`; `/kingdom admin economy inspect <online-player>`; permission4 `/kingdom admin economy set <player> <coins>` then append `confirm <reason>`; `/kingdom admin milestone inspect`; permission4 `/kingdom admin milestone road` then append `confirm <reason>` after inspecting the actual connection. These mutate real journals, not simulated status. Normal trading/coin conversion requires Survival/Adventure, empty cursor, native inventory, proximity and the registered completed service building. Admin adjustments are audited. Do not use live-world resets to test exclusivity; use the isolated native fixtures.

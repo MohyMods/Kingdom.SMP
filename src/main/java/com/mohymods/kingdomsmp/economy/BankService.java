@@ -26,7 +26,7 @@ public final class BankService {
         if(q!=null&&(System.nanoTime()-q.issued()>30_000_000_000L||CommerceService.store(player.server).revision()!=q.revision())){QUOTES.remove(player);q=null;}
         return Optional.ofNullable(q);
     }
-    private static void requireCounter(ServerPlayer player){
+    public static void requireCounter(ServerPlayer player){
         if(!player.isAlive()||player.isSpectator()||player.serverLevel()!=player.server.overworld()||player.containerMenu!=player.inventoryMenu||!player.containerMenu.getCarried().isEmpty()
                 ||player.gameMode.getGameModeForPlayer()!=GameType.SURVIVAL&&player.gameMode.getGameModeForPlayer()!=GameType.ADVENTURE)
             throw new IllegalStateException("Visit the bank alive in Survival/Adventure with containers closed.");
@@ -63,7 +63,7 @@ public final class BankService {
     }
     public static Quote review(ServerPlayer player,String selected,int requested)throws IOException{
         requireCounter(player);var store=CommerceService.store(player.server);CommerceService.verifyReceipt(player);
-        if(store.pendingSale().isPresent()||store.pendingTransfer().isPresent()||store.quarantined())throw new IllegalStateException("Bank paused for inventory reconciliation.");
+        if(store.pendingSale().isPresent()||store.pendingTransfer().isPresent()||store.pendingItem().isPresent()||store.quarantined())throw new IllegalStateException("Bank paused for inventory reconciliation.");
         if(requested<1||requested>2304)throw new IllegalArgumentException("Invalid coin quantity.");
         long delta;int quantity;String text;
         if(selected.equals("deposit")){

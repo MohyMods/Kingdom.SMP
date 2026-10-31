@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "kingdom_smp:resident",
+    "kingdom_smp:steward",
+    "kingdom_smp:reeve",
+    "kingdom_smp:aldric"
+  ]
+}

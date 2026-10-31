@@ -16,7 +16,7 @@ public record CommerceView(long requestId,long revision,boolean open,int tab,int
         }
     }
     public CommerceView {
-        if(requestId<0||revision<0||tab<0||tab>4||tier<1||tier>12||balance<0||entries==null||entries.size()>32
+        if(requestId<0||revision<0||tab<0||tab>5||tier<1||tier>12||balance<0||entries==null||entries.size()>32
                 ||review==null||reviewText==null||reviewText.length()>1024||notice==null||notice.length()>512)
             throw new IllegalArgumentException("Invalid commerce view");
         entries=List.copyOf(entries);

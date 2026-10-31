@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "Opt-in public Kingdom NPC interaction under FTB Chunks. Pair with OPAC empty-hand restrictions; read PUBLIC_NPC_CLAIM_SETUP.md."
+  }
+}

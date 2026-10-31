@@ -17,9 +17,12 @@ public final class BankRuntimeTests {
  private static long requests;
  @GameTest(template="empty",timeoutTicks=6000)
  public static void realTierThreeBank(GameTestHelper h)throws Exception{
-  CommerceRuntimeTests.completeCommerceLoop(h,()->{try{advanceAndBuild(h);}catch(Exception e){h.runAfterDelay(1,()->h.fail(e.toString()));}});
+  completeBankLoop(h,()->{h.succeed();com.mojang.logging.LogUtils.getLogger().info("BANK_TEST_ASSERTIONS_PASSED: complete real Bank loop");});
  }
- private static void advanceAndBuild(GameTestHelper h)throws Exception{
+ public static void completeBankLoop(GameTestHelper h,Runnable completed)throws Exception{
+  CommerceRuntimeTests.completeCommerceLoop(h,()->{try{advanceAndBuild(h,completed);}catch(Exception e){h.runAfterDelay(1,()->h.fail(e.toString()));}});
+ }
+ private static void advanceAndBuild(GameTestHelper h,Runnable completed)throws Exception{
   var level=h.getLevel();var server=level.getServer();var hall=ConstructionService.lodge(server);var player=server.getPlayerList().getPlayer(hall.owner());
   var other=server.getPlayerList().getPlayers().stream().filter(p->p!=player).findFirst().orElseThrow();
   h.assertTrue(ContributionService.kingdom(server).attainedTier()==2,"Real transition starts at Tier2, no forced tier");
@@ -51,11 +54,11 @@ public final class BankRuntimeTests {
    try{
     var store=ConstructionService.store(server);for(int i=0;i<2&&store.get(project.id()).phase()==ConstructionStore.Phase.BUILDING;i++)ConstructionService.step(server,project.id());
     if(store.get(project.id()).phase()!=ConstructionStore.Phase.COMPLETE)return;done[0]=true;
-    h.runAfterDelay(20,()->{try{banking(h,player,other,store.get(project.id()));}catch(Exception e){h.runAfterDelay(1,()->h.fail(e.toString()));}});
+    h.runAfterDelay(20,()->{try{banking(h,player,other,store.get(project.id()),completed);}catch(Exception e){h.runAfterDelay(1,()->h.fail(e.toString()));}});
    }catch(Exception e){done[0]=true;h.fail(e.toString());}
   });
  }
- private static void banking(GameTestHelper h,ServerPlayer p,ServerPlayer other,ConstructionStore.Project bank)throws Exception{
+ private static void banking(GameTestHelper h,ServerPlayer p,ServerPlayer other,ConstructionStore.Project bank,Runnable completed)throws Exception{
   var level=h.getLevel();var b=BlueprintRegistry.get(bank.blueprint(),1);h.assertTrue(ConstructionService.structureIntact(level,bank),"Bank retains all actual required blocks");
   for(var block:b.blocks()){var pos=bank.origin().offset(block.offset());h.assertTrue(level.getBlockState(pos).canSurvive(level,pos),"Supported Bank furnishing: "+pos);}
   var bars=bank.origin().offset(10,1,8);level.setBlock(bars,level.getBlockState(bars).setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.EAST,true),3);
@@ -74,8 +77,9 @@ public final class BankRuntimeTests {
   near(p,home);var distant=review(p,3,"gold",1);p.moveTo(home.getX()+100,home.getY(),home.getZ());boolean range=false;try{confirm(p,distant,3);}catch(IllegalStateException expected){range=true;}h.assertTrue(range,"Bank confirmations recheck actual position");
   near(p,home);CommerceService.verifyReceipt(p);var reopened=EconomyStore.open(p.server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("data"));
   h.assertTrue(reopened.balance(p.getUUID())==store.balance(p.getUUID())&&reopened.purchases().size()==2,"Native Bank records reload without extra entitlement or money");
-  h.succeed();com.mojang.logging.LogUtils.getLogger().info("BANK_TEST_ASSERTIONS_PASSED: real eight-resource Tier3 transition, road permissions, bought and progressive Bank, physical four-coin withdrawal/deposit, native receipt, no replay/arbitrage, in-person atomic transfer, capacity/distance denials, persistence");
+  serverTask(h,completed);
  }
+ private static void serverTask(GameTestHelper h,Runnable action){h.getLevel().getServer().tell(new net.minecraft.server.TickTask(h.getLevel().getServer().getTickCount(),action));}
  private static void near(ServerPlayer p,BlockPos home){p.moveTo(home.getX()+.5,home.getY(),home.getZ()-2.5);}
  private static void give(ServerPlayer p,Item item,int count){p.getInventory().clearContent();for(int i=0;count>0;i++){int n=Math.min(count,64);p.getInventory().setItem(i,new ItemStack(item,n));count-=n;}}
  private static CommerceView review(ServerPlayer p,int tab,String id,int qty){return CommerceService.handle(p,new CommerceRequest(++requests,1,tab,id,qty,CommerceRequest.NONE));}

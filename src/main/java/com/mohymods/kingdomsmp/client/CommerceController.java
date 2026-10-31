@@ -15,12 +15,13 @@ public final class CommerceController {
     private CommerceController(){ }
     public static void open(){open(0);}
     public static void open(int tab){request(0,tab,"",1,CommerceRequest.NONE);}
-    public static void request(int action,int tab,String selected,int quantity,UUID review){
+    public static void request(int action,int tab,String selected,int quantity,UUID review){request(action,tab,selected,quantity,review,0);}
+    public static void request(int action,int tab,String selected,int quantity,UUID review,long amount){
         tick();var client=Minecraft.getInstance();
         if(client.player==null||client.getConnection()==null||refreshRequired&&action!=0)return;
         long id=REQUESTS.begin(System.nanoTime(),client.getConnection(),client.screen);if(id==0)return;
         lastTab=tab;status=action==2?"Saving your transaction…":"Reading the Royal Exchange…";
-        PacketDistributor.sendToServer(new CommerceRequest(id,action,tab,selected,quantity,review));
+        PacketDistributor.sendToServer(new CommerceRequest(id,action,tab,selected,quantity,review,amount));
     }
     public static void receive(CommerceView view){
         tick();var client=Minecraft.getInstance();if(client.player==null||client.getConnection()==null)return;
