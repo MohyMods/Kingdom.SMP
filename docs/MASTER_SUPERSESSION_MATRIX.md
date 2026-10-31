@@ -1,3 +1,5 @@
+> **0.6.0 implementation update:** Fresh-world profile/Hut/Hall/Elara and preserved legacy Lodge/Mira now have a connected implementation. [Current checkpoint](TOWN_HALL_CHECKPOINT.md) and [completion matrix](PRODUCTION_COMPLETION_MATRIX.md) supersede historical missing-status entries for that milestone only. Marketplace and early economy remain next.
+
 # D-023 supersession, compatibility and implementation status
 
 Authority: exact [master implementation directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md), followed by the [replacement full mod snapshot](sources/MOD_SNAPSHOT_2026-10-31.txt). This is implementation authorization. All previous review-only holds are superseded; missing major prices/quest/economic rules still require decisions, not invented defaults. No main merge.

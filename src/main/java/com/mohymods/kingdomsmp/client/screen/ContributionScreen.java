@@ -94,7 +94,7 @@ public final class ContributionScreen extends Screen {
             List<Component> paragraphs=new ArrayList<>();
             paragraphs.add(text("Only accepted items are consumed. Excess stays in your inventory. Each resource category has equal score weight."));
             paragraphs.add(text("Your score: "+score(view.personal())+" / 4 · Rank: "+(view.rank()==0?"Unranked":view.rank())));
-            paragraphs.add(text(view.complete()?"Highest contributor: "+view.winner()+". Legacy Founders' Lodge privilege earned.":"Complete all four targets to reach Tier 2. Highest contributor earns the Founders' Lodge construction privilege."));
+            paragraphs.add(text(view.complete()?"Highest contributor: "+view.winner()+". "+view.rewardTitle()+" privilege earned.":"Complete all four targets to reach Tier 2. Highest contributor earns the "+view.rewardTitle()+" construction privilege."));
             paragraphs.add(text(notice()));
             paragraphs(g,paragraphs,x+8,y+140,w-16,box.bodyHeight()-148);
         }else if(!notice().isBlank())line(g,notice(),x,box.footerY()-12,w,RoyalPalette.MUTED);
@@ -118,7 +118,7 @@ public final class ContributionScreen extends Screen {
                 lines.add(text("Logs "+row.counts().get(0)+" · Stone "+row.counts().get(1)+" · Wheat "+row.counts().get(2)+" · Iron "+row.counts().get(3)));
             }
             lines.add(text("Ties: first to reach the tied score, then stable UUID order."));
-            if(view.complete())lines.add(text("Permanent First Hearth winner: "+view.winner()+". Legacy Tier 2 reward: Founders' Lodge."));
+            if(view.complete())lines.add(text("Permanent First Hearth winner: "+view.winner()+". Tier 2 reward: "+view.rewardTitle()+"."));
         }else{
             lines.add(text("YOUR ACCEPTED DONATIONS · Page "+(view.historyPage()+1)+" / "+view.historyPages()));
             if(view.history().isEmpty())lines.add(text("No accepted donations yet."));

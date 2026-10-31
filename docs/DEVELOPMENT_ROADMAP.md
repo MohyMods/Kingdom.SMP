@@ -1,4 +1,4 @@
-> **D-024 current authority:** [Final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md) supersedes older holds. [Audited feature inventory](PRODUCTION_COMPLETION_MATRIX.md) records verified slices and gaps. No1.0.0 release claim. Current work adds operator diagnostics alongside existing systems; new-world profiles/Hall remain the critical path.
+> **D-024 current authority:** [Final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md) supersedes older holds. [Audited feature inventory](PRODUCTION_COMPLETION_MATRIX.md) records verified slices and gaps. No1.0.0 release claim. Current checkpoint implements the fresh-world Town Hall loop; see TOWN_HALL_CHECKPOINT.md and the validation evidence before treating any acceptance item as verified.
 
 # Kingdom SMP delivery roadmap
 
@@ -15,10 +15,11 @@ Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECT
 | Server-data milestone catalogue | Implemented and tested | Registry/dependency/cycle checks, safe reload, historical First Hearth pinned; later costs disabled |
 | Replacement 277-entry inventory | Recorded; compatibility incomplete | Exact FTB Chunks binary and OPAC binary/sources downloaded/audited; full pack not installed |
 | FTB Chunks + OPAC permission adapters | Tested exact five-mod subset | Independent vetoes, cross-chunk volume, revocation/resume/offline pause and real client initialization; owner online/in dimension required; full pack/providers unverified |
-| Versioned new-world Hall / legacy Lodge profiles | Not implemented | Classify/pin safely; no conversion, deleted records or second historical reward |
-| Owner physical Hut plan/bootstrap | Not implemented | Durable owner entitlement, whole preview, approved safe immediate bootstrap; then Aldric |
-| 19×15 two-floor Town Hall / Steward | Not implemented | Original furnished structure, reusable engine, named NPC/service gates; no legacy Lodge replacement |
-| Four-block non-destructive foundations / automatic valid-site authorization | Not implemented | Full server validation and protection at confirm/write; retain old checks; no routine admin click in completed new flow |
+| Versioned new-world Hall / legacy Lodge profiles | Implemented | Immutable profile/seal, conservative legacy classification, no record conversion |
+| Owner physical Hut plan/bootstrap | Implemented and tested | One-time owner assignment, authenticated recoverable plan, native instant bootstrap, one Aldric |
+| 19×15 two-floor Town Hall / Steward | Implemented; live acceptance in checkpoint report | Original furnished building, authenticated plans, Aldric construction, persistent Elara identity and actual progress services |
+| Automatic valid-site authorization | Implemented and tested | Full existing server checks, both claims adapters, new profile only; legacy admin review retained |
+| Four-block non-destructive foundations | Not implemented | Current sites still require existing complete terrain support |
 | Architect first-buyer market / pre-Bank payment | Not implemented | One primary entitlement, atomic stock/charge, reviewed 500–15k building prices and recovery |
 | Tier 3 Royal Bank / economy / auctions / transfers | Not implemented | Approved service gates; transaction/escrow recovery and unresolved exact policies |
 | Tier 3 Bounty Hall / Fisherman's Wharf | Approved scope; not implemented | Their real services; proposed blueprint prices remain unapproved |
@@ -33,10 +34,10 @@ Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECT
 
 The Royal Storehouse is removed from **new-world** progression by D-023. Old inactive catalogue references are historical, not authority to award it. Preserve any legacy records. All other unresolved unlock gates remain separate; no building name silently grants a service.
 
-Continue: **versioned world profiles and owner bootstrap → new-world Hall → safe supports/automatic authorization/generalized structures → Architect/early economy**, expanding actual admin/test and quest identifiers with each service. Full third-party APIs/live compatibility must be tested before marking integration complete.
+Continue: **verified Hall delivery → Architect first-buyer market / early economy → safe foundations and the approved later buildings**, expanding actual admin/test and quest identifiers with each service. Full third-party APIs/live compatibility must be tested before marking integration complete.
 
 Visual baseline checkpoint: 0.5.0-dev/protocol6, **142 JUnit tests, one substantial native lifecycle passed**, actual client full-model/rotation/height/review/resource-reload/scaling and full-process resumed construction; normal dedicated startup/NPC counts/save/stop. No new two-client preview race or full-pack test. [Validation](VALIDATION.md) · [checkpoint download/evidence](checkpoints/deaf558/CHECKPOINT.md) · [continuation](CODEX_CONTINUATION.md).
 
 0.5.1 adds the verified optional claim adapters on top of that 0.5 preview baseline. See CLAIM_COMPATIBILITY_AUDIT and current delivery evidence; do not deploy the historical 0.5.0 binary expecting these adapters.
 
-Latest source c0889d3 / 0.5.1-dev passed full142JUnit, core native lifecycle and separate actual two-claim normal-dedicated lifecycle. Real legacy construction with both mods survived in-progress process restart and completed782/782 with Mira. [Latest download, screenshots and evidence](checkpoints/c0889d3/CHECKPOINT.md). Next dependency: versioned new-world Hall versus legacy Lodge profiles and owner bootstrap; the complete mod is still unfinished.
+Latest source c0889d3 / 0.5.1-dev passed full142JUnit, core native lifecycle and separate actual two-claim normal-dedicated lifecycle. Real legacy construction with both mods survived in-progress process restart and completed782/782 with Mira. [Latest download, screenshots and evidence](checkpoints/c0889d3/CHECKPOINT.md). Historical next dependency has now been implemented in 0.6.0; see TOWN_HALL_CHECKPOINT. The complete mod is still unfinished.

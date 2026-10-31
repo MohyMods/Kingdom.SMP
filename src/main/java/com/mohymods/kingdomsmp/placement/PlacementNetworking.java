@@ -20,14 +20,14 @@ public final class PlacementNetworking {
     }
     public static PlacementResult inspect(ServerPlayer player,PlacementProbe probe){
         try{
-            var project=ConstructionService.lodge(player.server);
+            var project=ConstructionService.current(player);
             if(project==null||!ConstructionService.hasPlan(player,project)||!ConstructionService.heldPlan(player,project))throw new IllegalStateException("Hold your current unused blueprint. Recover a lost or stale plan through Construction.");
             if(project.phase().ordinal()>=com.mohymods.kingdomsmp.persistence.ConstructionStore.Phase.BUILDING.ordinal())throw new IllegalStateException("This construction right has already been redeemed.");
             var preview=ConstructionService.inspectCandidate(player,probe.origin(),Rotation.values()[probe.rotation()]);
             var candidate=project.propose(probe.origin(),Rotation.values()[probe.rotation()]);var level=player.serverLevel();
             List<BlockPos> collisions=new ArrayList<>(),unsupported=new ArrayList<>();
-            if(level.dimension()==Level.OVERWORLD&&ConstructionService.loaded(level,candidate)&&!level.isOutsideBuildHeight(probe.origin().below())&&!level.isOutsideBuildHeight(probe.origin().offset(0,BlueprintRegistry.lodge().height()-1,0))){
-                var definition=BlueprintRegistry.lodge();int width=definition.width(candidate.rotation()),depth=definition.depth(candidate.rotation());
+            if(level.dimension()==Level.OVERWORLD&&ConstructionService.loaded(level,candidate)&&!level.isOutsideBuildHeight(probe.origin().below())&&!level.isOutsideBuildHeight(probe.origin().offset(0,BlueprintRegistry.get(project.blueprint(),project.blueprintVersion()).height()-1,0))){
+                var definition=BlueprintRegistry.get(project.blueprint(),project.blueprintVersion());int width=definition.width(candidate.rotation()),depth=definition.depth(candidate.rotation());
                 for(int x=0;x<width;x++)for(int z=0;z<depth;z++){
                     var support=probe.origin().offset(x,-1,z);if(unsupported.size()<32&&!level.getBlockState(support).isFaceSturdy(level,support,Direction.UP))unsupported.add(support.immutable());
                 }

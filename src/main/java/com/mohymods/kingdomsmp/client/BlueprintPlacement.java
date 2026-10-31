@@ -42,24 +42,31 @@ public final class BlueprintPlacement {
     private static PlacementProbe candidate,pending;
     private static PlacementResult result;
     private static boolean held;
+    private static net.minecraft.resources.ResourceLocation definition;
+    private static BlockHitResult lastHit;
+    private static boolean inspecting;
     private BlueprintPlacement(){}
     public static boolean active(){return held&&candidate!=null;}
-    private static void clear(){closeMeshes();candidate=null;pending=null;result=null;identity=null;held=false;rotation=0;height=0;lastSent=0;}
+    private static void clear(){closeMeshes();GEOMETRY.clear();definition=null;lastHit=null;inspecting=false;candidate=null;pending=null;result=null;identity=null;held=false;rotation=0;height=0;lastSent=0;}
     public static void tick(){
         var c=Minecraft.getInstance();if(c.player==null||c.level==null||connection!=c.getConnection()) {clear();connection=c.getConnection();}
         if(c.player==null||c.level==null)return;
-        var stack=c.player.getMainHandItem().is(KingdomBlueprints.LODGE.get())?c.player.getMainHandItem():c.player.getOffhandItem();
-        if(!stack.is(KingdomBlueprints.LODGE.get())||c.level.dimension()!=Level.OVERWORLD){clear();return;}
+        var stack=KingdomBlueprints.definition(c.player.getMainHandItem())!=null?c.player.getMainHandItem():c.player.getOffhandItem();
+        if(KingdomBlueprints.definition(stack)==null||c.level.dimension()!=Level.OVERWORLD){clear();return;}
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(!Objects.equals(identity,data)){clear();identity=data;}
-        held=true;
+        var selectedDefinition=KingdomBlueprints.definition(stack);
+        if(!Objects.equals(identity,data)||!Objects.equals(definition,selectedDefinition)){clear();identity=data;}
+        definition=selectedDefinition;held=true;
         if(c.screen!=null)return;
         while(ROTATE.consumeClick())rotation=Math.floorMod(rotation+(net.minecraft.client.gui.screens.Screen.hasShiftDown()?-1:1),4);
         while(UP.consumeClick())height=Math.min(HEIGHT.get(),height+1);
         while(DOWN.consumeClick())height=Math.max(-HEIGHT.get(),height-1);
         var hit=c.player.pick(REACH.get(),0,false);
-        if(!(hit instanceof BlockHitResult block)||hit.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK){candidate=null;pending=null;result=null;return;}
-        var b=BlueprintRegistry.lodge();var r=Rotation.values()[rotation];
+        inspecting=!(hit instanceof BlockHitResult)||hit.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK;
+        if(!inspecting)lastHit=(BlockHitResult)hit;
+        if(lastHit==null){candidate=null;pending=null;result=null;return;}
+        var block=lastHit;
+        var b=BlueprintRegistry.get(definition,1);var r=Rotation.values()[rotation];
         BlockPos origin=block.getBlockPos().relative(block.getDirection()).offset(-b.width(r)/2,height,-b.depth(r)/2);
         long now=System.nanoTime();
         if(candidate==null||!candidate.origin().equals(origin)||candidate.rotation()!=rotation){candidate=new PlacementProbe(++serial,origin,rotation);result=null;}
@@ -82,13 +89,13 @@ public final class BlueprintPlacement {
         var g=event.getGuiGraphics();int y=14,w=Math.min(510,c.getWindow().getGuiScaledWidth()-32);
         int color=!current()?0xFFE4B858:result.valid()?0xFF65E68A:0xFFFF7474;
         var controls=c.font.split(net.minecraft.network.chat.Component.literal(ROTATE.getTranslatedKeyMessage().getString()+" rotate · Shift reverse · "+UP.getTranslatedKeyMessage().getString()+" / "+DOWN.getTranslatedKeyMessage().getString()+" height "+height+" · Use: review"),w);
-        String reason=current()?result.reason():"Aim at loaded ground; waiting for the server's site checks.";
+        String reason=(current()?result.reason():"Aim at loaded ground; waiting for the server's site checks.")+(inspecting?" Last ground site held for inspection; aim at ground to move it.":"");
         var lines=c.font.split(net.minecraft.network.chat.Component.literal(reason),w);
         int controlRows=Math.min(3,controls.size()),reasonRows=Math.min(3,lines.size());
         int reasonY=y+14+controlRows*11;
         g.fill(6,y-5,w+18,reasonY+reasonRows*11+4,0xDA171A22);
         g.fill(6,y-5,w+18,y-4,0xFFB99A5B);
-        g.drawString(c.font,"Founders' Lodge · "+new String[]{"North","East","South","West"}[rotation]+" · "+(current()?(result.valid()?"VALID":"BLOCKED"):"PENDING"),12,y,color,false);
+        g.drawString(c.font,BlueprintRegistry.title(definition)+" · "+new String[]{"North","East","South","West"}[rotation]+" · "+(current()?(result.valid()?"VALID":"BLOCKED"):"PENDING"),12,y,color,false);
         for(int i=0;i<controlRows;i++)g.drawString(c.font,controls.get(i),12,y+13+i*11,0xFFE6D1A4,false);
         for(int i=0;i<reasonRows;i++)g.drawString(c.font,lines.get(i),12,reasonY+i*11,0xFFE8E4DA,false);
     }
@@ -102,7 +109,7 @@ public final class BlueprintPlacement {
         MultiBufferSource source=ignored->tint;
         pose.pushPose();pose.translate(o.getX()-camera.x,o.getY()-camera.y,o.getZ()-camera.z);
         var selectedRotation=Rotation.values()[candidate.rotation()];
-        var blocks=GEOMETRY.computeIfAbsent(selectedRotation,r->BlueprintRegistry.lodge().blocks(r));
+        var blocks=GEOMETRY.computeIfAbsent(selectedRotation,r->BlueprintRegistry.get(definition,1).blocks(r));
         if(meshReload){closeMeshes();meshReload=false;}
         var mesh=MESHES.get(selectedRotation);
         if(mesh==null){
@@ -114,7 +121,7 @@ public final class BlueprintPlacement {
             c.getBlockRenderer().renderSingleBlock(block.state(),pose,source,LightTexture.FULL_BRIGHT,OverlayTexture.NO_OVERLAY,net.neoforged.neoforge.client.model.data.ModelData.EMPTY,type);pose.popPose();}
         pose.popPose();buffers.endBatch(type);
         pose.pushPose();pose.translate(-camera.x,-camera.y,-camera.z);var lines=buffers.getBuffer(RenderType.lines());
-        var def=BlueprintRegistry.lodge();LevelRenderer.renderLineBox(pose,lines,o.getX(),o.getY()+.01,o.getZ(),o.getX()+def.width(Rotation.values()[rotation]),o.getY()+.08,o.getZ()+def.depth(Rotation.values()[rotation]),red/255f,green/255f,blue/255f,1);
+        var def=BlueprintRegistry.get(definition,1);LevelRenderer.renderLineBox(pose,lines,o.getX(),o.getY()+.01,o.getZ(),o.getX()+def.width(Rotation.values()[rotation]),o.getY()+.08,o.getZ()+def.depth(Rotation.values()[rotation]),red/255f,green/255f,blue/255f,1);
         if(current())for(var p:result.collisions())LevelRenderer.renderLineBox(pose,lines,p.getX()-.01,p.getY()-.01,p.getZ()-.01,p.getX()+1.01,p.getY()+1.01,p.getZ()+1.01,1,.15f,.15f,1);
         if(current())for(var p:result.unsupported())LevelRenderer.renderLineBox(pose,lines,p.getX(),p.getY(),p.getZ(),p.getX()+1,p.getY()+1,p.getZ()+1,1,.55f,.1f,1);
         pose.popPose();buffers.endBatch(RenderType.lines());

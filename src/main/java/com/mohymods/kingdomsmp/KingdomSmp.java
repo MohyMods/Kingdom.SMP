@@ -39,6 +39,7 @@ public final class KingdomSmp {
     }
 
     private void serverStarted(ServerStartedEvent event) {
+        com.mohymods.kingdomsmp.progression.WorldProgression.get(event.getServer());
         com.mohymods.kingdomsmp.milestone.MilestoneService.reload(event.getServer());
         BuilderHutService.initialize(event.getServer());
         ContributionService.initialize(event.getServer());

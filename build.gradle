@@ -32,6 +32,7 @@ neoForge {
                 loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
                 systemProperty 'neoforge.enableGameTest', 'true'
                 systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').get()
+                systemProperty 'kingdom.testLegacyProfile', (providers.gradleProperty('kingdomTestNamespace').get() != 'kingdom_smp_townhall_tests').toString()
             }
         }
         gameTestServer {
@@ -39,6 +40,7 @@ neoForge {
             sourceSet = sourceSets.gameTest
             gameDirectory = file(providers.gradleProperty('kingdomTestRunDir').getOrElse('work/gametest'))
             systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests')
+            systemProperty 'kingdom.testLegacyProfile', (providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests') != 'kingdom_smp_townhall_tests').toString()
             loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
         }
         configureEach { logLevel = org.slf4j.event.Level.INFO }

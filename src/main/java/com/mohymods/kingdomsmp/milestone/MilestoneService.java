@@ -88,7 +88,7 @@ public final class MilestoneService {
             }else out.append(" — awaiting approved verification rules");out.append('\n');
         }
         out.append("Reward: ").append(switch(m.reward()){
-            case "kingdom_smp:founders_lodge"->"Founders' Lodge Blueprint";
+            case "kingdom_smp:founders_lodge"->ConstructionService.rewardTitle(server)+" Blueprint";
             case "kingdom_smp:royal_storehouse"->"Retired Storehouse draft; no new-world award";
             case "kingdom_smp:town_hall"->"Retired Hall reward draft; future Hall is Tier 2 under a new-world profile";
             default->"Awaiting approval";

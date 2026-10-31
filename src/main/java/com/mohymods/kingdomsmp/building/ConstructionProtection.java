@@ -33,6 +33,7 @@ public final class ConstructionProtection {
                 var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
                 if(e.getPos().equals(p.origin().offset(b.rotate(b.board(),p.rotation())))&&ConstructionService.structureIntact(player.serverLevel(),p)){
                     e.setCanceled(true);e.setCancellationResult(InteractionResult.SUCCESS);
+                    ConstructionService.select(player,p.id());
                     ConstructionNetworking.open(player,"Community milestone board — inspect the kingdom or contribute through the live milestone interface.");
                 }
             }

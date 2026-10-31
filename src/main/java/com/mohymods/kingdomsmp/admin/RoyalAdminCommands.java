@@ -10,13 +10,14 @@ import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModList;
 
-/** Real read-only operator diagnostics. No progression overrides or repair side effects. */
+/** Real operator diagnostics and an explicit one-time starting-owner assignment. */
 public final class RoyalAdminCommands {
     private RoyalAdminCommands() { }
 
     public static LiteralArgumentBuilder<CommandSourceStack> commands() {
         return Commands.literal("admin").requires(source -> source.hasPermission(2))
                 .executes(context -> overview(context.getSource()))
+                .then(ownerCommands())
                 .then(Commands.literal("inspect").executes(context -> overview(context.getSource())))
                 .then(Commands.literal("construction")
                         .then(Commands.literal("inspect")
@@ -38,8 +39,24 @@ public final class RoyalAdminCommands {
                         .execute("kingdom milestones validate",context.getSource())));
     }
 
+    private static LiteralArgumentBuilder<CommandSourceStack> ownerCommands(){
+        return Commands.literal("owner").requires(source->source.hasPermission(4))
+            .then(Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player())
+                .executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");line(c.getSource(),"Review: pin the free starting Hut to "+p.getGameProfile().getName()+" ("+p.getUUID()+"). Run the same command with confirm. This cannot reassign an existing owner.");return 1;})
+                .then(Commands.literal("confirm").executes(c->{
+                    var player=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");
+                    try{
+                        var profile=com.mohymods.kingdomsmp.progression.WorldProgression.get(c.getSource().getServer());profile.assignOwner(player.getUUID());
+                        ConstructionService.store(player.server);
+                        com.mojang.logging.LogUtils.getLogger().info("STARTING_OWNER_CONFIRMED actor={} owner={}",c.getSource().getTextName(),player.getUUID());
+                        line(c.getSource(),"Owner pinned. The player can open K → Construction to claim the free Hut plan.");return 1;
+                    }catch(java.io.IOException|IllegalStateException e){c.getSource().sendFailure(Component.literal(e.getMessage()));return 0;}
+                })));
+    }
     private static int overview(CommandSourceStack source) {
         var server=source.getServer();
+        var profile=com.mohymods.kingdomsmp.progression.WorldProgression.get(server);
+        line(source,"Progression profile v1: "+profile.mode()+" | starting owner "+profile.owner());
         var state=ContributionService.kingdom(server);
         line(source,"Kingdom " + state.attainedTier() + "/12 | revision " + state.revision());
         var hut=BuilderHutSavedData.get(server).hut();
@@ -51,7 +68,7 @@ public final class RoyalAdminCommands {
         if(store.projects().size()>10)line(source,"Showing 10 projects; inspect a known project UUID for details.");
         for(String id:java.util.List.of("ftbchunks","openpartiesandclaims","ftbquests"))
             line(source,id + ": " + ModList.get().getModContainerById(id).map(c -> c.getModInfo().getVersion().toString() + " installed").orElse("absent"));
-        line(source,"Installed version is not proof of integration. Full pack, new-world Hall, economy and professions remain incomplete.");
+        line(source,"Installed version is not proof of integration. Full-pack acceptance, economy and professions remain incomplete.");
         return 1;
     }
     private static String status(String failure) { return failure==null ? "matches saved progress" : failure; }

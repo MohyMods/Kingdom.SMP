@@ -1,3 +1,5 @@
+> **Current Town Hall implementation:** [0.6.0 checkpoint](TOWN_HALL_CHECKPOINT.md) implements pinned fresh-world Hall versus preserved legacy Lodge profiles, free owner Hut plans, progressive furnished Hall and Elara services. Historical text below does not authorize converting existing saves or awarding another historical reward. See the checkpoint validation report for actual executed acceptance and remaining work.
+
 # Environment handoff — published policy not attached to this task
 
 > **Resolved in the resumed published environment.** The active instance now reports current enforced unrestricted access; NeoForge/Minecraft downloads and the complete Gradle build succeed. Java initially contained only a runtime, so a checksum-verified full JDK 21 was installed under ignored `work/toolchains/`. Use an available full JDK 21 via `JAVA_HOME`; the historical `/workspace/toolchains/` path below is not present on this instance. See `VALIDATION.md` and `DEVELOPMENT_LOG.md` for current evidence. The remainder records the previous environment's blocker and preservation history.

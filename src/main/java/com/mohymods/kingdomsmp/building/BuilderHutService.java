@@ -181,6 +181,21 @@ public final class BuilderHutService {
         return install(player, hut);
     }
 
+    /** Called only after authenticated, durable blueprint redemption by ConstructionService. */
+    static boolean bootstrap(ServerPlayer player, com.mohymods.kingdomsmp.persistence.ConstructionStore.Project project){
+        verifyReservation(player.server);
+        var data=BuilderHutSavedData.get(player.server);var hut=data.hut().orElse(null);
+        if(hut==null){
+            String denied=validateSite(player.serverLevel(),project.origin(),project.rotation(),false,player);
+            if(denied!=null)throw new IllegalStateException(denied);
+            hut=data.begin(project.origin(),project.rotation(),project.npc());
+            HutReservationJournal.create(marker(player.server,"reserved"),reservationText(hut));
+        }
+        if(!hut.origin().equals(project.origin())||hut.rotation()!=project.rotation()||!hut.npcId().equals(project.npc()))throw new IllegalStateException("Hut reservation differs from this entitlement; recovery required.");
+        if(hut.phase()==BuilderHutSavedData.Phase.ACTIVE)return structureIntact(player.serverLevel(),hut)&&!hut.npcDead();
+        return install(player,hut)==1;
+    }
+
     /** Returns a bounded actionable denial. Never causes chunk loading. Null means valid. */
     public static String validateSite(ServerLevel level, BlockPos origin, Rotation rotation, boolean resuming) {
         return validateSite(level, origin, rotation, resuming, null);

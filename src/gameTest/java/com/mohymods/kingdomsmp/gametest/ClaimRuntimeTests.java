@@ -96,7 +96,7 @@ public final class ClaimRuntimeTests {
     }
 
     @SuppressWarnings("unchecked")
-    private static ClaimPlayer player(ServerLevel level,String name)throws Exception{
+    static ClaimPlayer player(ServerLevel level,String name)throws Exception{
         var p=new ClaimPlayer(level,name);var connection=new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
         // Embedded peers have no real configuration handshake. Declare the actual registered play
@@ -109,7 +109,7 @@ public final class ClaimRuntimeTests {
         level.getServer().getPlayerList().placeNewPlayer(connection,p,CommonListenerCookie.createInitial(p.getGameProfile(),false));
         p.setGameMode(GameType.SURVIVAL);return p;
     }
-    private static void ftbClaim(ServerPlayer actor,BlockPos position)throws Exception{
+    static void ftbClaim(ServerPlayer actor,BlockPos position)throws Exception{
         var root=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI");var type=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI$API");
         var result=type.getMethod("claimAsPlayer",ServerPlayer.class,ResourceKey.class,ChunkPos.class,boolean.class)
                 .invoke(root.getMethod("api").invoke(null),actor,actor.serverLevel().dimension(),new ChunkPos(position),false);
@@ -126,7 +126,7 @@ public final class ClaimRuntimeTests {
         var api=Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");
         return api.getMethod("getServerClaimsManager").invoke(api.getMethod("get",net.minecraft.server.MinecraftServer.class).invoke(null,level.getServer()));
     }
-    private static void opacClaim(ServerLevel level,UUID owner,BlockPos pos)throws Exception{
+    static void opacClaim(ServerLevel level,UUID owner,BlockPos pos)throws Exception{
         Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI").getMethod("claim",ResourceLocation.class,UUID.class,int.class,int.class,int.class,boolean.class)
                 .invoke(opac(level),level.dimension().location(),owner,0,pos.getX()>>4,pos.getZ()>>4,false);
     }
@@ -134,7 +134,7 @@ public final class ClaimRuntimeTests {
         Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI").getMethod("unclaim",ResourceLocation.class,int.class,int.class)
                 .invoke(opac(level),level.dimension().location(),pos.getX()>>4,pos.getZ()>>4);
     }
-    private static final class ClaimPlayer extends ServerPlayer{
+    static final class ClaimPlayer extends ServerPlayer{
         final List<Component> messages=new ArrayList<>();
         ClaimPlayer(ServerLevel level,String name){super(level.getServer(),level,new GameProfile(UUID.randomUUID(),name),ClientInformation.createDefault());}
         @Override public void sendSystemMessage(Component c){messages.add(c.copy());}

@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Run actual pinned claim APIs on a fresh normal dedicated server, with embedded test peers."""
 import json
+import argparse
 from pathlib import Path
 import subprocess
 import tempfile
 
+parser=argparse.ArgumentParser()
+parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests'],default='kingdom_smp_claim_tests')
+args=parser.parse_args()
+marker='TOWN_HALL_TEST_ASSERTIONS_PASSED:' if args.namespace=='kingdom_smp_townhall_tests' else 'CLAIM_TEST_ASSERTIONS_PASSED:'
 root = Path(__file__).resolve().parent.parent
 subprocess.run(['python3', str(root / 'scripts/download-claim-test-mods.py')], check=True)
 fixture = Path(tempfile.mkdtemp(prefix='claim-server.', dir=root / 'work'))
@@ -20,7 +25,7 @@ properties = {
 (fixture / 'eula.txt').write_text('eula=true\n')
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', '-PkingdomClaimTestMods=work/claim-test-mods',
-    '-PkingdomTestNamespace=kingdom_smp_claim_tests', '--console=plain']
+    f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
 print(f'Isolated claim fixture: {fixture}', flush=True)
 started = passed = stopped = failed = False
 with (fixture / 'execution.log').open('w') as log:
@@ -33,7 +38,7 @@ with (fixture / 'execution.log').open('w') as log:
             if 'Done (' in line and not started:
                 started = True
                 process.stdin.write('execute positioned 0 80 0 run test runall\n'); process.stdin.flush()
-            if 'CLAIM_TEST_ASSERTIONS_PASSED:' in line:
+            if marker in line:
                 passed = True
             if 'failed at ' in line or 'Game test server crashed' in line:
                 failed = True
@@ -47,4 +52,4 @@ with (fixture / 'execution.log').open('w') as log:
             process.wait(timeout=30)
 if result or not passed or failed:
     raise SystemExit(f'Claim fixture failed: exit={result}, passed={passed}, failed={failed}; {fixture}')
-print('CLAIM_COMPATIBILITY_SUITE_PASSED: normal dedicated startup, assertions, flush and clean stop', flush=True)
+print(args.namespace + ' SUITE_PASSED: normal dedicated startup, assertions, flush and clean stop', flush=True)

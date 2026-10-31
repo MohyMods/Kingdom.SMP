@@ -1,3 +1,9 @@
+## Fresh-world owner and Hall diagnostics (0.6.0)
+
+`/kingdom admin owner <online-player>` reviews the permanent free-Hut owner assignment; repeat with `confirm` to pin it. Permission level 4 is required. Integrated fresh worlds infer their actual owner. Legacy worlds reject reassignment and never receive this additional entitlement.
+
+`/kingdom admin inspect` now reports the pinned progression profile/owner along with the actual journals. `/kingdom admin construction inspect <project-UUID>` handles Hut, Hall and preserved Lodge projects, including the loaded required-block prefix and resident identity. `/kingdom admin validate` invokes real catalogue validation. Normal holders use K → Construction and physical plans; coordinate commands remain operator recovery/debugging tools.
+
 # Current administrator and testing command reference — partial
 
 The complete administrative suite and sandbox remain unfinished. The D-024 `/kingdom admin` namespace now provides actual operator diagnostics; it does not provide tier/economy/profession overrides. This file documents actual existing commands only; listing a desired command would not implement it. Existing worlds/history must not be reset to accelerate testing.

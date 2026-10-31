@@ -1,3 +1,5 @@
+> **0.6.0 current milestone:** The fresh-world Hall loop and legacy profile preservation are implemented. [Checkpoint acceptance](TOWN_HALL_CHECKPOINT.md) and [current matrix](PRODUCTION_COMPLETION_MATRIX.md) supersede older per-row statuses below for this milestone only. Next priority: Architect first-buyer marketplace and early economy.
+
 > **D-024 current authority:** [Final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md) supersedes older holds. [Audited feature inventory](PRODUCTION_COMPLETION_MATRIX.md) records verified slices and gaps. No1.0.0 release claim. Current work adds operator diagnostics alongside existing systems; new-world profiles/Hall remain the critical path.
 
 # Kingdom SMP — master completion tracker

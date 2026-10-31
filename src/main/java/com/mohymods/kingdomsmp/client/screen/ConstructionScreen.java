@@ -27,15 +27,17 @@ public final class ConstructionScreen extends Screen {
     private String localNotice="";
     private final String greeting;
     public ConstructionScreen(ConstructionView view,Screen parent){
-        super(text(view.notice().startsWith("Mira Ashford")?"Mira Ashford · Reeve":"Founders' Lodge"));
+        super(text(residentGreeting(view.notice())?view.resident()+" · "+(view.modern()?"Royal Steward":"Reeve"):view.title()));
         this.view=view;this.parent=parent;rotation=view.rotation();
-        greeting=view.notice().startsWith("Mira Ashford")?view.notice():"";
+        greeting=residentGreeting(view.notice())?view.notice():"";
         if(!greeting.isBlank()||view.notice().startsWith("Community milestone board"))tab=1;
     }
+    private static boolean residentGreeting(String notice){return notice.contains(" — Reeve:")||notice.contains(" — Royal Steward:");}
     public void accept(ConstructionView updated){
         if(updated.revision()<view.revision())return;
-        boolean rebuild=updated.requestId()>0||!updated.phase().equals(view.phase())||updated.reviewAction()!=view.reviewAction()||updated.admin()!=view.admin();
+        boolean rebuild=updated.requestId()>0||!updated.phase().equals(view.phase())||updated.reviewAction()!=view.reviewAction()||updated.admin()!=view.admin()||!updated.blueprint().equals(view.blueprint());
         if(rebuild)remember();
+        if(!updated.blueprint().equals(view.blueprint())){xValue=null;yValue=null;zValue=null;tab=0;}
         view=updated;
         if(updated.requestId()>0&&updated.hasSite()){rotation=updated.rotation();xValue=Integer.toString(updated.origin().getX());yValue=Integer.toString(updated.origin().getY());zValue=Integer.toString(updated.origin().getZ());rebuild=true;}
         if(rebuild){scroll=0;clearWidgets();init();}
@@ -98,7 +100,7 @@ public final class ConstructionScreen extends Screen {
         g.fill(0,0,width,height,RoyalPalette.BACKDROP);
         if(small){g.drawCenteredString(font,"Increase the window or reduce GUI scale.",width/2,height/2,RoyalPalette.TEXT);super.render(g,mx,my,partial);return;}
         RoyalPanel.frame(g,box.x(),box.y(),box.width(),box.height());
-        g.drawString(font,title,box.contentX(),box.y()+12,RoyalPalette.GOLD,false);
+        g.drawString(font,greeting.isBlank()?text(view.title()):title,box.contentX(),box.y()+12,RoyalPalette.GOLD,false);
         String state=view.phase().replace('_',' ')+" · "+view.winner();
         g.drawString(font,font.plainSubstrByWidth(state,box.contentWidth()-48),box.contentX(),box.y()+29,RoyalPalette.TEXT,false);
         net.minecraft.world.entity.Entity entity=null;
@@ -109,12 +111,12 @@ public final class ConstructionScreen extends Screen {
             RoyalPanel.parchment(g,x,y,w,h);paragraphs(g,reviewText(),x+8,y+8,w-16,h-16);
         }else if(tab==0){
             int fw=(w-8)/3;g.drawString(font,"Foundation X",x,y,RoyalPalette.MUTED,false);g.drawString(font,"Y",x+fw+4,y,RoyalPalette.MUTED,false);g.drawString(font,"Z",x+2*(fw+4),y,RoyalPalette.MUTED,false);
-            if(h>116){RoyalPanel.parchment(g,x,y+94,w,h-94);paragraphs(g,List.of(text("ONE KINGDOM BUILDING · MATERIALS INCLUDED"),text("Winner: "+view.winner()+". Your plan includes every building material; Aldric uses them at the approved site."),text("Propose a clear supported Overworld site. An administrator must review its footprint and exterior work post before work begins."),text(view.activity()),text(notice())),x+8,y+102,w-16,h-110);}
+            if(h>116){RoyalPanel.parchment(g,x,y+94,w,h-94);paragraphs(g,List.of(text("ONE KINGDOM BUILDING · MATERIALS INCLUDED"),text("Winner: "+view.winner()+". Your plan includes every building material; Aldric uses them at the approved site."),text(view.modern()?"Aim with the held plan, rotate and adjust height. The server validates the complete site; then review construction in Project.":"Propose a clear supported Overworld site. An administrator must review its footprint and exterior work post before work begins."),text(view.modern()&&!view.blueprint().equals(com.mohymods.kingdomsmp.building.BlueprintRegistry.HUT)?"Steward: "+view.resident()+". Before construction, the holder may choose a display name with /kingdom lodge name <name>.":"One permanent building and resident; lost plans are recoverable."),text(view.activity()),text(notice())),x+8,y+102,w-16,h-110);}
         }else if(tab==1){
             RoyalProgress.render(g,x,y,w,8,view.placed()/(double)view.total());
             g.drawString(font,"Placed: "+view.placed()+" / "+view.total(),x,y+13,RoyalPalette.TEXT,false);
             int offset=view.phase().equals("APPROVED")&&view.owner()?80:56;
-            if(h>offset+16){RoyalPanel.parchment(g,x,y+offset,w,h-offset);paragraphs(g,List.of(text(greeting),text(view.activity()),text(siteText()),text(view.phase().equals("COMPLETE")?"Mira Ashford · Reeve. Visit her or the milestone lectern to inspect the kingdom's progress.":"Mira Ashford, the Reeve, will arrive after the whole Lodge is built and verified."),text("Legacy Lodge entitlement preserved. Banking, Royal Trading and Charter follow their own unlocks."),text(greeting.isBlank()?notice():"")),x+8,y+offset+8,w-16,h-offset-16);}
+            if(h>offset+16){RoyalPanel.parchment(g,x,y+offset,w,h-offset);paragraphs(g,List.of(text(greeting),text(view.activity()),text(siteText()),text(view.modern()?view.blueprint().equals(com.mohymods.kingdomsmp.building.BlueprintRegistry.HUT)?"Aldric Stonehand · Builder. Your starting construction service.":view.phase().equals("COMPLETE")?view.resident()+" · Royal Steward. Visit the Steward or milestone lectern for kingdom services.":view.resident()+", Royal Steward, arrives after the complete Town Hall is verified.":view.phase().equals("COMPLETE")?"Mira Ashford · Reeve. Visit her or the milestone lectern to inspect the kingdom's progress.":"Mira Ashford, the Reeve, will arrive after the whole Lodge is built and verified."),text(view.modern()?"Architect marketplace, banking and mailbox services remain locked until implemented and unlocked.":"Legacy Lodge entitlement preserved. Banking, Royal Trading and Charter follow their own unlocks."),text(greeting.isBlank()?notice():"")),x+8,y+offset+8,w-16,h-offset-16);}
         }else{
             RoyalPanel.parchment(g,x,y+52,w,h-52);paragraphs(g,List.of(text("ROYAL CONSTRUCTION ADMINISTRATION"),text(siteText()),text("Review the site nearby. No terrain replacement or player-property destruction is permitted."),text(view.activity()),text("Recent private construction audit:\n"+view.audit()),text(notice())),x+8,y+60,w-16,h-68);
         }
@@ -129,7 +131,7 @@ public final class ConstructionScreen extends Screen {
     private List<Component> reviewText(){
         String heading=switch(view.reviewAction()){case 2->"CLAIM / RECOVER THE FOUNDER'S PLAN";case 4->"SUBMIT THIS EXACT SITE";case 6->"APPROVE THIS EXACT FOOTPRINT";case 8->"BEGIN ONE CONSTRUCTION PROJECT";case 10->"INSPECT AND RESUME EXISTING PROJECT";default->"REVIEW";};
         List<Component> lines=new ArrayList<>();lines.add(text(heading));lines.add(text(siteText()));
-        lines.add(text(view.reviewAction()==2?"Earlier plans and site approvals become unusable. You receive one current plan, with all materials included in Aldric's construction.":view.reviewAction()==4?"This submits a proposal only. An administrator must inspect and approve before construction can begin.":view.reviewAction()==6?"I have inspected this exact footprint and exterior work post. No terrain changes or destruction of player property are authorized. The winner must confirm construction separately.":view.reviewAction()==8?"Your plan is used permanently for this kingdom-owned Lodge. Aldric builds progressively with included materials.":"Resume the same inspected project. Missing blocks and NPCs require administrator recovery."));
+        lines.add(text(view.reviewAction()==2?"Earlier plans and site approvals become unusable. You receive one current plan, with all materials included in Aldric's construction.":view.reviewAction()==4?view.modern()?"The server will recheck the whole site and authorize valid placement. No terrain destruction is permitted.":"This submits a proposal only. An administrator must inspect and approve before construction can begin.":view.reviewAction()==6?"I have inspected this exact footprint and exterior work post. No terrain changes or destruction of player property are authorized. The winner must confirm construction separately.":view.reviewAction()==8?view.blueprint().equals(com.mohymods.kingdomsmp.building.BlueprintRegistry.HUT)?"Your plan establishes the furnished Hut immediately and issues the single registered Aldric. No second Hut can be redeemed.":"Your plan is used permanently for this kingdom-owned building. Aldric builds progressively with included materials.":"Resume the same inspected project. Missing blocks and NPCs require administrator recovery."));
         lines.add(text("Review expires after five minutes. If the site or proposal changes, review it again."));lines.add(text(view.activity()));lines.add(text(notice()));return lines;
     }
     private String siteText(){return view.hasSite()?"Overworld · "+view.origin().toShortString()+" · "+new String[]{"North","East","South","West"}[view.rotation()]+" · "+view.width()+" × "+view.depth()+" × "+view.height()+" · "+(view.valid()?"No obstruction at last review":"Site requires attention"):"No construction site selected.";}

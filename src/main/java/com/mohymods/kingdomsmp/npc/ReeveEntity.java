@@ -22,7 +22,7 @@ public final class ReeveEntity extends Villager {
     private BlockPos home=BlockPos.ZERO;
     public ReeveEntity(EntityType<? extends Villager> type,Level level){
         super(type,level);setPersistenceRequired();setCanPickUpLoot(false);
-        setVillagerData(new VillagerData(VillagerType.PLAINS,VillagerProfession.LIBRARIAN,1));
+        setVillagerData(new VillagerData(VillagerType.PLAINS,type==KingdomNpcs.STEWARD.get()?VillagerProfession.CARTOGRAPHER:VillagerProfession.LIBRARIAN,1));
         if(getNavigation() instanceof net.minecraft.world.entity.ai.navigation.GroundPathNavigation navigation)navigation.setCanOpenDoors(true);
     }
     public void configure(UUID building,BlockPos home,String name){
@@ -36,7 +36,7 @@ public final class ReeveEntity extends Villager {
         var p=ConstructionService.lodge(level.getServer());
         if(p==null||!ConstructionService.registeredReeve(this)||!ConstructionService.structureIntact(level,p)){getNavigation().stop();return;}
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
-        BlockPos target=level.isNight()?p.origin().offset(b.rotate(new BlockPos(3,1,5),p.rotation())):home;
+        BlockPos target=level.isNight()&&!ConstructionService.hall(p)?p.origin().offset(b.rotate(new BlockPos(3,1,5),p.rotation())):home;
         if(!level.hasChunkAt(target)||!level.hasChunkAt(blockPosition())){getNavigation().stop();return;}
         if(distanceToSqr(target.getX()+0.5,target.getY(),target.getZ()+0.5)<1){getNavigation().stop();return;}
         var path=getNavigation().createPath(target,0);

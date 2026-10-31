@@ -104,9 +104,9 @@ public final class ContributionService {
             if (!completeBefore && ledger.progress().complete()) {
                 UUID winner = ledger.progress().winner().orElseThrow();
                 String name = name(ledger, winner);
-                Component announcement = Component.literal("The First Hearth is complete! Kingdom Tier 2 — Roads of Commerce. Highest contributor: " + name + ". Founders' Lodge construction privilege earned.");
+                Component announcement = Component.literal("The First Hearth is complete! Kingdom Tier 2 — Roads of Commerce. Highest contributor: " + name + ". "+com.mohymods.kingdomsmp.building.ConstructionService.rewardTitle(player.server)+" construction privilege earned.");
                 player.server.getPlayerList().broadcastSystemMessage(announcement, false);
-                LogUtils.getLogger().info("First Hearth completed: winner={}; Tier 2; Founders' Lodge entitlement", winner);
+                LogUtils.getLogger().info("First Hearth completed: winner={}; Tier 2; {} entitlement", winner, com.mohymods.kingdomsmp.building.ConstructionService.rewardTitle(player.server));
             }
             return "Donated " + offer.amount() + " " + label(offer.resource()) + ". Your contribution is saved.";
         } catch (IOException | RuntimeException failure) {
@@ -126,7 +126,7 @@ public final class ContributionService {
         try {
             var ledger = ledger(player.server); verifyLoadedReceipt(player, ledger);
             if (ledger.progress().complete()) player.sendSystemMessage(Component.literal("The First Hearth is complete. Kingdom Tier 2. Highest contributor: "
-                    + name(ledger, ledger.progress().winner().orElseThrow()) + ". Legacy Founders' Lodge privilege earned."));
+                    + name(ledger, ledger.progress().winner().orElseThrow()) + ". "+com.mohymods.kingdomsmp.building.ConstructionService.rewardTitle(player.server)+" privilege earned."));
         }
         catch (RuntimeException error) {
             LogUtils.getLogger().error("Player contribution checkpoint mismatch: {}", player.getUUID(), error);
@@ -135,6 +135,10 @@ public final class ContributionService {
     }
     public static void logout(PlayerEvent.PlayerLoggedOutEvent event) { if (event.getEntity() instanceof ServerPlayer player) OFFERS.remove(player); }
     private static void requirePlayer(ServerPlayer player) {
+        if(com.mohymods.kingdomsmp.building.ConstructionService.royal(player.server)){
+            var hut=com.mohymods.kingdomsmp.persistence.BuilderHutSavedData.get(player.server).hut().orElse(null);
+            if(hut==null||hut.phase()!=com.mohymods.kingdomsmp.persistence.BuilderHutSavedData.Phase.ACTIVE)throw new IllegalStateException("Establish the owner's Builder's Hut before contributing to First Hearth.");
+        }
         GameType type = player.gameMode.getGameModeForPlayer();
         if (!player.isAlive() || type != GameType.SURVIVAL && type != GameType.ADVENTURE || player.containerMenu != player.inventoryMenu) {
             throw new IllegalStateException("Donate while alive in Survival or Adventure mode, with other containers closed.");

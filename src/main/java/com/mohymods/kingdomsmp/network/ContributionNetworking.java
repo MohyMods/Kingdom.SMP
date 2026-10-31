@@ -71,7 +71,7 @@ public final class ContributionNetworking {
                 sorted.indexOf(player.getUUID()) + 1, history, page, pages, offer == null ? ContributionRequest.NONE : offer.id(), offer == null ? 0 : offer.resource().ordinal(),
                 offer == null ? 0 : offer.amount(), notice.length() > 256 ? "Contribution unavailable; contact the administrator." : notice,
                 survival && player.isAlive() && !ledger.quarantined() && ledger.pending().isEmpty() && !progress.complete(), progress.complete(),
-                progress.winner().map(id -> ContributionService.name(ledger, id)).orElse(""));
+                progress.winner().map(id -> ContributionService.name(ledger, id)).orElse(""),com.mohymods.kingdomsmp.building.ConstructionService.rewardTitle(player.server));
     }
     private static List<Integer> counts(TierOneProgress.Contributor player) {
         return Arrays.stream(Resource.values()).map(r -> player == null ? 0 : player.count(r)).toList();

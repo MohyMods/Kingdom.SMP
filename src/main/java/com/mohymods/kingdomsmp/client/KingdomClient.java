@@ -34,6 +34,7 @@ public final class KingdomClient {
         modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
                 event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), AldricRenderer::new);
                 event.registerEntityRenderer(KingdomNpcs.REEVE.get(), VillagerRenderer::new);
+                event.registerEntityRenderer(KingdomNpcs.STEWARD.get(), VillagerRenderer::new);
         });
         NeoForge.EVENT_BUS.addListener(ConstructionPreview::render);
         modBus.addListener((net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent event)->event.registerReloadListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener)manager->BlueprintPlacement.invalidateMeshes()));

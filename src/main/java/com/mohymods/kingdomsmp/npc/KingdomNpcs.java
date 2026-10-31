@@ -24,6 +24,7 @@ public final class KingdomNpcs {
 
     private KingdomNpcs() {}
 
+    public static final DeferredHolder<EntityType<?>, EntityType<ReeveEntity>> STEWARD=TYPES.register("steward",()->EntityType.Builder.of(ReeveEntity::new,MobCategory.MISC).sized(0.6F,1.95F).clientTrackingRange(8).noSummon().build(KingdomSmp.MOD_ID+":steward"));
     public static void register(IEventBus modBus) {
         TYPES.register(modBus);
         modBus.addListener(KingdomNpcs::attributes);
@@ -32,5 +33,6 @@ public final class KingdomNpcs {
     private static void attributes(EntityAttributeCreationEvent event) {
         event.put(ALDRIC.get(), Villager.createAttributes().build());
         event.put(REEVE.get(), Villager.createAttributes().build());
+        event.put(STEWARD.get(), Villager.createAttributes().build());
     }
 }
