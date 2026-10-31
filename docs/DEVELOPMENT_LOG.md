@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-31 — Held blueprint delivery and replacement inventory verification
+
+Completed actual copied-world physical loop after restart: Aldric finished 782/782 and Mira arrived; normal dedicated copy retained Tier 2/revision 6, exactly one Aldric/Mira and saved/stopped successfully. Cached immutable GPU model geometry in two rotation slots with index sorting, eviction/disconnect/reload cleanup; real F3+T reload, four rotations, height invalidation and hand switching retained the whole model. HUD wraps controls/reasons and sizes its panel to actual lines. Final full build passes 142 tests; native lifecycle passes. Replacement snapshot contains 277 reported mod entries (excluded its heading from the integration matrix). Full pack artifacts and both claim adapters remain unverified; construction safely refuses while those mods are present. Detailed acceptance/limits: HELD_BLUEPRINT_CHECKPOINT.md.
+
 ## 2026-10-31 — Physical QA, waypoint recovery and vanilla End correction
 
 Actual whole Lodge/roof hologram, rotation, height invalidation/highlights, natural right-click review, legacy approval and one-time redemption ran in a copied fixture. Found/fixed raised-Hut intermediate-waypoint height on routes >24 blocks using loaded supported cells only; no teleport or terrain edits. Added native regression coverage. Corrected vanilla End boundary to12 and retired stale Hall labels; no historical record changes. Automatic approval review rejected a proposed unapproved catalogue resource/reward rebase; it was not executed. Inactive catalogue values were preserved and labeled historical drafts. Final build142 and native lifecycle pass. Actual full-pack claim adapters and other Phase B features remain incomplete.

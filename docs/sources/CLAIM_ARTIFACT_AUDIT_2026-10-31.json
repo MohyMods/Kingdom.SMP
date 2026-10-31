@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-chunks-neoforge/2101.1.22/ftb-chunks-neoforge-2101.1.22.jar",
+    "size": 655807,
+    "sha256": "4ba1b3352184fa7f6e2aa4bca76edd074867697d62344dfa50dcccdb4dab5217"
+  },
+  {
+    "url": "https://cdn.modrinth.com/data/gF3BGWvG/versions/yWmXD7GW/open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "size": 1903256,
+    "sha256": "77eadbbb7cbd7298d9a99070ebde552b765dd91bdad5054c9f845a17d2931765"
+  },
+  {
+    "url": "https://cdn.modrinth.com/data/gF3BGWvG/versions/yWmXD7GW/open-parties-and-claims-neoforge-1.21.1-0.33.0-sources.jar",
+    "size": 1234262,
+    "sha256": "baa46746f3869ff344b0fb51da31b9b3917756b5428ce44a0ae18a6780fe7191"
+  }
+]

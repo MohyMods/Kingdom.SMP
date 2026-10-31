@@ -21,7 +21,7 @@ Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues 
 - A real custom **Royal Gilded dialogue/catalogue** with slate surfaces, gold/bronze trim, parchment, rendered NPC portrait, readable text and keyboard/mouse scrolling. Topic requests revalidate identity, distance and line of sight on the server. Replies cannot reopen a closed conversation.
 
 - The winner can claim or recover the unique **Founders’ Lodge Blueprint**, propose a rotated clear supported Overworld site, receive exact administrator approval and redeem it once. Aldric physically walks to its work post and constructs **782 blocks**, with saved progress and safe unloaded pauses. The furnished Lodge introduces **Mira Ashford**, Reeve, with real milestone/kingdom services and a functional lectern. Open **Construction** from K or use `/kingdom lodge open`.
-- Vanilla **Nether entry requires Tier 5** and **End entry requires Tier 9**, enforced server-side for player/item transfers. Unknown mod routes and legacy characters already inside locked realms are not claimed covered.
+- Vanilla **Nether entry requires Tier 5** and **End entry requires Tier 12**, enforced server-side for player/item transfers. Unknown mod routes and legacy characters already inside locked realms are not claimed covered.
 
 Town Hall and Elara belong to Tier 12 and are not implemented. Later milestone quantities/rewards, borders, profession quests and economy policies remain explicit decisions; see the master tracker and proposed review specification. The project is not complete.
 

@@ -31,6 +31,10 @@ public final class BlueprintPlacement {
     private static final ModConfigSpec.IntValue REACH,HEIGHT;
     static{var b=new ModConfigSpec.Builder();REACH=b.defineInRange("blueprintTargetReach",24,4,48);HEIGHT=b.defineInRange("blueprintHeightOffsetLimit",16,0,64);CONFIG=b.build();}
     private static final Map<Rotation,List<BuilderHutBlueprint.Placement>> GEOMETRY=new EnumMap<>(Rotation.class);
+    private static final Map<Rotation,BlueprintGhostMesh> MESHES=new LinkedHashMap<>(4,0.75f,true);
+    private static volatile boolean meshReload;
+    public static void invalidateMeshes(){meshReload=true;}
+    private static void closeMeshes(){MESHES.values().forEach(BlueprintGhostMesh::close);MESHES.clear();}
     private static Object connection;
     private static CompoundTag identity;
     private static int rotation,height;
@@ -40,7 +44,7 @@ public final class BlueprintPlacement {
     private static boolean held;
     private BlueprintPlacement(){}
     public static boolean active(){return held&&candidate!=null;}
-    private static void clear(){candidate=null;pending=null;result=null;identity=null;held=false;rotation=0;height=0;lastSent=0;}
+    private static void clear(){closeMeshes();candidate=null;pending=null;result=null;identity=null;held=false;rotation=0;height=0;lastSent=0;}
     public static void tick(){
         var c=Minecraft.getInstance();if(c.player==null||c.level==null||connection!=c.getConnection()) {clear();connection=c.getConnection();}
         if(c.player==null||c.level==null)return;
@@ -75,14 +79,18 @@ public final class BlueprintPlacement {
     }
     public static void hud(RenderGuiEvent.Post event){
         var c=Minecraft.getInstance();if(!active()||c.screen!=null||c.options.hideGui)return;
-        var g=event.getGuiGraphics();int y=14,w=Math.min(510,c.getWindow().getGuiScaledWidth()-20);
+        var g=event.getGuiGraphics();int y=14,w=Math.min(510,c.getWindow().getGuiScaledWidth()-32);
         int color=!current()?0xFFE4B858:result.valid()?0xFF65E68A:0xFFFF7474;
-        g.fill(6,y-5,Math.min(c.getWindow().getGuiScaledWidth()-6,w+16),y+74,0xDA171A22);
-        g.fill(6,y-5,Math.min(c.getWindow().getGuiScaledWidth()-6,w+16),y-4,0xFFB99A5B);
-        g.drawString(c.font,"Founders' Lodge · "+new String[]{"North","East","South","West"}[rotation]+" · "+(current()?(result.valid()?"VALID":"BLOCKED"):"PENDING"),12,y,color,false);
-        g.drawString(c.font,ROTATE.getTranslatedKeyMessage().getString()+" rotate · Shift reverse · "+UP.getTranslatedKeyMessage().getString()+" / "+DOWN.getTranslatedKeyMessage().getString()+" height "+height+" · Use: review",12,y+13,0xFFE6D1A4,false);
+        var controls=c.font.split(net.minecraft.network.chat.Component.literal(ROTATE.getTranslatedKeyMessage().getString()+" rotate · Shift reverse · "+UP.getTranslatedKeyMessage().getString()+" / "+DOWN.getTranslatedKeyMessage().getString()+" height "+height+" · Use: review"),w);
         String reason=current()?result.reason():"Aim at loaded ground; waiting for the server's site checks.";
-        var lines=c.font.split(net.minecraft.network.chat.Component.literal(reason),w);for(int i=0;i<Math.min(3,lines.size());i++)g.drawString(c.font,lines.get(i),12,y+28+i*11,0xFFE8E4DA,false);
+        var lines=c.font.split(net.minecraft.network.chat.Component.literal(reason),w);
+        int controlRows=Math.min(3,controls.size()),reasonRows=Math.min(3,lines.size());
+        int reasonY=y+14+controlRows*11;
+        g.fill(6,y-5,w+18,reasonY+reasonRows*11+4,0xDA171A22);
+        g.fill(6,y-5,w+18,y-4,0xFFB99A5B);
+        g.drawString(c.font,"Founders' Lodge · "+new String[]{"North","East","South","West"}[rotation]+" · "+(current()?(result.valid()?"VALID":"BLOCKED"):"PENDING"),12,y,color,false);
+        for(int i=0;i<controlRows;i++)g.drawString(c.font,controls.get(i),12,y+13+i*11,0xFFE6D1A4,false);
+        for(int i=0;i<reasonRows;i++)g.drawString(c.font,lines.get(i),12,reasonY+i*11,0xFFE8E4DA,false);
     }
     public static void render(RenderLevelStageEvent event){
         var c=Minecraft.getInstance();if(event.getStage()!=RenderLevelStageEvent.Stage.AFTER_PARTICLES||!active()||c.level==null||connection!=c.getConnection())return;
@@ -93,8 +101,16 @@ public final class BlueprintPlacement {
         var tint=new GhostConsumer(buffers.getBuffer(type),red,green,blue);
         MultiBufferSource source=ignored->tint;
         pose.pushPose();pose.translate(o.getX()-camera.x,o.getY()-camera.y,o.getZ()-camera.z);
-        var blocks=GEOMETRY.computeIfAbsent(Rotation.values()[candidate.rotation()],r->BlueprintRegistry.lodge().blocks(r));
-        for(var block:blocks){pose.pushPose();pose.translate(block.offset().getX(),block.offset().getY(),block.offset().getZ());
+        var selectedRotation=Rotation.values()[candidate.rotation()];
+        var blocks=GEOMETRY.computeIfAbsent(selectedRotation,r->BlueprintRegistry.lodge().blocks(r));
+        if(meshReload){closeMeshes();meshReload=false;}
+        var mesh=MESHES.get(selectedRotation);
+        if(mesh==null){
+            if(MESHES.size()>=2){var oldest=MESHES.keySet().iterator().next();MESHES.remove(oldest).close();}
+            mesh=new BlueprintGhostMesh(blocks,type);MESHES.put(selectedRotation,mesh);
+        }
+        mesh.draw(type,pose.last().pose(),camera.subtract(o.getX(),o.getY(),o.getZ()),red,green,blue);
+        for(var block:blocks)if(block.state().getRenderShape()!=net.minecraft.world.level.block.RenderShape.MODEL){pose.pushPose();pose.translate(block.offset().getX(),block.offset().getY(),block.offset().getZ());
             c.getBlockRenderer().renderSingleBlock(block.state(),pose,source,LightTexture.FULL_BRIGHT,OverlayTexture.NO_OVERLAY,net.neoforged.neoforge.client.model.data.ModelData.EMPTY,type);pose.popPose();}
         pose.popPose();buffers.endBatch(type);
         pose.pushPose();pose.translate(-camera.x,-camera.y,-camera.z);var lines=buffers.getBuffer(RenderType.lines());
@@ -103,7 +119,7 @@ public final class BlueprintPlacement {
         if(current())for(var p:result.unsupported())LevelRenderer.renderLineBox(pose,lines,p.getX(),p.getY(),p.getZ(),p.getX()+1,p.getY()+1,p.getZ()+1,1,.55f,.1f,1);
         pose.popPose();buffers.endBatch(RenderType.lines());
     }
-    private record GhostConsumer(VertexConsumer delegate,int red,int green,int blue) implements VertexConsumer {
+    static record GhostConsumer(VertexConsumer delegate,int red,int green,int blue) implements VertexConsumer {
         public VertexConsumer addVertex(float x,float y,float z){delegate.addVertex(x,y,z);return this;}
         public VertexConsumer setColor(int r,int g,int b,int a){delegate.setColor(red,green,blue,95);return this;}
         public VertexConsumer setUv(float u,float v){delegate.setUv(u,v);return this;}

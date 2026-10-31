@@ -156,7 +156,7 @@ DIMENSION_PROGRESSION.md records the confirmed schedule, revised dependency grap
 
 | Feature | Status | Exact scope / next acceptance |
 | --- | --- | --- |
-| Full replacement mod inventory | TESTED | Parsed all 278 reported entries; raw snapshot archived; actual artifact/API/pack compatibility remains unverified |
+| Full replacement mod inventory | RECORDED | Parsed all 277 reported entries; raw snapshot archived; actual artifact/API/pack compatibility remains unverified |
 | Held physical Lodge hologram / natural targeting | TESTED | Actual full-scale block models/roof, R rotations, height keys, green server-valid / red blocked / pending amber; connected Royal Gilded review |
 | Read-only probe authorization and diagnostics | TESTED | Native identity/copy/current-held checks, no review replacement, collision/support cell bounds; 142 JUnit tests/full native lifecycle |
 | FTB Chunks + OPAC permissions | IN DEVELOPMENT | Actual APIs/JARs must be verified; current safe behavior refuses site validation/work when either mod is present. No adapter compatibility claim |
