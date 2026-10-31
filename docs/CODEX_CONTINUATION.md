@@ -1,6 +1,6 @@
 # Codex continuation — Kingdom SMP
 
-Branch `rebuild/royal-gilded`; Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. Never merge main. Latest published gameplay checkpoint before this final delivery: `309655982ee8d4cc32b91acb8ab60e4e1643873f`; source and artifact hashes are recorded in the new checkpoint directory at publication. Historical 0.2.0-dev package is `5baf285` / source `7e9968a`.
+Branch `rebuild/royal-gilded`; Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. Never merge main. Latest published gameplay checkpoint: `33b62fef7a1ad00a2caeeddf3e0a526ed64d6dda`; installable 0.3.0-dev JAR, actual screenshots and build/test evidence: `docs/checkpoints/33b62fe/`. The artifact-only commit does not change compiled source. Historical 0.2.0-dev package is `5baf285` / source `7e9968a`.
 
 ## Completed and tested
 
@@ -14,7 +14,7 @@ Branch `rebuild/royal-gilded`; Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. N
 
 Latest full build: **121 JUnit tests, zero failures/errors/skips** (`work/lodge-final-build.log`). Expanded native lifecycle: **all 1 required GameTests passed**, BUILD SUCCESSFUL (`work/lodge-final-runtime.log`). It exercises real blocks/entities, inventory/recovery/claims/stale permissions/protection/interruption/unloaded work/full Lodge/NPC identity/death/realm gates. Direct test steps accelerate the fixture only; production client construction ran at normal cadence.
 
-Actual Minecraft testing completed the entire Lodge loop, including Aldric leaving his hut, physical work, 782/782 completion, Mira interaction, real contributions navigation, milestone lectern, door/storage and scaled screens. In-progress and completed full client process restarts retained the project; completed restart preserved exactly one Reeve with identical UUID. First Hearth previously passed a real two-client shared-cap test. Normal dedicated/multiplayer checks and final artifacts are recorded in VALIDATION.md and the delivered CHECKPOINT.md, with actual screenshots/logs/checksums.
+Actual Minecraft testing completed the entire Lodge loop, including Aldric leaving his hut, physical work, 782/782 completion, Mira interaction, real contributions navigation, milestone lectern, door/storage and scaled screens. In-progress and completed full client process restarts retained the project; completed restart preserved exactly one Reeve with identical UUID. First Hearth previously passed a real two-client shared-cap test. Two real matching-protocol clients joined the normal dedicated server, inspected the completed project and opened Mira’s live contribution service; the non-admin interface exposes no Royal Admin tab. The server saved/stopped with BUILD SUCCESSFUL. The normal dedicated restart reloaded Tier 2/revision 6 and the same single Reeve, then saved/stopped with BUILD SUCCESSFUL. Final artifacts are recorded in VALIDATION.md and the delivered CHECKPOINT.md, with actual screenshots/logs/checksums.
 
 ## Known limits and decisions
 
