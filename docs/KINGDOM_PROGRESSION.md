@@ -1,55 +1,38 @@
-# Kingdom progression
+# Kingdom progression — current authority
 
-Sources: S1 baseline, S2 rebuild, S3 First Hearth slice. Twelve shared tiers remain confirmed; only the first contribution milestone has numerical requirements. Border expansion is scope, but sizes/centers/dimension policy are not supplied.
+The user's 2026-10-30 progression correction supersedes all earlier early-Town-Hall designs. The kingdom begins at **Tier 1 — The First Hearth**. Completing its resources advances to **Tier 2 — Roads of Commerce**. Progression is sequential through twelve tiers; exact later requirements must be approved before activation.
 
-## Initial kingdom and First Hearth
+## The First Hearth
 
-S3: a new kingdom starts automatically at **Tier 1 — First Hearth**, never Tier 0. **Tier 2 — Roads of Commerce** follows. The first shared milestone is balanced for ten players and does not scale when player count changes.
+Fixed ten-player shared targets: **1,024 `#minecraft:logs`, 2,048 `minecraft:cobblestone`, 512 `minecraft:wheat`, 128 `minecraft:iron_ingot`**. Donations permanently consume only accepted items. Partial donations are capped to outstanding requirements and actual eligible inventory; excess remains with the player. Clients never supply credited totals, identities, ranks, or tiers.
 
-| Resource category | Required accepted quantity | Matching rule |
+Each category has equal maximum weight 1. Score is the sum of personal quantity/category requirement, maximum 4. Exact integer units use denominator 2,048: logs ×2, cobblestone ×1, wheat ×4, iron ×16. Ties prioritize the first to reach the tied score (last positive accepted sequence), then UUID natural order. Display rounding does not determine ranking. History records accepted quantities and server identity; failed requests earn nothing.
+
+Use the durable protocol in [contribution recovery](CONTRIBUTION_RECOVERY.md) before consuming items. Completion, the permanent winner and Tier 2 advancement derive from one canonical accepted history. Inventory checkpoints and ledger receipts reconcile process interruption without removing resources a second time. Unknown save/restore mismatches fail closed.
+
+## Approved Tier 2 reward
+
+The user selected **Founders’ Lodge**: a furnished meeting and milestone building, a named **Reeve**, and included construction materials. The highest First Hearth contributor earns its exclusive construction privilege. The building belongs to the kingdom. No banking, Royal Trading, Charter or unrelated service is granted by constructing it.
+
+A permanent winner record is distinct from a claimed physical plan, unused entitlement, reserved site, active construction, and completed building. A copied/lost item must not authorize a second Lodge. Claim/recovery and construction require those state transitions and tests before being called complete. The winner must be publicly recognized. Every later tier also recognizes its highest contributor, but its exact reward needs separate approval.
+
+## Tier register
+
+| Tier | Confirmed name / gate | Requirements / reward |
 | --- | --- | --- |
-| Logs | 1,024 | Log tag; exact accepted tag must be documented in implementation |
-| Cobblestone | 2,048 | Cobblestone; substitutions not approved |
-| Wheat | 512 | Wheat; substitutions not approved |
-| Iron ingots | 128 | Iron ingots; substitutions not approved |
+| 1 | The First Hearth | Exact resources above; completion advances to 2; highest contributor earns Founders’ Lodge privilege |
+| 2 | Roads of Commerce | Founders’ Lodge available; next milestone values pending |
+| 3 | Name pending | Requirements and reward pending |
+| 4 | Name pending | Requirements and reward pending |
+| 5 | Nether access gate | Requirements and reward pending |
+| 6 | Name pending | Requirements and reward pending |
+| 7 | Name pending | Requirements and reward pending |
+| 8 | Name pending | Requirements and reward pending |
+| 9 | End access gate | Requirements and reward pending |
+| 10 | Name pending | Requirements and reward pending |
+| 11 | Name pending | Requirements and reward pending |
+| 12 | Ultimate Town Hall; Creative Energy Cube also requires active Master Mechanic | Town Hall blueprint requires a separately approved Tier 12 contribution/award policy |
 
-Partial submissions are allowed. Accepted items are consumed and count toward shared progress and the submitting player's persisted credited statistics. Accept no more than the remaining category requirement; never remove excess items. Validate inventory, category, current remaining quantity and authoritative player identity on every submission. Clients do not supply trusted totals or credit. Shared and personal totals update live for connected viewers.
+The **Royal Guild Charter remains available after Tier 2**, independently of the Tier 12 Town Hall. Whether that means Tier 2 completion or Tier 3 entry remains unresolved. Do not silently activate it. Earlier banking and Royal Trading need intermediate premises and separately approved unlock gates; a Founders’ Lodge does not grant them.
 
-No numerical quantities for later milestones, border changes, profession requirements or construction scheduling are implied by this table.
-
-## Contribution score and first reward
-
-Each resource category has equal maximum weight **1**, independent of its required quantity. For credited player quantity `c` and kingdom category requirement `r`, that category contributes `c / r`; the sum of the four category scores is the contribution score, maximum **4**. Inventory submitted beyond the accepted requirement grants no score. Use exact comparisons rather than rounded UI percentages when ranking.
-
-S3 tie rule: **“For ties, prioritize the player who first achieved the tied score, then use a stable deterministic fallback.”** Persist the relevant ranking/time/order evidence; process equivalent simultaneous submissions deterministically. The precise stable fallback implementation must be documented; it must not replace the first-achieved-score rule.
-
-The highest contributor receives the unique **Town Hall blueprint**. Announce the winner to the kingdom and preserve a permanent winner record. The blueprint is noncraftable, includes construction materials, and can be redeemed once. Lost-unused-blueprint recovery must preserve eligibility without allowing duplicate construction. The winner selects a protected location, but the completed Town Hall belongs to the kingdom. Administrative recovery handles abandonment or malicious placement without issuing a second unrestricted build entitlement. See [construction](CONSTRUCTION.md).
-
-Reward eligibility, issued item, placement confirmation, consumed redemption and construction lifecycle need distinct persistent states. An item copy, renamed item, replayed interaction, reconnect, or restored inventory cannot serve as authority to build a second hall. Full-inventory/offline winner delivery and recovery behavior must be implemented explicitly and tested; announcing a winner is not evidence the reward was safely delivered.
-
-## Twelve-tier register
-
-| Tier | Name / confirmed special gate | Milestones |
-| --- | --- | --- |
-| 1 | First Hearth; automatic initial tier | Shared resources above |
-| 2 | Roads of Commerce; Charter available **after Tier 2**, precise boundary unresolved | Later requirements missing |
-| 3 | No supplied name | Missing |
-| 4 | No supplied name | Missing |
-| 5 | Nether unlock | Missing |
-| 6 | No supplied name | Missing |
-| 7 | No supplied name | Missing |
-| 8 | No supplied name | Missing |
-| 9 | End unlock | Missing |
-| 10 | No supplied name | Missing |
-| 11 | No supplied name | Missing |
-| 12 | Creative Energy Cube also requires active Master Mechanic | Missing |
-
-Do not award the Charter or Master services when the Town Hall is built. They retain their independent progression/permission gates. Town Hall construction and resource completion must not silently grant unrelated tiers or capabilities.
-
-## Persistence, safety, and future acceptance
-
-Use one authoritative kingdom progression aggregate with stable IDs and schema versions. A completion boundary and its reward election execute once under concurrent contributions. Persist exact accepted quantities, individual credit, winner evidence and reward state. Changes to requirements after contributions exist need reconciliation rules rather than silently changing past scores.
-
-Before later progression implementation define later milestone tables, advancement/consumption/reset policies and charter semantics. Before border implementation define dimension scope, center, tier sizes, timing and safe player/entity handling. The First Hearth resource values and initial tier are no longer missing decisions.
-
-Required tests: partial contributions, insufficient inventory, category matching, excess retained, final-slot race, retry/replay, exact score comparison, both tie-break stages, offline winner, reward loss/recovery, restart at mutation boundaries, admin recovery, and no duplicate reward/construction. Travel-gate tests must cover portals, commands, teleports, respawn, login and third-party routes before those gates are claimed complete.
+Later tier tables, names, border dimensions/centers/sizes/timing and profession/technology rules remain configurable design dependencies. Do not populate arbitrary values or imply unimplemented gate enforcement. Historical checkpoint archives preserve earlier designs; they are not current authority.

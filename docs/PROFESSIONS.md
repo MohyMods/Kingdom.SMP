@@ -37,3 +37,5 @@ Master purchases require the buyer's corresponding Master profession to be activ
 - How are crafting/kill/donation quests credited to avoid shared-event duplication, place/break loops, repeated crafted-item recycling, or attribution by automated machines?
 
 Future acceptance: all twelve definitions load with correct counts; cap enforced concurrently; inactive progress survives switches/restarts; duplicate quest rewards rejected; Master status rechecked at commit; purchase counters and charges recover together after interruption.
+
+The latest user directive targets approximately 2–3 weeks of balanced play to reach Master, avoiding repetitive artificial grind. This target does not supply quest objectives or XP tables; validate one approved profession before expanding to eleven others.

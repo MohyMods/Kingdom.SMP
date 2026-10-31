@@ -1,57 +1,35 @@
-# Blueprint and construction specification
+# Blueprint and construction specification — current authority
 
-Source: S3. This is authoritative scope and required behavior, not a claim of implementation. Exact footprints, build rates, durations, land boundaries and protection integration policy were not supplied.
+The user's latest progression correction reserves the **ultimate Town Hall for Tier 12**. The approved Tier 2 highest-contributor privilege is the **Founders’ Lodge**, with included materials, a furnished meeting/milestone interior and a named Reeve. This supersedes all early Town Hall construction and reward plans. No banking, trading, Charter or unrelated unlock follows from the Lodge.
 
-## First dependency: Builder’s Hut
+## Existing first building
 
-An administrator sets up the Builder’s Hut before the Town Hall exists. It is an original, fully furnished timber-and-stone building, with a home/work area for Master Builder **Aldric Stonehand**. Setup must not require already owning the Town Hall reward. Provide safe admin placement/setup and persistent building/NPC identity; no unapproved coin/material fee is implied.
+An administrator installs the original furnished timber/stone Builder’s Hut. Its stable named builder **Aldric Stonehand**, identity/home, dialogue, safe routine, four rotated layouts, clear-site checks and five-minute clickable admin confirmation must be preserved. See the implemented hut design and runtime evidence. This admin installation is distinct from player blueprint construction.
 
-The hut is a real building and NPC interaction point, not only a command/menu or decorative mockup. Catalogue, blueprint preview and construction confirmation use Royal Gilded interfaces. See [NPCs](NPCS.md) for identity/dialogue/routine behavior.
+## Reusable blueprint engine
 
-## Blueprint registry and Town Hall entitlement
+Use stable blueprint IDs, versioned footprint/required-block definitions, supported rotations, preview data and an ordered build sequence. Make buildings progressively larger and more impressive as approved tiers unlock them. The winner chooses a location under the approved land/protection policy; absence of an adapter is not permission to bypass protection. Public placement policy is being clarified before enabling construction.
 
-Registry entries need stable blueprint IDs, footprint/required-block definitions, supported rotations, preview data and build sequence. Exact asset formats and APIs must be verified during implementation. Do not create generic registry placeholders and claim finished structures.
+Flow: inspect catalogue/entitlement → transparent preview and footprint/rotation → server validation → exact-site confirmation → persistent site/entitlement reservation → progressive Aldric work → required-block verification → completed building registration and assigned NPC.
 
-The First Hearth highest contributor receives one noncraftable Town Hall blueprint with construction materials included. A persistent server entitlement, not the inventory stack, governs redemption. A cloned/lost/recovered item must never authorize multiple halls. Record the permanent winner, issuance/recovery, selected site, accepted construction, completion and admin recovery history. Once construction begins, recovering an item must not reopen an unused entitlement.
+Every confirmation revalidates ownership, unused entitlement, dimension, loaded chunks, support, bounds, collisions, overlap and protection. Never destroy existing structures, containers, valuable terrain or fluids to conceal invalid placement. A stale preview must not consume an entitlement or overwrite player edits. Clients render advisory previews only.
 
-The winner chooses a protected site and the completed building is kingdom-owned. Administrative recovery must address abandonment or malicious placement. Exact recovery policy, NPC death policy, building damage policy and protection boundaries remain open; do not promise arbitrary deletion/rollback is lossless.
+## Persistence and safe work
 
-## Placement and confirmation flow
+Separate winner eligibility, physical plan issue/recovery, one-use redemption, project reservation, progress and completion. A cloned/lost/restored item does not authorize another building. Pending/failed/restarted work must keep the same project/entitlement identity. Administrative abandonment/tamper recovery requires an explicit policy, exact-target confirmation, permissions and audit.
 
-1. At the hut, inspect the catalogue entry and reward eligibility.
-2. Preview the complete footprint and selected rotation at a candidate site.
-3. Server validates entitlement, dimension/site/land/protection policy, collisions, existing buildings and required loaded context. Client preview is advisory only.
-4. Show valid/invalid status and actionable reasons; rotate without mutating world blocks.
-5. Confirm the exact blueprint, site and rotation. Revalidate all conditions at commit; reserve the entitlement and construction site consistently.
-6. Start persistent construction once. A failed or stale validation must not consume an unused reward or begin overlapping work.
+Bound concurrent jobs and blocks per tick. Pause unloaded chunks without force-loading. Aldric reaches safe work positions, reports blocked paths, swings/works near the active site where feasible, and never teleports or destroys obstructions to hide failure. Save/reconcile actual block results; do not advance a timer while chunks are unloaded. Revalidate targets before each placement and preserve unrelated edits.
 
-Terrain replacement/site preparation, fluid handling, protection mod hooks and block/entity collision policy need explicit implementation rules before production placement. Never interpret absent external integration as proof that a protected location is allowed. Keep validation bounded and avoid scanning arbitrary client-supplied volumes.
+## Tier 2 Founders’ Lodge
 
-## Progressive construction lifecycle
+Create an original furnished meeting chamber, milestone interaction point, Reeve workstation, storage, lighting and navigable entrances. Included materials are an entitlement, not a repeatable resource grant. Verify all required structural/furnishing blocks before completion and Reeve assignment. Persist kingdom ownership and exactly one assigned NPC. Exact floor plan and NPC personality are ordinary design work; additional gameplay services are not implied.
 
-Construction places real blocks progressively under a bounded scheduler. Limit simultaneous work and per-tick work; configure rates without inventing a promised duration. Pause work when required chunks are unloaded; do not permanently force-load chunks. Persist blueprint/site/rotation/progress and resume safely after restart.
+## Tier 12 Town Hall
 
-Aldric has safe work behavior: reach appropriate work positions where possible, pause/report failure when paths or work sites are blocked, and never use unsafe teleporting or destruction to conceal a path failure. Exact pathing/work synchronization must be implemented and tested using real APIs. Construction must not silently complete because a timer elapsed while unloaded.
+The final centerpiece includes a grand meeting/throne chamber, Royal Steward area, progression/community milestone interfaces, Bank and Royal Trading locations, workstations, decoration, lighting, functional entrances, storage and administration spaces. Aldric constructs it progressively from the approved Tier 12 blueprint entitlement. **Elara Vale** arrives only after verified completion. Its award policy, requirements and service connections must be approved separately; it does not grant Charter/Master services automatically.
 
-Placement and progress updates need crash/retry-safe ordering. Revalidate planned target blocks and do not overwrite unrelated player work, containers or protected areas under a stale preview. Pause/conflict behavior must be visible; unapproved automatic demolition is not allowed. Chunk unload, player obstruction, server stop, failed block placement and exhausted work budgets must leave resumable state, not duplicate scheduler jobs.
+## Earlier service locations — proposals only
 
-## Town Hall structure and completion
+A separate counting house could host banking; a market office could host Royal Trading; the Founders’ Lodge may host community milestone interaction. Exact building names, service unlock tiers, bank replacement of the old Town Hall-only location rule, and Charter premises/boundary need approval. Keep those services gated and unimplemented until defined rather than binding them to an early Town Hall.
 
-The Town Hall must be a complete furnished building, including:
-
-- Grand meeting space and throne/leadership area.
-- Kingdom progression interface and milestone contribution area.
-- Town Hall Bank counter and designated Royal Trading location.
-- NPC areas, lighting, decoration, storage/admin space and navigable paths.
-
-No exact dimensions, floor plan, material palette quantities or duration have been supplied. Design/review the actual structure rather than presenting an empty shell as complete.
-
-On completion verify all required structural blocks against the blueprint. Then persist completed state, announce completion, enable only permitted services, introduce/assign Royal Steward **Elara Vale**, register the building in the Kingdom Overview (and map if a map is later implemented), and update the Builder’s Hut catalogue. Overview registration satisfies discoverability without asserting a new world-map UI is required.
-
-Bank and Royal Trading are the only approved Town Hall service categories at this point. Counter locations do not mean their later economy implementations already work. No automatic Charter, Master services, profession unlocks or unrelated technology rewards.
-
-## Integrity and acceptance
-
-Maintain a persistent building registry with kingdom ownership, blueprint/site/rotation, lifecycle state and associated NPC identities. Completion verification and subsequent damage handling are separate: approved completion does not establish what services should do after destruction. Define service suspension, repairs/rebuilds and NPC displacement/recovery before claiming damage safety.
-
-Required checks: invalid/rotated footprints, collision/protection denial, stale confirmation, cloned blueprint, duplicate request, concurrent site reservations, full restart at each construction boundary, unloaded-chunk pause/resume, no force-load leakage, bounded scheduler work, path failure, conflicting player edits, structural verification, one steward/one building registration, entitlement recovery and admin tamper/abandonment handling. These are future acceptance criteria, not executed results.
+Acceptance: rotated/stale/protected/blocked sites; one-use entitlement and duplicate item/request denial; concurrent reservations; progressive physical blocks; interruption/restart; unloaded pause/resume; bounded work; blocked path; player edits; full structure verification; one building/NPC registration; and explicit damage/recovery behavior. Do not call these complete solely from compilation.

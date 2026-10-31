@@ -1,5 +1,7 @@
 # Architecture proposal
 
+> **Current authority — 2026-10-30 progression correction:** Town Hall and its blueprint are Tier 12 only. Tier 1 completion advances to Tier 2 and recognizes the highest contributor; its approved building reward is the Founders’ Lodge. No early Town Hall, Elara, Bank or Royal Trading dependency may be implemented from historical descriptions below. Earlier bank/trading locations and exact gates require separate approval; the Charter remains available after Tier 2 independently of the Town Hall. The existing hut, Aldric and Royal Gilded design are approved.
+
 Status: rebuild architecture under S2 implementation authorization. The following boundaries guide incremental code; absent modules are not claimed implemented. One deployable NeoForge mod is recommended initially. Logical modules/packages keep responsibilities separate without premature multi-project Gradle complexity. Use Java 21 and Minecraft 1.21.1; exact dependencies require later verification.
 
 ## Proposed layout
@@ -106,3 +108,7 @@ Native SavedData is used for this bounded kingdom/contribution state only. The i
 Exact source and runtime evidence is in [validation](VALIDATION.md). The candidate toolchain has not completed Minecraft artifact resolution; source APIs, real side isolation, and persistent world lifecycle still need executable validation.
 
 Before enabling mutation, unify aggregate/view and contribution revision semantics (the initial snapshot currently exposes the kingdom revision while contribution accounting has its own revision). CAS/transaction checks must use the actual authoritative revision; the read-only checkpoint cannot be used as a donation authorization mechanism.
+
+## Current donation persistence boundary
+
+The old read-only kingdom adapter remains a preserved migration seed. Live accepted contributions, revision, history and first winner come from the canonical ContributionLedger; tier derives as at least 2 when First Hearth completes. Inventory baseline, durable preparation, native removal receipt, and final ledger commit follow CONTRIBUTION_RECOVERY.md. Overview, status, dialogue and the new contribution projection read the same authoritative progress. This resolves the earlier revision mismatch for the enabled donation path. It does not implement money or public construction transactions.

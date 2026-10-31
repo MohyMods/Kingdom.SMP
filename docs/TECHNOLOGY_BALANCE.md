@@ -1,6 +1,6 @@
 # Technology and balance
 
-Confirmed design includes Create, Mekanism, Occultism, Mystical Agriculture, Productive Bees, and selected magic systems. No exact mod versions, artifacts, optional dependencies, licenses, API behavior, or Minecraft 1.21.1 NeoForge compatibility have been verified. Do not interpret this list as a validated installable modpack.
+Confirmed design includes Create, Mekanism, Occultism, Mystical Agriculture, Productive Bees, Ars Nouveau, Iron’s Spells, and other separately approved compatible systems. No exact mod versions, artifacts, optional dependencies, licenses, API behavior, or Minecraft 1.21.1 NeoForge compatibility have been verified. Do not interpret this list as a validated installable modpack.
 
 Technology must unlock progressively by kingdom tier and appropriate professions. Nether at Tier 5, End at Tier 9; Creative Energy Cube requires Tier 12 and active Master Mechanic. Offline automation being disabled is the current **proposal**, pending an enforceable definition.
 

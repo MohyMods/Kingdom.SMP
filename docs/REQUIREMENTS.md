@@ -20,15 +20,15 @@ Sources: S1, S2, and S3 in [overview](PROJECT_OVERVIEW.md). IDs are stable refer
 | KING-02 | Royal Guild Charter becomes available after Tier 2. Exact boundary semantics remain open. |
 | KING-03 | Nether unlocks at Tier 5; End unlocks at Tier 9. |
 | KING-05 | S2: Shared resource contributions, persistent kingdom progress, tier-specific unlocks, and world border expansion. Border sizes/centers/timing and later milestone resource tables are missing; S3 defines the first milestone set below. |
-| KING-06 | S3: A new kingdom starts automatically at Tier 1, First Hearth; no Tier 0. Tier 2 is Roads of Commerce. The first milestone requirements are fixed for ten players and do not scale with player count. |
+| KING-06 | S3: A new kingdom starts automatically at Tier 1, First Hearth; no Tier 0. Completing Tier 1 advances to Tier 2, Roads of Commerce. The ultimate Town Hall is reserved for Tier 12. The first milestone requirements are fixed for ten players and do not scale with player count. |
 | KING-07 | S3: First Hearth shared contributions consume accepted resources: 1,024 logs (tag-based), 2,048 cobblestone, 512 wheat, and 128 iron ingots. Accept partial submissions only up to outstanding requirements; never consume excess. |
 | KING-08 | S3: Persist shared totals and individual credited statistics, with live updates. Rank contributors by the sum of four equally weighted normalized category contributions (maximum score 4); tie-break by first reaching the tied score, with stable fallback. |
-| KING-09 | S3: Highest contributor receives one unique Town Hall blueprint; one redemption, construction materials included, persistent/admin-safe recovery and duplication prevention. |
+| KING-09 | D-018: Highest contributor receives the unique Founders’ Lodge construction privilege at Tier 2, with included materials and a named Reeve; one redemption, persistent/admin-safe recovery and duplication prevention. |
 | BUILD-01 | S3: Admin sets up a furnished original timber-and-stone Builder’s Hut before the Town Hall; it houses Master Builder Aldric Stonehand with configurable display name and stable identity. |
 | BUILD-02 | S3: Blueprint registry defines footprints and rotation; placement uses preview and authoritative land/protection/collision validation followed by confirmation. |
 | BUILD-03 | S3: Persistent bounded-concurrency progressive block construction; pause unloaded work without permanent chunk loading, resume after restart, safe handling of blocked work/path failure. |
-| BUILD-04 | S3: Town Hall is fully furnished and its required blocks verified before completion and arrival of Royal Steward Elara Vale. Building/NPC registries and damage safety are persistent. |
-| BUILD-05 | S3: Town Hall permits Bank and Royal Trading services only; no automatic Royal Guild Charter or Master services. Permission to construct their counters does not imply unimplemented economy services work. |
+| BUILD-04 | Tier 12 Town Hall is fully furnished and its required blocks verified before completion and arrival of Royal Steward Elara Vale. Building/NPC registries and damage safety are persistent. |
+| BUILD-05 | Tier 12 Town Hall reserves Bank and Royal Trading locations; no automatic Royal Guild Charter or Master services. Earlier service premises must not depend on this final building. Permission to construct their counters does not imply unimplemented economy services work. |
 | NPC-01 | S3: Builder and steward have identity, home/building association, dialogue, routine and safe work behavior. Broader reputation/event/NPC capabilities are expansion architecture, not current implementation authority. |
 | KING-04 | Creative Energy Cube requires Tier 12 and active Master Mechanic status. Exact registered item and permitted actions remain open. |
 | PROF-01 | Twelve professions: Farmer, Blacksmith, Miner, Builder, Lumberjack, Merchant, Engineer, Mechanic, Mage, Adventurer, Alchemist, Librarian. |
@@ -39,7 +39,7 @@ Sources: S1, S2, and S3 in [overview](PROJECT_OVERVIEW.md). IDs are stable refer
 | PROF-07 | S2: Persistent profession XP and rank progression, profession-specific permissions/shop access, and one complete approved profession before expanding. XP awards/thresholds and quest rules are missing. |
 | PROF-06 | Repeated purchases of the same Master item increase price by 50% compounded, tracked per player and item. Rounding, starting prices, and reset rules remain open. |
 | ECO-01 | Hybrid physical coins and virtual bank balances. Copper=1, Silver=10, Gold=100, Platinum=1,000 kingdom coins. |
-| ECO-02 | Bank deposits and withdrawals require visiting the Town Hall Bank Counter. |
+| ECO-02 | Bank deposits and withdrawals require visiting an approved physical bank counter. Earlier premises and unlock tier must be approved independently of the Tier 12 Town Hall. |
 | ECO-03 | Auction house supports fixed-price listings, timed auctions, and buy orders. |
 | ECO-04 | Normal auction sales tax is 5%; Master equipment tax is 10%. Charging and rounding rules remain open. |
 | ECO-06 | S2: Dynamic prices and profession-specific contracts. Pricing algorithm, contract objectives/rewards, availability, expiry, and abuse controls are missing. |
@@ -89,7 +89,7 @@ Sources: S1, S2, and S3 in [overview](PROJECT_OVERVIEW.md). IDs are stable refer
 | PROC-05 | Maintain a development log and update documents after approved decisions change. Distinguish completed work, blockers, remaining tasks, proposals, and verified versus unverified behavior. |
 | PROC-06 | Recommend and challenge designs honestly; ask only material decisions; never silently alter approved gameplay. Actual source documents and subsequent approved decisions take precedence. |
 | PROC-07 | S1 planning-only restriction superseded by S2: fresh implementation/build/test/ordinary engineering work and development commits authorized. Use a new development branch, preserve inspected uncommitted work/planning sources, and do not push main or merge without approval. |
-| PROC-08 | S2: Discard any previous implementation; deliver a genuinely fresh codebase in verified milestones, not an entire untested mod or placeholders presented as complete. Use the latest compatible verified NeoForge 1.21.1 toolchain. |
+| PROC-08 | Historical S2 fresh-rebuild requirement is fulfilled. Current authority requires continuing the existing working project without another rebuild, in verified milestones rather than an untested batch. Use the latest compatible verified NeoForge 1.21.1 toolchain. |
 
 ## Evidence expected later
 

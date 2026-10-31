@@ -84,7 +84,7 @@ public final class KingdomSavedData extends SavedData {
                 loadTierOne(tag.getCompound("tierOne")));
     }
 
-    private static TierOneProgress loadTierOne(CompoundTag tag) {
+    static TierOneProgress loadTierOne(CompoundTag tag) {
         requireTag(tag, "revision", Tag.TAG_LONG);
         if (!(tag.get("contributors") instanceof ListTag list)
                 || (!list.isEmpty() && list.getElementType() != Tag.TAG_COMPOUND)) {
@@ -120,7 +120,7 @@ public final class KingdomSavedData extends SavedData {
         return new TierOneProgress(tag.getLong("revision"), contributors, winner);
     }
 
-    private static CompoundTag saveTierOne(TierOneProgress progress) {
+    static CompoundTag saveTierOne(TierOneProgress progress) {
         CompoundTag tag = new CompoundTag();
         tag.putLong("revision", progress.revision());
         ListTag contributors = new ListTag();

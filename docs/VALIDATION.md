@@ -1,5 +1,24 @@
 # Validation checkpoint — 2026-10-30
 
+## 2026-10-31 — Reconnected workspace and reproducible build
+
+Recovered the existing workspace without replacing source or worlds. The saved tested JAR has SHA-256 `67eedb7cf5e56e4ef0c1d42a2d49490d99eb2aabaef20b1951eb9032ac2ec9e9`. A forced full build (`build --rerun-tasks --no-build-cache`) executed all nine tasks successfully, including **108 JUnit tests with zero failures/errors/skips**, and reproduced that exact JAR checksum. Earlier physical-client/two-client screenshots and server logs remain intact. The completed normal server stop passed before the interruption; the later multiplayer restart loaded revision 2, but no subsequent two-client rejoin is claimed. Old QA processes were stopped after reconnection.
+
+## First Hearth live contributions and Tier 2 advancement
+
+Current source version: **0.2.0-dev**, Minecraft 1.21.1, NeoForge 21.1.265, full Temurin Java 21. No changes to main.
+
+- Complete Gradle build: **BUILD SUCCESSFUL; 108 JUnit tests, zero failures/errors/skips**. Includes atomic-ledger interruption boundaries before/after replacement, corrupt/missing/future-store refusal, exact completion/winner reconstruction, bounded real packet codecs and all earlier tests.
+- `scripts/test-runtime.sh`: **BUILD SUCCESSFUL; all 1 required GameTests passed**. The substantial isolated native-server scenario now also covers creative denial, partial donation, cross-player nonce/replay rejection, inventory drift, concurrent quotes at the final iron boundary, exact excess preservation, native player-saving failure after durable removal, quarantine, restart reconciliation exactly once, complete history pagination, winner/Tier 2 persistence and stale integrated-host inventory reconciliation. Its expected injected saving exception is a recovery test, not an unresolved failure.
+- Physical Minecraft client: actual Survival UI donations accepted 64, then 36, then a capped 924 from 1,000 supplied logs; 76 excess logs remained. Cobblestone 2,048, wheat 512 and iron 128 completed the milestone. The server announced Tier 2 and the permanent winner. Contributions, leaderboard and personal history were visually inspected at 640 × 400 GUI pixels; history scrolling also ran at 427 × 240. Actual screenshots are preserved with the checkpoint.
+- A full client process/world restart reloaded Tier 2, revision 6, all four exact totals, six accepted history entries and the same winner. The existing furnished hut/Aldric survived. No simulated screen or design mockup is substituted for the screenshots.
+- A normal dedicated server loaded a complete copy of that saved test world at Tier 2, revision 6. Its first run had closed stdin and ended through the JVM shutdown hook (exit 143 / Gradle failure); it is not called a passing Gradle run. The subsequent console-enabled start/status/save/stop of the same world completed with **BUILD SUCCESSFUL**.
+- **Two real Minecraft clients** joined an isolated localhost dedicated server in Survival as Dev and DevTwo. Both reviewed 80 iron at revision 0. Dev's confirmation committed 80 and pushed revision 1 to DevTwo, discarding the old review. DevTwo's new quote capped to 48, committed once, and retained 32. Both actual clients displayed the same two-player leaderboard at revision 2 with scores 0.6250 and 0.3750. Native entity inventory output verifies the remaining quantities. The server saved/stopped normally with BUILD SUCCESSFUL.
+
+The second virtual display initially failed NeoForge's early-window GLX context handover. Disabling early-window control only in that ignored test client's FML config allowed initialization and the two-client check; no production code workaround was needed. The host has no sound device; development sessions are local/offline and Authlib public-key/profile requests log nonfatal connection refusals. Authenticated remote multiplayer, external protection mods, Windows storage, arbitrary partial restores, host/power loss and season-scale performance are not claimed verified. See the contribution recovery contract for supported interruption boundaries.
+
+This completes the implemented contribution/leaderboard/history and Tier 1 → Tier 2 slice. The permanent winner establishes eligibility for the approved Founders’ Lodge privilege. Physical blueprint claim/recovery/redemption, progressive construction, the Lodge and Reeve are **not implemented**; their pending public site/protection decision remains explicit. Ultimate Town Hall/Elara are Tier 12 only. No bank/trading/Charter or later-tier gameplay gates were silently enabled.
+
 ## Five-minute clickable confirmation fix
 
 Executed with the full local JDK 21:

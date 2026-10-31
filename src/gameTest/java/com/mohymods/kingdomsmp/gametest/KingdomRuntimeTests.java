@@ -2,6 +2,10 @@ package com.mohymods.kingdomsmp.gametest;
 
 import com.mohymods.kingdomsmp.persistence.BuilderHutSavedData;
 import com.mohymods.kingdomsmp.persistence.KingdomSavedData;
+import com.mohymods.kingdomsmp.contribution.ContributionService;
+import com.mohymods.kingdomsmp.kingdom.TierOneProgress.Resource;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.GameType;
 
 import com.mohymods.kingdomsmp.building.BuilderHutBlueprint;
 import com.mohymods.kingdomsmp.building.BuilderHutService;
@@ -154,7 +158,101 @@ public final class KingdomRuntimeTests {
         builder.hurt(level.damageSources().genericKill(), Float.MAX_VALUE);
         helper.assertTrue(data.hut().orElseThrow().npcDead(), "Death is persisted and cannot reissue a builder");
         helper.assertTrue(!BuilderHutService.canInteract(operator, restoredEntity), "Restored entity cannot bypass persisted death");
+        contributionLifecycle(helper, operator, otherOperator);
         helper.succeed();
+    }
+
+    private static void contributionLifecycle(GameTestHelper helper, RecordingPlayer alice, RecordingPlayer bob) throws Exception {
+        var server = helper.getLevel().getServer();
+        alice.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        give(alice, Items.OAK_LOG, 100);
+        try { ContributionService.quote(alice, Resource.LOGS, 100); helper.fail("Creative contribution accepted"); }
+        catch (IllegalStateException expected) { }
+        alice.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        bob.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        var offer = ContributionService.quote(alice, Resource.LOGS, 1024);
+        helper.assertTrue(offer.amount() == 100, "Partial contribution capped to actual inventory");
+        try { ContributionService.confirm(bob, offer.id()); helper.fail("Copied donation quote accepted"); }
+        catch (IllegalStateException expected) { }
+        ContributionService.confirm(alice, offer.id());
+        helper.assertTrue(ContributionService.eligible(alice, Resource.LOGS) == 0, "Accepted resources consumed");
+        helper.assertTrue(ContributionService.ledger(server).progress().total(Resource.LOGS) == 100, "Credit persisted after native inventory checkpoint");
+        try { ContributionService.confirm(alice, offer.id()); helper.fail("Donation replay accepted"); }
+        catch (IllegalStateException expected) { }
+        for (int i=0;i<9;i++) {
+            give(alice, Items.OAK_LOG, 1);
+            var small = ContributionService.quote(alice, Resource.LOGS, 1);
+            ContributionService.confirm(alice, small.id());
+        }
+        give(alice, Items.WHEAT, 64);
+        var stale = ContributionService.quote(alice, Resource.WHEAT, 64);
+        alice.getInventory().getItem(0).shrink(1);
+        try { ContributionService.confirm(alice, stale.id()); helper.fail("Changed inventory accepted"); }
+        catch (IllegalStateException expected) { }
+        helper.assertTrue(ContributionService.eligible(alice, Resource.WHEAT) == 63, "Failed quote consumes nothing");
+        give(alice, Items.IRON_INGOT, 80); give(bob, Items.IRON_INGOT, 80);
+        var first = ContributionService.quote(alice, Resource.IRON_INGOTS, 80);
+        var second = ContributionService.quote(bob, Resource.IRON_INGOTS, 80);
+        ContributionService.confirm(alice, first.id());
+        try { ContributionService.confirm(bob, second.id()); helper.fail("Stale final-resource quote accepted"); }
+        catch (IllegalStateException expected) { }
+        helper.assertTrue(ContributionService.eligible(bob, Resource.IRON_INGOTS) == 80, "Race loser retains all inventory");
+        var capped = ContributionService.quote(bob, Resource.IRON_INGOTS, 80);
+        helper.assertTrue(capped.amount() == 48, "Final contribution capped to outstanding requirement");
+        ContributionService.confirm(bob, capped.id());
+        helper.assertTrue(ContributionService.eligible(bob, Resource.IRON_INGOTS) == 32, "Excess inventory retained");
+        // Inject an interruption after the removed inventory has reached its native file.
+        var carol = new RecordingPlayer(helper.getLevel());
+        carol.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        give(carol, Items.WHEAT, 1);
+        var interrupted = ContributionService.quote(carol, Resource.WHEAT, 1);
+        var saves = new java.util.concurrent.atomic.AtomicInteger();
+        Consumer<net.neoforged.neoforge.event.entity.player.PlayerEvent.SaveToFile> failAfterSave = event -> {
+            if(event.getEntity()==carol && saves.incrementAndGet()==2) throw new IllegalStateException("Injected interruption after native removal checkpoint");
+        };
+        NeoForge.EVENT_BUS.addListener(failAfterSave);
+        try {
+            try { ContributionService.confirm(carol, interrupted.id()); helper.fail("Injected checkpoint interruption ignored"); }
+            catch (IllegalStateException expected) { }
+        } finally { NeoForge.EVENT_BUS.unregister(failAfterSave); }
+        helper.assertTrue(saves.get()==2, "Baseline and removal checkpoints both executed");
+        helper.assertTrue(ContributionService.ledger(server).quarantined(), "Storage uncertainty pauses all donations");
+        helper.assertTrue(ContributionService.ledger(server).progress().total(Resource.WHEAT) == 0, "Unverified save gives no premature credit");
+        ContributionService.initialize(server);
+        helper.assertTrue(ContributionService.ledger(server).progress().total(Resource.WHEAT) == 1, "Restart recovers durable removal exactly once");
+        ContributionService.initialize(server);
+        helper.assertTrue(ContributionService.ledger(server).progress().total(Resource.WHEAT) == 1, "Repeated recovery cannot duplicate credit");
+        Item[] items = {Items.OAK_LOG, Items.COBBLESTONE, Items.WHEAT};
+        Resource[] resources = {Resource.LOGS, Resource.COBBLESTONE, Resource.WHEAT};
+        for (int i = 0; i < items.length; i++) {
+            give(alice, items[i], resources[i].required());
+            var finish = ContributionService.quote(alice, resources[i], resources[i].required());
+            ContributionService.confirm(alice, finish.id());
+        }
+        var ledger = ContributionService.ledger(server);
+        helper.assertTrue(ledger.progress().complete(), "All four targets complete");
+        helper.assertTrue(ledger.progress().winner().orElseThrow().equals(alice.getUUID()), "Correct permanent weighted winner");
+        helper.assertTrue(ContributionService.kingdom(server).attainedTier() == 2, "First Hearth advances to Tier 2, not Town Hall");
+        long revision = ledger.progress().revision();
+        ContributionService.initialize(server);
+        var restored = ContributionService.ledger(server);
+        helper.assertTrue(restored.progress().complete() && restored.progress().revision() == revision, "Ledger restart retains all contributions");
+        helper.assertTrue(ContributionService.kingdom(server).attainedTier() == 2, "Tier 2 persists through ledger restart");
+        helper.assertTrue(restored.history().size() == 16, "All accepted operations retained; failed operations absent");
+        var latest = com.mohymods.kingdomsmp.network.ContributionNetworking.view(alice,1,"",null,0);
+        var older = com.mohymods.kingdomsmp.network.ContributionNetworking.view(alice,2,"",null,1);
+        helper.assertTrue(latest.historyPages()==2 && latest.history().size()==8 && older.historyPage()==1 && older.history().size()==6,
+                "Every accepted personal donation is available through bounded history pages");
+        helper.assertTrue(older.history().getLast().count()==100, "Oldest accepted donation remains inspectable");
+        // Simulate the integrated host loading an old level.dat inventory with no receipt.
+        alice.getPersistentData().remove(net.minecraft.world.entity.player.Player.PERSISTED_NBT_TAG);
+        give(alice, Items.OAK_LOG, 1024);
+        ContributionService.login(new net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent(alice));
+        helper.assertTrue(ContributionService.eligible(alice, Resource.LOGS) == 0, "Stale integrated-host inventory reconciles from durable native checkpoint");
+    }
+    private static void give(RecordingPlayer player, Item item, int count) {
+        player.getInventory().clearContent();
+        for (int slot = 0; count > 0; slot++) { int size = Math.min(64, count); player.getInventory().setItem(slot, new ItemStack(item, size)); count -= size; }
     }
 
     private static final class RecordingPlayer extends FakePlayer {

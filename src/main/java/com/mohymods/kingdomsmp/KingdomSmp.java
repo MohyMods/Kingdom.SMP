@@ -6,6 +6,7 @@ import com.mohymods.kingdomsmp.kingdom.KingdomState;
 import com.mohymods.kingdomsmp.building.BuilderHutService;
 import com.mohymods.kingdomsmp.npc.KingdomNpcs;
 import com.mojang.brigadier.Command;
+import com.mohymods.kingdomsmp.contribution.ContributionService;
 import com.mojang.logging.LogUtils;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,8 @@ public final class KingdomSmp {
 
     public KingdomSmp(IEventBus modBus) {
         KingdomNpcs.register(modBus);
+        NeoForge.EVENT_BUS.addListener(ContributionService::login);
+        NeoForge.EVENT_BUS.addListener(ContributionService::logout);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
@@ -32,7 +35,8 @@ public final class KingdomSmp {
 
     private void serverStarted(ServerStartedEvent event) {
         BuilderHutService.initialize(event.getServer());
-        KingdomState state = KingdomSavedData.get(event.getServer()).snapshot();
+        ContributionService.initialize(event.getServer());
+        KingdomState state = ContributionService.kingdom(event.getServer());
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());
     }
@@ -41,7 +45,7 @@ public final class KingdomSmp {
         event.getDispatcher().register(Commands.literal("kingdom")
                 .then(BuilderHutService.commands())
                 .then(Commands.literal("status").executes(context -> {
-                    KingdomState state = KingdomSavedData.get(context.getSource().getServer()).snapshot();
+                    KingdomState state = ContributionService.kingdom(context.getSource().getServer());
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",
                             state.attainedTier(), KingdomState.MAX_TIER, state.revision()), false);
                     return Command.SINGLE_SUCCESS;

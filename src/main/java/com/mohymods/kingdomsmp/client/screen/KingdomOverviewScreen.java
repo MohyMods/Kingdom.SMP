@@ -59,6 +59,9 @@ public final class KingdomOverviewScreen extends Screen {
         }
         refresh = addRenderableWidget(new RoyalButton(layout.contentX(), layout.footerY(), 100, 20,
                 text("refresh"), button -> ClientOverviewController.request(), text("refresh.help")));
+        addRenderableWidget(new RoyalButton(layout.contentX() + 106, layout.footerY(), 90, 20,
+                Component.literal("Contribute"), button -> com.mohymods.kingdomsmp.client.ContributionController.open(),
+                Component.literal("Donate resources and inspect the kingdom leaderboard.")));
         addRenderableWidget(new RoyalButton(layout.x() + layout.width() - 94, layout.footerY(), 80, 20,
                 text("close"), button -> onClose(), text("close.help")));
     }
@@ -199,16 +202,17 @@ public final class KingdomOverviewScreen extends Screen {
         return text(switch (tier) {
             case 1 -> "tier.first_hearth";
             case 2 -> "tier.roads_commerce";
+            case 12 -> "tier.ultimate_hall";
             default -> "tier.future";
         });
     }
 
     private Component gate(int tier) {
         return text(switch (tier) {
-            case 1 -> "gate.town_hall";
+            case 1, 2 -> "gate.founders_lodge";
             case 5 -> "gate.nether";
             case 9 -> "gate.end";
-            case 12 -> "gate.cube";
+            case 12 -> "gate.town_hall";
             default -> "gate.unspecified";
         });
     }

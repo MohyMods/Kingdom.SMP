@@ -1,5 +1,7 @@
 # Economy
 
+> **Current authority — 2026-10-30 progression correction:** Town Hall and its blueprint are Tier 12 only. Tier 1 completion advances to Tier 2 and recognizes the highest contributor; its approved building reward is the Founders’ Lodge. No early Town Hall, Elara, Bank or Royal Trading dependency may be implemented from historical descriptions below. Earlier bank/trading locations and exact gates require separate approval; the Charter remains available after Tier 2 independently of the Town Hall. The existing hut, Aldric and Royal Gilded design are approved.
+
 ## Confirmed baseline
 
 | Denomination | Kingdom coin value |
@@ -9,7 +11,7 @@
 | Gold | 100 |
 | Platinum | 1,000 |
 
-Physical coins coexist with virtual balances. Deposits and withdrawals require visiting the Town Hall Bank Counter. The auction house includes fixed-price listings, timed auctions, and buy orders. Normal auction sales tax is 5%; Master equipment tax is 10%. NPC resource purchases have shared budgets, resource quotas, and per-player daily limits. Master equipment purchases require the corresponding active Master profession; repeat price increases are described in [professions](PROFESSIONS.md).
+Physical coins coexist with virtual balances. Deposits and withdrawals require visiting an approved physical bank counter. An earlier counting house and market office are proposals; their premises and gates need approval independently of the Tier 12 Town Hall. The auction house includes fixed-price listings, timed auctions, and buy orders. Normal auction sales tax is 5%; Master equipment tax is 10%. NPC resource purchases have shared budgets, resource quotas, and per-player daily limits. Master equipment purchases require the corresponding active Master profession; repeat price increases are described in [professions](PROFESSIONS.md).
 
 Excluded: custom Player Trading and Economy Ledger features. Player-driven markets and NPC commerce remain required. Whether Player Trading means direct trade UI or a broader ban needs review. A player-facing economy ledger must not be reintroduced by naming internal recovery records a feature.
 

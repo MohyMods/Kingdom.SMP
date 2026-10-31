@@ -23,6 +23,7 @@ public final class KingdomClient {
 
     public KingdomClient(IEventBus modBus) {
         KingdomNetworking.installClientReceiver(ClientOverviewController::receive);
+        com.mohymods.kingdomsmp.network.ContributionNetworking.install(ContributionController::receive);
         KingdomNetworking.installBuilderReceiver(BuilderDialogueController::receive);
         modBus.addListener((EntityRenderersEvent.RegisterRenderers event) ->
                 event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), VillagerRenderer::new));
@@ -34,6 +35,7 @@ public final class KingdomClient {
 
     private void tick(ClientTickEvent.Post event) {
         ClientOverviewController.tick();
+        ContributionController.tick();
         BuilderDialogueController.tick();
         while (OVERVIEW.consumeClick()) {
             if (net.minecraft.client.Minecraft.getInstance().screen == null) {

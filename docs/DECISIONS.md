@@ -20,9 +20,9 @@ Source S1 is the user's initial 2026-10-30 project brief; S2 is the subsequent c
 | D-012 | Superseded in immediate sequencing by D-016, originally S2 | Start with M1 foundation and persistent kingdom data, then M2 server-backed Royal Gilded Overview, M3 progression, M4 first approved profession. |
 
 | D-013 | Confirmed, S3 | New kingdom starts at Tier 1 First Hearth automatically, never Tier 0; Tier 2 Roads of Commerce. Fixed ten-player first milestone quantities and consumed partial no-excess submissions. |
-| D-014 | Confirmed, S3 | Equally weighted category-normalized contribution ranking; highest contributor gets unique one-redemption Town Hall blueprint with included construction materials. Persist winner/reward/claim/recovery state and prevent duplicates. |
-| D-015 | Confirmed, S3 | Admin-installed furnished Builder’s Hut/Aldric precedes Town Hall; server-authoritative blueprint placement and resumable progressive construction; Elara arrives only after verified Town Hall completion. Town Hall activates only permitted Bank/Royal Trading scope. |
-| D-016 | Confirmed, S3 | Immediate dependency order: foundation with Tier 1 → Builder’s Hut → contributions/reward → construction → Town Hall → approved expansion. This supersedes D-012 sequence where they differ. NPC reputation/events and other extensibility are not new implementation permission. |
+| D-014 | Reward building superseded by D-017/D-018; scoring retained | Equally weighted category-normalized contribution ranking; historical early Town Hall reward is replaced by Founders’ Lodge. Persist winner/reward/claim/recovery state and prevent duplicates. |
+| D-015 | Town Hall timing superseded by D-017 | Admin-installed furnished Builder’s Hut/Aldric comes first; server-authoritative blueprint placement and resumable progressive construction. Elara arrives only after verified Tier 12 Town Hall completion. No unrelated service grant. |
+| D-016 | Early Hall sequence superseded by D-017 | Current order: existing foundation/hut → contributions and Tier 2 → Founders’ Lodge/reward/construction → sequential approved tiers → Tier 12 Town Hall. NPC reputation/events are not new implementation permission. |
 
 ## Contradictions and scope tensions requiring review
 
@@ -82,3 +82,13 @@ The user explicitly authorized rebuilding from scratch and rejected continuing a
 ## 2026-10-30 — S3 first kingdom slice
 
 S3 supplies exact First Hearth resources, consumed partial contributions without excess, equal category-normalized scoring and first-achieved-score tie priority. D-013–D-016 replace missing starting-tier/first-cost assumptions and supersede D-012 immediate sequencing. The unique reward is noncraftable, includes materials, belongs to one highest contributor for one redemption, and yields a kingdom-owned Town Hall. Build the admin-installed hut/Aldric dependency before the hall; validate and persist construction and Elara arrival. Later tier values and land/protection/damage/death policies remain unresolved. Broad NPC capability/reputation/event discussion is extension context, not permission to implement extra gameplay or restore removed features.
+
+## 2026-10-30 — D-017, Tier 12 Town Hall (current authority)
+
+The latest explicit user instruction supersedes D-014/D-015 and all earlier First Hearth → Town Hall reward/construction descriptions. First Hearth completion advances sequentially to Tier 2. Each tier recognizes its highest contributor. The ultimate Town Hall and its blueprint belong at Tier 12, under a separately approved award policy. The user subsequently approved the Founders’ Lodge as Tier 1’s Tier 2 construction reward. Preserve the existing hut/NPC/UI and the exact four resource targets. Public construction, named NPC assignment and later tiers follow approved rewards. Charter availability after Tier 2 stays independent of the final hall.
+
+Intermediate-location proposals only: Royal Storehouse for community storage with Quartermaster; Founders’ Lodge for meetings/milestone interaction with Reeve; a separate counting house for banking and a market office for Royal Trading when their respective gates are approved. No coin, bank, trading or Charter unlock is granted by these proposals. Clarification requested for the Tier 2 reward while independent contribution work proceeds. Later tier costs, border sizes, Charter boundary semantics, profession quests and economy tables remain open.
+
+## 2026-10-30 — D-018, approved Tier 2 Founders’ Lodge
+
+The user selected the furnished Founders’ Lodge meeting/milestone building, a named Reeve, included materials and no additional service unlocks. First Hearth’s permanent winner earns this exclusive construction privilege. This resolves the Tier 2 reward identity; public site/protection policy is being clarified separately before enabling placement. Elara and the ultimate Town Hall remain Tier 12.

@@ -1,6 +1,7 @@
 package com.mohymods.kingdomsmp.network;
 
 import com.mohymods.kingdomsmp.kingdom.KingdomState;
+import com.mohymods.kingdomsmp.contribution.ContributionService;
 import com.mohymods.kingdomsmp.kingdom.TierOneProgress;
 import com.mohymods.kingdomsmp.kingdom.TierOneProgress.Resource;
 import com.mohymods.kingdomsmp.persistence.KingdomSavedData;
@@ -34,7 +35,8 @@ public final class KingdomNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("1");
+        var registrar = event.registrar("2");
+        ContributionNetworking.register(registrar);
         registrar.playToServer(RequestBuilderDialoguePayload.TYPE, RequestBuilderDialoguePayload.STREAM_CODEC,
                 (payload, context) -> {
                     if (context.player() instanceof ServerPlayer player
@@ -70,7 +72,7 @@ public final class KingdomNetworking {
         LAST_DIALOGUE.put(player, now);
         PacketDistributor.sendToPlayer(player, new BuilderDialoguePayload(builder.getUUID(), builder.getName().getString(),
                 BuilderHutService.statusText(player), topic,
-                KingdomSavedData.get(player.server).tierOneProgress().winner().isPresent(), requestId));
+                ContributionService.ledger(player.server).progress().winner().isPresent(), requestId));
     }
 
     private static void request(RequestKingdomPayload payload, IPayloadContext context) {
@@ -81,8 +83,8 @@ public final class KingdomNetworking {
         if (last != null && now - last < REQUEST_INTERVAL_NANOS) return;
         LAST_REQUEST.put(player, now);
         KingdomSavedData data = KingdomSavedData.get(player.server);
-        KingdomState state = data.snapshot();
-        TierOneProgress progress = data.tierOneProgress();
+        KingdomState state = ContributionService.kingdom(player.server);
+        TierOneProgress progress = ContributionService.ledger(player.server).progress();
         TierOneProgress.Contributor personal = progress.contributors().get(player.getUUID());
         context.reply(new KingdomSnapshotPayload(state.attainedTier(), state.revision(), payload.requestId(),
                 progress.total(Resource.LOGS), progress.total(Resource.COBBLESTONE),
