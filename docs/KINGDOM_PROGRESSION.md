@@ -1,8 +1,10 @@
 # Kingdom progression — current authority
 
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
 > **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
 
-The user's 2026-10-30 progression correction supersedes all earlier early-Town-Hall designs. The kingdom begins at **Tier 1 — The First Hearth**. Completing its resources advances to **Tier 2 — Roads of Commerce**. Progression is sequential through twelve tiers; exact later requirements must be approved before activation.
+Earlier Town Hall policy was superseded by D-021; dimension policy by D-022. The paragraphs explicitly describing 0.4.0-dev below are retained runtime history. The kingdom begins at **Tier 1 — The First Hearth**. Completing its resources advances to **Tier 2 — Roads of Commerce**. Progression is sequential through twelve tiers; exact later requirements must be approved before activation.
 
 ## The First Hearth
 
@@ -25,17 +27,17 @@ A permanent winner record is distinct from a claimed physical plan, unused entit
 | 1 | The First Hearth | Exact resources above; completion advances to 2; highest contributor earns Founders’ Lodge privilege |
 | 2 | Roads of Commerce | Lodge available; revised eight-resource + Lodge/road milestone is proposed, not active; Royal Storehouse reward scope approved |
 | 3 | Name pending | Requirements and reward pending |
-| 4 | Name pending | Requirements and reward pending |
+| 4 | The Aether access | Compatible integration and requirements/reward pending; no Aether material needed to reach 4 |
 | 5 | Nether access gate | Requirements and reward pending |
-| 6 | Name pending | Requirements and reward pending |
+| 6 | Twilight Forest access | Compatible integration/internal progression and requirements pending |
 | 7 | Name pending | Requirements and reward pending |
-| 8 | Name pending | Requirements and reward pending |
-| 9 | End access gate | Requirements and reward pending |
-| 10 | Name pending | Requirements and reward pending |
-| 11 | Name pending | Requirements and reward pending |
-| 12 | Creative Energy Cube also requires active Master Mechanic | Former Town Hall reward superseded by D-021; new final reward/building pending |
+| 8 | Otherside access | Compatible integration and requirements pending |
+| 9 | End remains locked | Non-End resource/industry milestone proposal; exact reward pending |
+| 10 | Ad Astra progression, first reviewed stage | Compatible release/planet split and End-independent recipe closure pending |
+| 11 | Ad Astra progression, next reviewed stage | Requirements to reach 12 must remain entirely End-independent |
+| 12 | End access; Creative Energy Cube also requires active Master Mechanic | Post-unlock Dragon/End finale; Royal Legacy Monument proposed final construction reward |
 
-The **Royal Guild Charter remains available after Tier 2**, independently of the Tier 12 Town Hall. Whether that means Tier 2 completion or Tier 3 entry remains unresolved. Do not silently activate it. Earlier banking and Royal Trading need intermediate premises and separately approved unlock gates; a Founders’ Lodge does not grant them.
+The **Royal Guild Charter remains available after Tier 2**, independently of the Town Hall reward change. Whether that means Tier 2 completion or Tier 3 entry remains unresolved. Do not silently activate it. Earlier banking and Royal Trading need intermediate premises and separately approved unlock gates; a Founders’ Lodge does not grant them.
 
 Later tier tables, names, border dimensions/centers/sizes/timing and profession/technology rules remain configurable design dependencies. Do not populate arbitrary values or imply unimplemented gate enforcement. Historical checkpoint archives preserve earlier designs; they are not current authority.
 

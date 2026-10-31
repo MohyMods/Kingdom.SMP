@@ -1,5 +1,7 @@
 # Proposed balance review — not approved or enabled
 
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
 > D-021 changes future building reward timing: Town Hall at Tier 2, subject to separately approved save migration. Lodge/road/final-Hall references below remain existing runtime or older proposals and need review for the new profile. No resource quantities are newly approved and no executable milestone data changes in this documentation task. See CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md.
 
 This file supplies concrete review candidates where approved definitions are missing. It is **not** a gameplay specification, approved balance, a configured gate or implemented content. No proposed value below is loaded by the mod. Preserve fixed First Hearth requirements and all approved gates. Review against actual ten-player output and the final modpack before activation.

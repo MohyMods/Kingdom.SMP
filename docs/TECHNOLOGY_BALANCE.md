@@ -1,8 +1,10 @@
 # Technology and balance
 
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
 Confirmed design includes Create, Mekanism, Occultism, Mystical Agriculture, Productive Bees, Ars Nouveau, Iron’s Spells, and other separately approved compatible systems. No exact mod versions, artifacts, optional dependencies, licenses, API behavior, or Minecraft 1.21.1 NeoForge compatibility have been verified. Do not interpret this list as a validated installable modpack.
 
-Technology must unlock progressively by kingdom tier and appropriate professions. Nether at Tier 5, End at Tier 9; Creative Energy Cube requires Tier 12 and active Master Mechanic. Offline automation being disabled is the current **proposal**, pending an enforceable definition.
+Technology must unlock progressively by kingdom tier and appropriate professions. D-022 target schedule is documented in DIMENSION_PROGRESSION.md: End at Tier 12, Nether remains Tier 5; Creative Energy Cube requires Tier 12 and active Master Mechanic. Offline automation being disabled is the current **proposal**, pending an enforceable definition.
 
 ## Proposed integration workflow
 
@@ -25,3 +27,7 @@ Recommend starting with a policy that can be demonstrated using selected mods' s
 ## Balance evidence needed
 
 Tier costs and approximate playtime targets; currency sources/sinks; resource output rates; progression bypass graph; equipment power bands; allowed automation/flight/teleportation/storage tools; shared infrastructure ownership; intended season duration. Profile representative machines with ten clients and simulated workloads. Agree on performance targets before claiming adequate capacity; no TPS/MSPT budget or hardware spec has been approved.
+
+## D-022 integration audit status
+
+Aether, Twilight Forest, Deeper and Darker / Otherside and Ad Astra are now scheduled dimension design requirements, not verified compatible dependencies. Current repository/build/mods inspection supplies no pinned final pack or installed recipe data for them. Audit their exact NeoForge 1.21.1 compatibility, prerequisites, entry/exit/alternate teleport paths and every Ad Astra rocket/fuel/oxygen/machine/planetary-material chain before approving required progression. Unknown indirect End dependencies keep pre-12 modded ingredient slots optional and unapproved. See DIMENSION_PROGRESSION.md for the per-system audit and safe-world rollout decisions. No integration or recipe was installed/changed for this planning task.

@@ -1,5 +1,7 @@
 # Flexible milestones — implementation checkpoint
 
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
 > D-021 changes future building reward timing: Town Hall at Tier 2, subject to separately approved save migration. Lodge/road/final-Hall references below remain existing runtime or older proposals and need review for the new profile. No resource quantities are newly approved and no executable milestone data changes in this documentation task. See CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md.
 
 Version 0.4.0-dev / protocol 5. The server reads immutable schema-1 JSON, checks the running item registry and tags, builds a prerequisite graph and publishes bounded read-only descriptions to the existing Royal Gilded progression screen. Operator validation and public inspection use actual loaded definitions. Completed Lodge objective status comes from the persistent construction project. Proposed goals are clearly disabled.

@@ -1,10 +1,17 @@
 # Codex continuation — Kingdom SMP
 
+## Latest dimension instruction — D-022, planning only
+
+**Do not code or activate costs yet.** End unlock target is Tier 12, replacing End 9; Aether 4, Nether 5, Twilight Forest 6, Otherside 8 and reviewed Ad Astra stages 10–11 are the target schedule. Read DIMENSION_PROGRESSION.md and revised PROGRESSIVE_RESOURCE_BALANCE.md before other progression instructions. Mandatory paths through Tier 11 → 12 must have no direct or indirect End dependency. Dragon and End expedition belong after the Tier 12 unlock; Royal Legacy Monument remains the proposed final reward. D-021 future Town Hall at Tier 2 and blueprint review hold remain intact.
+
+Current binary/source still use old End-9 behavior. No Java, JSON, tests, recipes, configuration, JARs or world data were changed. Do not claim End-12 enforcement, alternate mod teleport coverage, Ad Astra compatibility or a verified non-End mod recipe closure. Repository inspection found no pinned actual pack/dependencies for the scheduled dimension mods. Review exact artifacts, planet split and recipes, already-inside players/safe return, historical Dragon/visit credit, finale/Monument award rules, revised resource balance and blueprint migration before implementation.
+
+
 ## Latest instruction — D-021, documentation only
 
 **Do not code yet.** The user approves physical blueprints/full building holograms as design requirements but is finalizing the building roadmap and explicitly requires an implementation plan for approval. Read CONSTRUCTION.md and BLUEPRINT_IMPLEMENTATION_PLAN.md first. Future First Hearth reward is the **Tier 2 Town Hall, 19 × 15 blocks, two floors**; this supersedes the prior Tier 12 Hall/future Lodge policy. Existing 0.4.0-dev and every Lodge/Mira/save/entitlement/project stay unchanged. No migration, datapack edit, new item/structure or gameplay implementation is authorized yet.
 
-Next task: review/clarify the proposed initial Hut/Aldric bootstrap, final building/service/controls roadmap and separate grandfather/profile/optional-unused-entitlement migration plan. Implement only after explicit approval; do not follow old immediate implementation instructions below. Future Tier 12 reward is undecided; other fixed realm/profession/service gates remain unchanged. Existing building objectives must be re-reviewed for future profiles, never automatically renamed.
+Next task: review/clarify the proposed initial Hut/Aldric bootstrap, final building/service/controls roadmap and separate grandfather/profile/optional-unused-entitlement migration plan. Implement only after explicit approval; do not follow old immediate implementation instructions below. D-022 subsequently names Royal Legacy Monument as the proposed Tier 12 reward and revises the dimension schedule; other unmodified profession/service gates remain unchanged. Existing building objectives must be re-reviewed for future profiles, never automatically renamed.
 
 
 Branch `rebuild/royal-gilded`; Minecraft 1.21.1 / NeoForge 21.1.265 / Java 21. Never merge main. Latest published gameplay checkpoint: `7ce19a818e98452daaf6fe0fd0665032478dd88b`; installable 0.4.0-dev JAR, actual screenshots and evidence: `docs/checkpoints/7ce19a8/`. Previous Lodge package remains `docs/checkpoints/33b62fe/`. The artifact-only commit does not change compiled source. Historical 0.2.0-dev package is `5baf285` / source `7e9968a`.

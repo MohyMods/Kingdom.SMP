@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-31 — D-022 dimension/finale planning; no code
+
+Recorded End at Tier 12 and Aether/Nether/Twilight/Otherside/Ad Astra schedule. Revised the planning dependency graph and pre-12 resource proposals, withdrawing direct End ingredients and both unverified stabilizer candidates. Added explicit recipe/rocket/planet/Master acquisition audit blockers; actual compatible artifacts and pack recipe data are absent, so no verified compatibility or complete recipe-closure claim. Preserved proposed Royal Legacy Monument finale reward, future Tier 2 Hall, legacy-world/history requirements and review holds. Updated Royal Gilded design, requirements, decisions, roadmap, tracker and continuation. Only Markdown changed; executable End-9 rules/data, saves and JARs remain untouched. No build/game tests or new enforcement claimed.
+
 ## 2026-10-31 — D-021 physical blueprint design and migration review; no code
 
 Updated construction requirements for all physical building plans, full crosshair/rotation/height holograms, server-confirmed validity/diagnostics, Royal Gilded confirmation and exact administrator approval. Recorded the explicit superseding future Tier 2 Town Hall (19 × 15, two floors), preserving current Lodge-world behavior and all saves. Prepared phased implementation/performance/security acceptance and separate per-state grandfather/optional unused-reward conversion proposals. Identified initial Hut/Aldric bootstrap and the pinned legacy First Hearth reward as concrete dependencies. Updated requirements, current-authority notices, roadmap, tracker and continuation to prevent accidental execution of stale Tier 12 Hall or immediate-code instructions. Source/resources/JARs/worlds unchanged; no build, game test, screenshots or performance verification claimed for this design. Await plan/roadmap/migration approval before implementing.

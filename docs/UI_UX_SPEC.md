@@ -1,5 +1,7 @@
 # UI/UX specification — Royal Gilded rebuild
 
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
 > **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
 
 The earlier sections below describe historical design or the existing runtime where they conflict with D-021.
@@ -160,3 +162,7 @@ Future acceptance evidence must include a real two-player ownership denial, dupl
 ## Current implemented contribution interface
 
 Royal Gilded now has connected Contributions, Leaderboard and Your History panes reached from the Overview. Four resource selectors expose saved shared/personal quantities and eligible inventory, with 1/16/64/All quantities. Review shows the server-capped accepted amount and permanent consumption before an explicit Confirm. Failed/stale/expired quotes do not consume items. Open viewers receive server revision pushes; timeouts require refresh before another mutation. The leaderboard uses exact server ranking and four-decimal display; history is paginated in bounded eight-row pages. All score categories remain equally weighted. Completion names the permanent winner and advances to Tier 2, with Founders’ Lodge privilege; the ultimate Town Hall remains Tier 12. Screens preserve the approved slate/gold/parchment materials and normal Minecraft font, including narrow layouts and scrolling.
+
+## D-022 revised dimension and finale presentation — design only
+
+Show Aether 4, Nether 5, Twilight Forest 6, Otherside 8, separate reviewed Ad Astra stage cards at 10/11, and End 12. Tier 9 must explicitly retain the End lock. Integration cards remain planned/unverified until server support is tested; no assumed planet list or misleading travel button. Present the Tier 12 unlock separately from incomplete Dragon/expedition objectives and proposed Royal Legacy Monument award. Historical progress and the future Tier 2 Town Hall remain independent. Old End-9 screen descriptions above describe existing runtime/history only, not future authority.

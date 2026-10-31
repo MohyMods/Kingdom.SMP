@@ -7,7 +7,7 @@ Source S1 is the user's initial 2026-10-30 project brief; S2 is the subsequent c
 | ID | Status | Decision |
 | --- | --- | --- |
 | D-001 | Confirmed, S1 | Minecraft Java 1.21.1 / NeoForge / Java 21 / Gradle / Git; modular server authority. |
-| D-002 | Confirmed, S1 | Twelve shared tiers; Nether Tier 5, End Tier 9; cube Tier 12 plus active Master Mechanic. Charter available after Tier 2, boundary unspecified. |
+| D-002 | End timing superseded by D-022; other gates retained | Twelve shared tiers; historical End Tier 9 is replaced by Tier 12; Nether Tier 5; cube Tier 12 plus active Master Mechanic. Charter available after Tier 2, boundary unspecified. |
 | D-003 | Confirmed, S1 | Twelve named professions, three ranks, 24 planned quests each; three active maximum; switching costs 15,000 with progress retained. |
 | D-004 | Confirmed, S1 | Master gear purchased by corresponding active Master; repeat same-item purchases compound +50% per player/item. |
 | D-005 | Confirmed, S1 | Coin/bank economy, counter-only transfers, three market modes, 5%/10% taxes, bounded NPC resource buying. |
@@ -83,7 +83,7 @@ The user explicitly authorized rebuilding from scratch and rejected continuing a
 
 S3 supplies exact First Hearth resources, consumed partial contributions without excess, equal category-normalized scoring and first-achieved-score tie priority. D-013–D-016 replace missing starting-tier/first-cost assumptions and supersede D-012 immediate sequencing. The unique reward is noncraftable, includes materials, belongs to one highest contributor for one redemption, and yields a kingdom-owned Town Hall. Build the admin-installed hut/Aldric dependency before the hall; validate and persist construction and Elara arrival. Later tier values and land/protection/damage/death policies remain unresolved. Broad NPC capability/reputation/event discussion is extension context, not permission to implement extra gameplay or restore removed features.
 
-## 2026-10-30 — D-017, Tier 12 Town Hall (current authority)
+## 2026-10-30 — D-017, Tier 12 Town Hall (superseded by D-021)
 
 The latest explicit user instruction supersedes D-014/D-015 and all earlier First Hearth → Town Hall reward/construction descriptions. First Hearth completion advances sequentially to Tier 2. Each tier recognizes its highest contributor. The ultimate Town Hall and its blueprint belong at Tier 12, under a separately approved award policy. The user subsequently approved the Founders’ Lodge as Tier 1’s Tier 2 construction reward. Preserve the existing hut/NPC/UI and the exact four resource targets. Public construction, named NPC assignment and later tiers follow approved rewards. Charter availability after Tier 2 stays independent of the final hall.
 
@@ -110,3 +110,9 @@ The latest explicit user instruction supersedes D-017/D-018 and the Town Hall ti
 All kingdom buildings require distinct carryable plans and complete held-item holograms, crosshair movement, 90° rotations, configurable height controls, green/red status and obstruction/support highlights, Royal Gilded confirmation, administrator approval for public sites, server-wide safety checks, one-use durable redemption, lost-item recovery and physical Aldric work. Coordinate placement becomes admin recovery/debug only. Hut, Hall, Royal Bank, Royal Storehouse and every profession building are explicitly covered. Approved community projects supply profession plans; authorized reward structures include materials.
 
 **No implementation yet.** CONSTRUCTION.md is the updated design; BLUEPRINT_IMPLEMENTATION_PLAN.md is the proposed phased implementation and migration review. Initial Hut/Aldric bootstrap, existing-world profile choice/optional unused-entitlement conversion, final building/service/NPC roadmap and controls need review. New code/resources/datapack changes, migrations, screenshots or performance claims are not authorized by this documentation task. Historical checkpoint files are unchanged.
+
+## 2026-10-31 — D-022, End at Tier 12 and dimensional progression (planning only)
+
+The user's confirmed design moves End access from Tier 9 to Tier 12, superseding every earlier End-at-9 specification. Target schedule: Aether 4, Nether 5, Twilight Forest 6, Otherside 8, Ad Astra planetary stages 10–11, End 12. Exact Ad Astra destinations/split and compatible artifacts remain unverified. Remove End-exclusive and indirect End requirements from every mandatory path to reach 12; Dragon/End exploration becomes the post-unlock Tier 12 finale. Royal Legacy Monument is the proposed final construction reward; its costs/geometry/award policy are not approved. D-021 Town Hall at Tier 2 remains the future building decision.
+
+Preserve saves, attained tiers, historical wins/contributions and earlier End records. Already-inside players and earlier Dragon/visit credit require explicit rollout/credit policy. Review alternate mod teleports and actual Ad Astra/other recipe chains; no existing single hook is claimed universal. No code, executable data, recipes or new requirements are activated. DIMENSION_PROGRESSION.md holds the revised graph/audit; PROGRESSIVE_RESOURCE_BALANCE.md withdraws pre-12 End item requirements and both unverified stabilizer candidates, with replacement quantities labeled proposals. Implementation remains on hold for progression and prior blueprint/migration review.

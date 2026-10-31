@@ -6,6 +6,8 @@ Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues 
 
 **Latest design update (D-021):** future Tier 1 completion awards a **19 × 15, two-floor Town Hall at Tier 2**, with physical blueprint items and full holographic placement. **Implementation is on hold for roadmap/plan/migration approval.** The existing JAR still runs the preserved Lodge-based gameplay below; no saves or rewards are automatically changed. [Updated design](docs/CONSTRUCTION.md) · [Implementation/migration plan for approval](docs/BLUEPRINT_IMPLEMENTATION_PLAN.md).
 
+**Latest dimension plan (D-022): End at Tier 12**, Aether 4, Nether 5, Twilight Forest 6, Otherside 8 and reviewed Ad Astra stages 10–11. Pre-12 requirements must have no End dependency; Dragon/End exploration follows the unlock, with Royal Legacy Monument proposed as the finale reward. [Schedule and dependency audit](docs/DIMENSION_PROGRESSION.md). **Planning only: the downloadable 0.4.0-dev JAR still uses End Tier 9 and does not enforce this new schedule.** No new code or requirements activated.
+
 ## Working features in the existing 0.4.0-dev binary
 
 - Persistent kingdom state starts at **Tier 1 — The First Hearth**. The Royal Gilded overview opens with **K** and supports twelve inspectable tiers, saved resource totals, personal weighted score, refresh, tooltips and scrolling.

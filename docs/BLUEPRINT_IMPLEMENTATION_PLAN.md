@@ -1,5 +1,7 @@
 # Physical blueprint implementation and migration plan — for approval
 
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
 **Status: proposed implementation plan, D-021. No gameplay implementation authorized yet.** Authoritative design: [CONSTRUCTION.md](CONSTRUCTION.md). Existing verified source remains `7ce19a8`, packaged by `86828d8` as 0.4.0-dev. Documentation changes do not alter that binary or its saves. Final building roadmap and save migration need approval before coding.
 
 ## Existing foundation and concrete gaps
@@ -79,7 +81,7 @@ Take and validate a complete backup before conversion; run a read-only migration
 
 1. **Initial Hut bootstrap:** Aldric normally exists only after the Hut. Recommend preserving the current protected bootstrap installer behind the single administrator/owner Hut entitlement for fresh worlds; it would be an explicit exception to progressive Aldric work. Alternatively approve a separate safe initial-Aldric lifecycle. Neither is selected silently.
 2. **Migration:** approve grandfathering and new-world profile rules, whether unfinished existing worlds may opt in, and whether unused rewards may convert one-for-one. Completed/reserved Lodge handling and any separate old-world Hall access must be explicit; no automatic extra reward is proposed.
-3. **Roadmap:** finalize all building unlock/acquisition mappings, profession-project authority, Bank/Storehouse service gates, Town Hall height/anchors/NPC assignments and what replaces the former Tier 12 Hall role. Decide how pending Lodge/road objectives apply to future Hall worlds; do not mechanically change those targets.
+3. **Roadmap:** finalize all building unlock/acquisition mappings, profession-project authority, Bank/Storehouse service gates, Town Hall height/anchors/NPC assignments and the proposed Royal Legacy Monument’s final Tier 12 role. Decide how pending Lodge/road objectives apply to future Hall worlds; do not mechanically change those targets.
 4. **Controls:** review proposed bindings, ray anchor/range/height bounds, main/offhand precedence and the public-building approval flow. Numerical performance limits follow measured results, not assumptions.
 
 ## Implementation sequence after approval
