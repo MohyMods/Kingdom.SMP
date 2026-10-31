@@ -1,3 +1,7 @@
+Current D-024 command-only checkpoint and tested JAR: [production-admin](checkpoints/production-admin/CHECKPOINT.md). Full build142/native1pass; no new full-pack/client validation. Next dependency remains fresh/legacy world profiles and Hall bootstrap, not more planning or repeated claim adapter work.
+
+> **D-024 current authority:** [Final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md) supersedes older holds. [Audited feature inventory](PRODUCTION_COMPLETION_MATRIX.md) records verified slices and gaps. No1.0.0 release claim. Current work adds operator diagnostics alongside existing systems; new-world profiles/Hall remain the critical path.
+
 # Codex continuation — Kingdom SMP
 
 ## Current 0.5.1 claim-adapter checkpoint — source c0889d3

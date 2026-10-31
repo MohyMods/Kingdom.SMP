@@ -164,6 +164,17 @@ public final class KingdomRuntimeTests {
         constructionLifecycle(helper,operator,otherOperator,builder,origin);
         milestoneLifecycle(helper,operator);
         travelGateLifecycle(helper,operator);
+        try {
+            dispatcher.execute("kingdom admin inspect",operator.createCommandSourceStack().withPermission(0));
+            helper.fail("Non-operator accessed administration diagnostics");
+        } catch(com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
+        var diagnosticStore=ConstructionService.store(server);
+        long diagnosticRevision=diagnosticStore.revision();
+        var diagnosticProject=ConstructionService.lodge(server);
+        helper.assertTrue(dispatcher.execute("kingdom admin inspect",operator.createCommandSourceStack().withPermission(2))==1,"Operator can inspect actual saved state");
+        helper.assertTrue(dispatcher.execute("kingdom admin construction inspect "+diagnosticProject.id(),operator.createCommandSourceStack().withPermission(2))==1,"Operator can inspect actual project/prefix");
+        helper.assertTrue(dispatcher.execute("kingdom admin construction inspect "+UUID.randomUUID(),operator.createCommandSourceStack().withPermission(2))==0,"Unknown project yields a readable refusal");
+        helper.assertTrue(diagnosticStore.revision()==diagnosticRevision&&diagnosticStore.get(diagnosticProject.id()).equals(diagnosticProject),"Diagnostics preserve project, reward and journal revision");
         builder.hurt(level.damageSources().genericKill(), Float.MAX_VALUE);
         helper.assertTrue(data.hut().orElseThrow().npcDead(), "Death is persisted and cannot reissue a builder");
         helper.assertTrue(!BuilderHutService.canInteract(operator, restoredEntity), "Restored entity cannot bypass persisted death");

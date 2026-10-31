@@ -1,3 +1,5 @@
+> **D-024 current authority:** [Final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md) supersedes older holds. [Audited feature inventory](PRODUCTION_COMPLETION_MATRIX.md) records verified slices and gaps. No1.0.0 release claim. Current work adds operator diagnostics alongside existing systems; new-world profiles/Hall remain the critical path.
+
 # Kingdom SMP delivery roadmap
 
 Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md), followed by the [replacement full mod list](sources/MOD_SNAPSHOT_2026-10-31.txt). Earlier planning-only holds are superseded. New worlds require the Tier 2 Town Hall; existing Lodge records remain intact. End is Tier 12. Proposed resource costs and unresolved major economic/quest policies remain inactive.

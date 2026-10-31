@@ -50,6 +50,7 @@ public final class KingdomSmp {
 
     private void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("kingdom")
+                .then(com.mohymods.kingdomsmp.admin.RoyalAdminCommands.commands())
                 .then(BuilderHutService.commands())
                 .then(com.mohymods.kingdomsmp.building.ConstructionService.commands())
                 .then(com.mohymods.kingdomsmp.milestone.MilestoneService.commands())

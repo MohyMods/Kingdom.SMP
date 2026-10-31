@@ -1,3 +1,5 @@
+Latest D-024 operator-inspection development checkpoint: [JAR, tests and continuation](docs/checkpoints/production-admin/CHECKPOINT.md). **1.0.0 is not ready.** [Verified-slice feature inventory](docs/PRODUCTION_COMPLETION_MATRIX.md).
+
 # Kingdom SMP — Royal Gilded development
 
 [Download 0.5.1-dev, actual Minecraft screenshots and execution evidence](docs/checkpoints/c0889d3/CHECKPOINT.md). Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development branch: `rebuild/royal-gilded`; never merged into main.

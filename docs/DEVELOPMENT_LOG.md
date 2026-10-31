@@ -132,3 +132,7 @@ Final 0.5.1 physical verification: with both claim mods loaded, project74bcbf25-
 After the completed-world restart, actual Survival right-click interaction with Mira opened her Royal Gilded resident dialogue and782/782 project state with both claim mods present. Completed-interior screenshots were inspected from a clear aisle. Mira’s actual Community milestone button loaded saved Tier2/revision6, winner/score and76remaining logs with both claim mods present.
 
 Final handover client saved/stopped with BUILD SUCCESSFUL; completed claims/world/NPC service state is preserved. Delivery at docs/checkpoints/c0889d3 includes exact JAR, actual inspected screenshots, logs/JUnit XML, checksums and continuation. No main merge.
+
+## D-024 production directive audit and operator inspection
+
+Confirmed remote HEAD3d57cc6, archived exact directive, audited feature inventory with explicit coarse verified-slice percentages and critical path. Added real permission-level2 `/kingdom admin inspect`, project-specific construction inspection and catalogue validation. Reports actual persisted identities/revisions/quarantine, checks saved block prefixes only for already-loaded sites, bounds listing to10projects and reports installed mods without implying compatibility. Unknown project IDs refuse cleanly. Native tests exercise non-operator denial, real operator inspection and unchanged project/journal state. Full administrative mutation/sandbox and Hall/profile rollout remain unfinished; no1.0.0 designation.
