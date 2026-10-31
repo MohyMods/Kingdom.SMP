@@ -1,6 +1,6 @@
 # Kingdom SMP Core
 
-The current milestone adds live First Hearth contributions, rankings and Tier 2 advancement. Installable checkpoint links and evidence are recorded below after packaging; historical builds remain in `docs/checkpoints/`.
+[Download the 0.2.0-dev JAR, actual Minecraft screenshots and test evidence](docs/checkpoints/7e9968a/CHECKPOINT.md). Includes live First Hearth contributions, rankings, Tier 2 advancement and the five-minute clickable Builder’s Hut confirmation. Historical builds remain archived separately.
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 

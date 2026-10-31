@@ -21,6 +21,6 @@ Preserve the working project on `rebuild/royal-gilded`; no main merge. The user 
 
 ## Current dependency order
 
-Publish the tested Phase A checkpoint/JAR/screenshots → Founders’ Lodge entitlement and approved site policy → reusable construction and completed Lodge/Reeve → approved later community tiers. Town Hall/Elara are reserved for Tier 12. Charter remains available after Tier 2 independently; its exact boundary and other service gates remain explicit decisions.
+The tested Phase A source checkpoint is `7e9968a`; its packaged JAR, screenshots and evidence are in [the checkpoint directory](checkpoints/7e9968a/CHECKPOINT.md). Next: Founders’ Lodge entitlement and approved site policy → reusable construction and completed Lodge/Reeve → approved later community tiers. Town Hall/Elara are reserved for Tier 12. Charter remains available after Tier 2 independently; its exact boundary and other service gates remain explicit decisions.
 
 Each checkpoint requires a real build, relevant unit and server tests, persistence/restart evidence, client screenshots, exploit review, clear limitations, installable JAR and a pushed development commit. A declaration or compiling class does not complete a milestone. If execution ends, push verified work and provide an exact continuation prompt without claiming background work continues.

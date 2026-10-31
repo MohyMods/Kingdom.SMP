@@ -2,6 +2,8 @@
 
 ## 2026-10-31 — Recovered contribution checkpoint
 
+Source commit `7e9968a` has now been published to `rebuild/royal-gilded` through the authenticated GitHub API. Remote blob, tree and commit hashes matched the local objects exactly before a guarded fast-forward. The following artifact-only commit packages the installable JAR, real screenshots, SHA-256 checksums and validation evidence under `docs/checkpoints/7e9968a/`; it does not change compiled source.
+
 The existing cloud workspace reconnected with all uncommitted source, native test worlds, the tested 0.2.0-dev JAR and actual Minecraft screenshots intact. Created an additional local recovery archive and stopped stale QA processes before publication. A forced complete Gradle build executed all nine tasks and all 108 JUnit tests successfully, reproducing the exact previously tested JAR SHA-256 `67eedb7cf5e56e4ef0c1d42a2d49490d99eb2aabaef20b1951eb9032ac2ec9e9`. The prior passing native-server scenario and actual two-client evidence remain valid for these unchanged compiled classes. The previous turn ended before any source push; publication must be verified separately. Git HTTPS authentication failed, while the authenticated GitHub API works; use Git data objects with exact local hash verification and a fast-forward development-branch update.
 
 ## 2026-10-30 — First Hearth live gameplay and revised progression
