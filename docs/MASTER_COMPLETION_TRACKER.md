@@ -1,6 +1,6 @@
 # Kingdom SMP — master completion tracker
 
-Authority: latest user completion directive (31 October 2026, Asia/Riyadh), the requirements register and subsequent decisions. Preserve current source/persistence; Town Hall is Tier 12 only. Latest published verified source: `33b62fe` (0.3.0-dev Lodge/weather/realm gates, final client subscription/scaling and weather handover corrections). Historical 0.2.0-dev package: `5baf285`. This tracker records observed implementation, not promises. No complete-project claim.
+Authority: latest user completion directive (31 October 2026, Asia/Riyadh), the requirements register and subsequent decisions. Preserve current source/persistence; Town Hall is Tier 12 only. Latest published verified source: `7ce19a8` (0.4.0-dev server milestone definitions/validation/inspection, preserving the tested Lodge/weather/realm gates). Historical 0.2.0-dev package: `5baf285`. This tracker records observed implementation, not promises. No complete-project claim.
 
 Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTED**, **TESTED**, **BLOCKED — REQUIRES DECISION**, **COMPLETE**. TESTED records the documented executed checks; COMPLETE additionally requires all acceptance criteria for that feature. Missing approved content stays blocked even if a framework could compile.
 
@@ -115,7 +115,7 @@ Acquisition/use route coverage: **NOT STARTED** (crafting, machines, loot, shops
 | --- | --- | --- |
 | Reusable Royal Gilded controls/layout | TESTED | Slate/gold/parchment, normal readable font, focus/help/scrolling and actual scaled screenshots |
 | Overview / progression / contributions / ranking / history | TESTED | Server-backed values, correlation/timeout/reconnect, actual two-client rendering |
-| Server-backed twelve-tier proposal inspection | IMPLEMENTED — UNTESTED | Existing Royal Gilded progression panel; automated bounded codec; actual normal/narrow rendering and datapack refresh checks pending |
+| Server-backed twelve-tier proposal inspection | TESTED | Actual normal/narrow Royal Gilded rendering, disabled eight-resource targets; dedicated reload/refusal/recovery and restarted revision verified |
 | Blueprint / placement / construction / Reeve interfaces | TESTED | Connected secure actions, progress/pause reasons, advisory preview, multiple sizes and screenshots |
 | Profession grid / quest trees / profile/statistics | NOT STARTED | Actual approved progression and privacy rules; no fabricated quest content |
 | Banking / NPC shop / Master shop / market / contract interfaces | NOT STARTED | Actual secure services first; reviewed confirmations/quotes; no generic chest substitute |

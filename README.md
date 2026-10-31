@@ -1,6 +1,6 @@
 # Kingdom SMP Core
 
-[Download the 0.3.0-dev JAR, actual Minecraft screenshots and test evidence](docs/checkpoints/33b62fe/CHECKPOINT.md). Includes the complete Founders’ Lodge construction loop and Mira Ashford, First Hearth contributions, Tier 2 advancement, vanilla realm gates and the five-minute clickable Builder’s Hut confirmation. Historical builds remain archived separately.
+[Download the 0.4.0-dev JAR, actual Minecraft screenshots and test evidence](docs/checkpoints/7ce19a8/CHECKPOINT.md). Includes the complete Founders’ Lodge construction loop and Mira Ashford, First Hearth contributions, Tier 2 advancement, vanilla realm gates and the five-minute clickable Builder’s Hut confirmation. Historical builds remain archived separately.
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**. Development continues on `rebuild/royal-gilded`; the existing project and approved gameplay decisions are preserved. This is a tested development checkpoint, not a complete season release.
 
