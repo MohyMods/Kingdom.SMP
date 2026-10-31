@@ -1,5 +1,7 @@
 # Professions
 
+> **D-023 — current implementation authority:** The [master directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) authorizes incremental coding and supersedes the D-021/D-022 review-only hold. New-world Town Hall / existing-world Lodge profiles, owner Hut bootstrap, blueprint-market acquisition, automatic server-valid placement, supports up to four blocks, Tier 3 Bank (no new-world Storehouse), updated profession/economy/quest/admin scope apply. End remains Tier 12. The [full replacement mod snapshot](sources/MOD_SNAPSHOT_2026-10-31.txt) now reports FTB Quests installed. See [supersession and actual status](MASTER_SUPERSESSION_MATRIX.md); old descriptions below are historical where they conflict.
+
 Confirmed roster and planned quest counts:
 
 | Profession | Apprentice | Journeyman | Master | Total |
@@ -37,3 +39,5 @@ Master purchases require the buyer's corresponding Master profession to be activ
 - How are crafting/kill/donation quests credited to avoid shared-event duplication, place/break loops, repeated crafted-item recycling, or attribution by automated machines?
 
 Future acceptance: all twelve definitions load with correct counts; cap enforced concurrently; inactive progress survives switches/restarts; duplicate quest rewards rejected; Master status rechecked at commit; purchase counters and charges recover together after interruption.
+
+The latest user directive targets approximately 2–3 weeks of balanced play to reach Master, avoiding repetitive artificial grind. This target does not supply quest objectives or XP tables; validate one approved profession before expanding to eleven others.

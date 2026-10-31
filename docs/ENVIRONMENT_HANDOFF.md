@@ -1,5 +1,7 @@
 # Environment handoff — published policy not attached to this task
 
+> **Resolved in the resumed published environment.** The active instance now reports current enforced unrestricted access; NeoForge/Minecraft downloads and the complete Gradle build succeed. Java initially contained only a runtime, so a checksum-verified full JDK 21 was installed under ignored `work/toolchains/`. Use an available full JDK 21 via `JAVA_HOME`; the historical `/workspace/toolchains/` path below is not present on this instance. See `VALIDATION.md` and `DEVELOPMENT_LOG.md` for current evidence. The remainder records the previous environment's blocker and preservation history.
+
 The user confirmed reviewing and publishing the required dependency domains, then asked to continue the existing rebuild without resetting it. The resumed task still reports the old live policy: current observations, enforced restricted access, spec revision `1`, and an empty custom-host list. The local startup policy also lacks NeoForge/Minecraft domains. This does not disprove publication; it establishes that this running task has not acquired the new access.
 
 ## Actual retry results
@@ -43,4 +45,4 @@ The exact exported commit and SHA-256 checksums are in the rescue directory's ma
 
 ## Development order after access works
 
-Read the existing requirements, decisions, construction/NPC designs, roadmap, and validation report. Verify the latest compatible official NeoForge 1.21.1 release against the current candidate pins; compile and fix real errors. Execute Minecraft/NBT tests, dedicated-server persistence/start/restart checks, and client/GUI inspection where supported. Then continue the admin-controlled starter hut/Aldric, contributions and unique reward, construction engine, and furnished Town Hall in approved dependency order. Do not represent the current read-only UI or pure accounting rules as a complete live donation/construction feature.
+Use the current roadmap and validation report rather than the historical blocker below. The full build now works, the hut/Aldric are user approved, and live Tier 1 contributions and advancement to Tier 2 are implemented. Continue with the approved Founders’ Lodge entitlement/construction/Reeve milestone after resolving public site policy. The user's later decision reserves the ultimate Town Hall and Elara for Tier 12; earlier descriptions do not authorize an early Hall. Do not represent reward delivery or progressive construction as complete.

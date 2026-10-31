@@ -1,0 +1,1458 @@
+{
+  "schema": 1,
+  "capabilities": [
+    {
+      "id": "kingdom_smp:overworld",
+      "available_from_tier": 1,
+      "requires": [],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:crafting",
+      "available_from_tier": 1,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:smelting",
+      "available_from_tier": 1,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:agriculture",
+      "available_from_tier": 1,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:animal_husbandry",
+      "available_from_tier": 1,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:mining",
+      "available_from_tier": 1,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:nether",
+      "available_from_tier": 5,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:end",
+      "available_from_tier": 9,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:founders_lodge",
+      "available_from_tier": 2,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": [
+        "kingdom_smp:first_hearth"
+      ]
+    },
+    {
+      "id": "kingdom_smp:create_processing",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:mekanism_processing",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:ars_magic",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:occultism_magic",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:mystical_agriculture",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:productive_bees",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:irons_magic",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    },
+    {
+      "id": "kingdom_smp:master_production",
+      "available_from_tier": 0,
+      "requires": [
+        "kingdom_smp:overworld"
+      ],
+      "after_milestones": []
+    }
+  ],
+  "milestones": [
+    {
+      "id": "kingdom_smp:first_hearth",
+      "tier": 1,
+      "next_tier": 2,
+      "approval": "approved",
+      "title": "The First Hearth",
+      "scoring_policy": "legacy_equal_four",
+      "requirements": [
+        {
+          "id": "kingdom_smp:logs",
+          "tag": "minecraft:logs",
+          "quantity": 1024,
+          "category": "kingdom_smp:timber",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Logs"
+          }
+        },
+        {
+          "id": "kingdom_smp:cobblestone",
+          "item": "minecraft:cobblestone",
+          "quantity": 2048,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Cobblestone"
+          }
+        },
+        {
+          "id": "kingdom_smp:wheat",
+          "item": "minecraft:wheat",
+          "quantity": 512,
+          "category": "kingdom_smp:agriculture",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Wheat"
+          }
+        },
+        {
+          "id": "kingdom_smp:iron",
+          "item": "minecraft:iron_ingot",
+          "quantity": 128,
+          "category": "kingdom_smp:metal",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Iron"
+          }
+        }
+      ],
+      "objectives": [],
+      "reward": "kingdom_smp:founders_lodge"
+    },
+    {
+      "id": "kingdom_smp:roads_of_commerce",
+      "tier": 2,
+      "next_tier": 3,
+      "approval": "proposal",
+      "title": "Roads of Commerce",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:logs",
+          "tag": "minecraft:logs",
+          "quantity": 2048,
+          "category": "kingdom_smp:timber",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Logs"
+          }
+        },
+        {
+          "id": "kingdom_smp:cobblestone",
+          "item": "minecraft:cobblestone",
+          "quantity": 3072,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Cobblestone"
+          }
+        },
+        {
+          "id": "kingdom_smp:wheat",
+          "item": "minecraft:wheat",
+          "quantity": 768,
+          "category": "kingdom_smp:agriculture",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Wheat"
+          }
+        },
+        {
+          "id": "kingdom_smp:iron_ingot",
+          "item": "minecraft:iron_ingot",
+          "quantity": 192,
+          "category": "kingdom_smp:metal",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Iron Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:copper_ingot",
+          "item": "minecraft:copper_ingot",
+          "quantity": 384,
+          "category": "kingdom_smp:metal",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Copper Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:glass",
+          "item": "minecraft:glass",
+          "quantity": 256,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Glass"
+          }
+        },
+        {
+          "id": "kingdom_smp:brick",
+          "item": "minecraft:brick",
+          "quantity": 384,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Brick"
+          }
+        },
+        {
+          "id": "kingdom_smp:leather",
+          "item": "minecraft:leather",
+          "quantity": 64,
+          "category": "kingdom_smp:husbandry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Leather"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:lodge_complete",
+          "kind": "building",
+          "target": "kingdom_smp:founders_lodge",
+          "requires": [
+            "kingdom_smp:founders_lodge"
+          ],
+          "description": "Completed Founders’ Lodge"
+        },
+        {
+          "id": "kingdom_smp:connecting_road",
+          "kind": "admin",
+          "target": "kingdom_smp:connecting_road",
+          "requires": [
+            "kingdom_smp:founders_lodge"
+          ],
+          "description": "Admin-approved road connecting Lodge and Builder’s Hut"
+        }
+      ],
+      "reward": "kingdom_smp:royal_storehouse"
+    },
+    {
+      "id": "kingdom_smp:tier_3_proposal",
+      "tier": 3,
+      "next_tier": 4,
+      "approval": "proposal",
+      "title": "Tier 3 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:logs",
+          "tag": "minecraft:logs",
+          "quantity": 1536,
+          "category": "kingdom_smp:timber",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Logs"
+          }
+        },
+        {
+          "id": "kingdom_smp:stone_bricks",
+          "item": "minecraft:stone_bricks",
+          "quantity": 1024,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Stone Bricks"
+          }
+        },
+        {
+          "id": "kingdom_smp:copper_block",
+          "item": "minecraft:copper_block",
+          "quantity": 128,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Copper Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:iron_block",
+          "item": "minecraft:iron_block",
+          "quantity": 32,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Iron Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:paper",
+          "item": "minecraft:paper",
+          "quantity": 512,
+          "category": "kingdom_smp:trade",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Paper"
+          }
+        },
+        {
+          "id": "kingdom_smp:book",
+          "item": "minecraft:book",
+          "quantity": 128,
+          "category": "kingdom_smp:crafted",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Book"
+          }
+        },
+        {
+          "id": "kingdom_smp:gold_ingot",
+          "item": "minecraft:gold_ingot",
+          "quantity": 64,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Gold Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:amethyst_shard",
+          "item": "minecraft:amethyst_shard",
+          "quantity": 128,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Amethyst Shard"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_3",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_3",
+          "requires": [],
+          "description": "Community masonry and supply-route project (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_3"
+    },
+    {
+      "id": "kingdom_smp:tier_4_proposal",
+      "tier": 4,
+      "next_tier": 5,
+      "approval": "proposal",
+      "title": "Tier 4 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:diamond",
+          "item": "minecraft:diamond",
+          "quantity": 16,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Diamond"
+          }
+        },
+        {
+          "id": "kingdom_smp:redstone",
+          "item": "minecraft:redstone",
+          "quantity": 512,
+          "category": "kingdom_smp:industry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Redstone"
+          }
+        },
+        {
+          "id": "kingdom_smp:gold_ingot",
+          "item": "minecraft:gold_ingot",
+          "quantity": 128,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Gold Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:lapis_lazuli",
+          "item": "minecraft:lapis_lazuli",
+          "quantity": 256,
+          "category": "kingdom_smp:enchanting",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Lapis Lazuli"
+          }
+        },
+        {
+          "id": "kingdom_smp:obsidian",
+          "item": "minecraft:obsidian",
+          "quantity": 64,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Obsidian"
+          }
+        },
+        {
+          "id": "kingdom_smp:bookshelf",
+          "item": "minecraft:bookshelf",
+          "quantity": 64,
+          "category": "kingdom_smp:crafted",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Bookshelf"
+          }
+        },
+        {
+          "id": "kingdom_smp:smooth_stone",
+          "item": "minecraft:smooth_stone",
+          "quantity": 512,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Smooth Stone"
+          }
+        },
+        {
+          "id": "kingdom_smp:glass",
+          "item": "minecraft:glass",
+          "quantity": 512,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Glass"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_4",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_4",
+          "requires": [],
+          "description": "Overworld exploration and shared industry preparation (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_4"
+    },
+    {
+      "id": "kingdom_smp:tier_5_proposal",
+      "tier": 5,
+      "next_tier": 6,
+      "approval": "proposal",
+      "title": "Tier 5 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:quartz",
+          "item": "minecraft:quartz",
+          "quantity": 512,
+          "category": "kingdom_smp:nether",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Quartz"
+          }
+        },
+        {
+          "id": "kingdom_smp:nether_bricks",
+          "item": "minecraft:nether_bricks",
+          "quantity": 384,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Nether Bricks"
+          }
+        },
+        {
+          "id": "kingdom_smp:blaze_rod",
+          "item": "minecraft:blaze_rod",
+          "quantity": 32,
+          "category": "kingdom_smp:challenge",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Blaze Rod"
+          }
+        },
+        {
+          "id": "kingdom_smp:soul_sand",
+          "item": "minecraft:soul_sand",
+          "quantity": 128,
+          "category": "kingdom_smp:nether",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Soul Sand"
+          }
+        },
+        {
+          "id": "kingdom_smp:magma_cream",
+          "item": "minecraft:magma_cream",
+          "quantity": 32,
+          "category": "kingdom_smp:challenge",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Magma Cream"
+          }
+        },
+        {
+          "id": "kingdom_smp:iron_ingot",
+          "item": "minecraft:iron_ingot",
+          "quantity": 512,
+          "category": "kingdom_smp:metal",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Iron Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:redstone_block",
+          "item": "minecraft:redstone_block",
+          "quantity": 64,
+          "category": "kingdom_smp:industry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Redstone Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:gold_ingot",
+          "item": "minecraft:gold_ingot",
+          "quantity": 192,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Gold Ingot"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_5",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_5",
+          "requires": [],
+          "description": "Safe Nether expedition and community return route (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_5"
+    },
+    {
+      "id": "kingdom_smp:tier_6_proposal",
+      "tier": 6,
+      "next_tier": 7,
+      "approval": "proposal",
+      "title": "Tier 6 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:brass_ingot",
+          "item": "create:brass_ingot",
+          "quantity": 128,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:create_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Brass Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:precision_mechanism",
+          "item": "create:precision_mechanism",
+          "quantity": 24,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:create_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Precision Mechanism"
+          }
+        },
+        {
+          "id": "kingdom_smp:ingot_steel",
+          "item": "mekanism:ingot_steel",
+          "quantity": 128,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Ingot Steel"
+          }
+        },
+        {
+          "id": "kingdom_smp:redstone_block",
+          "item": "minecraft:redstone_block",
+          "quantity": 96,
+          "category": "kingdom_smp:industry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Redstone Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:diamond",
+          "item": "minecraft:diamond",
+          "quantity": 32,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Diamond"
+          }
+        },
+        {
+          "id": "kingdom_smp:quartz_block",
+          "item": "minecraft:quartz_block",
+          "quantity": 128,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Quartz Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:glowstone",
+          "item": "minecraft:glowstone",
+          "quantity": 64,
+          "category": "kingdom_smp:nether",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Glowstone"
+          }
+        },
+        {
+          "id": "kingdom_smp:blaze_powder",
+          "item": "minecraft:blaze_powder",
+          "quantity": 96,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Blaze Powder"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_6",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_6",
+          "requires": [],
+          "description": "Demonstrated shared processing workshop (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_6"
+    },
+    {
+      "id": "kingdom_smp:tier_7_proposal",
+      "tier": 7,
+      "next_tier": 8,
+      "approval": "proposal",
+      "title": "Tier 7 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:source_gem",
+          "item": "ars_nouveau:source_gem",
+          "quantity": 128,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:ars_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Source Gem"
+          }
+        },
+        {
+          "id": "kingdom_smp:iesnium_ingot",
+          "item": "occultism:iesnium_ingot",
+          "quantity": 32,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:occultism_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Iesnium Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:prudentium_essence",
+          "item": "mysticalagriculture:prudentium_essence",
+          "quantity": 256,
+          "category": "kingdom_smp:agriculture",
+          "requires": [
+            "kingdom_smp:mystical_agriculture"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Prudentium Essence"
+          }
+        },
+        {
+          "id": "kingdom_smp:wax",
+          "item": "productivebees:wax",
+          "quantity": 128,
+          "category": "kingdom_smp:husbandry",
+          "requires": [
+            "kingdom_smp:productive_bees"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Wax"
+          }
+        },
+        {
+          "id": "kingdom_smp:electron_tube",
+          "item": "create:electron_tube",
+          "quantity": 64,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:create_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Electron Tube"
+          }
+        },
+        {
+          "id": "kingdom_smp:alloy_infused",
+          "item": "mekanism:alloy_infused",
+          "quantity": 128,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Alloy Infused"
+          }
+        },
+        {
+          "id": "kingdom_smp:amethyst_block",
+          "item": "minecraft:amethyst_block",
+          "quantity": 128,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Amethyst Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:lapis_block",
+          "item": "minecraft:lapis_block",
+          "quantity": 64,
+          "category": "kingdom_smp:refined",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Lapis Block"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_7",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_7",
+          "requires": [],
+          "description": "Cooperative technology and magic production (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_7"
+    },
+    {
+      "id": "kingdom_smp:tier_8_proposal",
+      "tier": 8,
+      "next_tier": 9,
+      "approval": "proposal",
+      "title": "Tier 8 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:arcane_essence",
+          "item": "irons_spellbooks:arcane_essence",
+          "quantity": 128,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:irons_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Arcane Essence"
+          }
+        },
+        {
+          "id": "kingdom_smp:abjuration_essence",
+          "item": "ars_nouveau:abjuration_essence",
+          "quantity": 32,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:ars_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Abjuration Essence"
+          }
+        },
+        {
+          "id": "kingdom_smp:spirit_attuned_gem",
+          "item": "occultism:spirit_attuned_gem",
+          "quantity": 64,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:occultism_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Spirit Attuned Gem"
+          }
+        },
+        {
+          "id": "kingdom_smp:alloy_reinforced",
+          "item": "mekanism:alloy_reinforced",
+          "quantity": 96,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Alloy Reinforced"
+          }
+        },
+        {
+          "id": "kingdom_smp:sturdy_sheet",
+          "item": "create:sturdy_sheet",
+          "quantity": 64,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:create_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Sturdy Sheet"
+          }
+        },
+        {
+          "id": "kingdom_smp:crying_obsidian",
+          "item": "minecraft:crying_obsidian",
+          "quantity": 32,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Crying Obsidian"
+          }
+        },
+        {
+          "id": "kingdom_smp:prismarine_crystals",
+          "item": "minecraft:prismarine_crystals",
+          "quantity": 256,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Prismarine Crystals"
+          }
+        },
+        {
+          "id": "kingdom_smp:emerald",
+          "item": "minecraft:emerald",
+          "quantity": 64,
+          "category": "kingdom_smp:trade",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Emerald"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_8",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_8",
+          "requires": [],
+          "description": "Joint exploration and specialist production challenge (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_8"
+    },
+    {
+      "id": "kingdom_smp:tier_9_proposal",
+      "tier": 9,
+      "next_tier": 10,
+      "approval": "proposal",
+      "title": "Tier 9 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:end_stone",
+          "item": "minecraft:end_stone",
+          "quantity": 1024,
+          "category": "kingdom_smp:end",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "End Stone"
+          }
+        },
+        {
+          "id": "kingdom_smp:purpur_block",
+          "item": "minecraft:purpur_block",
+          "quantity": 512,
+          "category": "kingdom_smp:crafted",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Purpur Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:shulker_shell",
+          "item": "minecraft:shulker_shell",
+          "quantity": 24,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Shulker Shell"
+          }
+        },
+        {
+          "id": "kingdom_smp:dragon_breath",
+          "item": "minecraft:dragon_breath",
+          "quantity": 32,
+          "category": "kingdom_smp:challenge",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Dragon Breath"
+          }
+        },
+        {
+          "id": "kingdom_smp:diamond_block",
+          "item": "minecraft:diamond_block",
+          "quantity": 8,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Diamond Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:alloy_atomic",
+          "item": "mekanism:alloy_atomic",
+          "quantity": 64,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Alloy Atomic"
+          }
+        },
+        {
+          "id": "kingdom_smp:conjuration_essence",
+          "item": "ars_nouveau:conjuration_essence",
+          "quantity": 32,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:ars_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Conjuration Essence"
+          }
+        },
+        {
+          "id": "kingdom_smp:precision_mechanism",
+          "item": "create:precision_mechanism",
+          "quantity": 64,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:create_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Precision Mechanism"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_9",
+          "kind": "admin",
+          "target": "kingdom_smp:community_objective_9",
+          "requires": [],
+          "description": "Community End expedition and safe return (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_9"
+    },
+    {
+      "id": "kingdom_smp:tier_10_proposal",
+      "tier": 10,
+      "next_tier": 11,
+      "approval": "proposal",
+      "title": "Tier 10 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:end_rod",
+          "item": "minecraft:end_rod",
+          "quantity": 128,
+          "category": "kingdom_smp:crafted",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "End Rod"
+          }
+        },
+        {
+          "id": "kingdom_smp:shulker_shell",
+          "item": "minecraft:shulker_shell",
+          "quantity": 32,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Shulker Shell"
+          }
+        },
+        {
+          "id": "kingdom_smp:netherite_ingot",
+          "item": "minecraft:netherite_ingot",
+          "quantity": 8,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Netherite Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:elite_control_circuit",
+          "item": "mekanism:elite_control_circuit",
+          "quantity": 48,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Elite Control Circuit"
+          }
+        },
+        {
+          "id": "kingdom_smp:railway_casing",
+          "item": "create:railway_casing",
+          "quantity": 96,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:create_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Railway Casing"
+          }
+        },
+        {
+          "id": "kingdom_smp:wilden_tribute",
+          "item": "ars_nouveau:wilden_tribute",
+          "quantity": 4,
+          "category": "kingdom_smp:challenge",
+          "requires": [
+            "kingdom_smp:ars_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Wilden Tribute"
+          }
+        },
+        {
+          "id": "kingdom_smp:storage_stabilizer_tier3",
+          "item": "occultism:storage_stabilizer_tier3",
+          "quantity": 4,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:occultism_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Storage Stabilizer Tier3"
+          }
+        },
+        {
+          "id": "kingdom_smp:sea_lantern",
+          "item": "minecraft:sea_lantern",
+          "quantity": 128,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Sea Lantern"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_10",
+          "kind": "profession",
+          "target": "kingdom_smp:community_objective_10",
+          "requires": [
+            "kingdom_smp:master_production"
+          ],
+          "description": "Master production and substantial shared infrastructure (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_10"
+    },
+    {
+      "id": "kingdom_smp:tier_11_proposal",
+      "tier": 11,
+      "next_tier": 12,
+      "approval": "proposal",
+      "title": "Tier 11 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:netherite_ingot",
+          "item": "minecraft:netherite_ingot",
+          "quantity": 12,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Netherite Ingot"
+          }
+        },
+        {
+          "id": "kingdom_smp:diamond_block",
+          "item": "minecraft:diamond_block",
+          "quantity": 16,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Diamond Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:ultimate_control_circuit",
+          "item": "mekanism:ultimate_control_circuit",
+          "quantity": 64,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Ultimate Control Circuit"
+          }
+        },
+        {
+          "id": "kingdom_smp:nether_star",
+          "item": "minecraft:nether_star",
+          "quantity": 4,
+          "category": "kingdom_smp:challenge",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Nether Star"
+          }
+        },
+        {
+          "id": "kingdom_smp:legendary_ink",
+          "item": "irons_spellbooks:legendary_ink",
+          "quantity": 8,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:irons_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Legendary Ink"
+          }
+        },
+        {
+          "id": "kingdom_smp:storage_stabilizer_tier4",
+          "item": "occultism:storage_stabilizer_tier4",
+          "quantity": 4,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:occultism_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Storage Stabilizer Tier4"
+          }
+        },
+        {
+          "id": "kingdom_smp:redstone_block",
+          "item": "minecraft:redstone_block",
+          "quantity": 256,
+          "category": "kingdom_smp:industry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Redstone Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:beacon",
+          "item": "minecraft:beacon",
+          "quantity": 2,
+          "category": "kingdom_smp:crafted",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Beacon"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_11",
+          "kind": "profession",
+          "target": "kingdom_smp:community_objective_11",
+          "requires": [
+            "kingdom_smp:master_production"
+          ],
+          "description": "Master cooperation and legendary construction preparation (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:reward_pending_11"
+    },
+    {
+      "id": "kingdom_smp:tier_12_proposal",
+      "tier": 12,
+      "next_tier": 12,
+      "approval": "proposal",
+      "title": "Tier 12 balance proposal",
+      "scoring_policy": "pending_review",
+      "requirements": [
+        {
+          "id": "kingdom_smp:smooth_quartz",
+          "item": "minecraft:smooth_quartz",
+          "quantity": 1024,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Smooth Quartz"
+          }
+        },
+        {
+          "id": "kingdom_smp:deepslate_bricks",
+          "item": "minecraft:deepslate_bricks",
+          "quantity": 2048,
+          "category": "kingdom_smp:masonry",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Deepslate Bricks"
+          }
+        },
+        {
+          "id": "kingdom_smp:gilded_blackstone",
+          "item": "minecraft:gilded_blackstone",
+          "quantity": 128,
+          "category": "kingdom_smp:exploration",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Gilded Blackstone"
+          }
+        },
+        {
+          "id": "kingdom_smp:gold_block",
+          "item": "minecraft:gold_block",
+          "quantity": 64,
+          "category": "kingdom_smp:precious",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Gold Block"
+          }
+        },
+        {
+          "id": "kingdom_smp:purpur_pillar",
+          "item": "minecraft:purpur_pillar",
+          "quantity": 256,
+          "category": "kingdom_smp:crafted",
+          "requires": [],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Purpur Pillar"
+          }
+        },
+        {
+          "id": "kingdom_smp:ultimate_control_circuit",
+          "item": "mekanism:ultimate_control_circuit",
+          "quantity": 96,
+          "category": "kingdom_smp:industry",
+          "requires": [
+            "kingdom_smp:mekanism_processing"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Ultimate Control Circuit"
+          }
+        },
+        {
+          "id": "kingdom_smp:magebloom_fiber",
+          "item": "ars_nouveau:magebloom_fiber",
+          "quantity": 512,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:ars_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Magebloom Fiber"
+          }
+        },
+        {
+          "id": "kingdom_smp:legendary_ink",
+          "item": "irons_spellbooks:legendary_ink",
+          "quantity": 12,
+          "category": "kingdom_smp:magic",
+          "requires": [
+            "kingdom_smp:irons_magic"
+          ],
+          "tracking": "shared_consumed",
+          "display": {
+            "name": "Legendary Ink"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "kingdom_smp:community_objective_12",
+          "kind": "profession",
+          "target": "kingdom_smp:community_objective_12",
+          "requires": [
+            "kingdom_smp:master_production"
+          ],
+          "description": "Final kingdom construction project and approved Town Hall award policy (proposal; exact evidence pending)"
+        }
+      ],
+      "reward": "kingdom_smp:town_hall"
+    }
+  ]
+}
