@@ -11,7 +11,7 @@ import java.util.UUID;
 public record ConstructionRequest(long requestId,int action,BlockPos origin,int rotation,UUID review) implements CustomPacketPayload {
     public static final UUID NONE=new UUID(0,0);
     public ConstructionRequest {
-        if(requestId<=0||action<0||action>10||origin==null||Math.abs((long)origin.getX())>30_000_000
+        if(requestId<=0||action<0||action>11||origin==null||Math.abs((long)origin.getX())>30_000_000
                 ||Math.abs((long)origin.getZ())>30_000_000||origin.getY()<-2048||origin.getY()>2048||rotation<0||rotation>3||review==null
                 ||action>0&&action%2==0&&review.equals(NONE))throw new IllegalArgumentException("Invalid construction request");
         origin=origin.immutable();

@@ -65,6 +65,7 @@ public final class ConstructionService {
         return store;
     }
     public static Project lodge(MinecraftServer server){return store(server).reward(FIRST_HEARTH).orElse(null);}
+    public static void closeReview(ServerPlayer player){REVIEWS.remove(player);}
     public static String request(ServerPlayer player,ConstructionRequest request){
         int action=request.action();
         if(action==0){REVIEWS.remove(player);return "";}
@@ -241,12 +242,14 @@ public final class ConstructionService {
         for(int x=0;x<b.width(p.rotation());x++)for(int z=0;z<b.depth(p.rotation());z++){
             BlockPos support=o.offset(x,-1,z);if(!level.getBlockState(support).isFaceSturdy(level,support,Direction.UP))return "Prepare solid level support under the complete footprint.";
         }
-        if(!level.getBlockState(post.below()).isFaceSturdy(level,post.below(),Direction.UP)||!level.getBlockState(post).isAir()||!level.getBlockState(post.above()).isAir())return "Aldric needs a clear supported work post immediately outside the entrance.";
+        boolean weatherPost=resuming&&p.phase()==Phase.BUILDING&&level.getBlockState(post).is(Blocks.SNOW);
+        if(!level.getBlockState(post.below()).isFaceSturdy(level,post.below(),Direction.UP)||!level.getBlockState(post).isAir()&&!weatherPost||!level.getBlockState(post.above()).isAir())return "Aldric needs a clear supported work post immediately outside the entrance.";
         Map<BlockPos,net.minecraft.world.level.block.state.BlockState> expected=new HashMap<>();
         if(resuming)for(var block:b.blocks(p.rotation()))expected.put(o.offset(block.offset()),block.state());
         for(BlockPos pos:BlockPos.betweenClosed(o,last)){
             var state=level.getBlockState(pos);var required=expected.get(pos);
-            if(!state.isAir()&&!(resuming&&required!=null&&ConstructionBlueprint.matches(state,required)))return "Site obstructed at "+pos.toShortString()+"; terrain and property are never replaced.";
+            boolean weatherSnow=resuming&&p.phase()==Phase.BUILDING&&state.is(Blocks.SNOW);
+            if(!state.isAir()&&!weatherSnow&&!(resuming&&required!=null&&ConstructionBlueprint.matches(state,required)))return "Site obstructed at "+pos.toShortString()+"; terrain and property are never replaced.";
         }
         if(!level.getEntities((Entity)null,bounds(p),e->!(e instanceof AldricEntity a&&BuilderHutService.isRegistered(a))).isEmpty())return "Move players, mobs and dropped items outside the footprint.";
         return null;
@@ -280,7 +283,7 @@ public final class ConstructionService {
         Entity entity=level.getEntity(hut.npcId());
         if(!(entity instanceof AldricEntity builder)||!builder.isAlive()||!BuilderHutService.isRegistered(builder)){pause(p,"Registered Aldric is unloaded or missing; no replacement is spawned.");return;}
         BlockPos post=blueprint.workPost(p.origin(),p.rotation());
-        if(!level.getBlockState(post.below()).isFaceSturdy(level,post.below(),Direction.UP)||!level.getBlockState(post).isAir()||!level.getBlockState(post.above()).isAir()){
+        if(!level.getBlockState(post.below()).isFaceSturdy(level,post.below(),Direction.UP)||!level.getBlockState(post).isAir()&&!level.getBlockState(post).is(Blocks.SNOW)||!level.getBlockState(post.above()).isAir()){
             pause(p,"Aldric's exterior work post is obstructed or unsupported; work paused.");return;
         }
         if(builder.distanceToSqr(post.getX()+0.5,post.getY(),post.getZ()+0.5)>4){pause(p,"Aldric is walking to the work post; blocked/unloaded paths pause work.");return;}
@@ -291,10 +294,13 @@ public final class ConstructionService {
         if(p.placed()==blocks.size()){finish(level,p);return;}
         var block=blocks.get(p.placed());BlockPos pos=p.origin().offset(block.offset());
         var before=level.getBlockState(pos);
-        if(!before.isAir()&&!ConstructionBlueprint.matches(before,block.state())){pause(p,"A player edit obstructs "+pos.toShortString()+". No blocks were replaced.");return;}
-        if(before.isAir()&&!level.getEntities((Entity)null,new AABB(pos),e->e!=builder).isEmpty()){pause(p,"Waiting for the next block space to be clear.");return;}
+        // The approved reservation was entirely air, and player placement is protected.
+        // Subsequent weather snow may be brushed away without drops; no terrain/block is cleared.
+        boolean replace=before.isAir()||before.is(Blocks.SNOW);
+        if(!replace&&!ConstructionBlueprint.matches(before,block.state())){pause(p,"Site changed at "+pos.toShortString()+". No terrain or player blocks were replaced.");return;}
+        if(replace&&!level.getEntities((Entity)null,new AABB(pos),e->e!=builder).isEmpty()){pause(p,"Waiting for the next block space to be clear.");return;}
         try{
-            if(before.isAir()){
+            if(replace){
                 BlockSnapshot snapshot=BlockSnapshot.create(level.dimension(),level,pos);
                 placing=true;
                 try{
@@ -318,9 +324,17 @@ public final class ConstructionService {
             Entity existing=level.getEntity(p.npc());
             if(!(existing instanceof ReeveEntity)){
                 if(p.npcIssued()){pause(p,"Reeve issuance is already committed; missing entity requires inspection, never an automatic duplicate.");return;}
+                var definition=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());BlockPos home=p.origin().offset(definition.rotate(definition.home(),p.rotation()));
+                for(BlockPos space:List.of(home,home.above())){
+                    if(level.getBlockState(space).is(Blocks.SNOW))level.setBlock(space,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE);
+                    if(!level.getBlockState(space).isAir()){pause(p,"Reeve's verified home is obstructed; no NPC issuance committed.");return;}
+                }
+                if(!level.getEntities((Entity)null,new AABB(home).expandTowards(0,1,0),entity->true).isEmpty()){
+                    pause(p,"Move occupants away from the Reeve's home before her arrival.");return;
+                }
                 store.save(p.issueNpc(),p.owner(),"RESERVE_REEVE_IDENTITY");p=store.get(p.id());
                 ReeveEntity reeve=KingdomNpcs.REEVE.get().create(level);if(reeve==null){pause(p,"Reeve creation failed; issuance retained.");return;}
-                reeve.setUUID(p.npc());var definition=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());BlockPos home=p.origin().offset(definition.rotate(definition.home(),p.rotation()));
+                reeve.setUUID(p.npc());
                 reeve.configure(p.id(),home,"Mira Ashford");reeve.moveTo(home.getX()+0.5,home.getY(),home.getZ()+0.5,180,0);
                 if(!level.addFreshEntity(reeve)){pause(p,"Reeve spawn rejected; identity remains reserved.");return;}
             }else if(!p.id().equals(((ReeveEntity)existing).buildingId())){pause(p,"Reeve identity association mismatch.");return;}

@@ -162,6 +162,7 @@ public final class KingdomRuntimeTests {
                 && restoredEntity.home().equals(builder.home()), "Entity serialization preserves registered identity/home");
         contributionLifecycle(helper, operator, otherOperator);
         constructionLifecycle(helper,operator,otherOperator,builder,origin);
+        travelGateLifecycle(helper,operator);
         builder.hurt(level.damageSources().genericKill(), Float.MAX_VALUE);
         helper.assertTrue(data.hut().orElseThrow().npcDead(), "Death is persisted and cannot reissue a builder");
         helper.assertTrue(!BuilderHutService.canInteract(operator, restoredEntity), "Restored entity cannot bypass persisted death");
@@ -285,6 +286,9 @@ public final class KingdomRuntimeTests {
         for(Rotation rotation:Rotation.values()){
             var preview=ConstructionService.preview(alice,origin,rotation);helper.assertTrue(preview.denial().isEmpty(),"Clear rotated Lodge footprint accepted: "+rotation+" "+preview.denial());
         }
+        level.setBlock(origin,Blocks.SNOW.defaultBlockState(),18);
+        helper.assertTrue(!ConstructionService.preview(alice,origin,Rotation.NONE).denial().isEmpty(),"Pre-existing snow must be cleared before a proposal; no terrain exception at approval");
+        level.setBlock(origin,Blocks.AIR.defaultBlockState(),18);
         BlockPos far=new BlockPos(24_000_000,80,24_000_000);
         helper.assertTrue(!level.hasChunkAt(far),"Distant test chunk starts unloaded");
         var distant=recovered.propose(far,Rotation.NONE);
@@ -315,7 +319,10 @@ public final class KingdomRuntimeTests {
         Consumer<BlockEvent.EntityMultiPlaceEvent> denied=e->{if(e.getEntity()==builder)e.setCanceled(true);};NeoForge.EVENT_BUS.addListener(denied);
         try{ConstructionService.step(server,p.id());}finally{NeoForge.EVENT_BUS.unregister(denied);}
         helper.assertTrue(ConstructionService.lodge(server).placed()==0&&level.getBlockState(origin).isAir(),"Protection cancellation rolls back and grants no progress");
-        ConstructionService.step(server,p.id());helper.assertTrue(ConstructionService.lodge(server).placed()==1,"One scheduler step places exactly one physical block");
+        level.setBlock(origin,Blocks.SNOW.defaultBlockState(),18);
+        int drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(origin).inflate(2)).size();
+        ConstructionService.step(server,p.id());helper.assertTrue(ConstructionService.lodge(server).placed()==1,"One scheduler step places exactly one physical block, brushing post-reservation weather snow");
+        helper.assertTrue(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(origin).inflate(2)).size()==drops,"Brushing weather snow creates no item drops or reusable material grant");
         helper.assertTrue(NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level,origin,level.getBlockState(origin),bob)).isCanceled(),"Active construction denies block extraction");
         ConstructionService.initialize(server);p=ConstructionService.lodge(server);helper.assertTrue(p.placed()==1,"Native construction restart retains exact project and progress");
         var blocks=BlueprintRegistry.lodge().blocks(p.rotation());BlockPos next=p.origin().offset(blocks.get(1).offset());
@@ -324,7 +331,13 @@ public final class KingdomRuntimeTests {
         level.setBlock(next,Blocks.AIR.defaultBlockState(),18);level.setBlock(origin,Blocks.AIR.defaultBlockState(),18);ConstructionService.initialize(server);ConstructionService.step(server,p.id());
         helper.assertTrue(ConstructionService.lodge(server).placed()==1&&level.getBlockState(origin).isAir(),"Missing credited materials are never automatically regenerated");
         level.setBlock(origin,blocks.getFirst().state(),18);var resume=ConstructionService.review(bob,9);ConstructionService.confirm(bob,resume.nonce(),10);
-        for(int i=1;i<=blocks.size()+1;i++)ConstructionService.step(server,p.id());
+        for(int i=1;i<blocks.size();i++)ConstructionService.step(server,p.id());
+        var definition=BlueprintRegistry.lodge();BlockPos home=p.origin().offset(definition.rotate(definition.home(),p.rotation()));
+        var occupant=net.minecraft.world.entity.EntityType.ARMOR_STAND.create(level);occupant.moveTo(home.getX()+0.5,home.getY(),home.getZ()+0.5);level.addFreshEntity(occupant);
+        ConstructionService.step(server,p.id());
+        helper.assertTrue(!ConstructionService.lodge(server).npcIssued(),"An occupied home delays NPC issuance without consuming its identity");
+        occupant.discard();level.setBlock(home,Blocks.SNOW.defaultBlockState(),18);ConstructionService.step(server,p.id());
+        helper.assertTrue(level.getBlockState(home).isAir(),"Weather snow is brushed from the reserved NPC home before safe arrival");
         var complete=ConstructionService.lodge(server);helper.assertTrue(complete.phase()==Phase.COMPLETE,"Full native progressive construction completes");
         helper.assertTrue(ConstructionService.structureIntact(level,complete),"Furnished Lodge passes required-block verification after neighbor updates");
         ReeveEntity reeve=(ReeveEntity)level.getEntity(complete.npc());helper.assertTrue(reeve!=null&&ConstructionService.registeredReeve(reeve),"Exactly one named registered Reeve arrives after completion");
@@ -339,6 +352,20 @@ public final class KingdomRuntimeTests {
         var unloaded=new ConstructionStore.Project(UUID.randomUUID(),"unloaded_test",complete.blueprint(),1,alice.getUUID(),"RuntimeOperator",Phase.BUILDING,null,far,Rotation.NONE,UUID.randomUUID(),bob.getUUID(),0,UUID.randomUUID(),false,false);
         ConstructionService.store(server).save(unloaded,bob.getUUID(),"TEST_UNLOADED_FIXTURE");ConstructionService.step(server,unloaded.id());
         helper.assertTrue(!level.hasChunkAt(far)&&ConstructionService.store(server).get(unloaded.id()).placed()==0,"Unloaded work pauses without creating chunk tickets or progress");
+    }
+
+    private static void travelGateLifecycle(GameTestHelper helper,RecordingPlayer player){
+        var server=helper.getLevel().getServer();var original=player.serverLevel();
+        for(var key:List.of(net.minecraft.world.level.Level.NETHER,net.minecraft.world.level.Level.END)){
+            var target=server.getLevel(key);helper.assertTrue(target!=null,"Native target realm exists for gate test");
+            var gate=new net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent(player,key);
+            helper.assertTrue(NeoForge.EVENT_BUS.post(gate).isCanceled(),"Actual NeoForge realm-entry event denies premature access: "+key.location());
+            var transition=new net.minecraft.world.level.portal.DimensionTransition(target,new net.minecraft.world.phys.Vec3(0,80,0),net.minecraft.world.phys.Vec3.ZERO,0,0,net.minecraft.world.level.portal.DimensionTransition.DO_NOTHING);
+            helper.assertTrue(player.changeDimension(transition)==null&&player.serverLevel()==original,"ServerPlayer.changeDimension is denied before moving the player");
+            player.teleportTo(target,0,80,0,0,0);helper.assertTrue(player.serverLevel()==original,"Direct cross-realm teleportTo cannot bypass kingdom gate");
+            var item=new net.minecraft.world.entity.item.ItemEntity(original,player.getX(),player.getY(),player.getZ(),new ItemStack(Items.IRON_INGOT,64));
+            helper.assertTrue(item.changeDimension(transition)==null&&item.level()==original&&item.getItem().getCount()==64,"Item-entity portal transfer denied without loss or duplication");
+        }
     }
 
     private static void give(RecordingPlayer player, Item item, int count) {

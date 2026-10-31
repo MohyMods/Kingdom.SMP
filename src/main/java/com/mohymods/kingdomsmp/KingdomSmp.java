@@ -30,6 +30,7 @@ public final class KingdomSmp {
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.building.ConstructionService::tick);
         NeoForge.EVENT_BUS.addListener(ContributionService::login);
         NeoForge.EVENT_BUS.addListener(ContributionService::logout);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.kingdom.KingdomTravel::travel);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);

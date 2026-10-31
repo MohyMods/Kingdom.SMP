@@ -25,7 +25,13 @@ public final class ConstructionScreen extends Screen {
     private String xValue,yValue,zValue;
     private final List<RoyalButton> mutations=new ArrayList<>();
     private String localNotice="";
-    public ConstructionScreen(ConstructionView view,Screen parent){super(text("Founders' Lodge"));this.view=view;this.parent=parent;rotation=view.rotation();}
+    private final String greeting;
+    public ConstructionScreen(ConstructionView view,Screen parent){
+        super(text(view.notice().startsWith("Mira Ashford")?"Mira Ashford · Reeve":"Founders' Lodge"));
+        this.view=view;this.parent=parent;rotation=view.rotation();
+        greeting=view.notice().startsWith("Mira Ashford")?view.notice():"";
+        if(!greeting.isBlank()||view.notice().startsWith("Community milestone board"))tab=1;
+    }
     public void accept(ConstructionView updated){
         if(updated.revision()<view.revision())return;
         boolean rebuild=updated.requestId()>0||!updated.phase().equals(view.phase())||updated.reviewAction()!=view.reviewAction()||updated.admin()!=view.admin();
@@ -54,7 +60,7 @@ public final class ConstructionScreen extends Screen {
                 int bw=(w-8)/3;
                 mutations.add(addRenderableWidget(button(x,box.bodyY()+38,bw,rotationName(),b->{rotation=(rotation+1)%4;rebuild();},"Rotate the proposed footprint clockwise. Dimensions are revalidated.")));
                 mutations.add(addRenderableWidget(button(x+bw+4,box.bodyY()+38,bw,"Site here",b->{BlockPos p=minecraft.player.blockPosition();xField.setValue(Integer.toString(p.getX()));yField.setValue(Integer.toString(p.getY()));zField.setValue(Integer.toString(p.getZ()));remember();},"Use your standing position as the minimum foundation corner; prepare clear supported ground.")));
-                RoyalButton preview=addRenderableWidget(button(x+2*(bw+4),box.bodyY()+38,bw,"Preview",b->{try{ConstructionController.request(3,coordinates(),rotation,ConstructionRequest.NONE);localNotice="";}catch(NumberFormatException error){localNotice="Enter valid integer foundation coordinates.";}},"Validate and outline the whole site before submitting it to an administrator."));
+                RoyalButton preview=addRenderableWidget(button(x+2*(bw+4),box.bodyY()+38,bw,"Preview",b->{try{ConstructionController.request(3,coordinates(),rotation,ConstructionRequest.NONE);localNotice="";}catch(IllegalArgumentException error){localNotice="Enter whole foundation coordinates within the world limits.";}},"Validate and outline the whole site before submitting it to an administrator."));
                 preview.active=editable;mutations.add(preview);
                 RoyalButton claim=addRenderableWidget(button(x,box.bodyY()+64,Math.min(180,w),view.phase().equals("AVAILABLE")?"Claim blueprint":"Recover blueprint",b->send(1),"Review recovery: all previous copies and approvals will be invalidated."));
                 claim.active=view.owner()&&!view.phase().equals("BUILDING")&&!view.phase().equals("COMPLETE");mutations.add(claim);
@@ -70,7 +76,7 @@ public final class ConstructionScreen extends Screen {
                 resume.active=view.phase().equals("BUILDING");mutations.add(resume);
             }
         }else{
-            mutations.add(addRenderableWidget(button(x,box.footerY(),92,"Confirm",b->ConstructionController.request(view.reviewAction(),BlockPos.ZERO,0,view.review()),"Commit exactly the reviewed action. The server rechecks role, identity, state, site and expiry.")));
+            mutations.add(addRenderableWidget(button(x,box.footerY(),92,"Confirm",b->ConstructionController.request(view.reviewAction(),BlockPos.ZERO,0,view.review()),"Carry out exactly the action shown in this review.")));
         }
         addRenderableWidget(button(x+(view.reviewAction()>0?98:0),box.footerY(),64,"Refresh",b->ConstructionController.open(),"Cancel a pending review and read the actual saved record without a mutation."));
         addRenderableWidget(button(box.x()+box.width()-86,box.footerY(),72,view.reviewAction()>0?"Cancel":"Back",b->{if(view.reviewAction()>0)ConstructionController.open();else onClose();},"Leave this review without committing."));
@@ -78,7 +84,11 @@ public final class ConstructionScreen extends Screen {
     private EditBox field(int x,int y,int w,String label,String value){
         EditBox field=new EditBox(font,x,y,w,20,text(label));field.setMaxLength(10);field.setValue(value);addRenderableWidget(field);return field;
     }
-    private BlockPos coordinates(){return new BlockPos(Integer.parseInt(xField.getValue()),Integer.parseInt(yField.getValue()),Integer.parseInt(zField.getValue()));}
+    private BlockPos coordinates(){
+        BlockPos p=new BlockPos(Integer.parseInt(xField.getValue()),Integer.parseInt(yField.getValue()),Integer.parseInt(zField.getValue()));
+        if(Math.abs((long)p.getX())>30_000_000||Math.abs((long)p.getZ())>30_000_000||p.getY()<-2048||p.getY()>2048)throw new IllegalArgumentException("Outside world limits");
+        return p;
+    }
     private void send(int action){ConstructionController.request(action,BlockPos.ZERO,0,ConstructionRequest.NONE);}
     private RoyalButton button(int x,int y,int w,String label,net.minecraft.client.gui.components.Button.OnPress press,String help){return new RoyalButton(x,y,w,20,text(label),press,text(help));}
     private String rotationName(){return new String[]{"North","East","South","West"}[rotation];}
@@ -98,38 +108,41 @@ public final class ConstructionScreen extends Screen {
             RoyalPanel.parchment(g,x,y,w,h);paragraphs(g,reviewText(),x+8,y+8,w-16,h-16);
         }else if(tab==0){
             int fw=(w-8)/3;g.drawString(font,"Foundation X",x,y,RoyalPalette.MUTED,false);g.drawString(font,"Y",x+fw+4,y,RoyalPalette.MUTED,false);g.drawString(font,"Z",x+2*(fw+4),y,RoyalPalette.MUTED,false);
-            if(h>116){RoyalPanel.parchment(g,x,y+94,w,h-94);paragraphs(g,List.of(text("ONE KINGDOM BUILDING · SUPPLIED MATERIALS"),text("Winner: "+view.winner()+". The blueprint is a unique construction privilege, never a loose-material grant."),text("Propose a clear supported Overworld site. An administrator must review the exact footprint before work begins."),text(view.activity()),text(notice())),x+8,y+102,w-16,h-110);}
+            if(h>116){RoyalPanel.parchment(g,x,y+94,w,h-94);paragraphs(g,List.of(text("ONE KINGDOM BUILDING · MATERIALS INCLUDED"),text("Winner: "+view.winner()+". Your plan includes every building material; Aldric uses them at the approved site."),text("Propose a clear supported Overworld site. An administrator must review its footprint and exterior work post before work begins."),text(view.activity()),text(notice())),x+8,y+102,w-16,h-110);}
         }else if(tab==1){
             RoyalProgress.render(g,x,y,w,8,view.placed()/(double)view.total());
             g.drawString(font,"Placed: "+view.placed()+" / "+view.total(),x,y+13,RoyalPalette.TEXT,false);
             int offset=view.phase().equals("APPROVED")&&view.owner()?80:56;
-            if(h>offset+16){RoyalPanel.parchment(g,x,y+offset,w,h-offset);paragraphs(g,List.of(text(view.activity()),text(siteText()),text("Mira Ashford · Reeve. The completed Lodge's lectern and Reeve open real community milestone and kingdom interfaces."),text("Banking, Royal Trading and Charter services are not granted here. Ultimate Town Hall: Tier 12."),text(notice())),x+8,y+offset+8,w-16,h-offset-16);}
+            if(h>offset+16){RoyalPanel.parchment(g,x,y+offset,w,h-offset);paragraphs(g,List.of(text(greeting),text(view.activity()),text(siteText()),text(view.phase().equals("COMPLETE")?"Mira Ashford · Reeve. Visit her or the milestone lectern to inspect the kingdom's progress.":"Mira Ashford, the Reeve, will arrive after the whole Lodge is built and verified."),text("The ultimate Town Hall is reserved for Tier 12. Banking, Royal Trading and Charter follow their own unlocks."),text(greeting.isBlank()?notice():"")),x+8,y+offset+8,w-16,h-offset-16);}
         }else{
             RoyalPanel.parchment(g,x,y+52,w,h-52);paragraphs(g,List.of(text("ROYAL CONSTRUCTION ADMINISTRATION"),text(siteText()),text("Review the site nearby. No terrain replacement or player-property destruction is permitted."),text(view.activity()),text("Recent private construction audit:\n"+view.audit()),text(notice())),x+8,y+60,w-16,h-68);
         }
         if(ConstructionController.waiting()||ConstructionController.refreshRequired()){
             g.drawString(font,font.plainSubstrByWidth(ConstructionController.status(),w),x,box.footerY()-12,RoyalPalette.MUTED,false);
             mutations.forEach(b->b.active=false);
+        }else if(tab==0&&view.reviewAction()==0&&h<=116&&!notice().isBlank()){
+            g.drawString(font,font.plainSubstrByWidth(notice(),w),x,box.footerY()-12,RoyalPalette.MUTED,false);
         }
         super.render(g,mx,my,partial);
     }
     private List<Component> reviewText(){
-        String heading=switch(view.reviewAction()){case 2->"CLAIM / RECOVER AUTHENTICATED BLUEPRINT";case 4->"SUBMIT THIS EXACT SITE";case 6->"APPROVE THIS EXACT FOOTPRINT";case 8->"BEGIN ONE CONSTRUCTION PROJECT";case 10->"INSPECT AND RESUME EXISTING PROJECT";default->"REVIEW";};
+        String heading=switch(view.reviewAction()){case 2->"CLAIM / RECOVER THE FOUNDER'S PLAN";case 4->"SUBMIT THIS EXACT SITE";case 6->"APPROVE THIS EXACT FOOTPRINT";case 8->"BEGIN ONE CONSTRUCTION PROJECT";case 10->"INSPECT AND RESUME EXISTING PROJECT";default->"REVIEW";};
         List<Component> lines=new ArrayList<>();lines.add(text(heading));lines.add(text(siteText()));
-        lines.add(text(view.reviewAction()==2?"All older plan copies and existing site approvals become invalid. You keep one legitimate entitlement; materials are supplied during construction.":view.reviewAction()==4?"This submits a proposal only. An administrator must inspect and approve before construction can begin.":view.reviewAction()==6?"I have inspected this exact footprint. No terrain changes or destruction of player property are authorized. The winner must confirm redemption separately.":view.reviewAction()==8?"The current plan is permanently redeemed for this kingdom-owned Lodge. Aldric builds progressively with included materials. No extra services unlock.":"Resume the same verified project. Missing blocks and NPCs are not blindly recreated."));
-        lines.add(text("Review lasts five minutes while state remains unchanged. Confirmation revalidates all checks."));lines.add(text(view.activity()));lines.add(text(notice()));return lines;
+        lines.add(text(view.reviewAction()==2?"Earlier plans and site approvals become unusable. You receive one current plan, with all materials included in Aldric's construction.":view.reviewAction()==4?"This submits a proposal only. An administrator must inspect and approve before construction can begin.":view.reviewAction()==6?"I have inspected this exact footprint and exterior work post. No terrain changes or destruction of player property are authorized. The winner must confirm construction separately.":view.reviewAction()==8?"Your plan is used permanently for this kingdom-owned Lodge. Aldric builds progressively with included materials.":"Resume the same inspected project. Missing blocks and NPCs require administrator recovery."));
+        lines.add(text("Review expires after five minutes. If the site or proposal changes, review it again."));lines.add(text(view.activity()));lines.add(text(notice()));return lines;
     }
     private String siteText(){return view.hasSite()?"Overworld · "+view.origin().toShortString()+" · "+new String[]{"North","East","South","West"}[view.rotation()]+" · "+view.width()+" × "+view.depth()+" × "+view.height()+" · "+(view.valid()?"No obstruction at last review":"Site requires attention"):"No construction site selected.";}
     private String notice(){return !localNotice.isBlank()?localNotice:!ConstructionController.status().isBlank()?ConstructionController.status():view.notice();}
     private void paragraphs(GuiGraphics g,List<Component> paragraphs,int x,int y,int w,int h){
-        if(h<=0)return;List<FormattedCharSequence> lines=new ArrayList<>();for(var p:paragraphs){lines.addAll(font.split(p,w-6));lines.add(FormattedCharSequence.EMPTY);}
+        if(h<=0)return;List<FormattedCharSequence> lines=new ArrayList<>();for(var p:paragraphs){if(p.getString().isBlank())continue;lines.addAll(font.split(p,w-6));lines.add(FormattedCharSequence.EMPTY);}
         maxScroll=Math.max(0,lines.size()*12-h);scroll=Math.clamp(scroll,0,maxScroll);g.enableScissor(x,y,x+w,y+h);
         for(int i=0;i<lines.size();i++)g.drawString(font,lines.get(i),x,y+i*12-scroll,RoyalPalette.INK,false);g.disableScissor();
         if(maxScroll>0){int thumb=Math.max(6,h*h/(h+maxScroll)),top=y+(h-thumb)*scroll/maxScroll;g.fill(x+w-2,top,x+w,top+thumb,RoyalPalette.BRONZE);}
     }
     @Override public boolean mouseScrolled(double x,double y,double h,double v){scroll=Math.clamp(scroll-(int)(v*18),0,maxScroll);return true;}
     @Override public boolean keyPressed(int key,int scan,int mods){if(key==GLFW.GLFW_KEY_PAGE_UP||key==GLFW.GLFW_KEY_PAGE_DOWN){scroll=Math.clamp(scroll+(key==GLFW.GLFW_KEY_PAGE_DOWN?36:-36),0,maxScroll);return true;}return super.keyPressed(key,scan,mods);}
-    @Override public void onClose(){remember();ConstructionController.close();minecraft.setScreen(parent);}
+    @Override public void onClose(){remember();minecraft.setScreen(parent);}
+    @Override public void removed(){ConstructionController.close();}
     @Override public boolean isPauseScreen(){return false;}
     private static Component text(String text){return Component.literal(text);}
 }

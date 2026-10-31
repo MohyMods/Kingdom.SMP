@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-31 — Live Lodge review, weather correction and realm-entry restrictions
+
+Published the server-tested Lodge core as 64d085f and continued actual Minecraft verification. The custom claim, preview, proposal, administrator review and one-use redemption worked; Aldric walked out of the existing hut to his post and began physical construction. A complete process/world restart retained the same project. Live winter weather exposed snow accumulation stopping a future wall. Added tightly scoped post-reservation snow handling without drops, while initial snow/terrain/player blocks still deny, plus clear safe Reeve arrival space before reserving her identity. Native tests verify both cases. Polished readable review language, retained Reeve greeting, explicit exterior work-post overlay, bounded route searches, visible builder arm motion, safe coordinate input and subscription close so closed screens stop receiving progress packets.
+
+Implemented the independently approved vanilla Nether Tier 5/End Tier 9 entry restrictions using the verified NeoForge EntityTravelToDimension hook shared by actual Entity/ServerPlayer dimension changes and teleportTo. No later costs/rewards, custom-mod gates or character-location migration were invented. Full build now passes 121 JUnit tests; the native lifecycle passes direct player/item transfer denials alongside all construction/donation/hut recovery checks. Final physical Lodge completion, Reeve interaction and release packaging follow. Added PROPOSED_BALANCE_REVIEW.md for missing content/policies; its candidates are explicitly unapproved and are not consumed by code.
+
 ## 2026-10-31 — Founders’ Lodge construction server checkpoint
 
 Applied the user's complete-project directive and D-019 administrator-approved placement policy. Added permanent master completion/continuation trackers with all 12 tiers, 12 professions and 288 unapproved quest slots, plus economy/integration/admin/UI dependencies and explicit acceptance. Existing 0.2.0 persistence and tested code are preserved.

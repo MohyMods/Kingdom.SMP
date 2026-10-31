@@ -27,7 +27,7 @@ public final class KingdomClient {
         KingdomNetworking.installBuilderReceiver(BuilderDialogueController::receive);
         com.mohymods.kingdomsmp.network.ConstructionNetworking.install(ConstructionController::receive);
         modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
-                event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), VillagerRenderer::new);
+                event.registerEntityRenderer(KingdomNpcs.ALDRIC.get(), AldricRenderer::new);
                 event.registerEntityRenderer(KingdomNpcs.REEVE.get(), VillagerRenderer::new);
         });
         NeoForge.EVENT_BUS.addListener(ConstructionPreview::render);

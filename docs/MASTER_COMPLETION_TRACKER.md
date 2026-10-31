@@ -41,7 +41,7 @@ Allowed statuses: **NOT STARTED**, **IN DEVELOPMENT**, **IMPLEMENTED — UNTESTE
 | 11 | Name/requirements/reward undefined | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
 | 12 | Ultimate Town Hall; Creative Energy Cube + active Master Mechanic | BLOCKED — REQUIRES DECISION | Approved cost/reward/unlock table; sequential transition, recognition and native persistence tests |
 
-World border expansion: **BLOCKED — REQUIRES DECISION** (centers, sizes, dimensions, timing, safety). Charter after Tier 2: **BLOCKED — REQUIRES DECISION** (exact boundary/content); it must not depend on the Tier 12 Hall. Nether/End enforcement: **NOT STARTED**, acceptance requires portal/dimension-transfer and alternate route tests without inventing extra gates.
+World border expansion: **BLOCKED — REQUIRES DECISION** (centers, sizes, dimensions, timing, safety). Charter after Tier 2: **BLOCKED — REQUIRES DECISION** (exact boundary/content); it must not depend on the Tier 12 Hall. Vanilla Nether/End entry enforcement: **TESTED** for approved Tier 5/9 boundaries and native player changeDimension, direct cross-realm teleportTo and item transfers. Unknown mod dimensions and characters already inside a locked realm on import are not rewritten or claimed covered. Third-party routes remain dependent on verified integration APIs.
 
 ## All professions and all 288 planned quest slots
 

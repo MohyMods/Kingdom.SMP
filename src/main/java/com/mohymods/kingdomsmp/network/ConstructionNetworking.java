@@ -17,6 +17,7 @@ public final class ConstructionNetworking {
         registrar.playToClient(ConstructionView.TYPE,ConstructionView.STREAM_CODEC,(p,c)->{if(receiver!=null)receiver.accept(p);});
         registrar.playToServer(ConstructionRequest.TYPE,ConstructionRequest.STREAM_CODEC,(p,c)->{
             if(!(c.player() instanceof ServerPlayer player))return;
+            if(p.action()==11){viewers.remove(player);ConstructionService.closeReview(player);return;}
             long now=System.nanoTime();Long previous=viewers.put(player,now);
             if(previous!=null&&now-previous<100_000_000L)return;
             String notice="";

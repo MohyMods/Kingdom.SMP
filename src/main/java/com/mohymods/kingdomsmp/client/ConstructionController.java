@@ -43,5 +43,9 @@ public final class ConstructionController {
     public static boolean waiting(){return REQUESTS.waiting();}
     public static boolean refreshRequired(){return refreshRequired;}
     public static String status(){return status;}
-    public static void close(){REQUESTS.clear();refreshRequired=false;status="";}
+    public static void close(){
+        REQUESTS.clear();refreshRequired=false;status="";
+        var client=Minecraft.getInstance();if(client.player!=null&&client.getConnection()!=null)
+            PacketDistributor.sendToServer(new ConstructionRequest(1,11,BlockPos.ZERO,0,ConstructionRequest.NONE));
+    }
 }
