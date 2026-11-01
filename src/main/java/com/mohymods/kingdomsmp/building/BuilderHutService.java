@@ -136,6 +136,7 @@ public final class BuilderHutService {
     private static int preview(ServerPlayer player, BlockPos origin, Rotation rotation, String reason) {
         verifyReservation(player.server);
         if (BuilderHutSavedData.get(player.server).hut().isPresent()) return fail(player.createCommandSourceStack(), "The kingdom already has a hut reservation.");
+        if(startingFoundationsReserved(player.server))return fail(player.createCommandSourceStack(),"The starting Hut blueprint already has a reserved project. Resume that project instead of creating another Hut.");
         String denied = validateSite(player.serverLevel(), origin, rotation, false, player);
         if (denied != null) return fail(player.createCommandSourceStack(), denied);
         if (player.distanceToSqr(origin.getX(), origin.getY(), origin.getZ()) > 64 * 64) {
@@ -169,6 +170,7 @@ public final class BuilderHutService {
         }
         String denied = validateSite(player.serverLevel(), preview.origin(), preview.rotation(), false, player);
         if (denied != null) return fail(player.createCommandSourceStack(), denied);
+        if(startingFoundationsReserved(player.server))return fail(player.createCommandSourceStack(),"The starting Hut blueprint is already reserved. Resume its existing project.");
         BuilderHutSavedData data = BuilderHutSavedData.get(player.server);
         if (data.hut().isPresent() || Files.exists(marker(player.server, "reserved"))) {
             return fail(player.createCommandSourceStack(), "A hut has already been reserved.");
@@ -180,6 +182,8 @@ public final class BuilderHutService {
                 player.getUUID(), hut.id(), hut.origin(), hut.rotation(), preview.reason());
         return install(player, hut);
     }
+
+    private static boolean startingFoundationsReserved(MinecraftServer server){return ConstructionService.initializedStore(server).stream().flatMap(store->store.projects().stream()).anyMatch(p->p.blueprint().toString().equals(BuilderHutBlueprint.ID)&&p.phase()==com.mohymods.kingdomsmp.persistence.ConstructionStore.Phase.BUILDING);}
 
     /** Called only after authenticated, durable blueprint redemption by ConstructionService. */
     static boolean bootstrap(ServerPlayer player, com.mohymods.kingdomsmp.persistence.ConstructionStore.Project project){
@@ -313,6 +317,12 @@ public final class BuilderHutService {
         for (var block : BuilderHutBlueprint.create().placements(hut.rotation())) {
             BlockPos position = hut.origin().offset(block.offset());
             if (!level.hasChunkAt(position) || !matchesRequired(level.getBlockState(position), block.state())) return false;
+        }
+        var project=ConstructionService.initializedStore(level.getServer()).stream().flatMap(store->store.projects().stream()).filter(p->p.blueprint().toString().equals(BuilderHutBlueprint.ID)&&p.origin()!=null&&p.origin().equals(hut.origin())&&p.npc().equals(hut.npcId())).findFirst().orElse(null);
+        if(project!=null&&!project.foundations().isEmpty()){
+            if(ConstructionFoundations.validate(level,project,true)!=null)return false;
+            var definition=BlueprintRegistry.get(project.blueprint(),project.blueprintVersion());
+            for(var cell:project.foundations())if(!level.getBlockState(project.origin().offset(definition.rotate(cell,project.rotation()))).is(Blocks.COBBLESTONE))return false;
         }
         return true;
     }

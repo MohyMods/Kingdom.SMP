@@ -13,7 +13,6 @@ public final class ConstructionFoundations {
         return state.isAir()||state.is(Blocks.SNOW)||state.is(Blocks.WATER);
     }
     public static Project propose(ServerLevel level,Project proposed) {
-        if(proposed.blueprint().toString().equals(BuilderHutBlueprint.ID))return proposed;
         var b=BlueprintRegistry.get(proposed.blueprint(),proposed.blueprintVersion());
         var plan=inspect(level,proposed);
         if(!plan.valid())throw new IllegalStateException(plan.denial()+" at "+proposed.origin().offset(b.rotate(plan.problem(),proposed.rotation())).toShortString()+". Nothing changed.");

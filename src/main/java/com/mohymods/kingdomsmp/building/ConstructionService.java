@@ -97,7 +97,7 @@ public final class ConstructionService {
         var active=store.projects().stream().filter(p->purchased(p)&&p.owner().equals(player.getUUID())&&p.phase()==Phase.BUILDING).findFirst().orElse(null);
         if(active!=null)return active;
         return store.projects().stream().filter(p->purchased(p)&&p.owner().equals(player.getUUID())&&p.phase().ordinal()<Phase.BUILDING.ordinal())
-                .sorted(Comparator.comparing(Project::reward)).findFirst().orElse(first);
+                .sorted(Comparator.comparing(Project::reward)).findFirst().orElse(first==null?starter:first);
     }
     /** Held placement is resolved separately from an explicitly inspected mailbox/board project. */
     public static Project heldProject(ServerPlayer player){
@@ -310,7 +310,7 @@ public final class ConstructionService {
     public static String validateSite(ServerLevel level,Project p,boolean resuming){
         if(level.dimension()!=Level.OVERWORLD)return "Construction is restricted to the Overworld.";
         try{requireTier(level.getServer(),p);}catch(IllegalStateException denied){return denied.getMessage();}
-        if(hut(p)){
+        if(hut(p)&&p.foundations().isEmpty()){
             if(p.origin()==null)return "No site selected.";
             for(var other:store(level.getServer()).projects())if(other.origin()!=null&&!other.id().equals(p.id())&&bounds(p).intersects(bounds(other)))return "Site overlaps another kingdom reservation.";
             var actor=level.getServer().getPlayerList().getPlayer(p.owner());
@@ -323,9 +323,10 @@ public final class ConstructionService {
                 ||!level.getWorldBorder().isWithinBounds(last)||!level.getWorldBorder().isWithinBounds(post))return "The whole site must fit the world border and build height.";
         if(!loaded(level,p))return "Every site and work-post chunk must already be loaded. No chunks are force-loaded.";
         String protection=claimDenial(level,p);if(protection!=null)return protection;
+        if(hut(p)){var saved=BuilderHutSavedData.get(level.getServer()).hut().orElse(null);if(saved!=null&&(!saved.origin().equals(p.origin())||saved.rotation()!=p.rotation()||!saved.npcId().equals(p.npc())))return "A different native Hut is already reserved; restore the matching entitlement before continuing.";}
         for(var other:store(level.getServer()).projects())if(other.origin()!=null&&!other.id().equals(p.id())&&bounds(p).intersects(bounds(other)))return "Site overlaps another kingdom reservation or building.";
         var hut=BuilderHutSavedData.get(level.getServer()).hut().orElse(null);
-        if(hut!=null){var h=BuilderHutBlueprint.create();if(bounds(p).intersects(new AABB(hut.origin().getX(),hut.origin().getY(),hut.origin().getZ(),hut.origin().getX()+h.width(hut.rotation()),hut.origin().getY()+BuilderHutBlueprint.HEIGHT,hut.origin().getZ()+h.depth(hut.rotation()))))return "Site overlaps the Builder's Hut.";}
+        if(hut!=null&&!hut(p)){var h=BuilderHutBlueprint.create();if(bounds(p).intersects(new AABB(hut.origin().getX(),hut.origin().getY(),hut.origin().getZ(),hut.origin().getX()+h.width(hut.rotation()),hut.origin().getY()+BuilderHutBlueprint.HEIGHT,hut.origin().getZ()+h.depth(hut.rotation()))))return "Site overlaps the Builder's Hut.";}
         String foundation=ConstructionFoundations.validate(level,p,resuming);if(foundation!=null)return foundation;
         boolean weatherPost=resuming&&p.phase()==Phase.BUILDING&&level.getBlockState(post).is(Blocks.SNOW);
         if(!level.getBlockState(post.below()).isFaceSturdy(level,post.below(),Direction.UP)||!level.getBlockState(post).isAir()&&!weatherPost||!level.getBlockState(post.above()).isAir())return "Aldric needs a clear supported work post immediately outside the entrance.";
@@ -401,6 +402,11 @@ public final class ConstructionService {
             pause(p,"Aldric's exterior work post is obstructed or unsupported; work paused.");return;
         }
         if(builder.distanceToSqr(post.getX()+0.5,post.getY(),post.getZ()+0.5)>4){pause(p,"Aldric is walking to the work post; blocked/unloaded paths pause work.");return;}
+        placeNext(level,p,builder);
+    }
+    /** One supplied placement shared by Aldric and the pre-NPC starting Hut foundation stage. */
+    private static void placeNext(ServerLevel level,Project p,net.minecraft.world.entity.LivingEntity builder){
+        var server=level.getServer();var store=store(server);
         if(!Objects.equals(VERIFIED.get(p.id()),p.placed())||p.placed()%40==0){
             String denied=verifyPrefix(level,p);if(denied!=null){pause(p,denied);return;}VERIFIED.put(p.id(),p.placed());
         }
@@ -424,7 +430,7 @@ public final class ConstructionService {
         boolean foundationBlock=block.offset().getY()<0;
         boolean replace=before.isAir()||before.is(Blocks.SNOW)||foundationBlock&&before.is(Blocks.WATER);
         if(!replace&&!ConstructionBlueprint.matches(before,block.state())){pause(p,"Site changed at "+pos.toShortString()+". No terrain or player blocks were replaced.");return;}
-        if(replace&&!level.getEntities((Entity)null,new AABB(pos),e->e!=builder).isEmpty()){pause(p,"Waiting for the next block space to be clear.");return;}
+        if(replace&&!level.getEntities((Entity)null,new AABB(pos),e->!(builder instanceof AldricEntity&&e==builder)).isEmpty()){pause(p,"Waiting for the next block space to be clear.");return;}
         try{
             if(replace){
                 BlockSnapshot snapshot=BlockSnapshot.create(level.dimension(),level,pos);
@@ -438,18 +444,24 @@ public final class ConstructionService {
                 }finally{placing=false;}
             }
             store.save(p.advance(p.placed()+1),p.owner(),"PROGRESS");VERIFIED.put(p.id(),p.placed()+1);
-            builder.swing(InteractionHand.MAIN_HAND);builder.getLookControl().setLookAt(pos.getX()+0.5,pos.getY()+0.5,pos.getZ()+0.5);
-            level.playSound(null,builder.blockPosition(),SoundEvents.WOOD_PLACE,SoundSource.NEUTRAL,0.4f,0.8f);
-            pause(p,"Aldric is constructing the "+BlueprintRegistry.title(p.blueprint())+" with supplied materials.");
+            builder.swing(InteractionHand.MAIN_HAND);if(builder instanceof net.minecraft.world.entity.Mob mob)mob.getLookControl().setLookAt(pos.getX()+0.5,pos.getY()+0.5,pos.getZ()+0.5);
+            level.playSound(null,builder.blockPosition(),foundationBlock?SoundEvents.STONE_PLACE:SoundEvents.WOOD_PLACE,SoundSource.NEUTRAL,0.4f,0.8f);
+            pause(p,hut(p)?"Preparing the starting Hut's saved foundations with supplied materials; Aldric arrives after verified installation.":"Aldric is constructing the "+BlueprintRegistry.title(p.blueprint())+" with supplied materials.");
         }catch(IOException|RuntimeException failure){pause(p,"Storage/placement failed; project retained for administrator recovery.");LogUtils.getLogger().error("Construction interrupted project={}",p.id(),failure);}
     }
     private static void bootstrap(MinecraftServer server,UUID id){
         var store=store(server);var p=store.get(id);var player=server.getPlayerList().getPlayer(p.owner());
         if(player==null||player.serverLevel()!=server.overworld()){pause(p,"Starting owner must be online in the Overworld to finish bootstrap.");return;}
         try{
-            ownerAlive(player,p);placing=true;
+            ownerAlive(player,p);if(!p.foundations().isEmpty())nearby(player,p.origin());
+            String protection=claimDenial(server.overworld(),p);if(protection!=null){pause(p,protection);return;}
+            if(p.placed()<p.foundations().size()){
+                String denied=ConstructionFoundations.validate(server.overworld(),p,true);if(denied==null)denied=verifyPrefix(server.overworld(),p);if(denied!=null){pause(p,denied);return;}
+                placeNext(server.overworld(),p,player);return;
+            }
+            placing=true;
             if(!BuilderHutService.bootstrap(player,p)){pause(p,"Hut installation is reserved; inspect the native Hut journal before resuming.");return;}
-            var done=p.advance(BlueprintRegistry.get(p.blueprint(),1).blocks().size());if(!done.npcIssued())done=done.issueNpc();
+            var done=p.advance(ConstructionFoundations.blocks(p).size());if(!done.npcIssued())done=done.issueNpc();
             store.save(done.complete(),p.owner(),"COMPLETE_OWNER_HUT");
             pause(p,"Builder's Hut complete. Aldric Stonehand is ready; open Contribute to begin First Hearth.");
         }catch(IOException|RuntimeException e){pause(p,"Bootstrap paused: "+Objects.toString(e.getMessage(),"inspection required"));LogUtils.getLogger().warn("Hut bootstrap retained {}",id,e);}

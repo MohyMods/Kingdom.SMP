@@ -36,7 +36,7 @@ neoForge {
                 loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
                 systemProperty 'neoforge.enableGameTest', 'true'
                 systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').get()
-                systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests'].contains(providers.gradleProperty('kingdomTestNamespace').get())).toString()
+                systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests'].contains(providers.gradleProperty('kingdomTestNamespace').get())).toString()
             }
         }
         gameTestServer {
@@ -44,7 +44,7 @@ neoForge {
             sourceSet = sourceSets.gameTest
             gameDirectory = file(providers.gradleProperty('kingdomTestRunDir').getOrElse('work/gametest'))
             systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests')
-            systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests'].contains(providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests'))).toString()
+            systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests'].contains(providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests'))).toString()
             loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
         }
         configureEach { logLevel = org.slf4j.event.Level.INFO }

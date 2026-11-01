@@ -73,7 +73,7 @@ public final class RoyalAdminCommands {
         var store=ConstructionService.store(server);
         line(source,"Construction journal revision " + store.revision() + " | quarantined " + store.quarantined() + " | projects " + store.projects().size());
         store.projects().stream().sorted(java.util.Comparator.comparing(p -> p.id().toString())).limit(10)
-                .forEach(p -> line(source,p.id() + " | " + p.phase() + " | " + p.placed() + " blocks | " + p.blueprint()));
+                .forEach(p -> line(source,p.id() + " | " + p.phase() + " | " + p.placed() + " / " + com.mohymods.kingdomsmp.building.ConstructionFoundations.blocks(p).size() + " blocks | " + p.foundations().size() + " supports, depth " + com.mohymods.kingdomsmp.building.ConstructionFoundations.depth(p) + " | " + p.blueprint()));
         if(store.projects().size()>10)line(source,"Showing 10 projects; inspect a known project UUID for details.");
         for(String id:java.util.List.of("ftbchunks","openpartiesandclaims","ftbquests"))
             line(source,id + ": " + ModList.get().getModContainerById(id).map(c -> c.getModInfo().getVersion().toString() + " installed").orElse("absent"));

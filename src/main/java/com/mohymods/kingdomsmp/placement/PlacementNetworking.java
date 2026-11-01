@@ -28,13 +28,10 @@ public final class PlacementNetworking {
             List<BlockPos> collisions=new ArrayList<>(),unsupported=new ArrayList<>();
             if(level.dimension()==Level.OVERWORLD&&ConstructionService.loaded(level,candidate)&&!level.isOutsideBuildHeight(probe.origin().below())&&!level.isOutsideBuildHeight(probe.origin().offset(0,BlueprintRegistry.get(project.blueprint(),project.blueprintVersion()).height()-1,0))){
                 var definition=BlueprintRegistry.get(project.blueprint(),project.blueprintVersion());int width=definition.width(candidate.rotation()),depth=definition.depth(candidate.rotation());
-                for(int x=0;x<width;x++)for(int z=0;z<depth;z++){
-                    var support=probe.origin().offset(x,-1,z);if(project.blueprint().toString().equals(com.mohymods.kingdomsmp.building.BuilderHutBlueprint.ID)&&unsupported.size()<32&&!level.getBlockState(support).isFaceSturdy(level,support,Direction.UP))unsupported.add(support.immutable());
-                }
                 for(var pos:BlockPos.betweenClosed(probe.origin(),probe.origin().offset(width-1,definition.height()-1,depth-1)))if(collisions.size()<32&&!level.getBlockState(pos).isAir())collisions.add(pos.immutable());
             }
             String valid="Valid site — use the blueprint to review placement.";
-            if(!project.blueprint().toString().equals(com.mohymods.kingdomsmp.building.BuilderHutBlueprint.ID)&&level.dimension()==Level.OVERWORLD){
+            if(level.dimension()==Level.OVERWORLD){
                 var plan=com.mohymods.kingdomsmp.building.ConstructionFoundations.inspect(level,candidate);
                 if(plan.valid()&&!plan.cells().isEmpty())valid="Valid site — "+plan.cells().size()+" supplied foundation blocks, up to four below the footprint. Use the blueprint to review placement.";
                 if(!plan.valid()&&plan.problem()!=null)unsupported.add(probe.origin().offset(BlueprintRegistry.get(project.blueprint(),project.blueprintVersion()).rotate(plan.problem(),candidate.rotation())));

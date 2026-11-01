@@ -22,7 +22,7 @@ public final class FoundationRestartRuntimeTests {
         var keeper=ClaimRuntimeTests.player(h.getLevel(),hut.owner(),hut.ownerName());
         move(owner,BlueprintRegistry.get(project.blueprint(),project.blueprintVersion()).workPost(project.origin(),project.rotation()).offset(1,0,0));
         move(keeper,hut.origin().offset(-1,0,-1));
-        awaitLoaded(h,project.id(),owner,keeper,0);
+        resume(h,project.id(),owner,keeper);
     }
     private static void prepare(GameTestHelper h) throws Exception {
         boolean[] stopped={false};
@@ -38,31 +38,25 @@ public final class FoundationRestartRuntimeTests {
         }));
         BountyRuntimeTests.completeBountyHall(h,4,p->h.fail("Restart fixture must stop during its foundations, not after completion"));
     }
-    private static void awaitLoaded(GameTestHelper h,UUID id,ServerPlayer owner,ServerPlayer keeper,int tries) {
-        guard(h,()->{
-            var server=h.getLevel().getServer();var level=h.getLevel();var p=ConstructionService.store(server).get(id);var hut=BuilderHutSavedData.get(server).hut().orElseThrow();
-            if(!ConstructionService.loaded(level,p)||!BuilderHutService.structureIntact(level,hut)||level.getEntity(hut.npcId())==null||!level.isPositionEntityTicking(p.origin())){
-                if(tries%40==0){String missing="none";for(var block:BuilderHutBlueprint.create().placements(hut.rotation())){var pos=hut.origin().offset(block.offset());if(!level.hasChunkAt(pos)||!ConstructionBlueprint.matches(level.getBlockState(pos),block.state())){missing=pos.toShortString()+" expected "+block.state()+" actual "+level.getBlockState(pos);break;}}com.mojang.logging.LogUtils.getLogger().info("FOUNDATION_RESTART_WAIT tries={} siteLoaded={} hutIntact={} aldric={} originTicking={} ownerPos={} keeperPos={} hutMismatch={}",tries,ConstructionService.loaded(level,p),BuilderHutService.structureIntact(level,hut),level.getEntity(hut.npcId()),level.isPositionEntityTicking(p.origin()),owner.position(),keeper.position(),missing);}
-                h.assertTrue(tries<120,"Saved building and Hut become loaded through real registered player presence");h.runAfterDelay(5,()->awaitLoaded(h,id,owner,keeper,tries+1));return;
+    private static void resume(GameTestHelper h,UUID id,ServerPlayer owner,ServerPlayer keeper) {
+        boolean[] ready={false},complete={false};int[] waiting={0};var authoritativeCells=List.copyOf(ConstructionService.store(h.getLevel().getServer()).get(id).foundations());
+        h.onEachTick(()->guard(h,()->{
+            if(complete[0])return;var server=h.getLevel().getServer();var level=h.getLevel();var p=ConstructionService.store(server).get(id);var hut=BuilderHutSavedData.get(server).hut().orElseThrow();
+            h.assertTrue(p.foundations().equals(authoritativeCells),"Restart never replans or changes approved foundation cells");
+            if(!ready[0]){
+                if(!ConstructionService.loaded(level,p)||!BuilderHutService.structureIntact(level,hut)||level.getEntity(hut.npcId())==null||!level.isPositionEntityTicking(p.origin())){h.assertTrue(waiting[0]++<600,"Saved building and Hut become loaded through real registered player presence");return;}
+                h.assertTrue(ConstructionService.verifyPrefix(level,p)==null,"Actual process restart retains every credited foundation cell and original structure prefix");
+                h.assertTrue(p.phase()==ConstructionStore.Phase.COMPLETE||p.phase()==ConstructionStore.Phase.BUILDING&&p.placed()>=16&&p.placed()<p.foundations().size(),"Second process resumes the saved partial foundation entitlement");
+                if(p.phase()==ConstructionStore.Phase.BUILDING){var post=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion()).workPost(p.origin(),p.rotation());var aldric=level.getEntity(hut.npcId());aldric.moveTo(post.getX()+.5,post.getY(),post.getZ()+.5);}
+                ready[0]=true;
             }
-            h.assertTrue(ConstructionService.verifyPrefix(level,p)==null,"Actual process restart retains every credited foundation cell and original structure prefix");
-            if(p.phase()==ConstructionStore.Phase.COMPLETE){verifyResident(h,p);return;}
-            h.assertTrue(p.phase()==ConstructionStore.Phase.BUILDING&&p.placed()>=16&&p.placed()<p.foundations().size(),"Second process resumes the saved partial foundation entitlement");
-            // Explicit fixture acceleration of the approach only; no new Aldric or building blocks.
-            var post=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion()).workPost(p.origin(),p.rotation());var aldric=level.getEntity(hut.npcId());aldric.moveTo(post.getX()+.5,post.getY(),post.getZ()+.5);
-            var authoritativeCells=List.copyOf(p.foundations());boolean[] complete={false};
-            h.onEachTick(()->guard(h,()->{
-                if(complete[0])return;var current=ConstructionService.store(server).get(id);
-                h.assertTrue(current.foundations().equals(authoritativeCells),"Restart never replans or changes approved foundation cells");
-                for(int n=0;n<2&&current.phase()==ConstructionStore.Phase.BUILDING;n++){ConstructionService.step(server,id);current=ConstructionService.store(server).get(id);}
-                if(current.phase()!=ConstructionStore.Phase.COMPLETE)return;
-                complete[0]=true;verifyResident(h,current);
-            }));
-        });
+            for(int n=0;n<2&&p.phase()==ConstructionStore.Phase.BUILDING;n++){ConstructionService.step(server,id);p=ConstructionService.store(server).get(id);}
+            if(p.phase()!=ConstructionStore.Phase.COMPLETE||level.getEntity(p.npc())==null)return;
+            complete[0]=true;verifyResident(h,p);
+        }));
     }
     private static void verifyResident(GameTestHelper h,ConstructionStore.Project p) {
         var level=h.getLevel();var npc=level.getEntity(p.npc());
-        if(npc==null){h.runAfterDelay(5,()->verifyResident(h,p));return;}
         h.assertTrue(p.npcIssued()&&!p.npcDead()&&npc.isAlive()&&ConstructionService.structureIntact(level,p),"The permanent saved resident serves the intact supported hall");
         long residents=level.getEntitiesOfClass(com.mohymods.kingdomsmp.npc.ReeveEntity.class,ConstructionService.bounds(p).inflate(2)).stream().filter(Entity::isAlive).count();
         h.assertTrue(residents==1&&npc.getName().getString().equals("Garrick Thornfield"),"Exactly one original named Bounty Master exists after construction/restart");
@@ -77,5 +71,5 @@ public final class FoundationRestartRuntimeTests {
     }
     private static void move(ServerPlayer player,BlockPos pos){player.teleportTo(player.serverLevel(),pos.getX()+.5,pos.getY(),pos.getZ()+.5,Set.of(),0,0);player.serverLevel().getChunkSource().move(player);}
     @FunctionalInterface private interface Step{void run()throws Exception;}
-    private static void guard(GameTestHelper h,Step step){try{step.run();}catch(Exception e){h.runAfterDelay(1,()->h.fail(e.toString()));}}
+    private static void guard(GameTestHelper h,Step step){try{step.run();}catch(Exception e){h.fail(e.toString());}}
 }
