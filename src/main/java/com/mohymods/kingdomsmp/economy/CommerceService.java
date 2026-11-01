@@ -70,7 +70,7 @@ public final class CommerceService {
     public static void logout(PlayerEvent.PlayerLoggedOutEvent event){if(event.getEntity() instanceof ServerPlayer p){QUOTES.remove(p);COUNTERS.remove(p);BankService.close(p);AuctionService.close(p);BuyOrderService.close(p);com.mohymods.kingdomsmp.profession.ProfessionService.close(p);com.mohymods.kingdomsmp.profession.ContractService.close(p);com.mohymods.kingdomsmp.progression.TierTwoService.close(p);}}
     public static void openResident(ServerPlayer player,ReeveEntity resident){
         if(!ConstructionService.registeredReeve(resident)||!player.hasLineOfSight(resident)||player.distanceToSqr(resident)>64)throw new IllegalStateException("Visit the registered resident at the completed building.");
-        COUNTERS.put(player,resident.getUUID());var project=ConstructionService.projectForResident(resident);int tab=project!=null&&project.blueprint().equals(RoyalBankBlueprint.ID)?3:1;String greeting=project==null?"":resident.getName().getString()+" — "+BlueprintRegistry.greeting(project.blueprint());net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,snapshot(player,0,tab,greeting).withOpen(true));
+        COUNTERS.put(player,resident.getUUID());var project=ConstructionService.projectForResident(resident);int tab=project!=null&&project.blueprint().equals(RoyalBankBlueprint.ID)?3:project!=null&&project.blueprint().equals(RoyalBountyHallBlueprint.ID)?8:1;String greeting=project==null?"":resident.getName().getString()+" — "+BlueprintRegistry.greeting(project.blueprint());net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,snapshot(player,0,tab,greeting).withOpen(true));
     }
     public static void requireResidentCounter(ServerPlayer player){requireCounter(player);}
     static void requireCounter(ServerPlayer player){
@@ -96,8 +96,8 @@ public final class CommerceService {
             if(request.action()==0){AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);QUOTES.remove(player);}
             if(request.tab()==8){
                 if(request.action()==0)com.mohymods.kingdomsmp.profession.ContractService.close(player);
-                else if(request.action()==1)com.mohymods.kingdomsmp.profession.ContractService.review(player,request.selected());
-                else if(request.action()==2)notice=com.mohymods.kingdomsmp.profession.ContractService.confirm(player,request.review());
+                else if(request.action()==1){if(request.selected().startsWith("bounty:")){com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.bounty.CommunityContractService.review(player,request.selected(),request.quantity());}else com.mohymods.kingdomsmp.profession.ContractService.review(player,request.selected());}
+                else if(request.action()==2)notice=com.mohymods.kingdomsmp.bounty.CommunityContractService.quote(player).filter(q->q.nonce().equals(request.review())).isPresent()?com.mohymods.kingdomsmp.bounty.CommunityContractService.confirm(player,request.review()):com.mohymods.kingdomsmp.profession.ContractService.confirm(player,request.review());
                 else throw new IllegalArgumentException("Unsupported contract action.");
                 return snapshot(player,request.requestId(),8,notice);
             }
@@ -183,9 +183,17 @@ public final class CommerceService {
             s.quarantine();player.connection.disconnect(Component.literal("Commerce interrupted. Inventory and payment require checkpoint recovery."));throw failure;
         }
     }
+    /** Present services belonging to the actual resident; the central exchange remains a full directory. */
+    private static List<CommerceView.Entry> contractEntries(ServerPlayer player){
+        var id=COUNTERS.get(player);var entity=id==null?null:player.serverLevel().getEntity(id);
+        var project=entity instanceof com.mohymods.kingdomsmp.npc.ReeveEntity resident?ConstructionService.projectForResident(resident):null;
+        if(project!=null&&project.blueprint().equals(RoyalBountyHallBlueprint.ID))return com.mohymods.kingdomsmp.bounty.CommunityContractService.entries(player);
+        if(project!=null){var role=java.util.Arrays.stream(com.mohymods.kingdomsmp.profession.Profession.values()).filter(p->p.buildingId().equals(project.blueprint().toString())).findFirst();if(role.isPresent())return com.mohymods.kingdomsmp.profession.ContractService.entries(player).stream().filter(row->row.id().startsWith(role.get().id()+"/")).toList();}
+        var entries=new ArrayList<>(com.mohymods.kingdomsmp.profession.ContractService.entries(player));entries.addAll(com.mohymods.kingdomsmp.bounty.CommunityContractService.entries(player));return List.copyOf(entries);
+    }
     public static CommerceView snapshot(ServerPlayer player,long requestId,int tab,String notice){
         var s=store(player.server);var c=catalog(player.server);long version=s.revision()+ConstructionService.store(player.server).revision();if(ConstructionService.royal(player.server))version+=com.mohymods.kingdomsmp.progression.TierTwoService.ledger(player.server).revision();int tier=ContributionService.kingdom(player.server).attainedTier();List<CommerceView.Entry> rows=new ArrayList<>();
-        if(tab==8){var q=com.mohymods.kingdomsmp.profession.ContractService.quote(player).orElse(null);return new CommerceView(requestId,version,false,8,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.profession.ContractService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
+        if(tab==8){var q=com.mohymods.kingdomsmp.profession.ContractService.quote(player).orElse(null);var b=com.mohymods.kingdomsmp.bounty.CommunityContractService.quote(player).orElse(null);var entries=contractEntries(player);return new CommerceView(requestId,version,false,8,tier,s.balance(player.getUUID()),entries,b!=null?b.nonce():q==null?CommerceRequest.NONE:q.nonce(),b!=null?b.text():q==null?"":q.text(),notice);}
         if(tab==7){var q=com.mohymods.kingdomsmp.profession.ProfessionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,7,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.profession.ProfessionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==6){var q=BuyOrderService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BuyOrderService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==5){var q=AuctionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),AuctionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}

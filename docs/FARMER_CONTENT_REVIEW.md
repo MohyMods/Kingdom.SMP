@@ -1,12 +1,12 @@
 > Approved by explicit user reply: “Approve the proposed Farmer objectives and rank structure”. The objective structure and 8/8/8 rank policy are now authorized. Quantities are configurable test defaults. Implementation/verification status is separate; approval does not mean the quests already work.
 
-# Farmer progression content — review required before activation
+# Approved Farmer progression content — D-034
 
-The repository fixes 24 slots and three ranks but contains no approved objective definitions. These are proposed objectives, not active quests or previously approved content. Numeric targets are configurable starting points, aiming for varied farming/cooperation rather than repeated item hand-ins. Vanilla IDs below are verified; mod-specific food/genetics objectives require their actual dependency tests before replacing these targets.
+The repository fixes 24 slots and three ranks but contains no approved objective definitions. The objective structure and rank policy below are now explicitly approved by the user. Implementation and acceptance status remain separate. Numeric targets are configurable starting points, aiming for varied farming/cooperation rather than repeated item hand-ins. Vanilla IDs below are verified; mod-specific food/genetics objectives require their actual dependency tests before replacing these targets.
 
-Proposed rank policy: Apprentice on enrollment; complete eight Apprentice objectives to earn Journeyman; complete eight Journeyman objectives to enter Master trials; complete all eight Master trials to earn Master and its equipment-purchasing entitlement. No idle-time gates. Preserve all inactive progress, disable inactive credit/perks. Every quest receives one personally attributed canonical completion and XP award; FTB team progress grants no profession rank. Goals can progress concurrently inside the current band. Numbers alone will be tuned without changing approved objective families.
+Approved rank policy: Apprentice on enrollment; complete eight Apprentice objectives to earn Journeyman; complete eight Journeyman objectives to enter Master trials; complete all eight Master trials to earn Master and its equipment-purchasing entitlement. No idle-time gates. Preserve all inactive progress, disable inactive credit/perks. Every quest receives one personally attributed canonical completion and XP award; FTB team progress grants no profession rank. Goals can progress concurrently inside the current band. Numbers alone will be tuned without changing approved objective families.
 
-| Slot | Proposed objective | Validation/abuse boundary |
+| Slot | Approved objective / configurable target | Validation/abuse boundary |
 | --- | --- | --- |
 | a01 | Till 32 distinct soil cells | Real player hoe use, each position counts once |
 | a02 | Harvest 128 mature wheat | Real protected harvest; transplanted mature blocks not credited |
@@ -33,4 +33,6 @@ Proposed rank policy: Apprentice on enrollment; complete eight Apprentice object
 | m07 | Build and document a community agricultural estate | Admin-reviewed functional farming/breeding/paths; approved property only |
 | m08 | Final Farmer stewardship assessment | Admin review of earlier actual records and completed objective bands, no duplicate/manual fabricated completion |
 
-XP thresholds/reward numbers are configurable; all required objectives and the 8/8/8 rank policy need content approval. Fortune X Hoe remains the signature Master purchase, not a free completion item. This proposal does not invent its detailed extra abilities, replace approved signatures, or make an End/modded ingredient mandatory. Profession contracts are an independently approved repeatable economy system and do not count as fabricated profession progression quests.
+XP thresholds/reward numbers are configurable; the required objective families and 8/8/8 rank policy have D-034 approval. Fortune X Hoe remains the signature Master purchase, not a free completion item. This proposal does not invent its detailed extra abilities, replace approved signatures, or make an End/modded ingredient mandatory. Profession contracts are an independently approved repeatable economy system and do not count as fabricated profession progression quests.
+
+Implementation: all24stable Farmer objective definitions now exist, with real seed/stem provenance, mature harvest, tilling, unique livestock, crafting plus consumed-food proof, native food/container exchanges, distinct band-attributed contracts, reviewed farm inspections and meaningful completed community food projects. Royal Gilded Roles displays individual progress/available proofs and local equipment. This is not full profession acceptance: several paths have isolated/native evidence, but the entire24objective client playthrough, balance duration, full modpack and end-to-end personal FTB campaign remain unverified.

@@ -25,6 +25,8 @@ public final class KingdomSmp {
 
     public KingdomSmp(IEventBus modBus) {
         KingdomNpcs.register(modBus);
+        com.mohymods.kingdomsmp.equipment.FarmerGearItems.register(modBus);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.equipment.FarmerHarvestService::tick);
         com.mohymods.kingdomsmp.economy.CurrencyItems.register(modBus);
         com.mohymods.kingdomsmp.building.KingdomBlueprints.register(modBus);
         com.mohymods.kingdomsmp.building.ConstructionProtection.register(NeoForge.EVENT_BUS);
@@ -41,6 +43,7 @@ public final class KingdomSmp {
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);
         com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.register(NeoForge.EVENT_BUS,com.mohymods.kingdomsmp.integration.ftbquests.AuthoritativeQuestSnapshot::read);
+        com.mohymods.kingdomsmp.profession.FarmerQuestService.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
     }
@@ -54,6 +57,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.progression.TierTwoService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.CommerceService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.AuctionService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.profession.FarmerQuestService.initialize(event.getServer());
         KingdomState state = ContributionService.kingdom(event.getServer());
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());

@@ -22,7 +22,7 @@ public final class CommerceCatalog {
     public Supply supply(String id){return supplies.stream().filter(s->s.id().equals(id)).findFirst().orElseThrow(()->new IllegalArgumentException("Unknown supplies order."));}
     public static CommerceCatalog load(Path config)throws IOException{
         JsonObject defaults=new JsonObject();defaults.addProperty("schema",1);defaults.addProperty("sharedDailyBudget",20000);defaults.addProperty("playerDailyAllowance",2000);
-        var prices=new JsonObject();prices.addProperty("farmers_house",1000);prices.addProperty("builders_workshop",1250);prices.addProperty("lumberjacks_lodge",1000);prices.addProperty("royal_bank",2500);defaults.add("blueprintPrices",prices);
+        var prices=new JsonObject();prices.addProperty("farmers_house",1000);prices.addProperty("builders_workshop",1250);prices.addProperty("lumberjacks_lodge",1000);prices.addProperty("royal_bank",2500);prices.addProperty("royal_bounty_hall",1500);defaults.add("blueprintPrices",prices);
         var orders=new JsonObject();defaults.add("supplies",orders);
         for(var s:List.of(new Supply("logs","Oak logs",Items.OAK_LOG,2,2048),new Supply("stone","Cobblestone",Items.COBBLESTONE,1,4096),new Supply("wheat","Wheat",Items.WHEAT,1,2048),new Supply("iron","Iron ingots",Items.IRON_INGOT,8,256))){var row=new JsonObject();row.addProperty("price",s.price());row.addProperty("dailyQuota",s.quota());orders.add(s.id(),row);}
         if(!Files.exists(config)){Files.createDirectories(config.getParent());Files.writeString(config,new GsonBuilder().setPrettyPrinting().create().toJson(defaults),StandardOpenOption.CREATE_NEW);}
@@ -32,11 +32,13 @@ public final class CommerceCatalog {
             if(integer(data,"schema",1,1)!=1)throw new IllegalArgumentException("Unsupported commerce schema");
             long budget=integer(data,"sharedDailyBudget",1,1_000_000_000),allowance=integer(data,"playerDailyAllowance",1,budget);
             JsonObject bp=data.getAsJsonObject("blueprintPrices"),sp=data.getAsJsonObject("supplies");
+            if(!bp.has("royal_bounty_hall"))bp.addProperty("royal_bounty_hall",1500); // Optional new schema-one listing; never rewrite existing world settings.
             List<Building> buildings=new ArrayList<>();
             buildings.add(building(bp,"farmers_house","Farmer's House",2,"Rowan Fenwick","Founder of the First Fields"));
             buildings.add(building(bp,"builders_workshop","Builder's Workshop",2,"Cedric Ashlar","Founder of the Builders' Hearth"));
             buildings.add(building(bp,"lumberjacks_lodge","Lumberjack's Lodge",2,"Brenna Oakfall","Founder of the Timber Hall"));
             buildings.add(building(bp,"royal_bank","Royal Bank",3,"Oswin Fairmark","Founder of the Royal Bank"));
+            buildings.add(building(bp,"royal_bounty_hall","Royal Bounty Hall",3,"Garrick Thornfield","Founder of the Royal Bounty Hall"));
             List<Supply> supplies=new ArrayList<>();
             for(var base:List.of(new Supply("logs","Oak logs",Items.OAK_LOG,0,0),new Supply("stone","Cobblestone",Items.COBBLESTONE,0,0),new Supply("wheat","Wheat",Items.WHEAT,0,0),new Supply("iron","Iron ingots",Items.IRON_INGOT,0,0))){var row=sp.getAsJsonObject(base.id());supplies.add(new Supply(base.id(),base.title(),base.item(),integer(row,"price",1,1000),(int)integer(row,"dailyQuota",1,1_000_000)));}
             return new CommerceCatalog(buildings,supplies,budget,allowance);
@@ -44,5 +46,5 @@ public final class CommerceCatalog {
     }
     private static Building building(JsonObject prices,String path,String title,int tier,String resident,String founder){return new Building("kingdom_smp:"+path,title,tier,integer(prices,path,500,15000),resident,founder);}
     private static long integer(JsonObject o,String key,long min,long max){var v=o.get(key);if(v==null||!v.isJsonPrimitive()||!v.getAsJsonPrimitive().isNumber())throw new IllegalArgumentException(key);long n=v.getAsBigDecimal().longValueExact();if(n<min||n>max)throw new IllegalArgumentException(key);return n;}
-    public static boolean marketBuilding(ResourceLocation id){return Set.of("kingdom_smp:farmers_house","kingdom_smp:builders_workshop","kingdom_smp:lumberjacks_lodge","kingdom_smp:royal_bank").contains(id.toString());}
+    public static boolean marketBuilding(ResourceLocation id){return Set.of("kingdom_smp:farmers_house","kingdom_smp:builders_workshop","kingdom_smp:lumberjacks_lodge","kingdom_smp:royal_bank","kingdom_smp:royal_bounty_hall").contains(id.toString());}
 }

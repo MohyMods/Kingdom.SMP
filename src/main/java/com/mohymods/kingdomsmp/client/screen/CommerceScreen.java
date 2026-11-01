@@ -46,9 +46,11 @@ public final class CommerceScreen extends Screen {
         view=new CommerceView(view.requestId(),view.revision(),view.open(),view.tab(),view.tier(),view.balance(),view.entries(),CommerceRequest.NONE,"",view.notice());
         scroll=0;rebuild();
     }
+    private void changePage(int requested){int size=Math.max(1,rows);page=Math.clamp(requested,0,Math.max(0,(view.entries().size()-1)/size));int index=page*size;selected=index<view.entries().size()?view.entries().get(index).id():"";scroll=0;rebuild();}
     private void selectFirst(){if(view.entries().stream().noneMatch(e->e.id().equals(selected))){selected=view.entries().isEmpty()?"":view.entries().getFirst().id();page=0;}}
     private CommerceView.Entry selected(){return view.entries().stream().filter(e->e.id().equals(selected)).findFirst().orElse(null);}
     @Override protected void init(){
+        if(community())quantity=Math.min(quantity,64);
         busyButtons.clear();action=null;previous=null;next=null;priceField=null;quantityField=null;small=width<360||height<220;
         if(small){addRenderableWidget(button(Math.max(0,width/2-40),height-26,80,"Close",b->onClose(),"Return to the kingdom."));return;}
         box=RoyalLayout.fit(width,height);int x=box.contentX(),w=box.contentWidth(),tw=(w-4*(TABS.length-1))/TABS.length;
@@ -85,10 +87,10 @@ public final class CommerceScreen extends Screen {
                 busyButtons.add(addRenderableWidget(button(listX+3,y+3,listW-6,entry.title(),b->{selected=entry.id();scroll=0;rebuild();},entry.detail()).selected(entry.id().equals(selected))));
             }
             int navW=Math.max(32,(listW-10)/2);
-            previous=addRenderableWidget(button(listX+3,listY+listH-21,navW,"Previous",b->{page--;rebuild();},"Read earlier entries."));
-            next=addRenderableWidget(button(listX+listW-navW-3,listY+listH-21,navW,"Next",b->{page++;rebuild();},"Read more entries."));
+            previous=addRenderableWidget(button(listX+3,listY+listH-21,navW,"Previous",b->changePage(page-1),"Read earlier entries."));
+            next=addRenderableWidget(button(listX+listW-navW-3,listY+listH-21,navW,"Next",b->changePage(page+1),"Read more entries."));
             if(wide&&wantsQuantity()&&selected()!=null){
-                int qw=(detailW-14)/4;int[] amounts={1,16,64,2304};
+                int qw=(detailW-14)/4;int[] amounts=community()?new int[]{1,8,16,64}:new int[]{1,16,64,2304};
                 for(int i=0;i<4;i++){
                     int amount=amounts[i];busyButtons.add(addRenderableWidget(button(detailX+4+i*(qw+2),detailY+detailH-24,qw,amount==2304?(view.tab()==3?"Max":"All"):Integer.toString(amount),b->{quantity=amount;rebuild();},"Review the accepted quantity before any items are consumed.").selected(quantity==amount)));
                 }
@@ -96,7 +98,7 @@ public final class CommerceScreen extends Screen {
         }
         if(!wide&&!view.reviewing()&&wantsQuantity()){
             int qw=w-266;
-            busyButtons.add(addRenderableWidget(button(x+188,box.footerY(),qw,"Qty: "+(quantity==2304?(view.tab()==3?"Max":"All"):quantity),b->{quantity=switch(quantity){case 1->16;case 16->64;case 64->2304;default->1;};rebuild();},"Cycle 1, 16, 64 or a bounded maximum; review before committing.")));
+            busyButtons.add(addRenderableWidget(button(x+188,box.footerY(),qw,"Qty: "+(quantity==2304?(view.tab()==3?"Max":"All"):quantity),b->{quantity=community()?switch(quantity){case 1->8;case 8->16;case 16->64;default->1;}:switch(quantity){case 1->16;case 16->64;case 64->2304;default->1;};rebuild();},"Cycle 1, 16, 64 or a bounded maximum; review before committing.")));
         }
         action=addRenderableWidget(button(x,box.footerY(),108,actionLabel(),b->act(),"Review the exact server-validated transaction before committing."));
         addRenderableWidget(button(x+114,box.footerY(),68,"Refresh",b->CommerceController.open(view.tab()),"Inspect saved stock, balance and mailbox. Does not repeat a payment."));
@@ -110,7 +112,7 @@ public final class CommerceScreen extends Screen {
     private String actionLabel(){
         if(view.reviewing())return "Confirm";
         var row=selected();if(row==null)return "Review";
-        return switch(row.state()){case "CONTRACT"->"Review delivery";case "PROF_ENROLL"->"Review enrollment";case "PROF_SWITCH"->"Review switch";case "AVAILABLE","SHOP"->"Review purchase";case "SELL"->"Review sale";case "BANK"->"Review transfer";case "CONTRIBUTE"->"Review donation";case "COINS","ITEMS"->"Review claim";case "LIST"->"Review listing";case "LIST_TIMED"->"Review auction";case "BID"->"Review bid";case "BUY"->"Review purchase";case "RETURN"->"Review return";case "ORDER_CREATE"->"Review order";case "ORDER_FILL"->"Review fill";case "ORDER_CANCEL"->"Cancel order";case "BLUEPRINT"->"Manage plan";default->"Review";};
+        return switch(row.state()){case "EQUIPMENT"->"Review equipment";case "COMMUNITY"->"Review contribution";case "PROF_DELIVERY"->"Review food delivery";case "PROF_QUEST"->"Review earned quest";case "CONTRACT"->"Review delivery";case "PROF_ENROLL"->"Review enrollment";case "PROF_SWITCH"->"Review switch";case "AVAILABLE","SHOP"->"Review purchase";case "SELL"->"Review sale";case "BANK"->"Review transfer";case "CONTRIBUTE"->"Review donation";case "COINS","ITEMS"->"Review claim";case "LIST"->"Review listing";case "LIST_TIMED"->"Review auction";case "BID"->"Review bid";case "BUY"->"Review purchase";case "RETURN"->"Review return";case "ORDER_CREATE"->"Review order";case "ORDER_FILL"->"Review fill";case "ORDER_CANCEL"->"Cancel order";case "BLUEPRINT"->"Manage plan";default->"Review";};
     }
     private void act(){
         if(view.reviewing()){CommerceController.request(2,view.tab(),selected,orderQuantityEntry()?Math.max(1,requestedQuantity()):quantity,view.review());return;}
@@ -127,7 +129,8 @@ public final class CommerceScreen extends Screen {
         catch(NumberFormatException invalid){return 0;}
     }
     private boolean amountEntry(){return listing()||bidding()||orderCreate();}
-    private boolean wantsQuantity(){return view.tab()==1||view.tab()==3||view.tab()==4||listing();}
+    private boolean community(){var row=selected();return row!=null&&row.state().equals("COMMUNITY");}
+    private boolean wantsQuantity(){return view.tab()==1||view.tab()==3||view.tab()==4||selected()!=null&&selected().state().equals("COMMUNITY")||listing();}
     private static long coins(String input){try{long value=Long.parseLong(input);return value>=1&&value<=1_000_000_000L?value:0;}catch(NumberFormatException invalid){return 0;}}
     private long price(){return coins(orderCreate()?unitPrice:bidding()?bidPrice:listingPrice);}
     private void prepareBidInput(){
@@ -135,7 +138,7 @@ public final class CommerceScreen extends Screen {
         if(!bidSelection.equals(row.id())||bidMinimum!=row.price()&&coins(bidPrice)<row.price())bidPrice=Long.toString(row.price());
         bidSelection=row.id();bidMinimum=row.price();
     }
-    private boolean actionable(){var row=selected();return row!=null&&Set.of("CONTRACT","PROF_ENROLL","PROF_SWITCH","AVAILABLE","SHOP","SELL","COINS","BLUEPRINT","BANK","CONTRIBUTE","LIST","LIST_TIMED","BID","BUY","RETURN","ITEMS","ORDER_CREATE","ORDER_FILL","ORDER_CANCEL").contains(row.state())&&(!amountEntry()||price()>0&&(!bidding()||price()>=row.price()))&&(!orderQuantityEntry()||requestedQuantity()>0);}
+    private boolean actionable(){var row=selected();return row!=null&&Set.of("EQUIPMENT","COMMUNITY","PROF_DELIVERY","PROF_QUEST","CONTRACT","PROF_ENROLL","PROF_SWITCH","AVAILABLE","SHOP","SELL","COINS","BLUEPRINT","BANK","CONTRIBUTE","LIST","LIST_TIMED","BID","BUY","RETURN","ITEMS","ORDER_CREATE","ORDER_FILL","ORDER_CANCEL").contains(row.state())&&(!amountEntry()||price()>0&&(!bidding()||price()>=row.price()))&&(!orderQuantityEntry()||requestedQuantity()>0);}
     private void rebuild(){if(minecraft!=null){clearWidgets();init();}}
     private RoyalButton button(int x,int y,int w,String label,net.minecraft.client.gui.components.Button.OnPress click,String hint){return new RoyalButton(x,y,w,20,text(label),click,text(hint));}
     @Override public void renderBackground(GuiGraphics g,int x,int y,float partial){ }
@@ -184,7 +187,7 @@ public final class CommerceScreen extends Screen {
             text.add(text(view.tab()==2?"Unclaimed rewards and purchased plans appear here. Only your own deliveries are shown.":"Select an entry to inspect its current price, availability and requirements."));
         }else{
             text.add(text(row.title()));text.add(text(stateLabel(row.state())));text.add(text(row.detail()));
-            if(row.price()>0)text.add(text((row.state().equals("CONTRACT")||row.state().equals("CONTRACT_DONE")?"Reward: ":row.state().equals("SELL")||row.state().equals("SHOP")?"Next unit price: ":row.state().equals("BID")?"Minimum next bid: ":row.state().startsWith("ORDER_")?"Unit price: ":"Price: ")+String.format(Locale.ROOT,"%,d",row.price())+" coins"));
+            if(row.price()>0)text.add(text((view.tab()==8||row.state().equals("CONTRACT")||row.state().equals("CONTRACT_DONE")?"Reward: ":row.state().equals("SELL")||row.state().equals("SHOP")?"Next unit price: ":row.state().equals("BID")?"Minimum next bid: ":row.state().startsWith("ORDER_")?"Unit price: ":"Price: ")+String.format(Locale.ROOT,"%,d",row.price())+" coins"));
             text.add(text(switch(row.state()){
                 case "AVAILABLE"->"One primary blueprint per kingdom. The first successful buyer becomes its founder. Review before purchasing.";
                 case "OUT_OF_STOCK"->"Today's shared shop stock has sold out. It restocks at UTC midnight; refresh afterward. No payment can be made while stock is empty.";
@@ -192,18 +195,18 @@ public final class CommerceScreen extends Screen {
                 case "SELL"->"Choose an amount below. Only the exact reviewed items are consumed; budgets and allowances are checked again when you confirm.";
                 case "COINS"->"Review the delivery to credit your available balance. A delivery can be claimed only once.";
                 case "ITEMS"->"Review the exact saved item delivery. Make enough main-inventory space; items are never dropped. A delivery can be claimed once.";
-                case "LIST"->"Hold the stack in your main hand, choose a quantity and enter its TOTAL price above. Confirm moves the exact items into escrow for a fixed-price listing. This is an immediate fixed-price purchase. Ordinary sales pay 5% tax, rounded up.";
+                case "LIST"->"Hold the stack in your main hand, choose a quantity and enter its TOTAL price above. Confirm moves the exact items into escrow for a fixed-price listing. This is an immediate fixed-price purchase. Ordinary sales pay 5% tax; Master equipment pays 10%, rounded up.";
                 case "LIST_TIMED"->"Hold the stack in your main hand, choose a quantity and enter its TOTAL starting price above. The funded auction lasts 24 hours. Each new bid must increase by at least 5%; a bid near closing extends the remaining time to two minutes. Once a bid is accepted, the seller cannot cancel.";
                 case "BID"->"Enter a bid at or above the server's current minimum. Confirm reserves the exact reviewed coins. A winning bid receives the items through Mailbox; outbid funds are returned safely. Refresh to inspect changes before bidding again.";
                 case "TIMED_RECORD"->"This is your active timed auction. You cannot bid on your own items or cancel after an accepted bid. Its recorded bid and closing time appear above; settlement and item delivery are handled by the server.";
                 case "BUY"->"Review this fixed-price listing before paying. A successful purchase reserves its items in your private Mailbox. Competing buyers cannot purchase the same listing.";
                 case "RETURN"->"Review returning these escrowed items to your private Mailbox. A purchased listing cannot be reclaimed. No second item reward is created.";
-                case "ORDER_CREATE"->"Hold a plain supported vanilla item as the template; it is not consumed. Enter the total quantity and price PER ITEM above. Confirm reserves the full order value. Partial fills deliver items to your Mailbox. You may have at most ten active orders.";
+                case "ORDER_CREATE"->"Hold a plain vanilla item or pristine Farmer equipment as the template; it is not consumed. Enter the total quantity and price PER ITEM above. Confirm reserves the full order value. Partial fills deliver items to your Mailbox. You may have at most ten active orders.";
                 case "ORDER_FILL"->"Choose a quantity up to 64. Only the exact reviewed matching items are consumed from your inventory. Review the gross value, tax and proceeds before confirming. The buyer receives item mail and you receive coin proceeds.";
                 case "ORDER_CANCEL"->"Review cancellation of the remaining demand. Only its unspent reserved funds are returned; previously filled items and deliveries remain recorded. Confirm can refund this remainder only once.";
                 case "ORDER_RECORD"->"This buy-order record is read-only. Its actual remaining quantity and status appear above. Refresh for the latest server state.";
                 case "BLUEPRINT"->"Manage your authenticated plan through Construction. Recovering a lost unused plan invalidates older copies.";
-                case "LOCKED"->"This entry is not available at the kingdom's current progression. No payment can be made.";
+                case "LOCKED"->"This service is not available to you yet. Check its requirements above. No payment can be made.";
                 case "SOLD"->"This kingdom's primary entitlement has already been purchased. Another purchase is not available.";
                 case "CLAIMED"->"This delivery has already been claimed.";
                 case "BANK"->"Use the actual Bank counter. Account, inventory and recipient are checked again when you confirm.";
@@ -221,7 +224,7 @@ public final class CommerceScreen extends Screen {
         lines.add(text("Confirm uses this exact review. If your inventory, balance or availability changes, request a new review."));
         if(!view.notice().isBlank())lines.add(text(view.notice()));paragraphs(g,lines,x+8,y+8,w-16,h-16);
     }
-    private static String stateLabel(String state){return switch(state){case "CONTRACT"->"Delivery available";case "CONTRACT_DONE"->"Contract completed";case "PROF_ENROLL"->"Profession available";case "PROF_SWITCH"->"Paid profession change";case "PROF_ACTIVE"->"Active profession";case "AVAILABLE"->"Available";case "SHOP"->"Buy from the kingdom";case "OUT_OF_STOCK"->"Out of stock";case "SELL"->"Sell to the kingdom";case "COINS"->"Coins to claim";case "ITEMS"->"Items to claim";case "LIST"->"List held items";case "LIST_TIMED"->"Create timed auction";case "BID"->"Timed auction · Bid";case "TIMED_RECORD"->"Timed auction";case "BUY"->"Fixed-price listing";case "RETURN"->"Return escrow";case "ORDER_CREATE"->"Create funded buy order";case "ORDER_FILL"->"Supply a buy order";case "ORDER_CANCEL"->"Your funded order";case "ORDER_RECORD"->"Buy-order record";case "BLUEPRINT"->"Your building plan";case "LOCKED"->"Locked";case "SOLD"->"Sold out";case "CLAIMED"->"Claimed";case "BANK"->"Bank service";case "CONTRIBUTE"->"Shared contribution";case "COMPLETE"->"Complete";default->state;};}
+    private static String stateLabel(String state){return switch(state){case "EQUIPMENT"->"Profession equipment";case "COMMUNITY"->"Community contract";case "PROF_DELIVERY"->"Food delivery objective";case "IN_PROGRESS"->"Objective in progress";case "PROF_QUEST"->"Ready to turn in";case "CONTRACT"->"Delivery available";case "CONTRACT_DONE"->"Contract completed";case "PROF_ENROLL"->"Profession available";case "PROF_SWITCH"->"Paid profession change";case "PROF_ACTIVE"->"Active profession";case "AVAILABLE"->"Available";case "SHOP"->"Buy from the kingdom";case "OUT_OF_STOCK"->"Out of stock";case "SELL"->"Sell to the kingdom";case "COINS"->"Coins to claim";case "ITEMS"->"Items to claim";case "LIST"->"List held items";case "LIST_TIMED"->"Create timed auction";case "BID"->"Timed auction · Bid";case "TIMED_RECORD"->"Timed auction";case "BUY"->"Fixed-price listing";case "RETURN"->"Return escrow";case "ORDER_CREATE"->"Create funded buy order";case "ORDER_FILL"->"Supply a buy order";case "ORDER_CANCEL"->"Your funded order";case "ORDER_RECORD"->"Buy-order record";case "BLUEPRINT"->"Your building plan";case "LOCKED"->"Locked";case "SOLD"->"Sold out";case "CLAIMED"->"Claimed";case "BANK"->"Bank service";case "CONTRIBUTE"->"Shared contribution";case "COMPLETE"->"Complete";default->state;};}
     private void paragraphs(GuiGraphics g,List<Component> values,int x,int y,int w,int h){
         if(w<=0||h<=0){maxScroll=0;return;}List<FormattedCharSequence> lines=new ArrayList<>();
         for(var value:values){lines.addAll(font.split(value,w-5));lines.add(FormattedCharSequence.EMPTY);}
@@ -229,7 +232,7 @@ public final class CommerceScreen extends Screen {
         g.enableScissor(x,y,x+w,y+h);for(int i=0;i<lines.size();i++)g.drawString(font,lines.get(i),x,y+i*12-scroll,RoyalPalette.INK,false);g.disableScissor();
         if(maxScroll>0){int thumb=Math.max(6,h*h/(h+maxScroll)),top=y+(h-thumb)*scroll/maxScroll;g.fill(x+w-2,top,x+w,top+thumb,RoyalPalette.BRONZE);}
     }
-    private void line(GuiGraphics g,String value,int x,int y,int w,int color){if(w>0)g.drawString(font,font.plainSubstrByWidth(value,w),x,y,color,false);}
+    private void line(GuiGraphics g,String value,int x,int y,int w,int color){if(w<=0)return;String shown=value;if(font.width(value)>w){String marker="…";shown=font.plainSubstrByWidth(value,Math.max(0,w-font.width(marker)))+(font.width(marker)<=w?marker:"");}g.drawString(font,shown,x,y,color,false);}
     @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical){
         if(!view.reviewing()&&x>=listX&&x<listX+listW&&y>=listY&&y<listY+listH){
             int pages=Math.max(1,(view.entries().size()+rows-1)/rows);page=Math.clamp(page-(int)Math.signum(vertical),0,pages-1);rebuild();return true;

@@ -39,7 +39,7 @@ public final class BuyOrderService {
     public static ItemStack template(ItemStack source){
         if(source.isEmpty())throw new IllegalStateException("Hold one plain vanilla sample of the item you want to buy. The sample is not consumed.");
         var item=source.copyWithCount(1);AuctionService.validateItem(item);
-        if(!ItemStack.isSameItemSameComponents(item,new ItemStack(item.getItem())))throw new IllegalStateException("Buy orders match plain default items only. Named, damaged, enchanted or customized samples are not accepted.");
+        if(!ItemStack.isSameItemSameComponents(item,new ItemStack(item.getItem()))&&!com.mohymods.kingdomsmp.equipment.FarmerGearItems.pristine(item))throw new IllegalStateException("Buy orders match plain default items or pristine registered Farmer gear only. Other named, damaged or customized samples are not accepted.");
         return item;
     }
     private static ItemStack decode(ServerPlayer p,CompoundTag value){return template(ItemStack.parse(p.registryAccess(),value).orElseThrow(()->new IllegalStateException("Order template requires registry recovery.")));}
@@ -88,7 +88,7 @@ public final class BuyOrderService {
         if(!sameInventory(p,q.inventory()))throw new IllegalStateException("Inventory changed. Review the order transaction again.");
         if(q.selected().equals("create")){
             long now=System.currentTimeMillis();var item=q.item();
-            s.createOrder(q.nonce(),p.getUUID(),p.getGameProfile().getName(),bounded(item.getHoverName().getString()+" order",64),(CompoundTag)item.save(p.registryAccess()),q.quantity(),q.unitPrice(),false,now,Math.addExact(now,duration(p.server)));
+            s.createOrder(q.nonce(),p.getUUID(),p.getGameProfile().getName(),bounded(item.getHoverName().getString()+" order",64),(CompoundTag)item.save(p.registryAccess()),q.quantity(),q.unitPrice(),com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item),now,Math.addExact(now,duration(p.server)));
             return "Whole order funding saved. Your sample remains; matching sellers can now fill this order.";
         }
         var order=order(p,q.selected());var item=q.item().copyWithCount(q.quantity());
