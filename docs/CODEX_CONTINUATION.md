@@ -1,3 +1,17 @@
+## Active work — professions, contracts, crop recovery and optional FTB projection
+
+User approved Farmer objective/rank proposal (D-034, FARMER_CONTENT_REVIEW.md); implement it next. Do not request approval again. Roster/wallet coupling, active resource allowances and six daily/weekly deliveries work; no quest objective engine or Master gear yet. Do not publish per-feature JARs. Full dependency plan: RELEASE_EXECUTION_PLAN.md. Full mod1.0 is incomplete.
+
+Verified:309JUnit (`work/production-contract-verified-build.log`); actual dedicated crop suite (`work/production-crop-native.log`); actual profession/contract suite (`work/production-profession-native-counters.log`). Run with JDK `work/toolchains/jdk-21.0.13+9`: `scripts/gradle-cloud.sh build --console=plain`; native `python3 scripts/test-claims.py --namespace kingdom_smp_profession_tests` or `kingdom_smp_crop_tests`. Native tests use exact FTB/OPAC claims mods. Protocol13 requires both clients updated. Optional FTB startup exact2101.1.37 logs `work/production-ftb-server.log`: nine tasks bound; real-team/client progress is still unverified. No full277-mod acceptance. Original saves retained; copied FTB world work/production-ftb-server. Prior clients stopped to free CPU, Xvfb99/100 remain.
+
+Next implement approved Farmer24 objective engine from real harvest/breeding/tilling/crafting and canonical consumed deliveries/admin inspections; quest IDs cannot be granted by client or FTB. Current ProfessionService catalog remains disabled. Then representative Farmer Master equipment; continue all remaining dependencies. Ordinary implementation/numeric defaults are authorized; remaining11 profession content and unspecified signature/gates require source review rather than invented filler. Preserve fixed three slots/15000fee, inactive progress,5%/10% removed taxes,End12, claims and native receipts.
+
+## Current operating directive — complete1.0, no per-feature deliveries
+
+User explicitly supersedes earlier checkpoint-release cadence. Follow RELEASE_EXECUTION_PLAN.md through all dependencies continuously. Internal verified commits and tests continue; do not generate/publish another per-feature JAR, screenshot package or final response at a feature boundary. Retain all prior artifacts/saves. Main is protected. Full1.0acceptance remains unmet. Current starting HEADd0d123f.
+
+Active work: reproduce/fix Farmer crop survival; canonical profession/economy integration and contract dependencies; optional FTB read-only projections against the exact verified dependency. Major quest objectives/signature gaps require concrete review; numeric/config/engineering choices do not. Preserve all money/native receipts, legacy identities, claims and construction progress.
+
 ## Latest continuation — Royal Gilded 0.11.0-dev
 
 Continue latest `rebuild/royal-gilded`; read NPC_MARKET_CHECKPOINT, VALIDATION, D-032, production matrix and final archived end-to-end directive. Protocol12. The same four supplies now have marginal per-unit buy/sell prices, finite canonical UTC daily stock, atomic SHOP_BUY debit/private mail and Tier2 shop-only claims at real resident counters. Actual auction/order/return mail remains BankTier3 based on canonical origin, never names. No arbitrage spread; original budgets/quotas/allowances remain. All old histories and native receipts retained. Full273tests pass; native market and old full auction suites passed; real two-client purchase/claim/resale/stock exhaustion and restart evidence in manifest. No full1.0claim.

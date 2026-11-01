@@ -25,6 +25,9 @@ import java.util.*;
 
 /** Native Tier 2 donations. New versioned defaults do not reinterpret Tier 1 or legacy records. */
 public final class TierTwoService {
+    /** Read-only availability for optional projections; never initializes or materializes state. */
+    public static java.util.Optional<TierTwoLedger> initializedLedger(MinecraftServer server){return java.util.Optional.ofNullable(STORES.get(server));}
+
     public enum Resource {
         LOGS("minecraft:logs","Logs",null,2048,"timber"), COBBLESTONE("minecraft:cobblestone","Cobblestone",Items.COBBLESTONE,3072,"bulk"),
         WHEAT("minecraft:wheat","Wheat",Items.WHEAT,768,"farming"), IRON("minecraft:iron_ingot","Iron ingots",Items.IRON_INGOT,192,"refined"),

@@ -2,6 +2,7 @@ package com.mohymods.kingdomsmp.economy;
 
 import com.mohymods.kingdomsmp.persistence.AtomicNbt;
 import net.minecraft.nbt.*;
+import com.mohymods.kingdomsmp.profession.*;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -28,7 +29,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT }
     public enum MailKind { COINS, BLUEPRINT }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -70,7 +71,7 @@ public final class EconomyStore {
         public ItemMail {Objects.requireNonNull(id);Objects.requireNonNull(owner);text(description,128);item=checkedItem(item);}
         @Override public CompoundTag item(){return item.copy();}
     }
-    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL }
+    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY }
     /** Payload is the bounded encoded canonical operation; never client authority. */
     public record PendingItem(long sequence,UUID operation,UUID player,ItemAction action,CompoundTag payload,long previousReceipt) {
         public PendingItem {
@@ -117,13 +118,15 @@ public final class EconomyStore {
     private Map<UUID,BuyOrder> orders=new HashMap<>();
     private record ShopDay(long day,String resource) { }
     private Map<ShopDay,Long> shopSold=new HashMap<>();
+    private Map<UUID,ProfessionRoster> professionRosters=new HashMap<>();
+    private ContractState contracts=new ContractState();
     private boolean quarantined;
     private EconomyStore(Path file,UUID identity,Writer writer,List<Operation> history,PendingSale pending,PendingTransfer transfer,PendingItem pendingItem){
         this.file=file;this.identity=identity;this.writer=writer;this.history=List.copyOf(history);
         Set<UUID> seen=new HashSet<>();
         for(int i=0;i<history.size();i++){
             var op=history.get(i);if(op.sequence()!=i+1L||!seen.add(op.id()))throw new IllegalArgumentException("Duplicate or unordered economy operation");
-            apply(op,balances,purchases,mail,listings,itemMail,orders,shopSold);
+            apply(op,balances,purchases,mail,listings,itemMail,orders,shopSold,professionRosters,contracts);
         }
         this.pending=pending;this.transfer=transfer;this.pendingItem=pendingItem;
         if((pending!=null?1:0)+(transfer!=null?1:0)+(pendingItem!=null?1:0)>1)throw new IllegalArgumentException("Two inventory operations prepared simultaneously");
@@ -137,9 +140,9 @@ public final class EconomyStore {
             var op=decode(pendingItem.payload());
             if(op.sequence()!=history.size()+1L||seen.contains(op.id())||!op.id().equals(pendingItem.operation())||!op.actor().equals(pendingItem.player())||!op.target().equals(pendingItem.player())
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
-                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;})throw new IllegalArgumentException("Invalid pending item operation");
+                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold));var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
+            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy());var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
         }
         budget(history,listings,itemMail,mail,orders,false);
     }
@@ -200,6 +203,32 @@ public final class EconomyStore {
     public synchronized Optional<BuyOrder> order(UUID id){return Optional.ofNullable(orders.get(id));}
     public synchronized Optional<Listing> listing(UUID id){return Optional.ofNullable(listings.get(id));}
     public synchronized List<ItemMail> itemMailbox(UUID owner){return itemMail.values().stream().filter(m->m.owner().equals(owner)).sorted(Comparator.comparing(ItemMail::id)).toList();}
+    public synchronized boolean contractCompleted(UUID player,String profession,String cycle,long period){return contracts.completed(player,profession,cycle,period);}
+    public synchronized long contractPoolSpent(String cycle,long period){return contracts.spent(cycle,period);}
+    /** Root pins a real approved repeatable delivery's item/terms and removes actual native inventory. */
+    public synchronized PendingItem prepareContract(UUID operation,UUID player,String profession,String cycle,long period,int quantity,long reward,long pool,CompoundTag item)throws IOException{
+        var data=new CompoundTag();data.putString("profession",profession);data.putString("cycle",cycle);data.putInt("required",quantity);data.putLong("pool",pool);data.put("item",checkedItem(item));
+        var op=new Operation(history.size()+1L,operation,Kind.COMPLETE_CONTRACT,player,player,reward,"kingdom_smp:contract/"+profession+"/"+cycle,"Profession delivery contract",null,period,quantity,data);
+        return prepareItem(op,ItemAction.CONTRACT_DELIVERY);
+    }
+    public synchronized ProfessionRoster professions(UUID player){return professionRosters.getOrDefault(Objects.requireNonNull(player),ProfessionRoster.empty());}
+    /** The profession state and its exact switching fee are one canonical operation. Root checks real services/gates. */
+    public synchronized ProfessionRoster changeProfession(UUID operation,UUID player,String action,String from,String to)throws IOException{
+        var data=new CompoundTag();data.putString("action",action);data.putString("from",from);data.putString("to",to);
+        var old=find(operation);long fee=old==null?professionTransition(professions(player),data).fee():old.amount();
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_CHANGE,player,player,fee,"profession","Profession change",null,0,0,data);
+        if(!replayed(op))append(op);return professions(player);
+    }
+    private static ProfessionRoster.Transition professionTransition(ProfessionRoster roster,CompoundTag data){
+        if(!data.getAllKeys().equals(Set.of("action","from","to")))throw new IllegalArgumentException("Invalid profession transition payload");
+        for(var k:List.of("action","from","to"))require(data,k,Tag.TAG_STRING);
+        String action=data.getString("action"),from=data.getString("from"),to=data.getString("to");
+        return switch(action){
+            case "enroll"->{if(!from.isEmpty())throw new IllegalArgumentException("Enrollment cannot remove a profession");yield roster.enroll(Profession.byId(to));}
+            case "switch"->roster.switchProfession(Profession.byId(from),Profession.byId(to));
+            default->throw new IllegalArgumentException("Unknown profession action");
+        };
+    }
     public synchronized long shopSold(long period,String resource){if(period<0)throw new IllegalArgumentException("Invalid trading day");identifier(resource);return shopSold.getOrDefault(new ShopDay(period,resource),0L);}
     /** Canonical origin only: client item names/tags never authorize an earlier claim gate. */
     public synchronized boolean shopDelivery(UUID mail){var op=find(mail);return op!=null&&op.kind()==Kind.SHOP_BUY;}
@@ -217,7 +246,7 @@ public final class EconomyStore {
         else if(op.kind()==Kind.FILL_ORDER)total=Math.addExact(total,tax(op.amount(),orders.get(op.reference()).master()));
     }return total;}
     public synchronized long expectedReceipt(UUID player){
-        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.FILL_ORDER)&&op.target().equals(player))return op.sequence();}return 0;
+        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.COMPLETE_CONTRACT)&&op.target().equals(player))return op.sequence();}return 0;
     }
     /** Caller must require operator permission, exact-target confirmation and a reason. */
     public synchronized void adminSet(UUID operation,UUID actor,UUID target,long amount,String reason)throws IOException{
@@ -324,8 +353,8 @@ public final class EconomyStore {
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy paused for inventory reconciliation");
         if(find(op.id())!=null)throw new IllegalArgumentException("Native item operation already committed");
         var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold));var nextHistory=new ArrayList<>(history);nextHistory.add(op);
-        budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,action==ItemAction.LIST||action==ItemAction.TIMED_LIST||action==ItemAction.ORDER_FILL);
+        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy());var nextHistory=new ArrayList<>(history);nextHistory.add(op);
+        budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,action==ItemAction.LIST||action==ItemAction.TIMED_LIST||action==ItemAction.ORDER_FILL||action==ItemAction.CONTRACT_DELIVERY);
         var item=new PendingItem(op.sequence(),op.id(),op.actor(),action,encodeOperation(op),expectedReceipt(op.actor()));persist(history,null,null,item);pendingItem=item;return item;
     }
     /** Exact post-native receipt commits; the exact previous receipt cancels; no guessed delivery. */
@@ -436,14 +465,34 @@ public final class EconomyStore {
     }
     private void appendResolved(Operation op)throws IOException{
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        var nextStock=new HashMap<>(shopSold);apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock);var next=new ArrayList<>(history);next.add(op);
-        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY);persist(next,null);
-        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;pendingItem=null;
+        var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts);var next=new ArrayList<>(history);next.add(op);
+        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT);persist(next,null);
+        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;pendingItem=null;
     }
-    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold){
+    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold,Map<UUID,ProfessionRoster> professionRosters,ContractState contracts){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
+            case COMPLETE_CONTRACT->{
+                var data=op.payload();if(!data.getAllKeys().equals(Set.of("profession","cycle","required","pool","item")))throw new IllegalArgumentException("Invalid contract payload");
+                require(data,"profession",Tag.TAG_STRING);require(data,"cycle",Tag.TAG_STRING);require(data,"required",Tag.TAG_INT);require(data,"pool",Tag.TAG_LONG);require(data,"item",Tag.TAG_COMPOUND);
+                var role=Profession.byId(data.getString("profession"));String cycle=data.getString("cycle");long pool=data.getLong("pool");var item=checkedItem(data.getCompound("item"));
+                if(!Set.of("daily","weekly").contains(cycle)||!op.actor().equals(op.target())||op.reference()!=null||op.quantity()<1||op.quantity()>2304||op.quantity()!=data.getInt("required")
+                        ||op.amount()<1||op.amount()>1_000_000||pool<op.amount()||pool>1_000_000_000L||!op.key().equals("kingdom_smp:contract/"+role.id()+"/"+cycle)||!op.detail().equals("Profession delivery contract")
+                        ||item.getInt("count")!=1||mail.containsKey(op.id()))throw new IllegalArgumentException("Invalid contract terms");
+                if(!professionRosters.getOrDefault(op.target(),ProfessionRoster.empty()).isActive(role))throw new IllegalStateException("Contract profession is inactive");
+                var slot=new ContractState.Slot(op.target(),role.id(),cycle,op.period());var key=new ContractState.Pool(cycle,op.period());long spent=contracts.spent(cycle,op.period());
+                if(contracts.completed.contains(slot)||op.amount()>pool-spent)throw new IllegalStateException("Contract already completed or shared reward pool exhausted");
+                contracts.completed.add(slot);contracts.spent.put(key,Math.addExact(spent,op.amount()));
+                mail.put(op.id(),new Mail(op.id(),op.target(),MailKind.COINS,op.amount(),"",cycle+" "+role.id()+" contract reward",false));
+            }
+            case PROFESSION_CHANGE->{
+                if(!op.actor().equals(op.target())||op.reference()!=null||!op.key().equals("profession")||!op.detail().equals("Profession change")||op.quantity()!=0||op.period()!=0)throw new IllegalArgumentException("Invalid profession change");
+                var transition=professionTransition(professionRosters.getOrDefault(op.target(),ProfessionRoster.empty()),op.payload());
+                if(!transition.changed()||op.amount()!=transition.fee())throw new IllegalArgumentException("Profession change/fee differs from authoritative roster");
+                if(balance<op.amount())throw new IllegalStateException("Profession changes cost15000coins; insufficient balance");
+                balances.put(op.target(),balance-op.amount());professionRosters.put(op.target(),transition.roster());
+            }
             case SHOP_BUY->{
                 var data=op.payload();
                 if(!op.actor().equals(op.target())||op.reference()!=null||op.quantity()<1||op.quantity()>64||itemMail.containsKey(op.id())

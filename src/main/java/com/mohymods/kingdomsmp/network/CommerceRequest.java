@@ -12,7 +12,7 @@ public record CommerceRequest(long requestId,int action,int tab,String selected,
     public CommerceRequest(long requestId,int action,int tab,String selected,int quantity,UUID review){this(requestId,action,tab,selected,quantity,review,0);}
     public static final UUID NONE=new UUID(0,0);
     public CommerceRequest {
-        if(requestId<=0||action<0||action>4||tab<0||tab>6||selected==null||selected.length()>96
+        if(requestId<=0||action<0||action>4||tab<0||tab>8||selected==null||selected.length()>96
                 ||selected.codePoints().anyMatch(Character::isISOControl)||quantity<1||quantity>2304||amount<0||amount>1_000_000_000L||review==null
                 ||(action==1||action==3)&&selected.isBlank()||action==2&&review.equals(NONE))
             throw new IllegalArgumentException("Invalid commerce request");

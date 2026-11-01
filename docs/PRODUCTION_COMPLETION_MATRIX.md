@@ -1,4 +1,4 @@
-# Production feature inventory — D-032 / 0.11.0
+# Production feature inventory — continuous implementation
 
 Authority: [final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md). Source baseline 9fb65ec; the fresh-world settlement checkpoint follows it. Percentages are **explicit coarse acceptance slices**, not estimates of engineering hours or a release-completion claim. A tested legacy slice does not satisfy the new-world Hall requirement.
 
@@ -10,10 +10,10 @@ Authority: [final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-
 | 12-tier progression | 2/11 transitions | 18.2% | Tier1→2 and fresh-profile Tier2→3 resources/road; later transitions, borders and FTB integration missing |
 | Blueprint system | 9/10 | 90.0% | Prior8slices plus real exclusive paid marketplace; four-block supports pending |
 | Public building services | 3/7 | 42.9% | Hut, Hall/exchange and Bank; four later public buildings missing; legacy Lodge preserved |
-| Economy | 4/5 | 80.0% | Currency, Bank, supported vanilla escrow/mail and all three auction modes verified; four-resource dynamic shops verified; profession bonuses/contracts remain missing |
-| Professions | 0/12 | 0.0% | All profession gameplay missing |
+| Economy | 4/5 | 80.0% | Currency, Bank, supported vanilla escrow/mail and all three auction modes verified; four-resource dynamic shops verified; active profession allowances and daily/weekly native delivery contracts verified; long-term balance remains open |
+| Professions | 0/12 | 0.0% | Canonical three-slot roster, paid switches, preserved inactive progress and active allowances verified; no complete profession yet |
 | Profession quest content | 0/288 | 0.0% | No approved quest implementations |
-| FTB campaign | 0/1 | 0.0% | Reported mod, no tested campaign |
+| FTB campaign | 0/1 | 0.0% | Nine-task read-only settlement projection loads with exact FTB Quests; real team/client completion and full campaign remain unverified |
 | Integration enforcement | 3/8 | 37.5% | Pinned claims, vanilla Nether, vanilla End; other gates missing |
 | Administration | 1/4 | 25.0% | Unified inspection implemented; audited economy balance/road controls also implemented; broad sandbox/recovery and profession controls missing |
 | Release acceptance | 0/1 | 0.0% | 1.0.0 not ready |
@@ -33,3 +33,5 @@ Slice definitions: platform=JDK/build/runtime; legacy=Hut, donations, history/ra
 0.10 adds funded buy orders, exact partial fills and unspent cancellation/expiry refunds. The coarse auction slice is now verified in supported vanilla scope; it does not imply Master gear, modded/container ownership compatibility or long-term economy balance. Dynamic NPC prices/shops/contracts remain the next economy dependency. Completed/reserved Blueprint details now use the scrollable body at narrow scales. All other release gaps remain open.
 
 0.11 verifies marginal four-resource NPC prices, finite shared daily stock, no positive NPC roundtrip and recoverable Tier2 shop deliveries while retaining Bank-gated auction mail. The coarse economy count stays4/5: profession bonuses/contracts remain absent. One stress fixture lost pre-handover crop blocks and paused correctly; strict in-progress crop-prefix recovery/repair remains a release limitation and is not bypassed or auto-regenerated.
+
+Continuous implementation evidence: full Gradle build309JUnit passed (`work/production-contract-verified-build.log`). Exact claims-mod dedicated crop recovery suite passed (`work/production-crop-native.log`); profession/contract lifecycle passed (`work/production-profession-native-counters.log`). The latter executes free enrollment, allowance, missing-premises denial, stale inventory/replay refusal,64daily/512weekly actual item consumption,880fundedcoinmail and reopen. Dark Farmer construction pauses before invalid crop placement; real owner seed repair restores an already-recorded crop prefix, consuming seeds. Claims/reservations remain enforced. Optional FTB Quests2101.1.37 real dedicated startup loaded one chapter/nine tasks/zero rewards; all bindings inspected. No graphical verification or full-pack claim for this batch. Farmer content/ranks are user-approved D-034; objective engine still pending.

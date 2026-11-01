@@ -35,6 +35,9 @@ import java.util.*;
 
 /** Main-thread authority for one-use plans, approved reservations and bounded NPC work. */
 public final class ConstructionService {
+    /** Read-only availability for optional projections; never initializes or materializes state. */
+    public static java.util.Optional<com.mohymods.kingdomsmp.persistence.ConstructionStore> initializedStore(MinecraftServer server){return java.util.Optional.ofNullable(STORES.get(server));}
+
     public static final String FIRST_HEARTH="first_hearth", STARTING_HUT="starting_hut";
     private static final Map<ServerPlayer,UUID> SELECTION=new WeakHashMap<>();
     private static final long REVIEW_NANOS=300_000_000_000L;
@@ -352,6 +355,26 @@ public final class ConstructionService {
             if(!ConstructionBlueprint.matches(level.getBlockState(pos),b.state()))return "Saved progress differs at "+pos.toShortString()+". Administrator inspection required; missing materials are not regenerated.";
         }return null;
     }
+    public static boolean cropRepairAllowed(ServerPlayer player,BlockPos crop,net.minecraft.world.level.block.state.BlockState proposed){
+        var level=player.serverLevel();
+        if(!player.isAlive()||player.isSpectator()||player instanceof net.neoforged.neoforge.common.util.FakePlayer
+                ||player.server.getPlayerList().getPlayer(player.getUUID())!=player||level!=player.server.overworld()
+                ||player.gameMode.getGameModeForPlayer()!=net.minecraft.world.level.GameType.SURVIVAL&&player.gameMode.getGameModeForPlayer()!=net.minecraft.world.level.GameType.ADVENTURE
+                ||!(proposed.getBlock() instanceof CropBlock)||!proposed.canSurvive(level,crop))return false;
+        if(com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,player,crop.below(),crop)!=null)return false;
+        Project found=null;
+        for(var p:store(player.server).projects())if(p.phase()!=Phase.COMPLETE&&p.origin()!=null&&bounds(p).contains(net.minecraft.world.phys.Vec3.atCenterOf(crop))){
+            if(found!=null||p.phase()!=Phase.BUILDING||!p.owner().equals(player.getUUID())||!p.blueprint().equals(ProfessionBlueprints.FARMER))return false;
+            found=p;
+        }
+        if(found==null)return false;
+        var definition=BlueprintRegistry.get(found.blueprint(),found.blueprintVersion()).blocks(found.rotation());
+        for(int i=0;i<Math.min(found.placed(),definition.size());i++){
+            var expected=definition.get(i);
+            if(found.origin().offset(expected.offset()).equals(crop))return expected.state().getBlock() instanceof CropBlock&&ConstructionBlueprint.matches(proposed,expected.state());
+        }
+        return false;
+    }
     public static boolean structureIntact(ServerLevel level,Project p){
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
         if(p.origin()==null||p.placed()!=b.blocks().size()||!loaded(level,p))return false;
@@ -385,6 +408,17 @@ public final class ConstructionService {
         var blocks=blueprint.blocks(p.rotation());
         if(p.placed()==blocks.size()){finish(level,p);return;}
         var block=blocks.get(p.placed());BlockPos pos=p.origin().offset(block.offset());
+        // Crop survival depends on real server lighting. In newly lit chunks or a
+        // covered garden, recording an invalid plant would leave a dropped crop
+        // and an unrecoverable prefix. Wait before placing its soil/plant pair.
+        BlockPos plant=block.state().getBlock() instanceof CropBlock?pos:block.state().getBlock() instanceof FarmBlock?pos.above():null;
+        if(plant!=null&&!CropBlock.hasSufficientLight(level,plant)){
+            pause(p,"Garden light is below 8 or still updating. Light the garden from outside the reservation; no soil or crop was consumed.");return;
+        }
+        if(block.state().getBlock() instanceof CropBlock&&!block.state().canSurvive(level,pos)){
+            pause(p,"Crop soil/support is not ready. Construction is paused before planting; no crops are regenerated.");return;
+        }
+
         var before=level.getBlockState(pos);
         // The approved reservation was entirely air, and player placement is protected.
         // Subsequent weather snow may be brushed away without drops; no terrain/block is cleared.

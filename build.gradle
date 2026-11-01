@@ -8,7 +8,11 @@ version = mod_version
 base { archivesName = 'kingdom-smp-core' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.ftb.dev/releases'; content { includeGroup 'dev.ftb.mods' } }
+    maven { url = 'https://maven.architectury.dev/'; content { includeGroup 'dev.architectury' } }
+}
 sourceSets {
     gameTest {
         compileClasspath += sourceSets.main.output
@@ -32,7 +36,7 @@ neoForge {
                 loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
                 systemProperty 'neoforge.enableGameTest', 'true'
                 systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').get()
-                systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests'].contains(providers.gradleProperty('kingdomTestNamespace').get())).toString()
+                systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests'].contains(providers.gradleProperty('kingdomTestNamespace').get())).toString()
             }
         }
         gameTestServer {
@@ -40,7 +44,7 @@ neoForge {
             sourceSet = sourceSets.gameTest
             gameDirectory = file(providers.gradleProperty('kingdomTestRunDir').getOrElse('work/gametest'))
             systemProperty 'neoforge.enabledGameTestNamespaces', providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests')
-            systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests'].contains(providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests'))).toString()
+            systemProperty 'kingdom.testLegacyProfile', (!['kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests'].contains(providers.gradleProperty('kingdomTestNamespace').getOrElse('kingdom_smp_tests'))).toString()
             loadedMods = [mods.kingdom_smp, mods.kingdom_smp_tests]
         }
         configureEach { logLevel = org.slf4j.event.Level.INFO }
@@ -52,6 +56,12 @@ neoForge {
     }
 }
 dependencies {
+    // Optional verified adapter APIs: compile only, never shade or force-install third-party mods.
+    compileOnly('dev.ftb.mods:ftb-quests-neoforge:2101.1.37') { transitive = false }
+    compileOnly('dev.ftb.mods:ftb-library-neoforge:2101.1.39') { transitive = false }
+    compileOnly('dev.ftb.mods:ftb-teams-neoforge:2101.1.11') { transitive = false }
+    compileOnly('dev.architectury:architectury-neoforge:13.0.11') { transitive = false }
+
     // Explicit opt-in compatibility fixture; never bundle or silently install third-party mods.
     if (providers.gradleProperty('kingdomClaimTestMods').isPresent()) {
         def claimJars = fileTree(providers.gradleProperty('kingdomClaimTestMods').get()) { include '*.jar' }

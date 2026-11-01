@@ -13,7 +13,7 @@ public final class ConstructionProtection {
     private ConstructionProtection() { }
     public static void register(IEventBus bus){
         bus.addListener((BlockEvent.BreakEvent e)->{if(e.getLevel() instanceof ServerLevel l&&ConstructionService.protectedAt(l,e.getPos()))e.setCanceled(true);});
-        bus.addListener((BlockEvent.EntityPlaceEvent e)->{if(!ConstructionService.placing()&&e.getLevel() instanceof ServerLevel l&&ConstructionService.protectedAt(l,e.getPos()))e.setCanceled(true);});
+        bus.addListener((BlockEvent.EntityPlaceEvent e)->{if(!ConstructionService.placing()&&e.getLevel() instanceof ServerLevel l&&ConstructionService.protectedAt(l,e.getPos())&&!(e.getEntity() instanceof ServerPlayer player&&e.getBlockSnapshot().getState().isAir()&&ConstructionService.cropRepairAllowed(player,e.getPos(),e.getPlacedBlock())))e.setCanceled(true);});
         bus.addListener((ExplosionEvent.Detonate e)->{if(e.getLevel() instanceof ServerLevel l)e.getAffectedBlocks().removeIf(p->ConstructionService.protectedAt(l,p));});
         bus.addListener((PistonEvent.Pre e)->{
             if(!(e.getLevel() instanceof ServerLevel l))return;
@@ -27,7 +27,12 @@ public final class ConstructionProtection {
         });
         bus.addListener((PlayerInteractEvent.RightClickBlock e)->{
             if(!(e.getEntity() instanceof ServerPlayer player))return;
-            if(ConstructionService.protectedAt(player.serverLevel(),e.getPos())){e.setCanceled(true);e.setCancellationResult(InteractionResult.FAIL);return;}
+            if(ConstructionService.protectedAt(player.serverLevel(),e.getPos())){
+                var held=player.getItemInHand(e.getHand());var crop=e.getPos().relative(e.getFace());
+                boolean repair=e.getFace()==net.minecraft.core.Direction.UP&&player.serverLevel().getBlockState(crop).isAir()
+                    &&held.getItem() instanceof net.minecraft.world.item.BlockItem seed&&ConstructionService.cropRepairAllowed(player,crop,seed.getBlock().defaultBlockState());
+                if(!repair){e.setCanceled(true);e.setCancellationResult(InteractionResult.FAIL);}return;
+            }
             if(!player.isAlive()||player.isSpectator()||e.getHand()!=net.minecraft.world.InteractionHand.MAIN_HAND||player.serverLevel()!=player.server.overworld()
                     ||player.distanceToSqr(e.getPos().getX()+0.5,e.getPos().getY()+0.5,e.getPos().getZ()+0.5)>64)return;
             for(var p:ConstructionService.store(player.server).projects())if(p.phase()==Phase.COMPLETE){

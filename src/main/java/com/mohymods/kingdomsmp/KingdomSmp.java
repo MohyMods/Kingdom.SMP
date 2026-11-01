@@ -40,6 +40,7 @@ public final class KingdomSmp {
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.milestone.MilestoneService::sync);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);
+        com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.register(NeoForge.EVENT_BUS,com.mohymods.kingdomsmp.integration.ftbquests.AuthoritativeQuestSnapshot::read);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
     }
@@ -65,6 +66,7 @@ public final class KingdomSmp {
                 .then(com.mohymods.kingdomsmp.building.ConstructionService.commands())
                 .then(com.mohymods.kingdomsmp.milestone.MilestoneService.commands())
                 .then(com.mohymods.kingdomsmp.economy.CommerceService.commands())
+                .then(com.mohymods.kingdomsmp.profession.ProfessionService.commands())
                 .then(Commands.literal("status").executes(context -> {
                     KingdomState state = ContributionService.kingdom(context.getSource().getServer());
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",

@@ -106,6 +106,7 @@ public final class TownHallRuntimeTests {
                     h.assertTrue(level.getBlockState(site.offset(b.board())).is(Blocks.LECTERN),"Service board is an actual unobstructed furnished lectern");
                     var route=resident.getNavigation().createPath(site.offset(10,6,11),0);
                     h.assertTrue(route!=null&&route.canReach(),"Physical ground-to-gallery stairs are navigable: "+(route==null?"no path":route.getEndNode().asBlockPos()));
+                    resident.restrictTo(stairStart,4); // Restore the production workstation routine after this isolated geometry check.
                     // GameTestInfo iterates its scheduled-callback map here. Queue the
                     // next phase outside that iterator before it registers another per-tick task.
                     server.tell(new net.minecraft.server.TickTask(server.getTickCount()+1,completion));

@@ -28,7 +28,7 @@ public final class MarketService {
         var c=CommerceService.catalog(p.server);var item=c.supply(id);var rule=catalog(p.server).rule(id);var used=CommerceService.store(p.server).usage(day(),key(id),p.getUUID());
         int available=Math.min(requested,CommerceService.eligible(p,item));
         if(available<1)throw new IllegalStateException("No exact plain matching items in your main inventory.");
-        long budget=Math.max(0,Math.min(c.budget()-used.sharedSpent(),c.allowance()-used.playerProceeds()));
+        long budget=Math.max(0,Math.min(c.budget()-used.sharedSpent(),com.mohymods.kingdomsmp.profession.ProfessionService.allowance(p,id,c.allowance(),c.budget())-used.playerProceeds()));
         if(used.resourceQuantity()>=item.quota())throw new IllegalStateException("Today's resource quota is exhausted.");
         int quantity=MarketPricing.affordable(rule.minimumBuy(),item.price(),used.resourceQuantity(),item.quota(),available,budget,false);
         if(quantity<1)throw new IllegalStateException("Today's buying budget or your personal allowance is exhausted.");
@@ -55,7 +55,7 @@ public final class MarketService {
         for(var item:c.supplies()){
             var rule=market.rule(item.id());var used=s.usage(day,key(item.id()),p.getUUID());long stock=s.shopSold(day,key(item.id()));
             long buy=used.resourceQuantity()>=item.quota()?rule.minimumBuy():MarketPricing.unit(rule.minimumBuy(),item.price(),used.resourceQuantity(),item.quota(),false);
-            rows.add(new CommerceView.Entry(item.id(),"Sell: "+item.title(),"NPC buys plain items. Quota "+used.resourceQuantity()+"/"+item.quota()+"; next unit "+buy+" coins, range "+rule.minimumBuy()+"–"+item.price()+". Budget "+used.sharedSpent()+"/"+c.budget()+"; your sales "+used.playerProceeds()+"/"+c.allowance()+". Each unit reprices; UTC reset.",buy,tier<2?"LOCKED":"SELL"));
+            rows.add(new CommerceView.Entry(item.id(),"Sell: "+item.title(),"NPC buys plain items. Quota "+used.resourceQuantity()+"/"+item.quota()+"; next unit "+buy+" coins, range "+rule.minimumBuy()+"–"+item.price()+". Budget "+used.sharedSpent()+"/"+c.budget()+"; your sales "+used.playerProceeds()+"/"+com.mohymods.kingdomsmp.profession.ProfessionService.allowance(p,item.id(),c.allowance(),c.budget())+". Each unit reprices; UTC reset.",buy,tier<2?"LOCKED":"SELL"));
             long sell=stock>=rule.stock()?rule.maximumSell():MarketPricing.unit(rule.minimumSell(),rule.maximumSell(),stock,rule.stock(),true);
             rows.add(new CommerceView.Entry("shop:"+item.id(),"Buy: "+item.title(),"NPC sells plain items. Remaining stock "+Math.max(0,rule.stock()-stock)+"/"+rule.stock()+". Next unit "+sell+" coins; range "+rule.minimumSell()+"–"+rule.maximumSell()+". One stack per purchase, delivered through private Mailbox. Restocks at UTC midnight.",stock>=rule.stock()?0:sell,tier<2?"LOCKED":stock>=rule.stock()?"OUT_OF_STOCK":"SHOP"));
         }

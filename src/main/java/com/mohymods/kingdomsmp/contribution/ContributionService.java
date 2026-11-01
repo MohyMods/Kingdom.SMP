@@ -21,6 +21,9 @@ import java.util.*;
 
 /** Only entry point for live donations. Called exclusively on the server thread. */
 public final class ContributionService {
+    /** Read-only availability for optional projections; never initializes or materializes state. */
+    public static java.util.Optional<ContributionLedger> initializedLedger(MinecraftServer server){return java.util.Optional.ofNullable(LEDGERS.get(server));}
+
     private static final String RECEIPT = "KingdomContributionReceipt";
     private static final Map<MinecraftServer, ContributionLedger> LEDGERS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Offer> OFFERS = new WeakHashMap<>();
