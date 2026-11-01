@@ -2,7 +2,7 @@ package com.mohymods.kingdomsmp.integration.ftbquests;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.Set;
+import java.util.Map;
 
 /** Versioned, finite projection keys. Unknown tags and future goals never grant progress. */
 public enum KingdomQuestGoal {
@@ -13,8 +13,8 @@ public enum KingdomQuestGoal {
     public static final String TAG_PREFIX = "kingdom_smp:projection/";
     public static final String VERSIONED_PREFIX = TAG_PREFIX + "v1/";
     public static final long CHAPTER_ID = 0x4B534D5000000001L;
-    private static final Set<String> PAID_BUILDINGS = Set.of("kingdom_smp:farmers_house",
-            "kingdom_smp:builders_workshop", "kingdom_smp:lumberjacks_lodge", "kingdom_smp:royal_bank");
+    private static final Map<String,Integer> PAID_BUILDINGS = Map.of("kingdom_smp:farmers_house",2,
+            "kingdom_smp:builders_workshop",2,"kingdom_smp:lumberjacks_lodge",2,"kingdom_smp:royal_bank",3,"kingdom_smp:royal_bounty_hall",3);
     private final String key;
     private final int sequence;
 
@@ -36,9 +36,9 @@ public enum KingdomQuestGoal {
             case TIER_TWO -> snapshot.tier() >= 2;
             case HEADQUARTERS -> snapshot.tier() >= 2 && (snapshot.completedBuildingIds().contains("kingdom_smp:royal_town_hall")
                     || snapshot.completedBuildingIds().contains("kingdom_smp:founders_lodge"));
-            case PURCHASE -> snapshot.tier() >= 2 && snapshot.purchasedBuildingIds().stream().anyMatch(PAID_BUILDINGS::contains);
+            case PURCHASE -> snapshot.tier() >= 2 && snapshot.purchasedBuildingIds().stream().anyMatch(id -> snapshot.tier() >= PAID_BUILDINGS.getOrDefault(id,13));
             case PUBLIC_BUILDING -> snapshot.tier() >= 2 && snapshot.purchasedBuildingIds().stream()
-                    .anyMatch(id -> PAID_BUILDINGS.contains(id) && snapshot.completedBuildingIds().contains(id));
+                    .anyMatch(id -> snapshot.tier() >= PAID_BUILDINGS.getOrDefault(id,13) && snapshot.completedBuildingIds().contains(id));
             case TIER_THREE -> snapshot.tier() >= 3;
             case BANK -> snapshot.tier() >= 3 && snapshot.completedBuildingIds().contains("kingdom_smp:royal_bank");
             case PUBLIC_TRADE -> snapshot.tier() >= 3 && snapshot.publicTradeCompleted();

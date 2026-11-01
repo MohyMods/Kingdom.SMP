@@ -56,4 +56,14 @@ class KingdomQuestGoalTest {
         assertThrows(IllegalArgumentException.class, () -> snapshot(13, Set.of(), Set.of(), false, false));
         assertThrows(IllegalArgumentException.class, () -> snapshot(1, Set.of("KINGDOM_SMP:hut"), Set.of(), false, false));
     }
+    @Test void bountyPurchaseAndCompletionRespectItsRealTierWithoutChangingStableTaskIds() {
+        var owned=Set.of("kingdom_smp:royal_bounty_hall");
+        assertFalse(KingdomQuestGoal.PURCHASE.complete(snapshot(2,owned,owned,true,false)));
+        assertFalse(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(2,owned,owned,true,false)));
+        assertTrue(KingdomQuestGoal.PURCHASE.complete(snapshot(3,Set.of(),owned,true,false)));
+        assertFalse(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,Set.of(),owned,true,false)));
+        assertTrue(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,owned,owned,true,false)));
+        assertEquals(0x4B534D5000001105L,KingdomQuestGoal.PURCHASE.taskId());
+        assertFalse(KingdomQuestGoal.PURCHASE.complete(snapshot(2,Set.of(),Set.of("kingdom_smp:royal_bank"),true,false)));
+    }
 }

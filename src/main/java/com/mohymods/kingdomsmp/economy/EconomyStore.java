@@ -30,8 +30,8 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY }
-    public enum MailKind { COINS, BLUEPRINT }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE }
+    public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
         public static Receipt empty(){return new Receipt(null,0);}
@@ -211,6 +211,22 @@ public final class EconomyStore {
     public synchronized ItemMail buyFarmerGear(UUID operation,UUID player,String gearId,long basePrice,CompoundTag item)throws IOException{
         var gear=FarmerGear.byId(gearId);var data=new CompoundTag();data.putLong("basePrice",basePrice);data.put("item",checkedItem(item));var old=find(operation);long price=old==null?gear.price(basePrice,equipment.count(player,gearId)):old.amount();
         var op=new Operation(history.size()+1L,operation,Kind.GEAR_BUY,player,player,price,gearId,"Farmer equipment purchase",null,0,1,data);if(!replayed(op))append(op);return itemMail.get(operation);
+    }
+    public synchronized Optional<HuntState> hunt(UUID player,long day){return contracts.hunts.values().stream().filter(h->h.player().equals(player)&&h.day()==day).findFirst();}
+    public synchronized List<HuntState> hunts(){return List.copyOf(contracts.hunts.values());}
+    public synchronized long huntSpent(long day){return contracts.huntSpent.getOrDefault(day,0L);}
+    public synchronized long huntBudget(long day,long configured){return contracts.huntBudgets.getOrDefault(day,configured);}
+    /** Reserve the full promised NPC payment and future close/claim journal capacity at acceptance. */
+    public synchronized HuntState acceptHunt(UUID operation,UUID player,long day,int goal,long reward,long pool)throws IOException{
+        var data=new CompoundTag();data.putLong("budget",pool);
+        var op=new Operation(history.size()+1L,operation,Kind.HUNT_ACCEPT,player,player,reward,HuntState.target(day),"Accepted daily hunt",null,day,goal,data);
+        if(!replayed(op))append(op);return contracts.hunts.get(operation);
+    }
+    /** Kill evidence is checked by the server service; a closed entitlement cannot pay again. */
+    public synchronized HuntState closeHunt(UUID operation,UUID player,UUID accepted,long today,boolean earned)throws IOException{
+        var hunt=contracts.hunts.get(accepted);if(hunt==null)throw new IllegalArgumentException("Unknown accepted hunt");
+        var op=operation(operation,Kind.HUNT_CLOSE,player,player,hunt.reward(),hunt.target(),"Closed daily hunt",accepted,today,earned?hunt.goal():0);
+        if(!replayed(op))append(op);return contracts.hunts.get(accepted);
     }
     public synchronized Optional<CommunityContractState.Project> communityProject(String project,long week){return community.project(project,week);}
     public synchronized long communitySpent(long week){return community.spent(week);}
@@ -481,7 +497,7 @@ public final class EconomyStore {
     }
     private void healthy(){if(quarantined)throw new IllegalStateException("Economy storage quarantined; restart and reconcile matching checkpoints");}
     private static long reservedOperations(Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,Map<UUID,BuyOrder> orders){
-        return 2L*orders.values().stream().filter(BuyOrder::active).count()+3L*listings.values().stream().filter(Listing::active).count()+items.values().stream().filter(m->!m.claimed()).count()+mail.values().stream().filter(m->m.kind()==MailKind.COINS&&!m.claimed()).count();
+        return 2L*orders.values().stream().filter(BuyOrder::active).count()+3L*listings.values().stream().filter(Listing::active).count()+items.values().stream().filter(m->!m.claimed()).count()+mail.values().stream().filter(m->m.kind()==MailKind.COINS&&!m.claimed()).count()+2L*mail.values().stream().filter(m->m.kind()==MailKind.HUNT_ESCROW&&!m.claimed()).count();
     }
     private void budget(List<Operation> operations,Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,Map<UUID,BuyOrder> orders,boolean listingAdmission){
         long reserved=reservedOperations(listings,items,mail,orders);int bytes=encodedBytes(encode(operations,null,null,null));
@@ -503,13 +519,34 @@ public final class EconomyStore {
     private void appendResolved(Operation op)throws IOException{
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
         var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();var nextCommunity=community.copy();var nextEquipment=equipment.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts,nextCommunity,nextEquipment);var next=new ArrayList<>(history);next.add(op);
-        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.COMMUNITY_DELIVERY||op.kind()==Kind.GEAR_BUY);persist(next,null);
+        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.COMMUNITY_DELIVERY||op.kind()==Kind.GEAR_BUY||op.kind()==Kind.HUNT_ACCEPT);persist(next,null);
         balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;community=nextCommunity;equipment=nextEquipment;pendingItem=null;
     }
     private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold,Map<UUID,ProfessionRoster> professionRosters,ContractState contracts,CommunityContractState community,EquipmentState equipment){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
+            case HUNT_ACCEPT->{
+                var data=op.payload();
+                if(!op.actor().equals(op.target())||op.reference()!=null||!op.detail().equals("Accepted daily hunt")||!data.getAllKeys().equals(Set.of("budget")))throw new IllegalArgumentException("Invalid hunt acceptance");
+                require(data,"budget",Tag.TAG_LONG);long pool=data.getLong("budget");
+                if(!op.key().equals(HuntState.target(op.period()))||op.quantity()<1||op.quantity()>256||op.amount()<1||op.amount()>100_000||pool<10*op.amount()||pool>1_000_000_000||mail.containsKey(op.id()))throw new IllegalArgumentException("Invalid hunt terms");
+                if(contracts.hunts.values().stream().anyMatch(h->h.player().equals(op.target())&&h.day()==op.period()))throw new IllegalStateException("One accepted hunt per player per UTC day");
+                if(contracts.huntBudgets.getOrDefault(op.period(),pool)!=pool)throw new IllegalStateException("Hunt pool is pinned for the day");
+                long spent=contracts.huntSpent.getOrDefault(op.period(),0L);if(op.amount()>pool-spent)throw new IllegalStateException("Shared hunting reward pool exhausted");
+                contracts.huntBudgets.put(op.period(),pool);contracts.huntSpent.put(op.period(),Math.addExact(spent,op.amount()));
+                contracts.hunts.put(op.id(),new HuntState(op.id(),op.target(),op.period(),op.key(),op.quantity(),op.amount(),false,false));
+                mail.put(op.id(),new Mail(op.id(),op.target(),MailKind.HUNT_ESCROW,op.amount(),"","Reserved hunt payment; complete and return to Garrick before the UTC day ends",false));
+            }
+            case HUNT_CLOSE->{
+                var hunt=contracts.hunts.get(op.reference());
+                if(hunt==null||hunt.closed()||!op.actor().equals(op.target())||!hunt.player().equals(op.target())||!op.payload().isEmpty()||!op.key().equals(hunt.target())||!op.detail().equals("Closed daily hunt")||op.amount()!=hunt.reward())throw new IllegalStateException("Hunt cannot be paid or closed twice");
+                boolean earned=op.quantity()==hunt.goal();
+                if(earned?op.period()!=hunt.day():op.quantity()!=0||op.period()<=hunt.day())throw new IllegalStateException("Hunt expired or cannot expire early");
+                var escrow=mail.get(hunt.id());if(escrow==null||escrow.kind()!=MailKind.HUNT_ESCROW||escrow.claimed()||escrow.amount()!=hunt.reward())throw new IllegalStateException("Hunt payment reservation is missing");
+                contracts.hunts.put(hunt.id(),hunt.close(earned));
+                mail.put(hunt.id(),new Mail(hunt.id(),hunt.player(),earned?MailKind.COINS:MailKind.HUNT_ESCROW,hunt.reward(),"",earned?"Completed daily hunt reward":"Expired daily hunt; unpaid reservation closed",!earned));
+            }
             case GEAR_BUY->{
                 var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=1||!op.detail().equals("Farmer equipment purchase")||!data.getAllKeys().equals(Set.of("basePrice","item")))throw new IllegalArgumentException("Invalid Farmer equipment purchase");
                 require(data,"basePrice",Tag.TAG_LONG);require(data,"item",Tag.TAG_COMPOUND);var gear=FarmerGear.byId(op.key());var item=checkedItem(data.getCompound("item"));var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());int previous=equipment.count(op.target(),op.key());
