@@ -1,3 +1,9 @@
+## 0.10 funded buy-order inspection and isolated QA
+
+`/kingdom admin orders inspect` uses the existing administrator permission and reports the canonical journal, order counts, remaining demand, held funds and pending item work.
+
+Level 4 `/kingdom admin orders expire-test <UUID>` explains the exact operation; `confirm <reason>` requires a manually created world `serverconfig/kingdomsmp-sandbox.enabled` marker. It closes only that active order at its saved deadline and records actor/reason canonically. Missing marker, ordinary player and already closed orders refuse. No global clock or unrelated order changes. This is for an isolated copied QA world; remove the marker afterward. Normal players use Buy orders → review → confirm, without UUID commands.
+
 Current0.9: `/kingdom admin auctions inspect` reports real mode, funded lead and saved deadline. Isolated-world test only: manual `serverconfig/kingdomsmp-sandbox.enabled`, then level4 `/kingdom admin auctions settle-test <listing-UUID>` and `confirm <reason>` to settle that exact funded listing with a canonical audit reason. No marker is created in normal gameplay. [Timed scope and QA](TIMED_AUCTION_CHECKPOINT.md).
 
 Current 0.8 auction command: `/kingdom admin auctions inspect` (operator-only) inspects actual active escrow, journal, tax reserve and recovery state. Player auction actions are reviewed through the Bank's Auctions/Mailbox screens; `/kingdom commerce open` is a view, never a remote transaction authorization. [Auction scope](AUCTION_CHECKPOINT.md) · [public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md).

@@ -28,7 +28,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER }
     public enum MailKind { COINS, BLUEPRINT }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -52,11 +52,25 @@ public final class EconomyStore {
             return new Listing(id,seller,sellerName,title,price,master,created,end,item,active,true,player,amount,now);
         }
     }
+    /** Funded demand. Inactive remaining units are unfulfilled and have already been refunded. */
+    public record BuyOrder(UUID id,UUID owner,String buyerName,String title,CompoundTag item,int quantity,int remaining,long unitPrice,boolean master,long created,long expires,long lastFill,boolean active) {
+        public BuyOrder {
+            Objects.requireNonNull(id);Objects.requireNonNull(owner);text(buyerName,48);text(title,64);item=checkedItem(item);
+            if(item.getInt("count")!=1||quantity<1||quantity>2304||remaining<0||remaining>quantity||unitPrice<1||unitPrice>1_000_000_000L
+                    ||created<0||expires<=created||expires-created>2_592_000_000L||lastFill<created||lastFill>=expires||active&&remaining==0)
+                throw new IllegalArgumentException("Invalid funded buy order");
+            money(Math.multiplyExact(unitPrice,quantity));
+        }
+        @Override public CompoundTag item(){return item.copy();}
+        public long fundsHeld(){return active?Math.multiplyExact(unitPrice,remaining):0;}
+        private BuyOrder filled(int amount,long now){int left=remaining-amount;return new BuyOrder(id,owner,buyerName,title,item,quantity,left,unitPrice,master,created,expires,now,left>0);}
+        private BuyOrder closed(){return new BuyOrder(id,owner,buyerName,title,item,quantity,remaining,unitPrice,master,created,expires,lastFill,false);}
+    }
     public record ItemMail(UUID id,UUID owner,CompoundTag item,String description,boolean claimed) {
         public ItemMail {Objects.requireNonNull(id);Objects.requireNonNull(owner);text(description,128);item=checkedItem(item);}
         @Override public CompoundTag item(){return item.copy();}
     }
-    public enum ItemAction { LIST, CLAIM, TIMED_LIST }
+    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL }
     /** Payload is the bounded encoded canonical operation; never client authority. */
     public record PendingItem(long sequence,UUID operation,UUID player,ItemAction action,CompoundTag payload,long previousReceipt) {
         public PendingItem {
@@ -100,13 +114,14 @@ public final class EconomyStore {
     private PendingItem pendingItem;
     private Map<UUID,Listing> listings=new HashMap<>();
     private Map<UUID,ItemMail> itemMail=new HashMap<>();
+    private Map<UUID,BuyOrder> orders=new HashMap<>();
     private boolean quarantined;
     private EconomyStore(Path file,UUID identity,Writer writer,List<Operation> history,PendingSale pending,PendingTransfer transfer,PendingItem pendingItem){
         this.file=file;this.identity=identity;this.writer=writer;this.history=List.copyOf(history);
         Set<UUID> seen=new HashSet<>();
         for(int i=0;i<history.size();i++){
             var op=history.get(i);if(op.sequence()!=i+1L||!seen.add(op.id()))throw new IllegalArgumentException("Duplicate or unordered economy operation");
-            apply(op,balances,purchases,mail,listings,itemMail);
+            apply(op,balances,purchases,mail,listings,itemMail,orders);
         }
         this.pending=pending;this.transfer=transfer;this.pendingItem=pendingItem;
         if((pending!=null?1:0)+(transfer!=null?1:0)+(pendingItem!=null?1:0)>1)throw new IllegalArgumentException("Two inventory operations prepared simultaneously");
@@ -120,11 +135,11 @@ public final class EconomyStore {
             var op=decode(pendingItem.payload());
             if(op.sequence()!=history.size()+1L||seen.contains(op.id())||!op.id().equals(pendingItem.operation())||!op.actor().equals(pendingItem.player())||!op.target().equals(pendingItem.player())
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
-                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;})throw new IllegalArgumentException("Invalid pending item operation");
-            var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);
-            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems);var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,false);
+                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;})throw new IllegalArgumentException("Invalid pending item operation");
+            var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
+            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders);var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
         }
-        budget(history,listings,itemMail,mail,false);
+        budget(history,listings,itemMail,mail,orders,false);
     }
     public static EconomyStore open(Path directory)throws IOException{return open(directory,AtomicNbt::write);}
     static EconomyStore open(Path directory,Writer writer)throws IOException{
@@ -179,12 +194,17 @@ public final class EconomyStore {
     public synchronized Optional<PendingTransfer> pendingTransfer(){return Optional.ofNullable(transfer);}
     public synchronized Optional<PendingItem> pendingItem(){return Optional.ofNullable(pendingItem);}
     public synchronized List<Listing> listings(){return listings.values().stream().sorted(Comparator.comparing(Listing::id)).toList();}
+    public synchronized List<BuyOrder> orders(){return orders.values().stream().sorted(Comparator.comparingLong(BuyOrder::unitPrice).reversed().thenComparingLong(BuyOrder::created).thenComparing(BuyOrder::id)).toList();}
+    public synchronized Optional<BuyOrder> order(UUID id){return Optional.ofNullable(orders.get(id));}
     public synchronized Optional<Listing> listing(UUID id){return Optional.ofNullable(listings.get(id));}
     public synchronized List<ItemMail> itemMailbox(UUID owner){return itemMail.values().stream().filter(m->m.owner().equals(owner)).sorted(Comparator.comparing(ItemMail::id)).toList();}
     /** Permanently removed from circulation by explicit D-029 approval; retained for audit only. */
-    public synchronized long taxRemoved(){long total=0;for(var op:history)if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)total=Math.addExact(total,tax(op.amount(),listings.get(op.reference()).master()));return total;}
+    public synchronized long taxRemoved(){long total=0;for(var op:history){
+        if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)total=Math.addExact(total,tax(op.amount(),listings.get(op.reference()).master()));
+        else if(op.kind()==Kind.FILL_ORDER)total=Math.addExact(total,tax(op.amount(),orders.get(op.reference()).master()));
+    }return total;}
     public synchronized long expectedReceipt(UUID player){
-        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM||op.kind()==Kind.LIST_TIMED_ITEM)&&op.target().equals(player))return op.sequence();}return 0;
+        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.FILL_ORDER)&&op.target().equals(player))return op.sequence();}return 0;
     }
     /** Caller must require operator permission, exact-target confirmation and a reason. */
     public synchronized void adminSet(UUID operation,UUID actor,UUID target,long amount,String reason)throws IOException{
@@ -290,9 +310,9 @@ public final class EconomyStore {
     private PendingItem prepareItem(Operation op,ItemAction action)throws IOException{
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy paused for inventory reconciliation");
         if(find(op.id())!=null)throw new IllegalArgumentException("Native item operation already committed");
-        var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);
-        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems);var nextHistory=new ArrayList<>(history);nextHistory.add(op);
-        budget(nextHistory,nextListings,nextItems,nextMail,action==ItemAction.LIST||action==ItemAction.TIMED_LIST);
+        var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
+        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders);var nextHistory=new ArrayList<>(history);nextHistory.add(op);
+        budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,action==ItemAction.LIST||action==ItemAction.TIMED_LIST||action==ItemAction.ORDER_FILL);
         var item=new PendingItem(op.sequence(),op.id(),op.actor(),action,encodeOperation(op),expectedReceipt(op.actor()));persist(history,null,null,item);pendingItem=item;return item;
     }
     /** Exact post-native receipt commits; the exact previous receipt cancels; no guessed delivery. */
@@ -336,6 +356,28 @@ public final class EconomyStore {
         var op=new Operation(history.size()+1L,operation,Kind.SETTLE_TIMED,actor,listing.seller(),listing.bid(),"auction","Timed auction settlement",listingId,now,0,payload);
         if(replayed(op))return;append(op);
     }
+    /** Service validates a plain registered template; payment and ownership commit together. */
+    public synchronized void createOrder(UUID operation,UUID buyer,String buyerName,String title,CompoundTag item,int quantity,long unitPrice,boolean master,long created,long expires)throws IOException{
+        var order=new BuyOrder(operation,buyer,buyerName,title,item,quantity,quantity,unitPrice,master,created,expires,created,true);
+        var data=new CompoundTag();data.putString("buyerName",buyerName);data.put("item",order.item());data.putLong("unitPrice",unitPrice);data.putBoolean("master",master);data.putLong("expires",expires);
+        var op=new Operation(history.size()+1L,operation,Kind.CREATE_ORDER,buyer,buyer,Math.multiplyExact(unitPrice,quantity),"buy_order",title,null,created,quantity,data);
+        if(replayed(op))return;append(op);
+    }
+    /** A native removal receipt atomically releases existing order funding and issues exact item mail. */
+    public synchronized PendingItem prepareOrderFill(UUID operation,UUID seller,UUID orderId,int quantity,CompoundTag item,long now)throws IOException{
+        var order=orders.get(orderId);if(order==null)throw new IllegalStateException("Unknown buy order");var data=new CompoundTag();data.put("item",checkedItem(item));
+        var op=new Operation(history.size()+1L,operation,Kind.FILL_ORDER,seller,seller,Math.multiplyExact(order.unitPrice(),quantity),"buy_order","Buy order fill",orderId,now,quantity,data);
+        return prepareItem(op,ItemAction.ORDER_FILL);
+    }
+    /** Only unspent funding is returned; filled units and their history never reset. */
+    public synchronized void closeOrder(UUID operation,UUID actor,UUID orderId,long now)throws IOException{closeOrder(operation,actor,orderId,now,"");}
+    /** Optional reason belongs to the explicitly enabled operator sandbox route. */
+    public synchronized void closeOrder(UUID operation,UUID actor,UUID orderId,long now,String sandboxReason)throws IOException{
+        var order=orders.get(orderId);if(order==null)throw new IllegalStateException("Unknown buy order");
+        var payload=new CompoundTag();if(!sandboxReason.isEmpty()){text(sandboxReason,128);payload.putString("sandboxReason",sandboxReason);}
+        var op=new Operation(history.size()+1L,operation,Kind.CLOSE_ORDER,actor,order.owner(),Math.multiplyExact(order.remaining(),order.unitPrice()),"buy_order","Buy order refund",orderId,now,0,payload);
+        if(replayed(op))return;append(op);
+    }
     public static long tax(long price,boolean master){money(price);if(price<1)throw new IllegalArgumentException("Invalid auction price");return Math.floorDiv(Math.addExact(Math.multiplyExact(price,master?10L:5L),99),100);}
     private static void auctionShape(Operation op,boolean own){
         if(!op.key().equals("auction")||op.quantity()!=0||own&&!op.actor().equals(op.target()))throw new IllegalArgumentException("Invalid auction operation");
@@ -359,16 +401,16 @@ public final class EconomyStore {
         return true;
     }
     private void healthy(){if(quarantined)throw new IllegalStateException("Economy storage quarantined; restart and reconcile matching checkpoints");}
-    private static long reservedOperations(Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail){
-        return 3L*listings.values().stream().filter(Listing::active).count()+items.values().stream().filter(m->!m.claimed()).count()+mail.values().stream().filter(m->m.kind()==MailKind.COINS&&!m.claimed()).count();
+    private static long reservedOperations(Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,Map<UUID,BuyOrder> orders){
+        return 2L*orders.values().stream().filter(BuyOrder::active).count()+3L*listings.values().stream().filter(Listing::active).count()+items.values().stream().filter(m->!m.claimed()).count()+mail.values().stream().filter(m->m.kind()==MailKind.COINS&&!m.claimed()).count();
     }
-    private void budget(List<Operation> operations,Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,boolean listingAdmission){
-        long reserved=reservedOperations(listings,items,mail);int bytes=encodedBytes(encode(operations,null,null,null));
+    private void budget(List<Operation> operations,Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,Map<UUID,BuyOrder> orders,boolean listingAdmission){
+        long reserved=reservedOperations(listings,items,mail,orders);int bytes=encodedBytes(encode(operations,null,null,null));
         if(operations.size()+reserved>MAX_OPERATIONS||bytes+reserved*1024>MAX_JOURNAL_BYTES||listingAdmission&&bytes>MAX_LISTING_JOURNAL_BYTES)
             throw new IllegalStateException("Economy archive required; existing escrow recovery capacity is reserved");
     }
     private void capacity(){
-        long reserved=reservedOperations(listings,itemMail,mail);
+        long reserved=reservedOperations(listings,itemMail,mail,orders);
         if(history.size()+1L+reserved>MAX_OPERATIONS||encodedBytes(encode(history,null,null,null))+1024L+reserved*1024>MAX_JOURNAL_BYTES)
             throw new IllegalStateException("Economy archive required; existing escrow recovery capacity is reserved");
     }
@@ -380,15 +422,48 @@ public final class EconomyStore {
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy paused for inventory reconciliation");appendResolved(op);
     }
     private void appendResolved(Operation op)throws IOException{
-        var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);
-        apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail);var next=new ArrayList<>(history);next.add(op);
-        budget(next,nextListings,nextItemMail,nextMail,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM);persist(next,null);
-        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;pendingItem=null;
+        var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
+        apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders);var next=new ArrayList<>(history);next.add(op);
+        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER);persist(next,null);
+        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;pendingItem=null;
     }
-    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail){
+    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
+            case CREATE_ORDER->{
+                var data=op.payload();
+                if(!op.key().equals("buy_order")||!op.actor().equals(op.target())||op.reference()!=null||orders.containsKey(op.id())
+                        ||!data.getAllKeys().equals(Set.of("buyerName","item","unitPrice","master","expires")))throw new IllegalArgumentException("Invalid buy order creation");
+                require(data,"buyerName",Tag.TAG_STRING);require(data,"item",Tag.TAG_COMPOUND);require(data,"unitPrice",Tag.TAG_LONG);require(data,"master",Tag.TAG_BYTE);require(data,"expires",Tag.TAG_LONG);
+                var order=new BuyOrder(op.id(),op.actor(),data.getString("buyerName"),op.detail(),data.getCompound("item"),op.quantity(),op.quantity(),data.getLong("unitPrice"),data.getBoolean("master"),op.period(),data.getLong("expires"),op.period(),true);
+                if(op.amount()!=Math.multiplyExact(order.quantity(),order.unitPrice()))throw new IllegalArgumentException("Order funding differs from cost");
+                if(orders.values().stream().filter(BuyOrder::active).count()>=100||orders.values().stream().filter(v->v.active()&&v.owner().equals(op.actor())).count()>=10)throw new IllegalStateException("Buy order slots exhausted (ten per player, one hundred per kingdom)");
+                if(balance<op.amount())throw new IllegalStateException("Insufficient coins to fund the whole order");
+                balances.put(op.actor(),balance-op.amount());orders.put(op.id(),order);
+            }
+            case FILL_ORDER->{
+                var order=orders.get(op.reference());var data=op.payload();
+                if(order==null||!order.active()||order.owner().equals(op.actor())||!op.actor().equals(op.target())||!op.key().equals("buy_order")||!op.detail().equals("Buy order fill")
+                        ||op.period()<order.lastFill()||op.period()>=order.expires()||op.quantity()<1||op.quantity()>64||op.quantity()>order.remaining()
+                        ||op.amount()!=Math.multiplyExact(order.unitPrice(),op.quantity())||!data.getAllKeys().equals(Set.of("item"))||mail.containsKey(op.id())||itemMail.containsKey(op.id()))throw new IllegalStateException("Buy order fill is unavailable");
+                require(data,"item",Tag.TAG_COMPOUND);var actual=checkedItem(data.getCompound("item"));var template=actual.copy();template.putInt("count",1);
+                if(actual.getInt("count")!=op.quantity()||!template.equals(order.item()))throw new IllegalArgumentException("Filled item differs from the exact order template");
+                long proceeds=op.amount()-tax(op.amount(),order.master());
+                if(proceeds>0)mail.put(op.id(),new Mail(op.id(),op.actor(),MailKind.COINS,proceeds,"","Buy order proceeds",false));
+                itemMail.put(op.id(),new ItemMail(op.id(),order.owner(),actual,order.title(),false));orders.put(order.id(),order.filled(op.quantity(),op.period()));
+            }
+            case CLOSE_ORDER->{
+                if(!op.payload().isEmpty()){
+                    if(!op.payload().getAllKeys().equals(Set.of("sandboxReason")))throw new IllegalArgumentException("Invalid sandbox order audit");
+                    require(op.payload(),"sandboxReason",Tag.TAG_STRING);text(op.payload().getString("sandboxReason"),128);
+                }
+                var order=orders.get(op.reference());
+                if(order==null||!order.active()||!order.owner().equals(op.target())||!op.key().equals("buy_order")||!op.detail().equals("Buy order refund")||op.quantity()!=0
+                        ||op.period()<order.lastFill()||!op.actor().equals(order.owner())&&op.period()<order.expires()||op.amount()!=Math.multiplyExact(order.remaining(),order.unitPrice())
+                        ||mail.containsKey(op.id()))throw new IllegalStateException("Buy order cannot be refunded");
+                mail.put(op.id(),new Mail(op.id(),order.owner(),MailKind.COINS,op.amount(),"","Unspent buy order funding",false));orders.put(order.id(),order.closed());
+            }
             case LIST_ITEM, LIST_TIMED_ITEM->{
                 auctionShape(op,true);if(op.reference()!=null||op.amount()<1||listings.containsKey(op.id()))throw new IllegalArgumentException("Invalid listing record");
                 var data=op.payload();require(data,"sellerName",Tag.TAG_STRING);require(data,"expires",Tag.TAG_LONG);require(data,"master",Tag.TAG_BYTE);require(data,"item",Tag.TAG_COMPOUND);

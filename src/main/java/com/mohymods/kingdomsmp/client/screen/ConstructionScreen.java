@@ -52,7 +52,7 @@ public final class ConstructionScreen extends Screen {
         String[] names={"Blueprint","Project","Royal Admin"};
         for(int i=0;i<tabs;i++){int selected=i;addRenderableWidget(button(x+i*(tw+4),box.y()+48,tw,names[i],b->{remember();tab=selected;scroll=0;rebuild();},"Inspect "+names[i].toLowerCase(Locale.ROOT)+".").selected(tab==i));}
         if(view.reviewAction()==0){
-            if(tab==0){
+            if(tab==0&&!reservedSite()){
                 BlockPos initial=view.hasSite()?view.origin():minecraft.player.blockPosition();
                 if(xValue==null){xValue=Integer.toString(initial.getX());yValue=Integer.toString(initial.getY());zValue=Integer.toString(initial.getZ());}
                 int fw=(w-8)/3,y=box.bodyY()+12;
@@ -74,7 +74,7 @@ public final class ConstructionScreen extends Screen {
                 addRenderableWidget(button(x+bw+4,box.bodyY()+28,bw,"Kingdom overview",b->ClientOverviewController.request(),"Read current kingdom progression. No service unlock is granted."));
                 if(commerce)addRenderableWidget(button(x+2*(bw+4),box.bodyY()+28,bw,"Royal services",b->com.mohymods.kingdomsmp.client.CommerceController.open(0),"Blueprint market, Essentials and your private mailbox. Visit the resident to trade."));
                 if(view.phase().equals("APPROVED")&&view.owner())mutations.add(addRenderableWidget(button(x,box.bodyY()+52,Math.min(180,w),"Review construction",b->send(7),"Review the one-use plan redemption at the approved location.")));
-            }else{
+            }else if(tab==2){
                 RoyalButton approve=addRenderableWidget(button(x,box.bodyY(),Math.min(180,w),"Review site approval",b->send(5),"Inspect the exact proposed footprint nearby; confirm separately. No terrain changes."));
                 approve.active=view.phase().equals("PROPOSED");mutations.add(approve);
                 RoyalButton resume=addRenderableWidget(button(x,box.bodyY()+24,Math.min(180,w),"Inspect / resume",b->send(9),"Verify and resume only the same existing project; no missing material or NPC regeneration."));
@@ -97,6 +97,7 @@ public final class ConstructionScreen extends Screen {
     private void send(int action){ConstructionController.request(action,BlockPos.ZERO,0,ConstructionRequest.NONE);}
     private RoyalButton button(int x,int y,int w,String label,net.minecraft.client.gui.components.Button.OnPress press,String help){return new RoyalButton(x,y,w,20,text(label),press,text(help));}
     private String rotationName(){return new String[]{"North","East","South","West"}[rotation];}
+    private boolean reservedSite(){return view.phase().equals("BUILDING")||view.phase().equals("COMPLETE");}
     @Override public void renderBackground(GuiGraphics g,int x,int y,float t){ }
     @Override public void render(GuiGraphics g,int mx,int my,float partial){
         g.fill(0,0,width,height,RoyalPalette.BACKDROP);
@@ -111,6 +112,9 @@ public final class ConstructionScreen extends Screen {
         int x=box.contentX(),y=box.bodyY(),w=box.contentWidth(),h=box.bodyHeight();
         if(view.reviewAction()>0){
             RoyalPanel.parchment(g,x,y,w,h);paragraphs(g,reviewText(),x+8,y+8,w-16,h-16);
+        }else if(tab==0&&reservedSite()){
+            RoyalPanel.parchment(g,x,y,w,h);
+            paragraphs(g,List.of(text(siteText()),text("Placed: "+view.placed()+" / "+view.total()+" · Blueprint redeemed once."),text(view.activity()),text(view.phase().equals("COMPLETE")?"This kingdom building has a permanent saved location. Open Project for resident and kingdom services.":"The construction site is reserved. Open Project to inspect Aldric's saved progress."),text(notice())),x+8,y+8,w-16,h-16);
         }else if(tab==0){
             int fw=(w-8)/3;g.drawString(font,"Foundation X",x,y,RoyalPalette.MUTED,false);g.drawString(font,"Y",x+fw+4,y,RoyalPalette.MUTED,false);g.drawString(font,"Z",x+2*(fw+4),y,RoyalPalette.MUTED,false);
             if(h>116){RoyalPanel.parchment(g,x,y+94,w,h-94);paragraphs(g,List.of(text("ONE KINGDOM BUILDING · MATERIALS INCLUDED"),text("Winner: "+view.winner()+". Your plan includes every building material; Aldric uses them at the approved site."),text(view.modern()?"Aim with the held plan, rotate and adjust height. The server validates the complete site; then review construction in Project.":"Propose a clear supported Overworld site. An administrator must review its footprint and exterior work post before work begins."),text(view.modern()&&!view.blueprint().equals(com.mohymods.kingdomsmp.building.BlueprintRegistry.HUT)?com.mohymods.kingdomsmp.building.BlueprintRegistry.occupation(view.blueprint())+": "+view.resident()+". Before construction, the holder may choose a display name with /kingdom lodge name <name>.":"One permanent building and resident; lost plans are recoverable."),text(view.activity()),text(notice())),x+8,y+102,w-16,h-110);}
@@ -125,7 +129,7 @@ public final class ConstructionScreen extends Screen {
         if(ConstructionController.waiting()||ConstructionController.refreshRequired()){
             g.drawString(font,font.plainSubstrByWidth(ConstructionController.status(),w),x,box.footerY()-12,RoyalPalette.MUTED,false);
             mutations.forEach(b->b.active=false);
-        }else if(tab==0&&view.reviewAction()==0&&h<=116&&!notice().isBlank()){
+        }else if(tab==0&&!reservedSite()&&view.reviewAction()==0&&h<=116&&!notice().isBlank()){
             g.drawString(font,font.plainSubstrByWidth(notice(),w),x,box.footerY()-12,RoyalPalette.MUTED,false);
         }
         super.render(g,mx,my,partial);

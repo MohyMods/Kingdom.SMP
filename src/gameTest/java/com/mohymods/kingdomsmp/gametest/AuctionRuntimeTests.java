@@ -63,7 +63,56 @@ public final class AuctionRuntimeTests {
         h.assertTrue(reload.listings().size()==2&&reload.taxRemoved()==5&&reload.balance(buyer.getUUID())==400&&reload.itemMailbox(buyer.getUUID()).getFirst().claimed(),"Native restart projection retains sold/cancelled listing, balance, tax and claimed delivery");
         for(var p:List.of(seller,buyer))CommerceService.verifyReceipt(p);
         timed(h,seller,buyer,third);
-        h.succeed();com.mojang.logging.LogUtils.getLogger().info("AUCTION_TEST_ASSERTIONS_PASSED: full preceding Bank and fixed-price loop; native timed escrow, funded bids/difference-only raise, private outbid refund, cancellation lock, controlled deadline maintenance, exact settlement tax/proceeds/item delivery and reload");
+        buyOrders(h,seller,buyer,third);
+        h.succeed();com.mojang.logging.LogUtils.getLogger().info("AUCTION_TEST_ASSERTIONS_PASSED: full preceding settlement/Bank/fixed/timed loop plus funded buy orders, real partial inventory removals, competing sellers, exact item/proceeds mail, unspent cancellation/expiry, sandbox permissions/audit, 101-row visibility and native receipt reload");
+    }
+    private static void buyOrders(GameTestHelper h,ServerPlayer seller,ServerPlayer buyer,ServerPlayer other)throws Exception{
+        var server=seller.server;var s=CommerceService.store(server);long sellerBefore=s.balance(seller.getUUID()),taxBefore=s.taxRemoved();
+        s.adminSet(UUID.randomUUID(),CommerceRequest.NONE,buyer.getUUID(),2000,"Explicit native buy-order QA funding");
+        buyer.getInventory().clearContent();buyer.getInventory().setItem(buyer.getInventory().selected,new ItemStack(Items.IRON_INGOT));
+        confirm(buyer,review(buyer,6,"create",64,10),6);
+        var order=s.orders().stream().filter(EconomyStore.BuyOrder::active).findFirst().orElseThrow();
+        h.assertTrue(count(buyer,Items.IRON_INGOT)==1&&s.balance(buyer.getUUID())==1360&&order.fundsHeld()==640,"Order creation preserves sample and reserves all 640 actual coins");
+        seller.getInventory().clearContent();seller.getInventory().setItem(seller.getInventory().selected,new ItemStack(Items.IRON_INGOT,32));
+        var stale=review(seller,6,"fill:"+order.id(),16,0);seller.getMainHandItem().shrink(1);refused(h,()->confirm(seller,stale,6),"Changed inventory refuses before native partial removal");
+        h.assertTrue(s.order(order.id()).orElseThrow().remaining()==64&&count(seller,Items.IRON_INGOT)==31,"Stale fill has no demand or inventory effects");
+        seller.getInventory().setItem(seller.getInventory().selected,new ItemStack(Items.IRON_INGOT,32));
+        confirm(seller,review(seller,6,"fill:"+order.id(),16,0),6);
+        h.assertTrue(count(seller,Items.IRON_INGOT)==16&&s.order(order.id()).orElseThrow().remaining()==48&&s.balance(buyer.getUUID())==1360,"Only accepted sixteen items removed; buyer is not charged again");
+        other.getInventory().clearContent();other.getInventory().setItem(other.getInventory().selected,new ItemStack(Items.IRON_INGOT,8));
+        var competitor=review(other,6,"fill:"+order.id(),48,0);confirm(seller,review(seller,6,"fill:"+order.id(),16,0),6);
+        refused(h,()->confirm(other,competitor,6),"Competing stale seller review cannot consume against changed demand");
+        h.assertTrue(count(other,Items.IRON_INGOT)==8,"Losing stale seller retains every item");
+        confirm(other,review(other,6,"fill:"+order.id(),16,0),6);
+        h.assertTrue(s.order(order.id()).orElseThrow().remaining()==24&&count(other,Items.IRON_INGOT)==0,"Partial fill clamps to the eight real available items");
+        confirm(buyer,review(buyer,6,"cancel:"+order.id(),1,0),6);
+        var refund=s.mailbox(buyer.getUUID()).stream().filter(m->!m.claimed()&&m.description().equals("Unspent buy order funding")).findFirst().orElseThrow();
+        h.assertTrue(refund.amount()==240&&!s.order(order.id()).orElseThrow().active(),"Cancellation returns only 24 unfilled units' funding");
+        confirm(buyer,review(buyer,2,refund.id().toString(),1,0),2);
+        // Another partially filled order uses the real gated admin expiry path.
+        buyer.getInventory().setItem(buyer.getInventory().selected,new ItemStack(Items.GLASS));
+        confirm(buyer,review(buyer,6,"create",16,10),6);var expiry=s.orders().stream().filter(EconomyStore.BuyOrder::active).findFirst().orElseThrow();
+        seller.getInventory().setItem(seller.getInventory().selected,new ItemStack(Items.GLASS,4));confirm(seller,review(seller,6,"fill:"+expiry.id(),4,0),6);
+        String command="kingdom admin orders expire-test "+expiry.id()+" confirm Native partial-order deadline audit";
+        var marker=server.getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-sandbox.enabled");java.nio.file.Files.deleteIfExists(marker);
+        h.assertTrue(server.getCommands().getDispatcher().execute(command,server.createCommandSourceStack())==0&&s.order(expiry.id()).orElseThrow().active(),"Order expiry test requires explicit isolated marker");
+        java.nio.file.Files.writeString(marker,"Isolated native order fixture");boolean denied=false;try{server.getCommands().getDispatcher().execute(command,buyer.createCommandSourceStack());}catch(com.mojang.brigadier.exceptions.CommandSyntaxException expected){denied=true;}h.assertTrue(denied,"Ordinary player cannot accelerate order expiry");
+        h.assertTrue(server.getCommands().getDispatcher().execute(command,server.createCommandSourceStack())==1,"Confirmed isolated partial expiry succeeds");
+        var expiredRefund=s.mailbox(buyer.getUUID()).stream().filter(m->!m.claimed()&&m.description().equals("Unspent buy order funding")).findFirst().orElseThrow();h.assertTrue(expiredRefund.amount()==120,"Expiry refunds unspent twelve units, not the original sixteen");
+        confirm(buyer,review(buyer,2,expiredRefund.id().toString(),1,0),2);
+        var items=s.itemMailbox(buyer.getUUID()).stream().filter(m->!m.claimed()).toList();
+        for(int i=0;i<36;i++)buyer.getInventory().setItem(i,new ItemStack(Items.COBBLESTONE,64));refused(h,()->review(buyer,2,items.getFirst().id().toString(),1,0),"Full inventory keeps buy-order item mail safely unclaimed");buyer.getInventory().clearContent();buyer.getInventory().setItem(0,new ItemStack(Items.GLASS));
+        for(var item:items)confirm(buyer,review(buyer,2,item.id().toString(),1,0),2);
+        for(var p:List.of(seller,other))for(var coins:s.mailbox(p.getUUID()).stream().filter(m->!m.claimed()&&m.kind()==EconomyStore.MailKind.COINS).toList())confirm(p,review(p,2,coins.id().toString(),1,0),2);
+        h.assertTrue(count(buyer,Items.IRON_INGOT)==40&&count(buyer,Items.GLASS)==5&&s.balance(buyer.getUUID())==1560,"Buyer receives exactly forty iron and four glass, plus its unchanged sample, and only unspent refunds");
+        h.assertTrue(s.taxRemoved()==taxBefore+22,"Each actual partial sale removes its exact five-percent rounded tax");
+        CommerceService.verifyReceipt(buyer);CommerceService.verifyReceipt(seller);CommerceService.verifyReceipt(other);
+        var disk=EconomyStore.open(server.getWorldPath(LevelResource.ROOT).resolve("data"));h.assertTrue(disk.balance(buyer.getUUID())==1560&&disk.orders().size()==2&&disk.orders().stream().noneMatch(EconomyStore.BuyOrder::active),"Actual native filled/refunded orders reload without lost funding");
+        var history=AtomicNbt.read(server.getWorldPath(LevelResource.ROOT).resolve("data/kingdomsmp_economy.dat")).getList("history",net.minecraft.nbt.Tag.TAG_COMPOUND);boolean audit=false;for(int i=0;i<history.size();i++)if(history.getCompound(i).getCompound("payload").getString("sandboxReason").equals("Native partial-order deadline audit"))audit=true;h.assertTrue(audit,"Order expiry reason persists canonically");
+        // Explicit off-line catalogue fixture proves the full bounded network projection is visible, not silently truncated.
+        long now=System.currentTimeMillis();var template=(net.minecraft.nbt.CompoundTag)new ItemStack(Items.WHEAT).save(server.registryAccess());
+        for(int i=0;i<100;i++){UUID owner=UUID.randomUUID();s.adminSet(UUID.randomUUID(),CommerceRequest.NONE,owner,1,"Explicit catalogue visibility fixture");s.createOrder(UUID.randomUUID(),owner,"Fixture"+i,"Wheat order",template,1,1,false,now,now+3_600_000);}
+        var view=CommerceService.snapshot(buyer,9999,6,"");h.assertTrue(view.entries().size()==101,"One hundred real funded orders plus create action survive bounded projection for client pagination");
     }
     private static void timed(GameTestHelper h,ServerPlayer seller,ServerPlayer buyer,ServerPlayer other)throws Exception{
         var s=CommerceService.store(seller.server);long sellerBefore=s.balance(seller.getUUID()),buyerBefore=s.balance(buyer.getUUID()),otherBefore=s.balance(other.getUUID()),taxBefore=s.taxRemoved();

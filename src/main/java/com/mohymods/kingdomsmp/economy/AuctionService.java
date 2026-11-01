@@ -33,10 +33,15 @@ public final class AuctionService {
     /** Bounded server-only maintenance. Explicit time permits deterministic native restart/deadline testing. */
     public static void maintain(net.minecraft.server.MinecraftServer server,long now)throws IOException{
         var s=CommerceService.store(server);if(s.pendingItem().isPresent()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.quarantined())return;
+        int handled=0;
         for(var l:s.listings().stream().filter(v->v.active()&&v.expires()<=now).sorted(Comparator.comparingLong(EconomyStore.Listing::expires).thenComparing(EconomyStore.Listing::id)).limit(2).toList()){
             if(l.timed()&&l.bidder()!=null)s.settleTimed(UUID.randomUUID(),CommerceRequest.NONE,l.id(),now);
             else s.returnListing(UUID.randomUUID(),CommerceRequest.NONE,l.id(),now);
-            LogUtils.getLogger().info("ROYAL_AUCTION_SETTLED listing={} timed={} winner={} amount={} deadline={} time={}",l.id(),l.timed(),l.bidder(),l.timed()?l.bid():l.price(),l.expires(),now);
+            handled++;LogUtils.getLogger().info("ROYAL_AUCTION_SETTLED listing={} timed={} winner={} amount={} deadline={} time={}",l.id(),l.timed(),l.bidder(),l.timed()?l.bid():l.price(),l.expires(),now);
+        }
+        for(var order:s.orders().stream().filter(o->o.active()&&o.expires()<=now).sorted(Comparator.comparingLong(EconomyStore.BuyOrder::expires).thenComparing(EconomyStore.BuyOrder::id)).limit(2-handled).toList()){
+            s.closeOrder(UUID.randomUUID(),CommerceRequest.NONE,order.id(),now);
+            LogUtils.getLogger().info("ROYAL_BUY_ORDER_EXPIRED order={} owner={} unspent={}",order.id(),order.owner(),order.fundsHeld());
         }
     }
     private AuctionService(){ }
@@ -92,7 +97,7 @@ public final class AuctionService {
     }
     public static List<CommerceView.Entry> mailEntries(ServerPlayer p){
         List<CommerceView.Entry> out=new ArrayList<>();
-        for(var m:CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().filter(m->!m.claimed()).toList()){
+        for(var m:CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().filter(m->!m.claimed()).limit(128).toList()){
             var item=decode(p,m.item());String title=item.getCount()+" × "+item.getHoverName().getString();
             out.add(new CommerceView.Entry(m.id().toString(),bounded(title,64),bounded(m.description()+". Exact components retained. Claim at the Royal Bank with enough inventory space; nothing is dropped.",256),0,"ITEMS"));
         }

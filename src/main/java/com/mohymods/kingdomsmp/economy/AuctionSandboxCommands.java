@@ -28,5 +28,5 @@ public final class AuctionSandboxCommands {
                             }catch(java.io.IOException|IllegalArgumentException|IllegalStateException e){source.sendFailure(Component.literal(e.getMessage()==null?"Auction settlement requires checkpoint recovery.":e.getMessage()));return 0;}
                         }))));
     }
-    private static boolean enabled(CommandSourceStack source){return Files.isRegularFile(source.getServer().getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-sandbox.enabled"),LinkOption.NOFOLLOW_LINKS);}
+    static boolean enabled(CommandSourceStack source){return Files.isRegularFile(source.getServer().getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-sandbox.enabled"),LinkOption.NOFOLLOW_LINKS);}
 }

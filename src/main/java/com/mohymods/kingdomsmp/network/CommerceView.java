@@ -16,7 +16,7 @@ public record CommerceView(long requestId,long revision,boolean open,int tab,int
         }
     }
     public CommerceView {
-        if(requestId<0||revision<0||tab<0||tab>5||tier<1||tier>12||balance<0||entries==null||entries.size()>32
+        if(requestId<0||revision<0||tab<0||tab>6||tier<1||tier>12||balance<0||entries==null||entries.size()>128
                 ||review==null||reviewText==null||reviewText.length()>1024||notice==null||notice.length()>512)
             throw new IllegalArgumentException("Invalid commerce view");
         entries=List.copyOf(entries);
@@ -32,7 +32,7 @@ public record CommerceView(long requestId,long revision,boolean open,int tab,int
         b.writeUUID(p.review);b.writeUtf(p.reviewText,1024);b.writeUtf(p.notice,512);
     },b->{
         long request=b.readVarLong(),revision=b.readVarLong();boolean open=b.readBoolean();int tab=b.readVarInt(),tier=b.readVarInt();long balance=b.readVarLong();
-        int size=b.readVarInt();if(size<0||size>32)throw new IllegalArgumentException("Too many commerce entries");
+        int size=b.readVarInt();if(size<0||size>128)throw new IllegalArgumentException("Too many commerce entries");
         List<Entry> entries=new ArrayList<>(size);
         for(int i=0;i<size;i++)entries.add(new Entry(b.readUtf(96),b.readUtf(64),b.readUtf(256),b.readVarLong(),b.readUtf(48)));
         return new CommerceView(request,revision,open,tab,tier,balance,entries,b.readUUID(),b.readUtf(1024),b.readUtf(512));

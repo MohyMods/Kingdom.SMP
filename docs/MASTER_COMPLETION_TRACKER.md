@@ -1,3 +1,5 @@
+> **0.10.0 current slice:** [Funded buy orders](BUY_ORDER_CHECKPOINT.md) implements full funding, exact partial fills and unspent cancellation/expiry refunds in the supported vanilla scope. Full242JUnit/native tests and real two-client restart evidence are recorded in VALIDATION. Dynamic NPC shops/contracts, professions, later buildings/tiers and full-pack acceptance remain unfinished. Historical missing-status text below is superseded only for these verified slices.
+
 > **0.9.0 current slice:** [Funded timed auctions](TIMED_AUCTION_CHECKPOINT.md) adds outbid refunds, rolling anti-sniping, due settlement and guarded QA commands. Fixed-price/Bank/building systems remain. Buyorders, dynamic economy and the full1.0 game remain incomplete.
 
 > **0.8.0 current slice:** [Fixed-price auctions and native item mail](AUCTION_CHECKPOINT.md) extends the 0.7 marketplace/Bank. [Public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md) is explicit and optional. Timed bids, buy orders, dynamic economy and full1.0 remain unfinished; D-029 permanently removes auction taxes from circulation. Historical missing-status text below is superseded only for these verified slices.
@@ -106,7 +108,7 @@ Each profession has 8 Apprentice, 8 Journeyman and 8 Master quests. The IDs belo
 | Daily / weekly profession contracts | BLOCKED — REQUIRES DECISION | Objectives, attribution, funding, rewards, expiry and eligibility; one completion |
 | Fixed-price market listings | BLOCKED — REQUIRES DECISION | Escrow/item matching/cancellation/capacity/fees; last-item and interrupted delivery tests |
 | Timed auctions | BLOCKED — REQUIRES DECISION | Bids/increments/anti-sniping/refunds/expiry/offline rules; durable escrow |
-| Buy orders | BLOCKED — REQUIRES DECISION | Price/time priority/partial fills/item matching; funded escrow |
+| Buy orders | VERIFIED DEVELOPMENT SCOPE — 0.10 | Canonically funded, exact plain vanilla partial fills, price/time/UUID display priority, unspent refunds; see BUY_ORDER_CHECKPOINT and D-031 |
 | 5% normal / 10% Master tax | BLOCKED — REQUIRES DECISION | Approved rounding/timing/recipient; exact arithmetic and restart |
 | Royal Trading Counter | BLOCKED — REQUIRES DECISION | Intermediate premises/gate and actual stock/service rules; independent of final Hall |
 

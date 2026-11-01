@@ -1,4 +1,4 @@
-# Production feature inventory — D-030 / 0.9.0
+# Production feature inventory — D-031 / 0.10.0
 
 Authority: [final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md). Source baseline 9fb65ec; the fresh-world settlement checkpoint follows it. Percentages are **explicit coarse acceptance slices**, not estimates of engineering hours or a release-completion claim. A tested legacy slice does not satisfy the new-world Hall requirement.
 
@@ -10,7 +10,7 @@ Authority: [final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-
 | 12-tier progression | 2/11 transitions | 18.2% | Tier1→2 and fresh-profile Tier2→3 resources/road; later transitions, borders and FTB integration missing |
 | Blueprint system | 9/10 | 90.0% | Prior8slices plus real exclusive paid marketplace; four-block supports pending |
 | Public building services | 3/7 | 42.9% | Hut, Hall/exchange and Bank; four later public buildings missing; legacy Lodge preserved |
-| Economy | 3/5 | 60.0% | Currency, Bank and supported vanilla escrow/mail verified; fixed/timed auctions tested; dynamic shops/contracts and buyorders missing |
+| Economy | 4/5 | 80.0% | Currency, Bank, supported vanilla escrow/mail and all three auction modes verified; dynamic shops/contracts remain missing |
 | Professions | 0/12 | 0.0% | All profession gameplay missing |
 | Profession quest content | 0/288 | 0.0% | No approved quest implementations |
 | FTB campaign | 0/1 | 0.0% | Reported mod, no tested campaign |
@@ -29,3 +29,5 @@ Slice definitions: platform=JDK/build/runtime; legacy=Hut, donations, history/ra
 0.8 adds a tested fixed-price auction slice and native vanilla item escrow/mail. The auction slice remains partial: timed bidding, anti-sniping and buy orders are absent. D-029 explicitly approves auction taxes permanently leaving circulation, with audit totals retained. Public NPC access requires deliberate claim configuration; full-pack capture-item compatibility remains unverified.
 
 0.9 adds funded timed bids, private outbid refunds, rolling anti-sniping and audited isolated deadline tests. Buyorders/partialfills remain absent, so the auction slice is still partial. Rates remain5%/10%, permanently removed perD029. All full-release gaps remain visible.
+
+0.10 adds funded buy orders, exact partial fills and unspent cancellation/expiry refunds. The coarse auction slice is now verified in supported vanilla scope; it does not imply Master gear, modded/container ownership compatibility or long-term economy balance. Dynamic NPC prices/shops/contracts remain the next economy dependency. Completed/reserved Blueprint details now use the scrollable body at narrow scales. All other release gaps remain open.

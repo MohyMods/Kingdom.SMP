@@ -34,7 +34,7 @@ public final class CommerceService {
     private static final Map<ServerPlayer,UUID> COUNTERS=new WeakHashMap<>();
     private record Quote(UUID nonce,long revision,int tab,String selected,int quantity,long amount,long period,long issued,List<ItemStack> inventory) { }
     private CommerceService() { }
-    public static void initialize(MinecraftServer server){STORES.remove(server);CATALOGS.remove(server);QUOTES.keySet().removeIf(p->p.server==server);COUNTERS.keySet().removeIf(p->p.server==server);store(server);}
+    public static void initialize(MinecraftServer server){STORES.remove(server);CATALOGS.remove(server);QUOTES.keySet().removeIf(p->p.server==server);COUNTERS.keySet().removeIf(p->p.server==server);BuyOrderService.initialize(server);store(server);}
     public static CommerceCatalog catalog(MinecraftServer server){
         var c=CATALOGS.get(server);if(c!=null)return c;
         try{c=CommerceCatalog.load(server.getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-commerce.json"));CATALOGS.put(server,c);return c;}
@@ -64,7 +64,7 @@ public final class CommerceService {
         try{verifyReceipt(p,store(p.server));}
         catch(IOException|RuntimeException e){LogUtils.getLogger().error("Economy player checkpoint mismatch {}",p.getUUID(),e);p.connection.disconnect(Component.literal("Economy checkpoint needs recovery. Restore matching player and kingdom data."));}
     }
-    public static void logout(PlayerEvent.PlayerLoggedOutEvent event){if(event.getEntity() instanceof ServerPlayer p){QUOTES.remove(p);COUNTERS.remove(p);BankService.close(p);AuctionService.close(p);com.mohymods.kingdomsmp.progression.TierTwoService.close(p);}}
+    public static void logout(PlayerEvent.PlayerLoggedOutEvent event){if(event.getEntity() instanceof ServerPlayer p){QUOTES.remove(p);COUNTERS.remove(p);BankService.close(p);AuctionService.close(p);BuyOrderService.close(p);com.mohymods.kingdomsmp.progression.TierTwoService.close(p);}}
     public static void openResident(ServerPlayer player,ReeveEntity resident){
         if(!ConstructionService.registeredReeve(resident)||!player.hasLineOfSight(resident)||player.distanceToSqr(resident)>64)throw new IllegalStateException("Visit the registered resident at the completed building.");
         COUNTERS.put(player,resident.getUUID());var project=ConstructionService.projectForResident(resident);int tab=project!=null&&project.blueprint().equals(RoyalBankBlueprint.ID)?3:1;String greeting=project==null?"":resident.getName().getString()+" — "+BlueprintRegistry.greeting(project.blueprint());net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,snapshot(player,0,tab,greeting).withOpen(true));
@@ -86,10 +86,17 @@ public final class CommerceService {
         if(hall==null||hall.phase()!=Phase.COMPLETE||hall.npcDead()||!ConstructionService.structureIntact(player.serverLevel(),hall))throw new IllegalStateException("Complete and maintain the kingdom headquarters before using commerce.");
     }
     public static CommerceView handle(ServerPlayer player,CommerceRequest request){
-        if(request.action()==4){QUOTES.remove(player);COUNTERS.remove(player);BankService.close(player);AuctionService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);return snapshot(player,request.requestId(),request.tab(),"");}
+        if(request.action()==4){QUOTES.remove(player);COUNTERS.remove(player);BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);return snapshot(player,request.requestId(),request.tab(),"");}
         String notice="";
         try{
-            if(request.action()==0){AuctionService.close(player);QUOTES.remove(player);}
+            if(request.action()==0){AuctionService.close(player);BuyOrderService.close(player);QUOTES.remove(player);}
+            if(request.tab()==6){
+                if(request.action()==0)AuctionService.maintain(player.server,System.currentTimeMillis());
+                else if(request.action()==1){BuyOrderService.review(player,request.selected(),request.quantity(),request.amount());notice="Review the exact order funding or inventory transfer before confirming.";}
+                else if(request.action()==2)notice=BuyOrderService.confirm(player,request.review());
+                else throw new IllegalArgumentException("Unsupported buy-order action.");
+                return snapshot(player,request.requestId(),request.tab(),notice);
+            }
             if(request.tab()==5||request.tab()==2&&request.action()==1&&AuctionService.itemMail(player,request.selected())
                     ||request.tab()==2&&request.action()==2&&AuctionService.quote(player).filter(q->q.tab()==2&&q.nonce().equals(request.review())).isPresent()){
                 if(request.action()==0){AuctionService.expire(player);}
@@ -99,7 +106,7 @@ public final class CommerceService {
                 return snapshot(player,request.requestId(),request.tab(),notice);
             }
             if(request.tab()>=3){
-                if(request.action()==0){BankService.close(player);AuctionService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);}
+                if(request.action()==0){BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);}
                 else if(request.tab()==3&&request.action()==1)notice=BankService.review(player,request.selected(),request.quantity()).text();
                 else if(request.tab()==3&&request.action()==2)notice=BankService.confirm(player,request.review());
                 else if(request.tab()==4&&request.action()==1){com.mohymods.kingdomsmp.progression.TierTwoService.handleReview(player,request.selected(),request.quantity());notice="Review your exact shared contribution.";}
@@ -159,6 +166,7 @@ public final class CommerceService {
     }
     public static CommerceView snapshot(ServerPlayer player,long requestId,int tab,String notice){
         var s=store(player.server);var c=catalog(player.server);long version=s.revision()+ConstructionService.store(player.server).revision();if(ConstructionService.royal(player.server))version+=com.mohymods.kingdomsmp.progression.TierTwoService.ledger(player.server).revision();int tier=ContributionService.kingdom(player.server).attainedTier();List<CommerceView.Entry> rows=new ArrayList<>();
+        if(tab==6){var q=BuyOrderService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BuyOrderService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==5){var q=AuctionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),AuctionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==3){var q=BankService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BankService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==4){var q=com.mohymods.kingdomsmp.progression.TierTwoService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.progression.TierTwoService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
