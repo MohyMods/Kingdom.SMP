@@ -29,6 +29,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.building.KingdomBlueprints.register(modBus);
         com.mohymods.kingdomsmp.building.ConstructionProtection.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.building.ConstructionService::tick);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.economy.AuctionService::tick);
         NeoForge.EVENT_BUS.addListener(ContributionService::login);
         NeoForge.EVENT_BUS.addListener(ContributionService::logout);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.economy.CommerceService::login);
@@ -51,6 +52,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.building.ConstructionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.progression.TierTwoService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.CommerceService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.economy.AuctionService.initialize(event.getServer());
         KingdomState state = ContributionService.kingdom(event.getServer());
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());

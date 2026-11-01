@@ -1,4 +1,4 @@
-# Production feature inventory — D-028 / 0.8.0
+# Production feature inventory — D-030 / 0.9.0
 
 Authority: [final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-10-31.md). Source baseline 9fb65ec; the fresh-world settlement checkpoint follows it. Percentages are **explicit coarse acceptance slices**, not estimates of engineering hours or a release-completion claim. A tested legacy slice does not satisfy the new-world Hall requirement.
 
@@ -10,7 +10,7 @@ Authority: [final production directive](sources/FINAL_PRODUCTION_DIRECTIVE_2026-
 | 12-tier progression | 2/11 transitions | 18.2% | Tier1→2 and fresh-profile Tier2→3 resources/road; later transitions, borders and FTB integration missing |
 | Blueprint system | 9/10 | 90.0% | Prior8slices plus real exclusive paid marketplace; four-block supports pending |
 | Public building services | 3/7 | 42.9% | Hut, Hall/exchange and Bank; four later public buildings missing; legacy Lodge preserved |
-| Economy | 3/5 | 60.0% | Currency, Bank and supported vanilla escrow/mail verified; fixed-price auctions partial; dynamic shops/contracts, timed bidding and buyorders missing |
+| Economy | 3/5 | 60.0% | Currency, Bank and supported vanilla escrow/mail verified; fixed/timed auctions tested; dynamic shops/contracts and buyorders missing |
 | Professions | 0/12 | 0.0% | All profession gameplay missing |
 | Profession quest content | 0/288 | 0.0% | No approved quest implementations |
 | FTB campaign | 0/1 | 0.0% | Reported mod, no tested campaign |
@@ -27,3 +27,5 @@ Slice definitions: platform=JDK/build/runtime; legacy=Hut, donations, history/ra
 0.7.0 evidence supersedes the older missing-market slice: actual paid Farmer and Bank plans, wallet/native inventory checkpoints and freshTier3 are implemented. Premises do not count as completed profession gameplay. Bank/new Tier2 legacy rollout, long-term journal migration and full-pack acceptance remain limitations. Percentages remain coarse named acceptance slices, not release readiness or engineering-hour estimates.
 
 0.8 adds a tested fixed-price auction slice and native vanilla item escrow/mail. The auction slice remains partial: timed bidding, anti-sniping and buy orders are absent. D-029 explicitly approves auction taxes permanently leaving circulation, with audit totals retained. Public NPC access requires deliberate claim configuration; full-pack capture-item compatibility remains unverified.
+
+0.9 adds funded timed bids, private outbid refunds, rolling anti-sniping and audited isolated deadline tests. Buyorders/partialfills remain absent, so the auction slice is still partial. Rates remain5%/10%, permanently removed perD029. All full-release gaps remain visible.

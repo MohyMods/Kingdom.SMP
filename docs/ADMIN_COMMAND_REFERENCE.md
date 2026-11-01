@@ -1,3 +1,5 @@
+Current0.9: `/kingdom admin auctions inspect` reports real mode, funded lead and saved deadline. Isolated-world test only: manual `serverconfig/kingdomsmp-sandbox.enabled`, then level4 `/kingdom admin auctions settle-test <listing-UUID>` and `confirm <reason>` to settle that exact funded listing with a canonical audit reason. No marker is created in normal gameplay. [Timed scope and QA](TIMED_AUCTION_CHECKPOINT.md).
+
 Current 0.8 auction command: `/kingdom admin auctions inspect` (operator-only) inspects actual active escrow, journal, tax reserve and recovery state. Player auction actions are reviewed through the Bank's Auctions/Mailbox screens; `/kingdom commerce open` is a view, never a remote transaction authorization. [Auction scope](AUCTION_CHECKPOINT.md) · [public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md).
 
 ## Commerce and Tier 3 testing (0.7.0)

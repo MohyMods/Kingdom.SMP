@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
 import java.io.IOException;
 import java.util.*;
 
-/** Fixed-price item escrow at the real Bank. No client item data or wallet authority. */
+/** Fixed-price and funded timed escrow at the real Bank. No client item data or wallet authority. */
 public final class AuctionService {
     public record Quote(UUID nonce,long revision,int tab,String selected,long price,int slot,
                         ItemStack item,long issued,List<ItemStack> inventory,String text) {
@@ -23,6 +23,22 @@ public final class AuctionService {
     }
     private static final Map<ServerPlayer,Quote> QUOTES=new WeakHashMap<>();
     private static final long DURATION=86_400_000L;
+    private static final Set<net.minecraft.server.MinecraftServer> MAINTENANCE_BLOCKED=Collections.newSetFromMap(new WeakHashMap<>());
+    public static void initialize(net.minecraft.server.MinecraftServer server){MAINTENANCE_BLOCKED.remove(server);}
+    public static void tick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event){
+        var server=event.getServer();if(server.getTickCount()%20!=0||MAINTENANCE_BLOCKED.contains(server))return;
+        try{maintain(server,System.currentTimeMillis());}
+        catch(IOException|RuntimeException e){MAINTENANCE_BLOCKED.add(server);LogUtils.getLogger().error("Auction maintenance paused until matching checkpoint recovery/restart",e);}
+    }
+    /** Bounded server-only maintenance. Explicit time permits deterministic native restart/deadline testing. */
+    public static void maintain(net.minecraft.server.MinecraftServer server,long now)throws IOException{
+        var s=CommerceService.store(server);if(s.pendingItem().isPresent()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.quarantined())return;
+        for(var l:s.listings().stream().filter(v->v.active()&&v.expires()<=now).sorted(Comparator.comparingLong(EconomyStore.Listing::expires).thenComparing(EconomyStore.Listing::id)).limit(2).toList()){
+            if(l.timed()&&l.bidder()!=null)s.settleTimed(UUID.randomUUID(),CommerceRequest.NONE,l.id(),now);
+            else s.returnListing(UUID.randomUUID(),CommerceRequest.NONE,l.id(),now);
+            LogUtils.getLogger().info("ROYAL_AUCTION_SETTLED listing={} timed={} winner={} amount={} deadline={} time={}",l.id(),l.timed(),l.bidder(),l.timed()?l.bid():l.price(),l.expires(),now);
+        }
+    }
     private AuctionService(){ }
     public static void close(ServerPlayer p){QUOTES.remove(p);}
     public static Optional<Quote> quote(ServerPlayer p){
@@ -54,17 +70,23 @@ public final class AuctionService {
     }
     /** Expiry returns escrow by canonical operation, never by adding world items. */
     public static void expire(ServerPlayer p)throws IOException{
-        var s=CommerceService.store(p.server);if(s.pendingItem().isPresent()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.quarantined())return;
-        long now=System.currentTimeMillis();
-        for(var listing:s.listings())if(listing.active()&&listing.expires()<=now)s.returnListing(UUID.randomUUID(),p.getUUID(),listing.id(),now);
+        maintain(p.server,System.currentTimeMillis());
     }
     public static List<CommerceView.Entry> entries(ServerPlayer p){
         var s=CommerceService.store(p.server);List<CommerceView.Entry> out=new ArrayList<>();boolean usable=true;
         try{BankService.requireCounter(p);}catch(IllegalStateException e){usable=false;}
         out.add(new CommerceView.Entry("sell","List held item","Hold one supported vanilla stack. Choose quantity and TOTAL price. Escrow removes only the reviewed items. Listings expire after 24 hours. Normal sales tax is 5%, rounded up.",0,usable?"LIST":"LOCKED"));
+        out.add(new CommerceView.Entry("sell_timed","Create timed auction","Hold a supported stack and set its total starting price. Funds are reserved for each bid. Starts at 24 hours; bids rise by at least 5% and extend a closing auction to two minutes. 5% sale tax leaves circulation.",0,usable?"LIST_TIMED":"LOCKED"));
         for(var l:s.listings().stream().filter(EconomyStore.Listing::active).sorted(Comparator.comparingLong(EconomyStore.Listing::created).thenComparing(EconomyStore.Listing::id)).limit(30).toList()){
             boolean mine=l.seller().equals(p.getUUID());long minutes=Math.max(0,(l.expires()-System.currentTimeMillis()+59_999)/60_000);
-            out.add(new CommerceView.Entry((mine?"return:":"buy:")+l.id(),l.title(),"Seller: "+l.sellerName()+". Whole-stack price; "+minutes+" minutes remaining. "+(mine?"Cancel to return escrow to your private mailbox.":"Purchase delivers exact escrow to your private mailbox."),l.price(),usable?(mine?"RETURN":"BUY"):"LOCKED"));
+            if(l.timed()){
+                long minimum=EconomyStore.minimumBid(l);boolean mayBid=!mine&&minimum<=1_000_000_000L;
+                String state=mine?(l.bidder()==null?"RETURN":"TIMED_RECORD"):mayBid?"BID":"TIMED_RECORD";
+                String id=(mine&&l.bidder()==null?"return:":mayBid?"bid:":"record:")+l.id();
+                String name=l.bidder()==null?"No bids":l.bidder().equals(p.getUUID())?"You lead":Optional.ofNullable(p.server.getPlayerList().getPlayer(l.bidder())).map(v->v.getGameProfile().getName()).orElse(l.bidder().toString());
+                String detail="Seller: "+l.sellerName()+". Starting "+l.price()+"; leading "+l.bid()+" coins. "+name+". "+minutes+" minutes remaining. "+(mine&&l.bidder()!=null?"Funded bid: seller cancellation is locked.":"At least 5% increase; closing bids extend time to two minutes.");
+                out.add(new CommerceView.Entry(id,l.title(),bounded(detail,256),mayBid?minimum:l.bid()>0?l.bid():l.price(),usable?state:"LOCKED"));
+            }else out.add(new CommerceView.Entry((mine?"return:":"buy:")+l.id(),l.title(),"Seller: "+l.sellerName()+". Whole-stack price; "+minutes+" minutes remaining. "+(mine?"Cancel to return escrow to your private mailbox.":"Purchase delivers exact escrow to your private mailbox."),l.price(),usable?(mine?"RETURN":"BUY"):"LOCKED"));
         }
         return List.copyOf(out);
     }
@@ -78,10 +100,11 @@ public final class AuctionService {
     }
     public static com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack> adminCommands(){
         return net.minecraft.commands.Commands.literal("auctions")
+                .then(AuctionSandboxCommands.command())
                 .then(net.minecraft.commands.Commands.literal("inspect").executes(c->{
                     var s=CommerceService.store(c.getSource().getServer());
                     c.getSource().sendSuccess(()->Component.literal("Auction journal "+s.id()+" revision "+s.revision()+" | active listings "+s.listings().stream().filter(EconomyStore.Listing::active).count()+" | recorded listings "+s.listings().size()+" | tax removed "+s.taxRemoved()+" | pending item receipt "+s.pendingItem().isPresent()+" | quarantined "+s.quarantined()),false);
-                    for(var listing:s.listings().stream().filter(EconomyStore.Listing::active).limit(30).toList())c.getSource().sendSuccess(()->Component.literal(listing.id()+" | "+listing.title()+" | seller "+listing.sellerName()+" | total "+listing.price()+" | expires UTC epoch "+listing.expires()),false);
+                    for(var listing:s.listings().stream().filter(EconomyStore.Listing::active).limit(30).toList())c.getSource().sendSuccess(()->Component.literal(listing.id()+" | "+(listing.timed()?"TIMED":"FIXED")+" | "+listing.title()+" | seller "+listing.sellerName()+" | starting/price "+listing.price()+" | funded lead "+listing.bid()+" | bidder "+listing.bidder()+" | expires UTC epoch "+listing.expires()),false);
                     return 1;
                 }));
     }
@@ -92,22 +115,30 @@ public final class AuctionService {
         if(tab==2){
             item=decode(p,mail(p,selected).item());if(capacity(p,item)<item.getCount())throw new IllegalStateException("Make enough main-inventory space for the entire item delivery.");
             text="Claim exactly "+item.getCount()+" × "+item.getHoverName().getString()+" with its saved components. Native inventory receipt and mailbox claim are reconciled together. No items are dropped.";
-        }else if(selected.equals("sell")){
+        }else if(selected.equals("sell")||selected.equals("sell_timed")){
             if(price<1||price>1_000_000_000L)throw new IllegalArgumentException("Enter a total price between 1 and 1,000,000,000 coins.");
             if(requested<1||requested>2304)throw new IllegalArgumentException("Invalid listing quantity.");
             if(s.listings().stream().filter(EconomyStore.Listing::active).count()>=30)throw new IllegalStateException("The market holds 30 active listings. Wait for a sale/expiry or cancel your own listing.");
             item=p.getInventory().getItem(slot).copy();validateItem(item);item.setCount(Math.min(item.getCount(),Math.min(64,requested)));
             long tax=(price+19)/20;
             text="Escrow exactly "+item.getCount()+" × "+item.getHoverName().getString()+" from your held slot. TOTAL asking price: "+price+" coins. After a sale, "+tax+" tax leaves circulation and "+(price-tax)+" coins go to your private mailbox. Expires after 24 hours; cancellation returns the items. No payment is charged for listing.";
+            if(selected.equals("sell_timed"))text="Escrow exactly "+item.getCount()+" × "+item.getHoverName().getString()+" for a 24-hour TIMED auction. TOTAL starting price: "+price+" coins. Bids must be funded and rise by at least 5%. Bids in the last two minutes extend the deadline to two minutes after that bid. Seller cancellation ends after the first bid. Final 5% tax leaves circulation; proceeds and winner items go to private mail.";
         }else{
             UUID id=listingId(selected);var l=s.listing(id).orElseThrow(()->new IllegalStateException("Listing no longer exists."));
             if(!l.active()||l.expires()<=System.currentTimeMillis())throw new IllegalStateException("Listing sold, cancelled or expired. Refresh the market.");
-            price=l.price();
-            if(selected.startsWith("buy:")){
+            long requestedPrice=price;price=l.price();
+            if(selected.startsWith("bid:")){
+                if(!l.timed()||l.seller().equals(p.getUUID()))throw new IllegalStateException("Choose another player's active timed auction.");
+                if(requestedPrice<EconomyStore.minimumBid(l)||requestedPrice>1_000_000_000L)throw new IllegalStateException("Bid does not meet the current minimum or exceeds the bid limit. Refresh and review again.");
+                price=requestedPrice;long debit=playerBidDebit(p,l,price);
+                if(s.balance(p.getUUID())<debit)throw new IllegalStateException("Insufficient available coins to fund the reviewed bid.");
+                text="Bid a TOTAL of "+price+" coins on "+l.title()+". Exactly "+debit+" coins leave your available purse and remain funded until outbid or settlement. Outbid refunds go to private coin mail. A leading bidder's raise debits only the difference. Late bids extend the remaining time to two minutes. Winning items arrive by item mail; a confirmed bid cannot be withdrawn.";
+            }else if(selected.startsWith("buy:")){
+                if(l.timed())throw new IllegalStateException("Timed auctions require a funded bid.");
                 if(l.seller().equals(p.getUUID()))throw new IllegalStateException("You cannot buy your own listing.");
                 if(s.balance(p.getUUID())<price)throw new IllegalStateException("Insufficient coins for this whole-stack purchase.");
                 text="Buy "+l.title()+" from "+l.sellerName()+" for exactly "+price+" coins. Payment, sold status, seller proceeds and your item-mail entitlement commit together. Claim the item separately at the Bank.";
-            }else if(selected.startsWith("return:")&&l.seller().equals(p.getUUID()))text="Cancel your listing of "+l.title()+". Its escrow returns to your private item mailbox once. No coins are charged.";
+            }else if(selected.startsWith("return:")&&l.seller().equals(p.getUUID())){if(l.timed()&&l.bidder()!=null)throw new IllegalStateException("A funded timed auction cannot be cancelled by its seller.");text="Cancel your listing of "+l.title()+". Its escrow returns to your private item mailbox once. No coins are charged.";}
             else throw new IllegalStateException("Only the seller can cancel an active listing.");
         }
         var q=new Quote(UUID.randomUUID(),s.revision(),tab,selected,price,slot,item,System.nanoTime(),inventory(p),bounded(text,1024));QUOTES.put(p,q);return q;
@@ -115,7 +146,8 @@ public final class AuctionService {
     public static String confirm(ServerPlayer p,UUID nonce)throws IOException{
         BankService.requireCounter(p);var q=QUOTES.remove(p);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);
         if(q==null||!q.nonce().equals(nonce)||System.nanoTime()-q.issued()>30_000_000_000L||q.revision()!=s.revision())throw new IllegalStateException("Auction review expired or market state changed. Review again.");
-        if(q.tab()!=2&&!q.selected().equals("sell")){
+        if(q.tab()!=2&&!q.selected().equals("sell")&&!q.selected().equals("sell_timed")){
+            if(q.selected().startsWith("bid:")){s.bidListing(q.nonce(),p.getUUID(),listingId(q.selected()),q.price(),System.currentTimeMillis());return "Funded bid saved. Refresh to inspect the leading bid, deadline and any outbid refunds.";}
             if(q.selected().startsWith("buy:")){s.buyListing(q.nonce(),p.getUUID(),listingId(q.selected()),System.currentTimeMillis());return "Purchase saved. Claim your exact items through Mailbox at the Bank.";}
             s.returnListing(q.nonce(),p.getUUID(),listingId(q.selected()),System.currentTimeMillis());return "Listing cancelled. Escrow is in your private item mailbox.";
         }
@@ -128,7 +160,8 @@ public final class AuctionService {
                 pending=s.prepareItemClaim(q.nonce(),p.getUUID(),UUID.fromString(q.selected()));insert(p,item);
             }else{
                 var item=q.item();validateItem(item);long now=System.currentTimeMillis();
-                pending=s.prepareListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),bounded(item.getCount()+" × "+item.getHoverName().getString(),64),q.price(),false,now,Math.addExact(now,DURATION),(CompoundTag)item.save(p.registryAccess()));
+                String title=bounded(item.getCount()+" × "+item.getHoverName().getString(),64);var encoded=(CompoundTag)item.save(p.registryAccess());
+                pending=q.selected().equals("sell_timed")?s.prepareTimedListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),title,q.price(),false,now,Math.addExact(now,DURATION),encoded):s.prepareListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),title,q.price(),false,now,Math.addExact(now,DURATION),encoded);
                 p.getInventory().getItem(q.slot()).shrink(item.getCount());
             }
             CommerceService.putReceipt(p,new EconomyStore.Receipt(s.id(),pending.sequence()));checkpointStarted=true;CommerceService.checkpoint(p);
@@ -145,8 +178,9 @@ public final class AuctionService {
             s.quarantine();p.connection.disconnect(Component.literal("Auction inventory operation interrupted. Reconnect only after matching checkpoint recovery."));throw e;
         }
     }
+    private static long playerBidDebit(ServerPlayer player,EconomyStore.Listing listing,long total){return player.getUUID().equals(listing.bidder())?Math.subtractExact(total,listing.bid()):total;}
     private static UUID listingId(String selected){
-        if(!selected.startsWith("buy:")&&!selected.startsWith("return:"))throw new IllegalArgumentException("Select an actual listing.");
+        if(!selected.startsWith("buy:")&&!selected.startsWith("return:")&&!selected.startsWith("bid:"))throw new IllegalArgumentException("Select an actual listing.");
         try{return UUID.fromString(selected.substring(selected.indexOf(':')+1));}catch(IllegalArgumentException e){throw new IllegalArgumentException("Invalid listing identity.");}
     }
     public static int capacity(ServerPlayer p,ItemStack item){int count=0;for(int i=0;i<36;i++){var current=p.getInventory().getItem(i);if(current.isEmpty())count+=Math.min(64,item.getMaxStackSize());else if(ItemStack.isSameItemSameComponents(current,item))count+=Math.max(0,current.getMaxStackSize()-current.getCount());}return count;}

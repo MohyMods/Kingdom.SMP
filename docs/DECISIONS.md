@@ -148,3 +148,7 @@ Continues D-026's full-project authority. Auction and item-mail authority extend
 ## D-029 — 1 November 2026: auction taxes leave circulation
 
 Explicit user response: **“Remove it from circulation.”** Auction tax is a permanent sink, not kingdom treasury revenue. Preserve5%ordinary/10%Master. Historical amounts remain auditable; the previously non-spendable reserve is now permanently excluded from circulation without a new player charge, duplicated debit or historical record rewrite. No treasury allocation/redistribution service is authorized by this decision. Q-15's tax-destination question is resolved; other auction modes/matching remain implementation work.
+
+## D-030 — 1 November 2026: timed-auction transaction and QA implementation
+
+Implements the already approved24h duration, minimum5%increment and2minanti-sniping. Technical semantics: integer incrementroundsup, rollingend=max(oldend,bidtime+2min), currentleaderraise debitsdifference, outbid money becomes fundedprivatecoinmail, seller cannotcancelafterfirstbid. Settlement consumes existingfunding once and retainsD0295/10%taxsink. Servermaintenance≤2dueops/second loadsnochunks. Existing1billion-input cap and30combinedactivelistings remain technicalbounds. Isolated-world sandbox marker pluslevel4/exactlisting/reason enables auditable deadline acceleration only; no normalworldmarkercreation. Oldfixedrecords preserved, no newtreasuryreceipts, no Mastergear orbuyordersclaim.

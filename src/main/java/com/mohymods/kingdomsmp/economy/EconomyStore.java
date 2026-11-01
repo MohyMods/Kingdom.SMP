@@ -24,9 +24,11 @@ import java.util.*;
 public final class EconomyStore {
     public static final long MAX_COINS=9_000_000_000_000L;
     public static final int MAX_OPERATIONS=50_000;
+    public static final long TIMED_DURATION=86_400_000L;
+    public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED }
     public enum MailKind { COINS, BLUEPRINT }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -35,16 +37,26 @@ public final class EconomyStore {
     public record Purchase(UUID operation,UUID buyer,String buyerName,String building,long price) { }
     public record Mail(UUID id,UUID owner,MailKind kind,long amount,String building,String description,boolean claimed) { }
     /** Exact single-stack escrow. Components are copied at every public boundary. */
-    public record Listing(UUID id,UUID seller,String sellerName,String title,long price,boolean master,long created,long expires,CompoundTag item,boolean active) {
-        public Listing { Objects.requireNonNull(id);Objects.requireNonNull(seller);text(sellerName,48);text(title,64);money(price);if(price<1||created<0||expires<=created)throw new IllegalArgumentException("Invalid listing");item=checkedItem(item); }
+    public record Listing(UUID id,UUID seller,String sellerName,String title,long price,boolean master,long created,long expires,CompoundTag item,boolean active,boolean timed,UUID bidder,long bid,long lastBid) {
+        public Listing(UUID id,UUID seller,String sellerName,String title,long price,boolean master,long created,long expires,CompoundTag item,boolean active){this(id,seller,sellerName,title,price,master,created,expires,item,active,false,null,0,0);}
+        public Listing {
+            Objects.requireNonNull(id);Objects.requireNonNull(seller);text(sellerName,48);text(title,64);money(price);money(bid);
+            if(price<1||created<0||expires<=created||lastBid<0||!timed&&(bidder!=null||bid!=0||lastBid!=0)
+                    ||bidder==null&&(bid!=0||lastBid!=0)||bidder!=null&&(!timed||bidder.equals(seller)||bid<price||lastBid<created||lastBid>=expires))throw new IllegalArgumentException("Invalid listing");
+            item=checkedItem(item);
+        }
         @Override public CompoundTag item(){return item.copy();}
-        private Listing closed(){return new Listing(id,seller,sellerName,title,price,master,created,expires,item,false);}
+        private Listing closed(){return new Listing(id,seller,sellerName,title,price,master,created,expires,item,false,timed,bidder,bid,lastBid);}
+        private Listing withBid(UUID player,long amount,long now){
+            long end=expires-now<=ANTI_SNIPE_WINDOW?Math.max(expires,Math.addExact(now,ANTI_SNIPE_WINDOW)):expires;
+            return new Listing(id,seller,sellerName,title,price,master,created,end,item,active,true,player,amount,now);
+        }
     }
     public record ItemMail(UUID id,UUID owner,CompoundTag item,String description,boolean claimed) {
         public ItemMail {Objects.requireNonNull(id);Objects.requireNonNull(owner);text(description,128);item=checkedItem(item);}
         @Override public CompoundTag item(){return item.copy();}
     }
-    public enum ItemAction { LIST, CLAIM }
+    public enum ItemAction { LIST, CLAIM, TIMED_LIST }
     /** Payload is the bounded encoded canonical operation; never client authority. */
     public record PendingItem(long sequence,UUID operation,UUID player,ItemAction action,CompoundTag payload,long previousReceipt) {
         public PendingItem {
@@ -108,7 +120,7 @@ public final class EconomyStore {
             var op=decode(pendingItem.payload());
             if(op.sequence()!=history.size()+1L||seen.contains(op.id())||!op.id().equals(pendingItem.operation())||!op.actor().equals(pendingItem.player())||!op.target().equals(pendingItem.player())
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
-                    ||op.kind()!=(pendingItem.action()==ItemAction.LIST?Kind.LIST_ITEM:Kind.CLAIM_ITEM))throw new IllegalArgumentException("Invalid pending item operation");
+                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);
             apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems);var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,false);
         }
@@ -170,9 +182,9 @@ public final class EconomyStore {
     public synchronized Optional<Listing> listing(UUID id){return Optional.ofNullable(listings.get(id));}
     public synchronized List<ItemMail> itemMailbox(UUID owner){return itemMail.values().stream().filter(m->m.owner().equals(owner)).sorted(Comparator.comparing(ItemMail::id)).toList();}
     /** Permanently removed from circulation by explicit D-029 approval; retained for audit only. */
-    public synchronized long taxRemoved(){long total=0;for(var op:history)if(op.kind()==Kind.BUY_ITEM)total=Math.addExact(total,tax(op.amount(),listings.get(op.reference()).master()));return total;}
+    public synchronized long taxRemoved(){long total=0;for(var op:history)if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)total=Math.addExact(total,tax(op.amount(),listings.get(op.reference()).master()));return total;}
     public synchronized long expectedReceipt(UUID player){
-        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM)&&op.target().equals(player))return op.sequence();}return 0;
+        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM||op.kind()==Kind.LIST_TIMED_ITEM)&&op.target().equals(player))return op.sequence();}return 0;
     }
     /** Caller must require operator permission, exact-target confirmation and a reason. */
     public synchronized void adminSet(UUID operation,UUID actor,UUID target,long amount,String reason)throws IOException{
@@ -263,6 +275,14 @@ public final class EconomyStore {
         var op=new Operation(history.size()+1L,operation,Kind.LIST_ITEM,seller,seller,price,"auction",title,null,created,0,data);
         return prepareItem(op,ItemAction.LIST);
     }
+    /** Timed escrow starts with exactly twenty-four hours; the service supplies authoritative UTC time. */
+    public synchronized PendingItem prepareTimedListing(UUID operation,UUID seller,String sellerName,String title,long price,boolean master,long created,long expires,CompoundTag item)throws IOException{
+        if(expires!=Math.addExact(created,TIMED_DURATION))throw new IllegalArgumentException("Timed auctions start with exactly twenty-four hours");
+        var listing=new Listing(operation,seller,sellerName,title,price,master,created,expires,item,true,true,null,0,0);
+        var data=new CompoundTag();data.putString("sellerName",listing.sellerName());data.putLong("expires",expires);data.putBoolean("master",master);data.put("item",listing.item());
+        var op=new Operation(history.size()+1L,operation,Kind.LIST_TIMED_ITEM,seller,seller,price,"auction",title,null,created,0,data);
+        return prepareItem(op,ItemAction.TIMED_LIST);
+    }
     public synchronized PendingItem prepareItemClaim(UUID operation,UUID owner,UUID delivery)throws IOException{
         var op=operation(operation,Kind.CLAIM_ITEM,owner,owner,0,"auction","Item mail claim",delivery,0,0);
         return prepareItem(op,ItemAction.CLAIM);
@@ -272,7 +292,7 @@ public final class EconomyStore {
         if(find(op.id())!=null)throw new IllegalArgumentException("Native item operation already committed");
         var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);
         apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems);var nextHistory=new ArrayList<>(history);nextHistory.add(op);
-        budget(nextHistory,nextListings,nextItems,nextMail,action==ItemAction.LIST);
+        budget(nextHistory,nextListings,nextItems,nextMail,action==ItemAction.LIST||action==ItemAction.TIMED_LIST);
         var item=new PendingItem(op.sequence(),op.id(),op.actor(),action,encodeOperation(op),expectedReceipt(op.actor()));persist(history,null,null,item);pendingItem=item;return item;
     }
     /** Exact post-native receipt commits; the exact previous receipt cancels; no guessed delivery. */
@@ -292,6 +312,28 @@ public final class EconomyStore {
     public synchronized void returnListing(UUID operation,UUID actor,UUID listingId,long now)throws IOException{
         var listing=Objects.requireNonNull(listings.get(listingId),"Unknown listing");
         var op=operation(operation,Kind.RETURN_ITEM,actor,listing.seller(),0,"auction","Listing return",listingId,now,0);
+        if(replayed(op))return;append(op);
+    }
+    /** The first funded bid may equal the starting price; subsequent bids rise by at least ceil(5%). */
+    public static long minimumBid(Listing listing){
+        Objects.requireNonNull(listing);if(!listing.timed()||!listing.active())throw new IllegalStateException("Not an active timed auction");
+        return listing.bidder()==null?listing.price():Math.addExact(listing.bid(),Math.max(1,Math.floorDiv(Math.addExact(listing.bid(),19),20)));
+    }
+    /** Full bid funding and any prior bidder refund are a single canonical operation. */
+    public synchronized void bidListing(UUID operation,UUID bidder,UUID listingId,long amount,long now)throws IOException{
+        var listing=Objects.requireNonNull(listings.get(listingId),"Unknown listing");
+        var op=operation(operation,Kind.BID_ITEM,bidder,listing.seller(),amount,"auction","Funded timed bid",listingId,now,0);
+        if(replayed(op))return;append(op);
+    }
+    /** Expired funded escrow becomes exactly one buyer item mail and one seller proceeds mail. */
+    public synchronized void settleTimed(UUID operation,UUID actor,UUID listingId,long now)throws IOException{
+        settleTimed(operation,actor,listingId,now,"");
+    }
+    /** Nonempty reason is reserved for an explicitly enabled, operator-authorized sandbox deadline test. */
+    public synchronized void settleTimed(UUID operation,UUID actor,UUID listingId,long now,String sandboxReason)throws IOException{
+        var listing=Objects.requireNonNull(listings.get(listingId),"Unknown listing");
+        var payload=new CompoundTag();if(!sandboxReason.isEmpty()){text(sandboxReason,128);payload.putString("sandboxReason",sandboxReason);}
+        var op=new Operation(history.size()+1L,operation,Kind.SETTLE_TIMED,actor,listing.seller(),listing.bid(),"auction","Timed auction settlement",listingId,now,0,payload);
         if(replayed(op))return;append(op);
     }
     public static long tax(long price,boolean master){money(price);if(price<1)throw new IllegalArgumentException("Invalid auction price");return Math.floorDiv(Math.addExact(Math.multiplyExact(price,master?10L:5L),99),100);}
@@ -340,22 +382,24 @@ public final class EconomyStore {
     private void appendResolved(Operation op)throws IOException{
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);
         apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail);var next=new ArrayList<>(history);next.add(op);
-        budget(next,nextListings,nextItemMail,nextMail,op.kind()==Kind.LIST_ITEM);persist(next,null);
+        budget(next,nextListings,nextItemMail,nextMail,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM);persist(next,null);
         balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;pendingItem=null;
     }
     private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
-            case LIST_ITEM->{
+            case LIST_ITEM, LIST_TIMED_ITEM->{
                 auctionShape(op,true);if(op.reference()!=null||op.amount()<1||listings.containsKey(op.id()))throw new IllegalArgumentException("Invalid listing record");
                 var data=op.payload();require(data,"sellerName",Tag.TAG_STRING);require(data,"expires",Tag.TAG_LONG);require(data,"master",Tag.TAG_BYTE);require(data,"item",Tag.TAG_COMPOUND);
-                var listing=new Listing(op.id(),op.actor(),data.getString("sellerName"),op.detail(),op.amount(),data.getBoolean("master"),op.period(),data.getLong("expires"),data.getCompound("item"),true);
+                boolean timed=op.kind()==Kind.LIST_TIMED_ITEM;
+                if(timed&&data.getLong("expires")!=Math.addExact(op.period(),TIMED_DURATION))throw new IllegalArgumentException("Timed auction duration changed");
+                var listing=new Listing(op.id(),op.actor(),data.getString("sellerName"),op.detail(),op.amount(),data.getBoolean("master"),op.period(),data.getLong("expires"),data.getCompound("item"),true,timed,null,0,0);
                 listings.put(op.id(),listing);
             }
             case BUY_ITEM->{
                 auctionShape(op,false);var listing=listings.get(op.reference());
-                if(listing==null||!listing.active()||!listing.seller().equals(op.target())||listing.seller().equals(op.actor())||op.amount()!=listing.price()||op.period()<listing.created()||op.period()>=listing.expires()
+                if(listing==null||!listing.active()||listing.timed()||!listing.seller().equals(op.target())||listing.seller().equals(op.actor())||op.amount()!=listing.price()||op.period()<listing.created()||op.period()>=listing.expires()
                         ||!op.detail().equals("Fixed-price purchase")||!op.payload().isEmpty()||mail.containsKey(op.id())||itemMail.containsKey(op.id()))throw new IllegalStateException("Listing unavailable or invalid purchase");
                 long source=balances.getOrDefault(op.actor(),0L);if(source<op.amount())throw new IllegalStateException("Insufficient coins");
                 long proceeds=op.amount()-tax(op.amount(),listing.master());balances.put(op.actor(),source-op.amount());listings.put(listing.id(),listing.closed());
@@ -364,9 +408,32 @@ public final class EconomyStore {
             }
             case RETURN_ITEM->{
                 auctionShape(op,false);var listing=listings.get(op.reference());
-                if(listing==null||!listing.active()||!listing.seller().equals(op.target())||op.amount()!=0||op.period()<listing.created()||!op.actor().equals(listing.seller())&&op.period()<listing.expires()
+                if(listing==null||!listing.active()||listing.timed()&&listing.bidder()!=null||!listing.seller().equals(op.target())||op.amount()!=0||op.period()<listing.created()||!op.actor().equals(listing.seller())&&op.period()<listing.expires()
                         ||!op.detail().equals("Listing return")||!op.payload().isEmpty()||itemMail.containsKey(op.id()))throw new IllegalStateException("Listing cannot be returned");
                 listings.put(listing.id(),listing.closed());itemMail.put(op.id(),new ItemMail(op.id(),listing.seller(),listing.item(),listing.title(),false));
+            }
+            case BID_ITEM->{
+                auctionShape(op,false);var listing=listings.get(op.reference());
+                if(listing==null||!listing.active()||!listing.timed()||!listing.seller().equals(op.target())||listing.seller().equals(op.actor())||op.amount()<minimumBid(listing)
+                        ||op.period()<listing.created()||op.period()<listing.lastBid()||op.period()>=listing.expires()||!op.detail().equals("Funded timed bid")||!op.payload().isEmpty()||mail.containsKey(op.id()))throw new IllegalStateException("Timed bid is not eligible");
+                boolean raising=op.actor().equals(listing.bidder());long debit=raising?Math.subtractExact(op.amount(),listing.bid()):op.amount();
+                long available=balances.getOrDefault(op.actor(),0L);if(available<debit)throw new IllegalStateException("Insufficient coins to fund this bid");
+                var next=listing.withBid(op.actor(),op.amount(),op.period());
+                balances.put(op.actor(),available-debit);
+                if(listing.bidder()!=null&&!raising)mail.put(op.id(),new Mail(op.id(),listing.bidder(),MailKind.COINS,listing.bid(),"","Outbid auction refund",false));
+                listings.put(listing.id(),next);
+            }
+            case SETTLE_TIMED->{
+                auctionShape(op,false);var listing=listings.get(op.reference());
+                if(!op.payload().isEmpty()){
+                    if(!op.payload().getAllKeys().equals(Set.of("sandboxReason")))throw new IllegalArgumentException("Invalid sandbox audit payload");
+                    require(op.payload(),"sandboxReason",Tag.TAG_STRING);text(op.payload().getString("sandboxReason"),128);
+                }
+                if(listing==null||!listing.active()||!listing.timed()||listing.bidder()==null||!listing.seller().equals(op.target())||op.amount()!=listing.bid()||op.period()<listing.expires()
+                        ||!op.detail().equals("Timed auction settlement")||mail.containsKey(op.id())||itemMail.containsKey(op.id()))throw new IllegalStateException("Timed auction cannot settle");
+                long proceeds=op.amount()-tax(op.amount(),listing.master());
+                if(proceeds>0)mail.put(op.id(),new Mail(op.id(),listing.seller(),MailKind.COINS,proceeds,"","Timed auction proceeds",false));
+                itemMail.put(op.id(),new ItemMail(op.id(),listing.bidder(),listing.item(),listing.title(),false));listings.put(listing.id(),listing.closed());
             }
             case CLAIM_ITEM->{
                 auctionShape(op,true);var entry=itemMail.get(op.reference());
