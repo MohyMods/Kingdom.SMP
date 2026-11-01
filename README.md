@@ -1,4 +1,4 @@
-Latest **0.10.0-dev** — [funded buy orders, partial fills, refunds and tested scope](docs/BUY_ORDER_CHECKPOINT.md). All three auction modes work in supported vanilla scope; dynamic shops/contracts and the complete1.0game remain unfinished. Matching protocol11 clients/server required.
+Latest **0.10.0-dev** — [download JAR, actual screenshots and test evidence](docs/checkpoints/5899210/CHECKPOINT.md): [funded buy orders, partial fills, refunds and tested scope](docs/BUY_ORDER_CHECKPOINT.md). All three auction modes work in supported vanilla scope; dynamic shops/contracts and the complete1.0game remain unfinished. Matching protocol11 clients/server required.
 
 Latest **0.9.0-dev** — [download JAR, screenshots and test evidence](docs/checkpoints/af3b428/CHECKPOINT.md): [funded timed auctions, refunds, anti-sniping and tested scope](docs/TIMED_AUCTION_CHECKPOINT.md). Fixed auctions and the earlier working settlement/Bank remain. **Buyorders and the complete1.0game are still unfinished.**
 
