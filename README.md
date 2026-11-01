@@ -1,4 +1,4 @@
-Latest **0.9.0-dev**: [funded timed auctions, refunds, anti-sniping and tested scope](docs/TIMED_AUCTION_CHECKPOINT.md). Fixed auctions and the earlier working settlement/Bank remain. **Buyorders and the complete1.0game are still unfinished.**
+Latest **0.9.0-dev** — [download JAR, screenshots and test evidence](docs/checkpoints/af3b428/CHECKPOINT.md): [funded timed auctions, refunds, anti-sniping and tested scope](docs/TIMED_AUCTION_CHECKPOINT.md). Fixed auctions and the earlier working settlement/Bank remain. **Buyorders and the complete1.0game are still unfinished.**
 
 Latest **0.8.0-dev** — [download JAR, screenshots and test evidence](docs/checkpoints/03e1674/CHECKPOINT.md): [fixed-price auctions, native item mail, two-client restart tests and limits](docs/AUCTION_CHECKPOINT.md). Auction taxes permanently leave circulation under explicit D-029 approval. [Optional public NPC claim setup](docs/PUBLIC_NPC_CLAIM_SETUP.md). **This is not the full1.0.0 release.**
 
