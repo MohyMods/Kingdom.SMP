@@ -22,6 +22,7 @@ public final class RoyalAdminCommands {
                 .then(com.mohymods.kingdomsmp.economy.CommerceService.adminCommands())
                 .then(com.mohymods.kingdomsmp.economy.AuctionService.adminCommands())
                 .then(com.mohymods.kingdomsmp.economy.BuyOrderService.adminCommands())
+                .then(com.mohymods.kingdomsmp.economy.MarketService.adminCommands())
                 .then(Commands.literal("inspect").executes(context -> overview(context.getSource())))
                 .then(Commands.literal("construction")
                         .then(Commands.literal("inspect")

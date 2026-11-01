@@ -34,7 +34,7 @@ public final class CommerceService {
     private static final Map<ServerPlayer,UUID> COUNTERS=new WeakHashMap<>();
     private record Quote(UUID nonce,long revision,int tab,String selected,int quantity,long amount,long period,long issued,List<ItemStack> inventory) { }
     private CommerceService() { }
-    public static void initialize(MinecraftServer server){STORES.remove(server);CATALOGS.remove(server);QUOTES.keySet().removeIf(p->p.server==server);COUNTERS.keySet().removeIf(p->p.server==server);BuyOrderService.initialize(server);store(server);}
+    public static void initialize(MinecraftServer server){STORES.remove(server);CATALOGS.remove(server);QUOTES.keySet().removeIf(p->p.server==server);COUNTERS.keySet().removeIf(p->p.server==server);BuyOrderService.initialize(server);MarketService.initialize(server);store(server);}
     public static CommerceCatalog catalog(MinecraftServer server){
         var c=CATALOGS.get(server);if(c!=null)return c;
         try{c=CommerceCatalog.load(server.getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-commerce.json"));CATALOGS.put(server,c);return c;}
@@ -69,7 +69,7 @@ public final class CommerceService {
         if(!ConstructionService.registeredReeve(resident)||!player.hasLineOfSight(resident)||player.distanceToSqr(resident)>64)throw new IllegalStateException("Visit the registered resident at the completed building.");
         COUNTERS.put(player,resident.getUUID());var project=ConstructionService.projectForResident(resident);int tab=project!=null&&project.blueprint().equals(RoyalBankBlueprint.ID)?3:1;String greeting=project==null?"":resident.getName().getString()+" — "+BlueprintRegistry.greeting(project.blueprint());net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,snapshot(player,0,tab,greeting).withOpen(true));
     }
-    private static void requireCounter(ServerPlayer player){
+    static void requireCounter(ServerPlayer player){
         if(!player.isAlive()||player.isSpectator()||player.serverLevel()!=player.server.overworld()||player.containerMenu!=player.inventoryMenu||!player.containerMenu.getCarried().isEmpty()
                 ||player.gameMode.getGameModeForPlayer()!=GameType.SURVIVAL&&player.gameMode.getGameModeForPlayer()!=GameType.ADVENTURE)throw new IllegalStateException("Trade alive in Survival/Adventure with containers closed.");
         if(ContributionService.kingdom(player.server).attainedTier()<2)throw new IllegalStateException("Royal commerce opens at Tier 2.");
@@ -132,7 +132,7 @@ public final class CommerceService {
         if(s.quarantined()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.pendingItem().isPresent())throw new IllegalStateException("Commerce paused for recovery.");
         long amount;int quantity=1;long day=day();
         if(tab==0){var b=catalog(player.server).building(selected);if(ContributionService.kingdom(player.server).attainedTier()<b.tier())throw new IllegalStateException("Requires kingdom Tier "+b.tier()+".");if(s.purchase(selected).isPresent())throw new IllegalStateException("Sold out: one founder already owns this entitlement.");amount=b.price();if(s.balance(player.getUUID())<amount)throw new IllegalStateException("Insufficient coins. Earn coins through Essentials.");}
-        else if(tab==1){var supply=catalog(player.server).supply(selected);var used=s.usage(day,key(supply.id()),player.getUUID());long max=Math.min(supply.quota()-used.resourceQuantity(),Math.min((catalog(player.server).budget()-used.sharedSpent())/supply.price(),(catalog(player.server).allowance()-used.playerProceeds())/supply.price()));quantity=(int)Math.min(requested,Math.min(eligible(player,supply),Math.max(0,max)));if(quantity<1)throw new IllegalStateException("No eligible items, or today's buying allowance/quota is exhausted.");amount=Math.multiplyExact(quantity,supply.price());}
+        else if(tab==1){var sale=selected.startsWith("shop:")?MarketService.purchase(player,selected.substring(5),requested):MarketService.sale(player,selected,requested);quantity=sale.quantity();amount=sale.amount();}
         else{var mail=mail(player,s,selected);if(mail.kind()!=EconomyStore.MailKind.COINS||mail.claimed())throw new IllegalStateException("This delivery has no unclaimed coins.");amount=mail.amount();}
         QUOTES.put(player,new Quote(UUID.randomUUID(),s.revision(),tab,selected,quantity,amount,day,System.nanoTime(),inventory(player)));return "Review the exact transaction; nothing has been changed yet.";
     }
@@ -147,6 +147,7 @@ public final class CommerceService {
             return "Purchased "+b.title()+". Your unique plan is in Mailbox; materials are included.";
         }
         if(q.tab()==2){var m=mail(player,s,q.selected());s.claimCoins(player.getUUID(),m.id());return "Claimed "+m.amount()+" coins to your available purse.";}
+        if(q.selected().startsWith("shop:")){verifyReceipt(player,s);return MarketService.buy(player,q.nonce(),q.selected().substring(5),q.quantity(),q.amount(),q.period());}
         var supply=catalog(player.server).supply(q.selected());
         if(!sameInventory(player,q.inventory()))throw new IllegalStateException("Inventory changed. Review the sale again.");
         verifyReceipt(player,s);CompoundTag old=player.getPersistentData().copy();boolean checkpointStarted=false;
@@ -173,8 +174,7 @@ public final class CommerceService {
         if(tab==0)for(var b:c.buildings()){
             var sold=s.purchase(b.id());String state=sold.isPresent()?"SOLD":tier<b.tier()?"LOCKED":"AVAILABLE";
             rows.add(new CommerceView.Entry(b.id(),b.title(),sold.isPresent()?"Founder: "+sold.get().buyerName()+". Unique entitlement sold.":"Tier "+b.tier()+" · Materials included · "+b.founder(),b.price(),state));
-        }else if(tab==1)for(var item:c.supplies()){
-            var used=s.usage(day(),key(item.id()),player.getUUID());rows.add(new CommerceView.Entry(item.id(),item.title(),"We buy plain items. Quota "+used.resourceQuantity()+" / "+item.quota()+". Shared spent "+used.sharedSpent()+" / "+c.budget()+"; your sales "+used.playerProceeds()+" / "+c.allowance()+" coins. Resets at UTC midnight.",item.price(),tier<2?"LOCKED":"SELL"));
+        }else if(tab==1){rows.addAll(MarketService.entries(player,tier));
         }else for(var m:s.mailbox(player.getUUID()).stream().filter(m->!m.claimed()).limit(32).toList()){
             boolean bp=m.kind()==EconomyStore.MailKind.BLUEPRINT;
             rows.add(new CommerceView.Entry(m.id().toString(),bp?c.building(m.building()).title()+" plan":"Coin delivery",bp?c.building(m.building()).founder()+" · Manage your permanent, recoverable plan. One building only.":m.description(),m.amount(),bp?"BLUEPRINT":"COINS"));
@@ -185,7 +185,7 @@ public final class CommerceService {
             if(iq!=null)return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),rows,iq.nonce(),iq.text(),notice);
         }
         Quote q=QUOTES.get(player);if(q!=null&&(System.nanoTime()-q.issued()>30_000_000_000L||q.revision()!=s.revision()||q.tab()!=tab)){QUOTES.remove(player);q=null;}
-        String details=q==null?"":q.tab()==0?"Purchase "+c.building(q.selected()).title()+" for "+q.amount()+" coins. One kingdom entitlement; the first confirmed buyer wins. Payment and stock commit together. Delivery goes to your mailbox.":q.tab()==1?"Sell exactly "+q.quantity()+" "+c.supply(q.selected()).title()+" for "+q.amount()+" coins. These items are permanently consumed. Your actual inventory and today's limits are rechecked. Review expires after 30 seconds.":"Claim "+q.amount()+" coins to your purse exactly once.";
+        String details=q==null?"":q.tab()==0?"Purchase "+c.building(q.selected()).title()+" for "+q.amount()+" coins. One kingdom entitlement; the first confirmed buyer wins. Payment and stock commit together. Delivery goes to your mailbox.":q.tab()==1?MarketService.reviewText(player,q.selected(),q.quantity(),q.amount()):"Claim "+q.amount()+" coins to your purse exactly once.";
         return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),rows,q==null?CommerceRequest.NONE:q.nonce(),details,notice);
     }
     private static EconomyStore.Mail mail(ServerPlayer player,EconomyStore s,String id){UUID uuid;try{uuid=UUID.fromString(id);}catch(IllegalArgumentException e){throw new IllegalArgumentException("Choose a valid private mailbox entry.");}return s.mailbox(player.getUUID()).stream().filter(m->m.id().equals(uuid)).findFirst().orElseThrow(()->new IllegalStateException("No such delivery in your mailbox."));}

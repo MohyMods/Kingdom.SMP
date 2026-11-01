@@ -1,3 +1,5 @@
+> **0.11.0 current slice:** [Dynamic NPC resource market](NPC_MARKET_CHECKPOINT.md) adds marginal prices, finite shared stock, safe Tier2 shop deliveries and real operator inspection. Prior auction modes remain. Profession bonuses/contracts and full1.0remain unfinished; see validation and D-032.
+
 > **0.9.0 current slice:** [Funded timed auctions](TIMED_AUCTION_CHECKPOINT.md) adds outbid refunds, rolling anti-sniping, due settlement and guarded QA commands. Fixed-price/Bank/building systems remain. Buyorders, dynamic economy and the full1.0 game remain incomplete.
 
 > **0.8.0 current slice:** [Fixed-price auctions and native item mail](AUCTION_CHECKPOINT.md) extends the 0.7 marketplace/Bank. [Public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md) is explicit and optional. Timed bids, buy orders, dynamic economy and full1.0 remain unfinished; D-029 permanently removes auction taxes from circulation. Historical missing-status text below is superseded only for these verified slices.

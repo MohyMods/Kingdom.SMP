@@ -98,6 +98,11 @@ public final class TownHallRuntimeTests {
                     // Remove only this fixture restriction while checking the physical stair route.
                     var resident=(net.minecraft.world.entity.PathfinderMob)npc;
                     resident.clearRestriction();
+                    // Start the geometry check at the verified home, rather than during
+                    // an arbitrary AI jump/wander tick (createPath requires grounded state).
+                    resident.getNavigation().stop();var stairStart=site.offset(b.home());
+                    h.assertTrue(level.getBlockState(stairStart).isAir()&&level.getBlockState(stairStart.above()).isAir()&&level.getBlockState(stairStart.below()).isFaceSturdy(level,stairStart.below(),net.minecraft.core.Direction.UP),"Stair navigation starts on clear supported floor");
+                    resident.moveTo(stairStart.getX()+.5,stairStart.getY(),stairStart.getZ()+.5);resident.setOnGround(true);
                     h.assertTrue(level.getBlockState(site.offset(b.board())).is(Blocks.LECTERN),"Service board is an actual unobstructed furnished lectern");
                     var route=resident.getNavigation().createPath(site.offset(10,6,11),0);
                     h.assertTrue(route!=null&&route.canReach(),"Physical ground-to-gallery stairs are navigable: "+(route==null?"no path":route.getEndNode().asBlockPos()));

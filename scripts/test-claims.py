@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
-parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests'],default='kingdom_smp_claim_tests')
+parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests'],default='kingdom_smp_claim_tests')
 args=parser.parse_args()
-marker={'kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
+marker={'kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
 root = Path(__file__).resolve().parent.parent
 subprocess.run(['python3', str(root / 'scripts/download-claim-test-mods.py')], check=True)
 fixture = Path(tempfile.mkdtemp(prefix='claim-server.', dir=root / 'work'))
@@ -40,7 +40,7 @@ with (fixture / 'execution.log').open('w') as log:
                 process.stdin.write('execute positioned 0 80 0 run test runall\n'); process.stdin.flush()
             if marker in line:
                 passed = True
-            if 'failed at ' in line or 'Game test server crashed' in line:
+            if 'failed at ' in line or 'Game test server crashed' in line or 'No tests found' in line:
                 failed = True
             if (passed or failed) and not stopped:
                 stopped = True

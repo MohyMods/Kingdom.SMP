@@ -1,3 +1,5 @@
+> **0.11.0 current slice:** [Dynamic NPC resource market](NPC_MARKET_CHECKPOINT.md) adds marginal prices, finite shared stock, safe Tier2 shop deliveries and real operator inspection. Prior auction modes remain. Profession bonuses/contracts and full1.0remain unfinished; see validation and D-032.
+
 > **0.10.0 current slice:** [Funded buy orders](BUY_ORDER_CHECKPOINT.md) implements full funding, exact partial fills and unspent cancellation/expiry refunds in the supported vanilla scope. Full242JUnit/native tests and real two-client restart evidence are recorded in VALIDATION. Dynamic NPC shops/contracts, professions, later buildings/tiers and full-pack acceptance remain unfinished. Historical missing-status text below is superseded only for these verified slices.
 
 > **0.9.0 current slice:** [Funded timed auctions](TIMED_AUCTION_CHECKPOINT.md) adds outbid refunds, rolling anti-sniping, due settlement and guarded QA commands. Fixed-price/Bank/building systems remain. Buyorders, dynamic economy and the full1.0 game remain incomplete.

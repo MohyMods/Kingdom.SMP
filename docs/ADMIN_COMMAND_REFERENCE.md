@@ -1,3 +1,7 @@
+## 0.11 actual NPC market inspection
+
+`/kingdom admin market inspect` reports canonical daily purchased/sold quantities, buying-budget usage, configured buying/selling bounds, finite stock and cumulative NPC purchase coin sink. It uses the existing administrator permission. Daily restocking is derived automatically from UTC day; no new manual restock or economic repair command is claimed in this slice.
+
 ## 0.10 funded buy-order inspection and isolated QA
 
 `/kingdom admin orders inspect` uses the existing administrator permission and reports the canonical journal, order counts, remaining demand, held funds and pending item work.

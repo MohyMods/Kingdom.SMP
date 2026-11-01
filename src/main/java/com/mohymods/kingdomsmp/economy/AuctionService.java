@@ -70,6 +70,11 @@ public final class AuctionService {
         UUID id;try{id=UUID.fromString(selected);}catch(IllegalArgumentException e){throw new IllegalArgumentException("Choose a valid item delivery.");}
         return CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().filter(m->m.id().equals(id)&&!m.claimed()).findFirst().orElseThrow(()->new IllegalStateException("No such unclaimed item in your mailbox."));
     }
+    private static void requireItemCounter(ServerPlayer p,int tab,String selected){
+        // Only an owned, unclaimed delivery from a canonical NPC purchase receives Tier 2 service access.
+        if(tab==2&&CommerceService.store(p.server).shopDelivery(mail(p,selected).id()))CommerceService.requireCounter(p);
+        else BankService.requireCounter(p);
+    }
     public static boolean itemMail(ServerPlayer p,String selected){
         return CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().anyMatch(m->m.id().toString().equals(selected));
     }
@@ -99,7 +104,7 @@ public final class AuctionService {
         List<CommerceView.Entry> out=new ArrayList<>();
         for(var m:CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().filter(m->!m.claimed()).limit(128).toList()){
             var item=decode(p,m.item());String title=item.getCount()+" × "+item.getHoverName().getString();
-            out.add(new CommerceView.Entry(m.id().toString(),bounded(title,64),bounded(m.description()+". Exact components retained. Claim at the Royal Bank with enough inventory space; nothing is dropped.",256),0,"ITEMS"));
+            out.add(new CommerceView.Entry(m.id().toString(),bounded(title,64),bounded(m.description()+". Exact components retained. Claim at "+(CommerceService.store(p.server).shopDelivery(m.id())?"a resident counter":"the Royal Bank")+" with enough inventory space; nothing is dropped.",256),0,"ITEMS"));
         }
         return out;
     }
@@ -114,7 +119,7 @@ public final class AuctionService {
                 }));
     }
     public static Quote review(ServerPlayer p,int tab,String selected,int requested,long price)throws IOException{
-        BankService.requireCounter(p);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);expire(p);
+        requireItemCounter(p,tab,selected);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);expire(p);
         if(s.pendingItem().isPresent()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.quarantined())throw new IllegalStateException("Auction inventory reconciliation is pending.");
         ItemStack item=ItemStack.EMPTY;int slot=p.getInventory().selected;String text;
         if(tab==2){
@@ -149,8 +154,9 @@ public final class AuctionService {
         var q=new Quote(UUID.randomUUID(),s.revision(),tab,selected,price,slot,item,System.nanoTime(),inventory(p),bounded(text,1024));QUOTES.put(p,q);return q;
     }
     public static String confirm(ServerPlayer p,UUID nonce)throws IOException{
-        BankService.requireCounter(p);var q=QUOTES.remove(p);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);
+        var q=QUOTES.remove(p);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);
         if(q==null||!q.nonce().equals(nonce)||System.nanoTime()-q.issued()>30_000_000_000L||q.revision()!=s.revision())throw new IllegalStateException("Auction review expired or market state changed. Review again.");
+        requireItemCounter(p,q.tab(),q.selected());
         if(q.tab()!=2&&!q.selected().equals("sell")&&!q.selected().equals("sell_timed")){
             if(q.selected().startsWith("bid:")){s.bidListing(q.nonce(),p.getUUID(),listingId(q.selected()),q.price(),System.currentTimeMillis());return "Funded bid saved. Refresh to inspect the leading bid, deadline and any outbid refunds.";}
             if(q.selected().startsWith("buy:")){s.buyListing(q.nonce(),p.getUUID(),listingId(q.selected()),System.currentTimeMillis());return "Purchase saved. Claim your exact items through Mailbox at the Bank.";}

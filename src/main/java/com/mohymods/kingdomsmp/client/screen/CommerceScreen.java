@@ -110,7 +110,7 @@ public final class CommerceScreen extends Screen {
     private String actionLabel(){
         if(view.reviewing())return "Confirm";
         var row=selected();if(row==null)return "Review";
-        return switch(row.state()){case "AVAILABLE"->"Review purchase";case "SELL"->"Review sale";case "BANK"->"Review transfer";case "CONTRIBUTE"->"Review donation";case "COINS","ITEMS"->"Review claim";case "LIST"->"Review listing";case "LIST_TIMED"->"Review auction";case "BID"->"Review bid";case "BUY"->"Review purchase";case "RETURN"->"Review return";case "ORDER_CREATE"->"Review order";case "ORDER_FILL"->"Review fill";case "ORDER_CANCEL"->"Cancel order";case "BLUEPRINT"->"Manage plan";default->"Review";};
+        return switch(row.state()){case "AVAILABLE","SHOP"->"Review purchase";case "SELL"->"Review sale";case "BANK"->"Review transfer";case "CONTRIBUTE"->"Review donation";case "COINS","ITEMS"->"Review claim";case "LIST"->"Review listing";case "LIST_TIMED"->"Review auction";case "BID"->"Review bid";case "BUY"->"Review purchase";case "RETURN"->"Review return";case "ORDER_CREATE"->"Review order";case "ORDER_FILL"->"Review fill";case "ORDER_CANCEL"->"Cancel order";case "BLUEPRINT"->"Manage plan";default->"Review";};
     }
     private void act(){
         if(view.reviewing()){CommerceController.request(2,view.tab(),selected,orderQuantityEntry()?Math.max(1,requestedQuantity()):quantity,view.review());return;}
@@ -135,7 +135,7 @@ public final class CommerceScreen extends Screen {
         if(!bidSelection.equals(row.id())||bidMinimum!=row.price()&&coins(bidPrice)<row.price())bidPrice=Long.toString(row.price());
         bidSelection=row.id();bidMinimum=row.price();
     }
-    private boolean actionable(){var row=selected();return row!=null&&Set.of("AVAILABLE","SELL","COINS","BLUEPRINT","BANK","CONTRIBUTE","LIST","LIST_TIMED","BID","BUY","RETURN","ITEMS","ORDER_CREATE","ORDER_FILL","ORDER_CANCEL").contains(row.state())&&(!amountEntry()||price()>0&&(!bidding()||price()>=row.price()))&&(!orderQuantityEntry()||requestedQuantity()>0);}
+    private boolean actionable(){var row=selected();return row!=null&&Set.of("AVAILABLE","SHOP","SELL","COINS","BLUEPRINT","BANK","CONTRIBUTE","LIST","LIST_TIMED","BID","BUY","RETURN","ITEMS","ORDER_CREATE","ORDER_FILL","ORDER_CANCEL").contains(row.state())&&(!amountEntry()||price()>0&&(!bidding()||price()>=row.price()))&&(!orderQuantityEntry()||requestedQuantity()>0);}
     private void rebuild(){if(minecraft!=null){clearWidgets();init();}}
     private RoyalButton button(int x,int y,int w,String label,net.minecraft.client.gui.components.Button.OnPress click,String hint){return new RoyalButton(x,y,w,20,text(label),click,text(hint));}
     @Override public void renderBackground(GuiGraphics g,int x,int y,float partial){ }
@@ -184,9 +184,11 @@ public final class CommerceScreen extends Screen {
             text.add(text(view.tab()==2?"Unclaimed rewards and purchased plans appear here. Only your own deliveries are shown.":"Select an entry to inspect its current price, availability and requirements."));
         }else{
             text.add(text(row.title()));text.add(text(stateLabel(row.state())));text.add(text(row.detail()));
-            if(row.price()>0)text.add(text((row.state().equals("SELL")?"Quoted unit value: ":row.state().equals("BID")?"Minimum next bid: ":row.state().startsWith("ORDER_")?"Unit price: ":"Price: ")+String.format(Locale.ROOT,"%,d",row.price())+" coins"));
+            if(row.price()>0)text.add(text((row.state().equals("SELL")||row.state().equals("SHOP")?"Next unit price: ":row.state().equals("BID")?"Minimum next bid: ":row.state().startsWith("ORDER_")?"Unit price: ":"Price: ")+String.format(Locale.ROOT,"%,d",row.price())+" coins"));
             text.add(text(switch(row.state()){
                 case "AVAILABLE"->"One primary blueprint per kingdom. The first successful buyer becomes its founder. Review before purchasing.";
+                case "OUT_OF_STOCK"->"Today's shared shop stock has sold out. It restocks at UTC midnight; refresh afterward. No payment can be made while stock is empty.";
+                case "SHOP"->"Choose a purchase quantity below. The server sums each unit price, reserves finite daily stock and creates recoverable private item mail. Claim at a resident counter. No item is dropped.";
                 case "SELL"->"Choose an amount below. Only the exact reviewed items are consumed; budgets and allowances are checked again when you confirm.";
                 case "COINS"->"Review the delivery to credit your available balance. A delivery can be claimed only once.";
                 case "ITEMS"->"Review the exact saved item delivery. Make enough main-inventory space; items are never dropped. A delivery can be claimed once.";
@@ -219,7 +221,7 @@ public final class CommerceScreen extends Screen {
         lines.add(text("Confirm uses this exact review. If your inventory, balance or availability changes, request a new review."));
         if(!view.notice().isBlank())lines.add(text(view.notice()));paragraphs(g,lines,x+8,y+8,w-16,h-16);
     }
-    private static String stateLabel(String state){return switch(state){case "AVAILABLE"->"Available";case "SELL"->"Sell to the kingdom";case "COINS"->"Coins to claim";case "ITEMS"->"Items to claim";case "LIST"->"List held items";case "LIST_TIMED"->"Create timed auction";case "BID"->"Timed auction · Bid";case "TIMED_RECORD"->"Timed auction";case "BUY"->"Fixed-price listing";case "RETURN"->"Return escrow";case "ORDER_CREATE"->"Create funded buy order";case "ORDER_FILL"->"Supply a buy order";case "ORDER_CANCEL"->"Your funded order";case "ORDER_RECORD"->"Buy-order record";case "BLUEPRINT"->"Your building plan";case "LOCKED"->"Locked";case "SOLD"->"Sold out";case "CLAIMED"->"Claimed";case "BANK"->"Bank service";case "CONTRIBUTE"->"Shared contribution";case "COMPLETE"->"Complete";default->state;};}
+    private static String stateLabel(String state){return switch(state){case "AVAILABLE"->"Available";case "SHOP"->"Buy from the kingdom";case "OUT_OF_STOCK"->"Out of stock";case "SELL"->"Sell to the kingdom";case "COINS"->"Coins to claim";case "ITEMS"->"Items to claim";case "LIST"->"List held items";case "LIST_TIMED"->"Create timed auction";case "BID"->"Timed auction · Bid";case "TIMED_RECORD"->"Timed auction";case "BUY"->"Fixed-price listing";case "RETURN"->"Return escrow";case "ORDER_CREATE"->"Create funded buy order";case "ORDER_FILL"->"Supply a buy order";case "ORDER_CANCEL"->"Your funded order";case "ORDER_RECORD"->"Buy-order record";case "BLUEPRINT"->"Your building plan";case "LOCKED"->"Locked";case "SOLD"->"Sold out";case "CLAIMED"->"Claimed";case "BANK"->"Bank service";case "CONTRIBUTE"->"Shared contribution";case "COMPLETE"->"Complete";default->state;};}
     private void paragraphs(GuiGraphics g,List<Component> values,int x,int y,int w,int h){
         if(w<=0||h<=0){maxScroll=0;return;}List<FormattedCharSequence> lines=new ArrayList<>();
         for(var value:values){lines.addAll(font.split(value,w-5));lines.add(FormattedCharSequence.EMPTY);}

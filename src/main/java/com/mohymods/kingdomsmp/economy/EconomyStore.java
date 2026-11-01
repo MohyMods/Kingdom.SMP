@@ -28,7 +28,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY }
     public enum MailKind { COINS, BLUEPRINT }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -115,13 +115,15 @@ public final class EconomyStore {
     private Map<UUID,Listing> listings=new HashMap<>();
     private Map<UUID,ItemMail> itemMail=new HashMap<>();
     private Map<UUID,BuyOrder> orders=new HashMap<>();
+    private record ShopDay(long day,String resource) { }
+    private Map<ShopDay,Long> shopSold=new HashMap<>();
     private boolean quarantined;
     private EconomyStore(Path file,UUID identity,Writer writer,List<Operation> history,PendingSale pending,PendingTransfer transfer,PendingItem pendingItem){
         this.file=file;this.identity=identity;this.writer=writer;this.history=List.copyOf(history);
         Set<UUID> seen=new HashSet<>();
         for(int i=0;i<history.size();i++){
             var op=history.get(i);if(op.sequence()!=i+1L||!seen.add(op.id()))throw new IllegalArgumentException("Duplicate or unordered economy operation");
-            apply(op,balances,purchases,mail,listings,itemMail,orders);
+            apply(op,balances,purchases,mail,listings,itemMail,orders,shopSold);
         }
         this.pending=pending;this.transfer=transfer;this.pendingItem=pendingItem;
         if((pending!=null?1:0)+(transfer!=null?1:0)+(pendingItem!=null?1:0)>1)throw new IllegalArgumentException("Two inventory operations prepared simultaneously");
@@ -137,7 +139,7 @@ public final class EconomyStore {
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
                     ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders);var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
+            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold));var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
         }
         budget(history,listings,itemMail,mail,orders,false);
     }
@@ -198,6 +200,17 @@ public final class EconomyStore {
     public synchronized Optional<BuyOrder> order(UUID id){return Optional.ofNullable(orders.get(id));}
     public synchronized Optional<Listing> listing(UUID id){return Optional.ofNullable(listings.get(id));}
     public synchronized List<ItemMail> itemMailbox(UUID owner){return itemMail.values().stream().filter(m->m.owner().equals(owner)).sorted(Comparator.comparing(ItemMail::id)).toList();}
+    public synchronized long shopSold(long period,String resource){if(period<0)throw new IllegalArgumentException("Invalid trading day");identifier(resource);return shopSold.getOrDefault(new ShopDay(period,resource),0L);}
+    /** Canonical origin only: client item names/tags never authorize an earlier claim gate. */
+    public synchronized boolean shopDelivery(UUID mail){var op=find(mail);return op!=null&&op.kind()==Kind.SHOP_BUY;}
+    public synchronized long shopCoinsSpent(){long sum=0;for(var op:history)if(op.kind()==Kind.SHOP_BUY)sum=Math.addExact(sum,op.amount());return sum;}
+    /** Debit, finite stock consumption and recoverable delivery commit together. Root validates real counter/catalogue. */
+    public synchronized ItemMail shopBuy(UUID operation,UUID buyer,String resource,String title,CompoundTag item,int quantity,long period,int stock,long minimum,long maximum)throws IOException{
+        identifier(resource);var data=new CompoundTag();data.put("item",checkedItem(item));data.putInt("stock",stock);data.putLong("minimum",minimum);data.putLong("maximum",maximum);
+        var old=find(operation);long amount=old==null?MarketPricing.total(minimum,maximum,shopSold(period,resource),stock,quantity,true):old.amount();
+        var op=new Operation(history.size()+1L,operation,Kind.SHOP_BUY,buyer,buyer,amount,resource,title,null,period,quantity,data);
+        if(!replayed(op))append(op);return itemMail.get(operation);
+    }
     /** Permanently removed from circulation by explicit D-029 approval; retained for audit only. */
     public synchronized long taxRemoved(){long total=0;for(var op:history){
         if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)total=Math.addExact(total,tax(op.amount(),listings.get(op.reference()).master()));
@@ -311,7 +324,7 @@ public final class EconomyStore {
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy paused for inventory reconciliation");
         if(find(op.id())!=null)throw new IllegalArgumentException("Native item operation already committed");
         var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders);var nextHistory=new ArrayList<>(history);nextHistory.add(op);
+        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold));var nextHistory=new ArrayList<>(history);nextHistory.add(op);
         budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,action==ItemAction.LIST||action==ItemAction.TIMED_LIST||action==ItemAction.ORDER_FILL);
         var item=new PendingItem(op.sequence(),op.id(),op.actor(),action,encodeOperation(op),expectedReceipt(op.actor()));persist(history,null,null,item);pendingItem=item;return item;
     }
@@ -423,14 +436,26 @@ public final class EconomyStore {
     }
     private void appendResolved(Operation op)throws IOException{
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders);var next=new ArrayList<>(history);next.add(op);
-        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER);persist(next,null);
-        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;pendingItem=null;
+        var nextStock=new HashMap<>(shopSold);apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock);var next=new ArrayList<>(history);next.add(op);
+        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY);persist(next,null);
+        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;pendingItem=null;
     }
-    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders){
+    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
+            case SHOP_BUY->{
+                var data=op.payload();
+                if(!op.actor().equals(op.target())||op.reference()!=null||op.quantity()<1||op.quantity()>64||itemMail.containsKey(op.id())
+                        ||!data.getAllKeys().equals(Set.of("item","stock","minimum","maximum")))throw new IllegalArgumentException("Invalid shop purchase");
+                identifier(op.key());require(data,"item",Tag.TAG_COMPOUND);require(data,"stock",Tag.TAG_INT);require(data,"minimum",Tag.TAG_LONG);require(data,"maximum",Tag.TAG_LONG);
+                var item=checkedItem(data.getCompound("item"));var key=new ShopDay(op.period(),op.key());long sold=shopSold.getOrDefault(key,0L);
+                long expected=MarketPricing.total(data.getLong("minimum"),data.getLong("maximum"),sold,data.getInt("stock"),op.quantity(),true);
+                if(op.amount()!=expected||item.getInt("count")!=op.quantity())throw new IllegalArgumentException("Shop price or item count differs from pinned stock policy");
+                if(balance<op.amount())throw new IllegalStateException("Insufficient coins for shop purchase");
+                balances.put(op.target(),balance-op.amount());shopSold.put(key,Math.addExact(sold,op.quantity()));
+                itemMail.put(op.id(),new ItemMail(op.id(),op.target(),item,op.detail(),false));
+            }
             case CREATE_ORDER->{
                 var data=op.payload();
                 if(!op.key().equals("buy_order")||!op.actor().equals(op.target())||op.reference()!=null||orders.containsKey(op.id())

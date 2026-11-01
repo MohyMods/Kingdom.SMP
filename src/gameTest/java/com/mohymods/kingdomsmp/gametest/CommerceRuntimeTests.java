@@ -102,13 +102,17 @@ public final class CommerceRuntimeTests {
         var begin=ConstructionService.review(winner,7);ConstructionService.confirm(winner,begin.nonce(),8);
         var nativeHut=BuilderHutSavedData.get(server).hut().orElseThrow();var builder=level.getEntity(nativeHut.npcId());
         var post=b.workPost(site,Rotation.NONE);builder.moveTo(post.getX()+.5,post.getY(),post.getZ()+.5);
-        boolean[] complete={false};
+        boolean[] complete={false};int[] completionWait={0};
         h.onEachTick(()->{
             if(complete[0])return;
             try{
                 var store=ConstructionService.store(server);
                 for(int i=0;i<2&&store.get(project.id()).phase()==ConstructionStore.Phase.BUILDING;i++)ConstructionService.step(server,project.id());
-                var saved=store.get(project.id());if(saved.phase()!=ConstructionStore.Phase.COMPLETE)return;
+                var saved=store.get(project.id());
+                if(saved.phase()!=ConstructionStore.Phase.COMPLETE){
+                    if(saved.placed()==b.blocks().size()&&++completionWait[0]>=20)h.fail("Purchased building completion stalled: "+ConstructionService.activity(project.id())+"; Aldric "+builder.blockPosition());
+                    return;
+                }
                 complete[0]=true;
                 h.runAfterDelay(20,()->{
                     try{
