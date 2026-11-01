@@ -175,7 +175,7 @@ public final class ConstructionService {
         ownerAlive(player,p);requireTier(player.server,p);
         if(!hasPlan(player,p)||p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Claim a current unused blueprint first.");
         nearby(player,origin);
-        Project candidate=p.propose(origin,rotation);String denied=validateSite(player.serverLevel(),candidate,false);
+        String denied;try{Project candidate=ConstructionFoundations.propose(player.serverLevel(),p.propose(origin,rotation));denied=validateSite(player.serverLevel(),candidate,false);}catch(IllegalStateException blocked){denied=blocked.getMessage();}
         return new Preview(origin.immutable(),rotation,denied==null?"":denied,System.nanoTime());
     }
     public static String confirm(ServerPlayer player,UUID nonce,int action){
@@ -201,7 +201,7 @@ public final class ConstructionService {
                     ownerAlive(player,p);if(!hasPlan(player,p))throw new IllegalStateException("Current blueprint required.");
                     Preview preview=PREVIEWS.get(player);
                     if(preview==null||System.nanoTime()-preview.issued()>=REVIEW_NANOS)throw new IllegalStateException("Placement preview expired.");
-                    nearby(player,preview.origin());Project proposed=p.propose(preview.origin(),preview.rotation());
+                    nearby(player,preview.origin());Project proposed=ConstructionFoundations.propose(player.serverLevel(),p.propose(preview.origin(),preview.rotation()));
                     String denied=validateSite(player.serverLevel(),proposed,false);if(denied!=null)throw new IllegalStateException(denied);
                     if(royal(player.server))proposed=proposed.approve(player.getUUID());
                     store.save(proposed,player.getUUID(),royal(player.server)?"SERVER_VALIDATED_SITE":"PROPOSE_SITE");audit(player,proposed,"PROPOSE_SITE");
@@ -289,7 +289,7 @@ public final class ConstructionService {
     private static IllegalStateException storageFailure(Exception e){LogUtils.getLogger().error("Construction storage failed; all mutations paused",e);return new IllegalStateException("Construction storage requires recovery. Contact the administrator.",e);}
     private static void audit(ServerPlayer player,Project p,String action){LogUtils.getLogger().info("Construction action={} actor={} project={} proposal={} origin={} rotation={}",action,player.getUUID(),p.id(),p.proposal(),p.origin(),p.rotation());}
 
-    public static AABB bounds(Project p){var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());return bounds(p.origin(),b,p.rotation());}
+    public static AABB bounds(Project p){var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());return bounds(p.origin(),b,p.rotation()).expandTowards(0,-ConstructionFoundations.depth(p),0);}
     private static AABB bounds(BlockPos o,ConstructionBlueprint b,Rotation r){return new AABB(o.getX(),o.getY(),o.getZ(),o.getX()+b.width(r),o.getY()+b.height(),o.getZ()+b.depth(r));}
     public static boolean loaded(ServerLevel level,Project p){
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
@@ -301,7 +301,7 @@ public final class ConstructionService {
         if(!com.mohymods.kingdomsmp.placement.PlacementProtection.installed())return null;
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
         BlockPos last=p.origin().offset(b.width(p.rotation())-1,b.height()-1,b.depth(p.rotation())-1);
-        String denial=com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,p.owner(),p.origin().below(),last);
+        String denial=com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,p.owner(),p.origin().below(ConstructionFoundations.depth(p)+1),last);
         if(denial!=null)return denial;
         BlockPos post=b.workPost(p.origin(),p.rotation());
         return com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,p.owner(),post.below(),post.above());
@@ -326,9 +326,7 @@ public final class ConstructionService {
         for(var other:store(level.getServer()).projects())if(other.origin()!=null&&!other.id().equals(p.id())&&bounds(p).intersects(bounds(other)))return "Site overlaps another kingdom reservation or building.";
         var hut=BuilderHutSavedData.get(level.getServer()).hut().orElse(null);
         if(hut!=null){var h=BuilderHutBlueprint.create();if(bounds(p).intersects(new AABB(hut.origin().getX(),hut.origin().getY(),hut.origin().getZ(),hut.origin().getX()+h.width(hut.rotation()),hut.origin().getY()+BuilderHutBlueprint.HEIGHT,hut.origin().getZ()+h.depth(hut.rotation()))))return "Site overlaps the Builder's Hut.";}
-        for(int x=0;x<b.width(p.rotation());x++)for(int z=0;z<b.depth(p.rotation());z++){
-            BlockPos support=o.offset(x,-1,z);if(!level.getBlockState(support).isFaceSturdy(level,support,Direction.UP))return "Prepare solid level support under the complete footprint.";
-        }
+        String foundation=ConstructionFoundations.validate(level,p,resuming);if(foundation!=null)return foundation;
         boolean weatherPost=resuming&&p.phase()==Phase.BUILDING&&level.getBlockState(post).is(Blocks.SNOW);
         if(!level.getBlockState(post.below()).isFaceSturdy(level,post.below(),Direction.UP)||!level.getBlockState(post).isAir()&&!weatherPost||!level.getBlockState(post.above()).isAir())return "Aldric needs a clear supported work post immediately outside the entrance.";
         Map<BlockPos,net.minecraft.world.level.block.state.BlockState> expected=new HashMap<>();
@@ -343,7 +341,8 @@ public final class ConstructionService {
     }
     public static String verifyPrefix(ServerLevel level,Project p){
         if(!loaded(level,p))return "Site chunks are unloaded; construction paused.";
-        var blocks=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion()).blocks(p.rotation());
+        if(!p.foundations().isEmpty()){String denied=ConstructionFoundations.validate(level,p,true);if(denied!=null)return denied;}
+        var blocks=ConstructionFoundations.blocks(p);
         if(p.placed()>blocks.size())return "Saved blueprint version/progress mismatch.";
         for(int i=0;i<p.placed();i++){
             var b=blocks.get(i);BlockPos pos=p.origin().offset(b.offset());
@@ -368,7 +367,7 @@ public final class ConstructionService {
             found=p;
         }
         if(found==null)return false;
-        var definition=BlueprintRegistry.get(found.blueprint(),found.blueprintVersion()).blocks(found.rotation());
+        var definition=ConstructionFoundations.blocks(found);
         for(int i=0;i<Math.min(found.placed(),definition.size());i++){
             var expected=definition.get(i);
             if(found.origin().offset(expected.offset()).equals(crop))return expected.state().getBlock() instanceof CropBlock&&ConstructionBlueprint.matches(proposed,expected.state());
@@ -377,7 +376,7 @@ public final class ConstructionService {
     }
     public static boolean structureIntact(ServerLevel level,Project p){
         var b=BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());
-        if(p.origin()==null||p.placed()!=b.blocks().size()||!loaded(level,p))return false;
+        if(p.origin()==null||p.placed()!=ConstructionFoundations.blocks(p).size()||!loaded(level,p))return false;
         return verifyPrefix(level,p)==null;
     }
     public static void tick(ServerTickEvent.Post event){
@@ -405,7 +404,7 @@ public final class ConstructionService {
         if(!Objects.equals(VERIFIED.get(p.id()),p.placed())||p.placed()%40==0){
             String denied=verifyPrefix(level,p);if(denied!=null){pause(p,denied);return;}VERIFIED.put(p.id(),p.placed());
         }
-        var blocks=blueprint.blocks(p.rotation());
+        var blocks=ConstructionFoundations.blocks(p);
         if(p.placed()==blocks.size()){finish(level,p);return;}
         var block=blocks.get(p.placed());BlockPos pos=p.origin().offset(block.offset());
         // Crop survival depends on real server lighting. In newly lit chunks or a
@@ -420,9 +419,10 @@ public final class ConstructionService {
         }
 
         var before=level.getBlockState(pos);
-        // The approved reservation was entirely air, and player placement is protected.
-        // Subsequent weather snow may be brushed away without drops; no terrain/block is cleared.
-        boolean replace=before.isAir()||before.is(Blocks.SNOW);
+        // The approved building volume was air; saved below-floor cells may also fill water.
+        // Weather snow is brushed away without drops; no solid terrain/property is cleared.
+        boolean foundationBlock=block.offset().getY()<0;
+        boolean replace=before.isAir()||before.is(Blocks.SNOW)||foundationBlock&&before.is(Blocks.WATER);
         if(!replace&&!ConstructionBlueprint.matches(before,block.state())){pause(p,"Site changed at "+pos.toShortString()+". No terrain or player blocks were replaced.");return;}
         if(replace&&!level.getEntities((Entity)null,new AABB(pos),e->e!=builder).isEmpty()){pause(p,"Waiting for the next block space to be clear.");return;}
         try{
@@ -563,12 +563,13 @@ public final class ConstructionService {
                 case COMPLETE->hut(p)?"Builder's Hut complete. Aldric is ready; contribute to First Hearth.":p.npcDead()?"Resident unavailable; identity retained for recovery.":purchased(p)?BlueprintRegistry.title(p.blueprint())+" complete. Visit "+resident(player.server,p)+", "+BlueprintRegistry.occupation(p.blueprint())+", for building services.":"Town Hall complete. "+resident(player.server,p)+" serves the kingdom.";
             };
         }
+        if(p!=null&&!p.foundations().isEmpty())status+=" Foundation: "+p.foundations().size()+" supplied cobblestone blocks, maximum "+ConstructionFoundations.depth(p)+" below the footprint; original terrain retained.";
         if(preview!=null&&!preview.denial().isBlank())status=preview.denial();
         if(store.quarantined())status="Construction storage is quarantined. All claims, approvals and work are paused until restart/reconciliation.";
         boolean admin=player.hasPermissions(2);StringBuilder audit=new StringBuilder();
         if(admin)for(var a:store.audit().stream().skip(Math.max(0,store.audit().size()-6)).toList())audit.append(a.action()).append(" · ").append(a.actor().toString(),0,8).append('\n');
         return new ConstructionView(requestId,store.revision(),open,p==null?NONE:p.id(),p==null?NONE:p.npc(),p==null?"Unawarded":p.ownerName(),p==null?"LOCKED":p.phase().name(),
-                origin,rotation.ordinal(),preview!=null||p!=null&&p.origin()!=null,preview==null||preview.denial().isBlank(),b.width(rotation),b.depth(rotation),b.height(),p==null?0:p.placed(),b.blocks().size(),
+                origin,rotation.ordinal(),preview!=null||p!=null&&p.origin()!=null,preview==null||preview.denial().isBlank(),b.width(rotation),b.depth(rotation),b.height(),p==null?0:p.placed(),b.blocks().size()+(p==null?0:p.foundations().size()),
                 p!=null&&p.owner().equals(player.getUUID()),admin,p!=null&&hasPlan(player,p),review==null?0:review.action(),review==null?NONE:review.nonce(),
                 limit(status,512),limit(notice,512),limit(audit.toString(),2048),b.id(),p==null?"Elara Vale":resident(player.server,p));
     }

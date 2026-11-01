@@ -97,7 +97,11 @@ public final class ClaimRuntimeTests {
 
     @SuppressWarnings("unchecked")
     static ClaimPlayer player(ServerLevel level,String name)throws Exception{
-        var p=new ClaimPlayer(level,name);var connection=new Connection(PacketFlow.SERVERBOUND);
+        return player(level,UUID.randomUUID(),name);
+    }
+    @SuppressWarnings("unchecked")
+    static ClaimPlayer player(ServerLevel level,UUID identity,String name)throws Exception{
+        var p=new ClaimPlayer(level,identity,name);var connection=new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
         // Embedded peers have no real configuration handshake. Declare the actual registered play
         // channels only in this test fixture, so login packets do not mask claim-engine assertions.
@@ -136,7 +140,8 @@ public final class ClaimRuntimeTests {
     }
     static final class ClaimPlayer extends ServerPlayer{
         final List<Component> messages=new ArrayList<>();
-        ClaimPlayer(ServerLevel level,String name){super(level.getServer(),level,new GameProfile(UUID.randomUUID(),name),ClientInformation.createDefault());}
+        ClaimPlayer(ServerLevel level,String name){this(level,UUID.randomUUID(),name);}
+        ClaimPlayer(ServerLevel level,UUID identity,String name){super(level.getServer(),level,new GameProfile(identity,name),ClientInformation.createDefault());}
         @Override public void sendSystemMessage(Component c){messages.add(c.copy());}
         String confirmation(){
             for(int i=messages.size()-1;i>=0;i--){

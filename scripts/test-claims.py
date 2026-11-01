@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
-parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests'],default='kingdom_smp_claim_tests')
+parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests'],default='kingdom_smp_claim_tests')
 args=parser.parse_args()
-marker={'kingdom_smp_hunt_tests':'HUNT_ASSERTIONS_PASSED:','kingdom_smp_farmer_loop_tests':'FARMER_FULL_LOOP_ASSERTIONS_PASSED:','kingdom_smp_gear_shop_tests':'FARMER_GEAR_SHOP_ASSERTIONS_PASSED:','kingdom_smp_farmer_gear_tests':'FARMER_GEAR_ASSERTIONS_PASSED:','kingdom_smp_bounty_tests':'BOUNTY_ASSERTIONS_PASSED:','kingdom_smp_farmer_events_tests':'FARMER_EVENTS_ASSERTIONS_PASSED:','kingdom_smp_farmer_tests':'FARMER_QUEST_ASSERTIONS_PASSED:','kingdom_smp_profession_tests':'PROFESSION_CONTRACT_ASSERTIONS_PASSED:','kingdom_smp_crop_tests':'CROP_RECOVERY_ASSERTIONS_PASSED:','kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
+marker={'kingdom_smp_foundation_resume_tests':'FOUNDATION_RESTART_PREPARED:','kingdom_smp_foundation_tests':'FOUNDATION_ASSERTIONS_PASSED:','kingdom_smp_hunt_tests':'HUNT_ASSERTIONS_PASSED:','kingdom_smp_farmer_loop_tests':'FARMER_FULL_LOOP_ASSERTIONS_PASSED:','kingdom_smp_gear_shop_tests':'FARMER_GEAR_SHOP_ASSERTIONS_PASSED:','kingdom_smp_farmer_gear_tests':'FARMER_GEAR_ASSERTIONS_PASSED:','kingdom_smp_bounty_tests':'BOUNTY_ASSERTIONS_PASSED:','kingdom_smp_farmer_events_tests':'FARMER_EVENTS_ASSERTIONS_PASSED:','kingdom_smp_farmer_tests':'FARMER_QUEST_ASSERTIONS_PASSED:','kingdom_smp_profession_tests':'PROFESSION_CONTRACT_ASSERTIONS_PASSED:','kingdom_smp_crop_tests':'CROP_RECOVERY_ASSERTIONS_PASSED:','kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
 root = Path(__file__).resolve().parent.parent
 subprocess.run(['python3', str(root / 'scripts/download-claim-test-mods.py')], check=True)
 fixture = Path(tempfile.mkdtemp(prefix='claim-server.', dir=root / 'work'))
@@ -27,29 +27,32 @@ command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', '-PkingdomClaimTestMods=work/claim-test-mods',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
 print(f'Isolated claim fixture: {fixture}', flush=True)
-started = passed = stopped = failed = False
-with (fixture / 'execution.log').open('w') as log:
-    process = subprocess.Popen(command, cwd=root, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, text=True, bufsize=1)
-    try:
-        for line in process.stdout:
-            print(line, end='', flush=True)
-            log.write(line); log.flush()
-            if 'Done (' in line and not started:
-                started = True
-                process.stdin.write('execute positioned 0 80 0 run test runall\n'); process.stdin.flush()
-            if marker in line:
-                passed = True
-            if ('[minecraft/LogTestReporter]' in line and ' failed at ' in line) or 'Game test server crashed' in line or 'No tests found' in line or 'net.minecraft.gametest.framework.GameTestAssertException:' in line:
-                failed = True
-            if (passed or failed) and not stopped:
-                stopped = True
-                process.stdin.write('save-all flush\nstop\n'); process.stdin.flush()
-        result = process.wait()
-    finally:
-        if process.poll() is None:
-            process.stdin.write('stop\n'); process.stdin.flush()
-            process.wait(timeout=30)
-if result or not passed or failed:
-    raise SystemExit(f'Claim fixture failed: exit={result}, passed={passed}, failed={failed}; {fixture}')
-print(args.namespace + ' SUITE_PASSED: normal dedicated startup, assertions, flush and clean stop', flush=True)
+markers = ['FOUNDATION_RESTART_PREPARED:', 'FOUNDATION_RESTART_RESUMED:', 'FOUNDATION_RESTART_VERIFIED:'] if args.namespace == 'kingdom_smp_foundation_resume_tests' else [marker]
+for cycle, marker in enumerate(markers):
+    started = passed = stopped = failed = False
+    with (fixture / ('execution.log' if len(markers)==1 else f'execution-{cycle+1}.log')).open('w') as log:
+        process = subprocess.Popen(command, cwd=root, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, text=True, bufsize=1)
+        try:
+            for line in process.stdout:
+                print(line, end='', flush=True)
+                log.write(line); log.flush()
+                if 'Done (' in line and not started:
+                    started = True
+                    test_origin = '-128 80 -128' if len(markers)>1 and cycle>0 else '0 80 0'
+                    process.stdin.write(f'execute positioned {test_origin} run test runall\n'); process.stdin.flush()
+                if marker in line:
+                    passed = True
+                if ('[minecraft/LogTestReporter]' in line and ' failed at ' in line) or 'Game test server crashed' in line or 'No tests found' in line or 'net.minecraft.gametest.framework.GameTestAssertException:' in line:
+                    failed = True
+                if (passed or failed) and not stopped:
+                    stopped = True
+                    process.stdin.write('save-all flush\nstop\n'); process.stdin.flush()
+            result = process.wait()
+        finally:
+            if process.poll() is None:
+                process.stdin.write('stop\n'); process.stdin.flush()
+                process.wait(timeout=30)
+    if result or not passed or failed:
+        raise SystemExit(f'Claim fixture failed: exit={result}, passed={passed}, failed={failed}; {fixture}')
+print(args.namespace + f' SUITE_PASSED: {len(markers)} normal dedicated startup(s), assertions, flush and clean stop(s)', flush=True)

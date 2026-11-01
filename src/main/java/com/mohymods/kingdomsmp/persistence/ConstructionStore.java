@@ -13,17 +13,29 @@ public final class ConstructionStore {
     public enum Phase { AVAILABLE, CLAIMED, PROPOSED, APPROVED, BUILDING, COMPLETE }
     public record Project(UUID id, String reward, ResourceLocation blueprint, int blueprintVersion,
             UUID owner, String ownerName, Phase phase, UUID token, BlockPos origin, Rotation rotation,
-            UUID proposal, UUID approvedBy, int placed, UUID npc, boolean npcIssued, boolean npcDead) {
+            UUID proposal, UUID approvedBy, int placed, UUID npc, boolean npcIssued, boolean npcDead,
+            List<BlockPos> foundations) {
+        /** Existing version-one records retain their exact block sequence and progress. */
+        public Project(UUID id,String reward,ResourceLocation blueprint,int blueprintVersion,UUID owner,String ownerName,
+                Phase phase,UUID token,BlockPos origin,Rotation rotation,UUID proposal,UUID approvedBy,int placed,UUID npc,boolean npcIssued,boolean npcDead) {
+            this(id,reward,blueprint,blueprintVersion,owner,ownerName,phase,token,origin,rotation,proposal,approvedBy,placed,npc,npcIssued,npcDead,List.of());
+        }
         public Project {
             Objects.requireNonNull(id); Objects.requireNonNull(owner); Objects.requireNonNull(npc);
             Objects.requireNonNull(blueprint); Objects.requireNonNull(phase); Objects.requireNonNull(rotation);
             if(reward==null||reward.isBlank()||reward.length()>64||ownerName==null||ownerName.isBlank()||ownerName.length()>48
                     ||blueprintVersion<1||placed<0||placed>32768)throw new IllegalArgumentException("Invalid construction record");
             origin=origin==null?null:origin.immutable();
+            foundations=foundations.stream().map(BlockPos::immutable).toList();
+            if(foundations.size()>16384||foundations.stream().anyMatch(pos->pos.getX()<0||pos.getX()>=64||pos.getZ()<0||pos.getZ()>=64||pos.getY()<-4||pos.getY()>-1)
+                    ||new HashSet<>(foundations).size()!=foundations.size()
+                    ||!foundations.equals(foundations.stream().sorted(Comparator.<BlockPos>comparingInt(BlockPos::getY).thenComparingInt(BlockPos::getZ).thenComparingInt(BlockPos::getX)).toList()))throw new IllegalArgumentException("Invalid saved foundation cells");
+            var supportSet=new HashSet<>(foundations);
+            if(foundations.stream().anyMatch(pos->pos.getY()<-1&&!supportSet.contains(pos.above())))throw new IllegalArgumentException("Foundation columns cannot have gaps");
             boolean site=phase.ordinal()>=Phase.PROPOSED.ordinal(), started=phase.ordinal()>=Phase.BUILDING.ordinal();
             if(site!=(origin!=null)||site!=(proposal!=null)|| (phase.ordinal()>=Phase.APPROVED.ordinal())!=(approvedBy!=null)
                     || (phase!=Phase.AVAILABLE&&!started)!=(token!=null) || !started&&(placed!=0||npcIssued||npcDead)
-                    ||phase==Phase.COMPLETE&&!npcIssued||npcDead&&!npcIssued)throw new IllegalArgumentException("Inconsistent construction phase");
+                    ||phase==Phase.COMPLETE&&!npcIssued||npcDead&&!npcIssued||!site&&!foundations.isEmpty())throw new IllegalArgumentException("Inconsistent construction phase");
         }
         public Project claim() {
             if(phase.ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("This entitlement has already been redeemed");
@@ -36,6 +48,10 @@ public final class ConstructionStore {
         public Project approve(UUID actor) {
             if(phase!=Phase.PROPOSED)throw new IllegalStateException("Proposal changed or is already approved");
             return copy(Phase.APPROVED,token,origin,rotation,proposal,actor,0,false,false);
+        }
+        public Project withFoundations(List<BlockPos> cells) {
+            if(phase!=Phase.PROPOSED)throw new IllegalStateException("Only an unapproved proposal may receive a foundation plan");
+            return new Project(id,reward,blueprint,blueprintVersion,owner,ownerName,phase,token,origin,rotation,proposal,approvedBy,placed,npc,npcIssued,npcDead,cells);
         }
         public Project begin() {
             if(phase!=Phase.APPROVED)throw new IllegalStateException("Administrator approval is required");
@@ -55,7 +71,8 @@ public final class ConstructionStore {
         }
         public Project markDead() { return copy(phase,null,origin,rotation,proposal,approvedBy,placed,true,true); }
         private Project copy(Phase p,UUID t,BlockPos o,Rotation r,UUID q,UUID a,int n,boolean issued,boolean dead) {
-            return new Project(id,reward,blueprint,blueprintVersion,owner,ownerName,p,t,o,r,q,a,n,npc,issued,dead);
+            return new Project(id,reward,blueprint,blueprintVersion,owner,ownerName,p,t,o,r,q,a,n,npc,issued,dead,
+                    o==null||!Objects.equals(q,proposal)?List.of():foundations);
         }
     }
     public record Audit(long time, UUID actor, UUID project, String action) { }
@@ -83,14 +100,14 @@ public final class ConstructionStore {
         }
         CompoundTag tag=AtomicNbt.read(file),mark=AtomicNbt.read(marker);
         require(tag,"schema",Tag.TAG_INT);require(tag,"revision",Tag.TAG_LONG);require(tag,"projects",Tag.TAG_LIST);require(tag,"audit",Tag.TAG_LIST);
-        if(tag.getInt("schema")!=1||!tag.hasUUID("identity")||!mark.hasUUID("identity")
+        if((tag.getInt("schema")!=1&&tag.getInt("schema")!=2)||!tag.hasUUID("identity")||!mark.hasUUID("identity")
                 ||!tag.getUUID("identity").equals(mark.getUUID("identity"))||tag.getLong("revision")<0)throw new IOException("Unsupported or corrupt construction journal");
         ListTag list=tag.getList("projects",Tag.TAG_COMPOUND),entries=tag.getList("audit",Tag.TAG_COMPOUND);
         if(list.size()!=((ListTag)tag.get("projects")).size()||list.size()>128||entries.size()>256
                 ||entries.size()!=((ListTag)tag.get("audit")).size())throw new IOException("Invalid construction journal bounds");
         Map<UUID,Project> projects=new LinkedHashMap<>();Set<String> rewards=new HashSet<>();
         for(int i=0;i<list.size();i++){
-            var p=decode(list.getCompound(i));if(projects.put(p.id(),p)!=null||!rewards.add(p.reward()))throw new IOException("Duplicate construction entitlement");
+            var p=decode(list.getCompound(i),tag.getInt("schema"));if(projects.put(p.id(),p)!=null||!rewards.add(p.reward()))throw new IOException("Duplicate construction entitlement");
         }
         List<Audit> audit=new ArrayList<>();
         for(int i=0;i<entries.size();i++){
@@ -123,8 +140,14 @@ public final class ConstructionStore {
         if(old==null&&(projects.size()>=128||projects.values().stream().anyMatch(p->p.reward().equals(project.reward()))))throw new IllegalArgumentException("Duplicate or excessive construction entitlement");
         if(old!=null&&(!old.owner().equals(project.owner())||!old.reward().equals(project.reward())
                 ||!old.blueprint().equals(project.blueprint())||old.blueprintVersion()!=project.blueprintVersion()||!old.npc().equals(project.npc())
-                ||old.phase().ordinal()>=Phase.BUILDING.ordinal()&&(project.phase().ordinal()<old.phase().ordinal()||project.placed()<old.placed())))
+                ||old.phase().ordinal()>=Phase.BUILDING.ordinal()&&(project.phase().ordinal()<old.phase().ordinal()||project.placed()<old.placed()
+                    ||!Objects.equals(old.origin(),project.origin())||old.rotation()!=project.rotation()||!Objects.equals(old.proposal(),project.proposal())
+                    ||!Objects.equals(old.approvedBy(),project.approvedBy())||!old.foundations().equals(project.foundations()))))
             throw new IllegalArgumentException("Construction identity/progress cannot be rewritten");
+        if(old!=null&&old.phase()==Phase.APPROVED&&project.phase().ordinal()>=Phase.APPROVED.ordinal()
+                &&Objects.equals(old.proposal(),project.proposal())&&(!Objects.equals(old.origin(),project.origin())||old.rotation()!=project.rotation()
+                    ||!Objects.equals(old.approvedBy(),project.approvedBy())||!old.foundations().equals(project.foundations())))
+            throw new IllegalArgumentException("Approved site plan cannot change without a new proposal");
         Map<UUID,Project> next=new LinkedHashMap<>(projects);next.put(project.id(),project);
         List<Audit> history=new ArrayList<>(audit);
         if(!action.equals("PROGRESS")){history.add(new Audit(System.currentTimeMillis(),actor,project.id(),action));if(history.size()>256)history.removeFirst();}
@@ -134,7 +157,7 @@ public final class ConstructionStore {
         projects=Map.copyOf(next);audit=List.copyOf(history);revision=rev;
     }
     private CompoundTag encode(Map<UUID,Project> records,List<Audit> history,long rev){
-        CompoundTag tag=new CompoundTag();tag.putInt("schema",1);tag.putUUID("identity",identity);tag.putLong("revision",rev);
+        CompoundTag tag=new CompoundTag();tag.putInt("schema",2);tag.putUUID("identity",identity);tag.putLong("revision",rev);
         ListTag list=new ListTag();records.values().stream().sorted(Comparator.comparing(Project::id)).forEach(p->list.add(encode(p)));tag.put("projects",list);
         ListTag entries=new ListTag();for(var a:history){CompoundTag e=new CompoundTag();e.putLong("time",a.time());e.putUUID("actor",a.actor());e.putUUID("project",a.project());e.putString("action",a.action());entries.add(e);}tag.put("audit",entries);return tag;
     }
@@ -142,18 +165,22 @@ public final class ConstructionStore {
         CompoundTag t=new CompoundTag();t.putUUID("id",p.id());t.putString("reward",p.reward());t.putString("blueprint",p.blueprint().toString());t.putInt("version",p.blueprintVersion());
         t.putUUID("owner",p.owner());t.putString("ownerName",p.ownerName());t.putString("phase",p.phase().name());t.putString("rotation",p.rotation().name());
         if(p.token()!=null)t.putUUID("token",p.token());if(p.origin()!=null)t.putLong("origin",p.origin().asLong());if(p.proposal()!=null)t.putUUID("proposal",p.proposal());if(p.approvedBy()!=null)t.putUUID("approvedBy",p.approvedBy());
-        t.putInt("placed",p.placed());t.putUUID("npc",p.npc());t.putBoolean("npcIssued",p.npcIssued());t.putBoolean("npcDead",p.npcDead());return t;
+        t.putInt("placed",p.placed());t.putUUID("npc",p.npc());t.putBoolean("npcIssued",p.npcIssued());t.putBoolean("npcDead",p.npcDead());
+        t.putLongArray("foundations",p.foundations().stream().mapToLong(BlockPos::asLong).toArray());return t;
     }
-    private static Project decode(CompoundTag t){
+    private static Project decode(CompoundTag t,int schema){
         for(String k:List.of("reward","blueprint","ownerName","phase","rotation"))require(t,k,Tag.TAG_STRING);
         for(String k:List.of("version","placed"))require(t,k,Tag.TAG_INT);
         for(String k:List.of("npcIssued","npcDead"))require(t,k,Tag.TAG_BYTE);
         for(String k:List.of("id","owner","npc"))if(!t.hasUUID(k))throw new IllegalArgumentException("Invalid construction identity");
         for(String k:List.of("token","proposal","approvedBy"))if(t.contains(k)&&!t.hasUUID(k))throw new IllegalArgumentException("Invalid construction identity");
         if(t.contains("origin"))require(t,"origin",Tag.TAG_LONG);
+        if(schema==2){require(t,"foundations",Tag.TAG_LONG_ARRAY);if(t.getLongArray("foundations").length>16384)throw new IllegalArgumentException("Excessive foundation plan");}
+        if(schema==1&&t.contains("foundations"))throw new IllegalArgumentException("Legacy record cannot carry unversioned foundations");
         return new Project(t.getUUID("id"),t.getString("reward"),ResourceLocation.parse(t.getString("blueprint")),t.getInt("version"),t.getUUID("owner"),t.getString("ownerName"),Phase.valueOf(t.getString("phase")),
                 t.hasUUID("token")?t.getUUID("token"):null,t.contains("origin")?BlockPos.of(t.getLong("origin")):null,Rotation.valueOf(t.getString("rotation")),
-                t.hasUUID("proposal")?t.getUUID("proposal"):null,t.hasUUID("approvedBy")?t.getUUID("approvedBy"):null,t.getInt("placed"),t.getUUID("npc"),t.getBoolean("npcIssued"),t.getBoolean("npcDead"));
+                t.hasUUID("proposal")?t.getUUID("proposal"):null,t.hasUUID("approvedBy")?t.getUUID("approvedBy"):null,t.getInt("placed"),t.getUUID("npc"),t.getBoolean("npcIssued"),t.getBoolean("npcDead"),
+                schema==1?List.of():Arrays.stream(t.getLongArray("foundations")).mapToObj(BlockPos::of).toList());
     }
     private static void require(CompoundTag t,String k,int type){if(!t.contains(k,type))throw new IllegalArgumentException("Invalid construction field: "+k);}
 }
