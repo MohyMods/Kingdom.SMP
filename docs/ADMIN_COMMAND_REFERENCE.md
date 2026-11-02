@@ -1,3 +1,7 @@
+## Shared quest guide inspection
+
+Permission2 `/kingdom admin integrations ftbquests` now includes actual per-team settlement0–9progress, next stable objective and lock state, bounded to10records with the total shown. It still reports exact IDs/bindings and canonical predicates. Historical personal teams can remain after party formation; records are not an online-player count. This is read-only. [Executed guide behavior](FTB_SETTLEMENT_GUIDE.md).
+
 ## Realm diagnostics
 
 `/kingdom admin travel inspect` requires permission2 and reports actual attained tier, each approved destination key/gate, locked/unlocked status and whether its dimension is actually registered. It grants no tier, permission bypass or travel. Aether4, Nether5, Twilight6, Otherside8 and End12 are checked at the native server transition. Planetary split, Waystone actions and full-pack alternate routes remain separate unfinished work.

@@ -44,6 +44,11 @@ public final class KingdomOverviewScreen extends Screen {
             return;
         }
         layout = RoyalLayout.fit(width, height);
+        var guide=new RoyalButton(layout.x()+layout.width()-104,layout.y()+7,90,20,
+                Component.literal("Quest Guide"),button->com.mohymods.kingdomsmp.client.FtbQuestGuide.open(),
+                com.mohymods.kingdomsmp.client.FtbQuestGuide.help());
+        guide.active=com.mohymods.kingdomsmp.client.FtbQuestGuide.available();
+        addRenderableWidget(guide);
         int tabWidth = Math.min(128, (layout.contentWidth() - 16) / 3);
         addRenderableWidget(new RoyalTab(layout.contentX(), layout.y() + 48, tabWidth,
                 text("overview"), !progression, button -> selectTab(false), text("overview.help")));

@@ -2,7 +2,9 @@
   "id": "4B534D5000000001",
   "filename": "kingdom_smp_settlement_v1",
   "title": "Kingdom SMP — Living Settlement",
-  "icon": "kingdom_smp:gold_coin",
+  "icon": {
+    "id": "kingdom_smp:gold_coin"
+  },
   "group": "",
   "order_index": -10,
   "default_hide_dependency_lines": false,
@@ -11,8 +13,10 @@
     {
       "id": "4B534D5000000101",
       "title": "A Hearth for the Kingdom",
-      "icon": "kingdom_smp:builders_hut_blueprint",
-      "x": 0.0,
+      "icon": {
+        "id": "kingdom_smp:builders_hut_blueprint"
+      },
+      "x": -6.0,
       "y": 0.0,
       "dependencies": [],
       "description": [
@@ -26,7 +30,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/hut"
-          ]
+          ],
+          "icon": {
+            "id": "kingdom_smp:builders_hut_blueprint"
+          }
         }
       ],
       "rewards": []
@@ -34,8 +41,10 @@
     {
       "id": "4B534D5000000102",
       "title": "Every Gift Has a Name",
-      "icon": "minecraft:wheat",
-      "x": 2.0,
+      "icon": {
+        "id": "minecraft:wheat"
+      },
+      "x": -4.0,
       "y": 0.0,
       "dependencies": [
         "4B534D5000000101"
@@ -50,7 +59,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/contribution"
-          ]
+          ],
+          "icon": {
+            "id": "minecraft:wheat"
+          }
         }
       ],
       "rewards": []
@@ -58,8 +70,10 @@
     {
       "id": "4B534D5000000103",
       "title": "The First Hearth",
-      "icon": "minecraft:campfire",
-      "x": 4.0,
+      "icon": {
+        "id": "minecraft:campfire"
+      },
+      "x": -2.0,
       "y": 0.0,
       "dependencies": [
         "4B534D5000000102"
@@ -74,7 +88,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/tier_two"
-          ]
+          ],
+          "icon": {
+            "id": "minecraft:campfire"
+          }
         }
       ],
       "rewards": []
@@ -82,8 +99,10 @@
     {
       "id": "4B534D5000000104",
       "title": "A Promise Kept Together",
-      "icon": "kingdom_smp:town_hall_blueprint",
-      "x": 6.0,
+      "icon": {
+        "id": "kingdom_smp:town_hall_blueprint"
+      },
+      "x": 0.0,
       "y": 0.0,
       "dependencies": [
         "4B534D5000000103"
@@ -99,7 +118,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/headquarters"
-          ]
+          ],
+          "icon": {
+            "id": "kingdom_smp:town_hall_blueprint"
+          }
         }
       ],
       "rewards": []
@@ -107,8 +129,10 @@
     {
       "id": "4B534D5000000105",
       "title": "The Royal Architect",
-      "icon": "kingdom_smp:gold_coin",
-      "x": 8.0,
+      "icon": {
+        "id": "kingdom_smp:gold_coin"
+      },
+      "x": 2.0,
       "y": -1.5,
       "dependencies": [
         "4B534D5000000104"
@@ -124,7 +148,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/purchase"
-          ]
+          ],
+          "icon": {
+            "id": "kingdom_smp:gold_coin"
+          }
         }
       ],
       "rewards": []
@@ -132,8 +159,10 @@
     {
       "id": "4B534D5000000106",
       "title": "A Founder’s Contribution",
-      "icon": "kingdom_smp:builder_blueprint",
-      "x": 10.0,
+      "icon": {
+        "id": "kingdom_smp:builder_blueprint"
+      },
+      "x": 4.0,
       "y": -1.5,
       "dependencies": [
         "4B534D5000000105"
@@ -148,7 +177,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/public_building"
-          ]
+          ],
+          "icon": {
+            "id": "kingdom_smp:builder_blueprint"
+          }
         }
       ],
       "rewards": []
@@ -156,8 +188,10 @@
     {
       "id": "4B534D5000000107",
       "title": "Roads of Commerce",
-      "icon": "minecraft:brick",
-      "x": 8.0,
+      "icon": {
+        "id": "minecraft:brick"
+      },
+      "x": 2.0,
       "y": 1.5,
       "dependencies": [
         "4B534D5000000104"
@@ -172,7 +206,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/tier_three"
-          ]
+          ],
+          "icon": {
+            "id": "minecraft:brick"
+          }
         }
       ],
       "rewards": []
@@ -180,8 +217,10 @@
     {
       "id": "4B534D5000000108",
       "title": "The Royal Bank",
-      "icon": "kingdom_smp:royal_bank_blueprint",
-      "x": 10.0,
+      "icon": {
+        "id": "kingdom_smp:royal_bank_blueprint"
+      },
+      "x": 4.0,
       "y": 1.5,
       "dependencies": [
         "4B534D5000000107"
@@ -196,7 +235,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/bank"
-          ]
+          ],
+          "icon": {
+            "id": "kingdom_smp:royal_bank_blueprint"
+          }
         }
       ],
       "rewards": []
@@ -204,8 +246,10 @@
     {
       "id": "4B534D5000000109",
       "title": "A Fair Exchange",
-      "icon": "minecraft:chest",
-      "x": 12.0,
+      "icon": {
+        "id": "minecraft:chest"
+      },
+      "x": 6.0,
       "y": 1.5,
       "dependencies": [
         "4B534D5000000108"
@@ -221,7 +265,10 @@
           "type": "custom",
           "tags": [
             "kingdom_smp:projection/v1/public_trade"
-          ]
+          ],
+          "icon": {
+            "id": "minecraft:chest"
+          }
         }
       ],
       "rewards": []

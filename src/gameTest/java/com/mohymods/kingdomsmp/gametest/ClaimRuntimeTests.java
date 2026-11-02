@@ -101,7 +101,15 @@ public final class ClaimRuntimeTests {
     }
     @SuppressWarnings("unchecked")
     static ClaimPlayer player(ServerLevel level,UUID identity,String name)throws Exception{
-        var p=new ClaimPlayer(level,identity,name);var connection=new Connection(PacketFlow.SERVERBOUND);
+        return connect(level,new ClaimPlayer(level,identity,name));
+    }
+    /** Exact vanilla class: Architectury deliberately treats every ServerPlayer subclass as fake. */
+    static ServerPlayer vanillaPlayer(ServerLevel level,UUID identity,String name)throws Exception{
+        return connect(level,new ServerPlayer(level.getServer(),level,new GameProfile(identity,name),ClientInformation.createDefault()));
+    }
+    @SuppressWarnings("unchecked")
+    private static <T extends ServerPlayer> T connect(ServerLevel level,T p)throws Exception{
+        var connection=new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
         // Embedded peers have no real configuration handshake. Declare the actual registered play
         // channels only in this test fixture, so login packets do not mask claim-engine assertions.

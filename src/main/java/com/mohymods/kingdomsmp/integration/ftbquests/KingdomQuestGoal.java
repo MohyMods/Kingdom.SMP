@@ -19,6 +19,17 @@ public enum KingdomQuestGoal {
     private final int sequence;
 
     KingdomQuestGoal(String key, int sequence) { this.key = key; this.sequence = sequence; }
+    public String iconItemId(){return switch(this){
+        case HUT -> "kingdom_smp:builders_hut_blueprint";
+        case CONTRIBUTION -> "minecraft:wheat";
+        case TIER_TWO -> "minecraft:campfire";
+        case HEADQUARTERS -> "kingdom_smp:town_hall_blueprint";
+        case PURCHASE -> "kingdom_smp:gold_coin";
+        case PUBLIC_BUILDING -> "kingdom_smp:builder_blueprint";
+        case TIER_THREE -> "minecraft:brick";
+        case BANK -> "kingdom_smp:royal_bank_blueprint";
+        case PUBLIC_TRADE -> "minecraft:chest";
+    };}
     public String tag() { return VERSIONED_PREFIX + key; }
     public long questId() { return 0x4B534D5000000100L + sequence; }
     public long taskId() { return 0x4B534D5000001100L + sequence; }

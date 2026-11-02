@@ -51,6 +51,11 @@ final class FtbQuestsProjection {
             LOGGER.warn("Refusing unknown, altered or reward-bearing Kingdom FTB projection task {}", task.getCodeString());
             return;
         }
+        // Older generated chapters used string icons, but this FTB version reads a compound.
+        // Repair only absent presentation in memory; never rewrite a customized chapter/config.
+        repairMissingIcon(task,goal.orElseThrow().iconItemId());
+        repairMissingIcon(task.getQuest(),goal.orElseThrow().iconItemId());
+        if(goal.orElseThrow()==KingdomQuestGoal.HUT)repairMissingIcon(task.getQuestChapter(),"kingdom_smp:gold_coin");
         task.setMaxProgress(1);
         task.setCheckTimer(100);
         task.setCheck((data, player) -> {
@@ -62,6 +67,13 @@ final class FtbQuestsProjection {
             });
         });
         LOGGER.debug("Bound Kingdom FTB projection {} to {}", task.getCodeString(), goal.orElseThrow());
+    }
+
+    private static void repairMissingIcon(dev.ftb.mods.ftbquests.quest.QuestObjectBase object,String itemId){
+        var data=new net.minecraft.nbt.CompoundTag();object.writeData(data,object.holderLookup());
+        if(data.contains("icon",net.minecraft.nbt.Tag.TAG_COMPOUND)&&!data.getCompound("icon").isEmpty())return;
+        var item=net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(net.minecraft.resources.ResourceLocation.parse(itemId));
+        item.ifPresent(value->object.setRawIcon(new net.minecraft.world.item.ItemStack(value)));
     }
 
     private static Optional<KingdomQuestSnapshot> snapshot(MinecraftServer server) {
@@ -94,6 +106,18 @@ final class FtbQuestsProjection {
             result.add(goal.name() + " | task " + goal.code() + " | " + (bound ? "bound" : "missing/altered")
                     + " | authoritative " + state.map(goal::complete).map(String::valueOf).orElse("unavailable"));
         }
+        var teams=file.orElseThrow().getAllTeamData();
+        result.add("Known FTB team records: "+teams.size()+"; showing at most 10 shared settlement guides");
+        teams.stream().sorted(java.util.Comparator.comparing(team->team.getTeamId().toString())).limit(10).forEach(team->{
+            int completed=0;String next="none";
+            for(var goal:KingdomQuestGoal.values()){
+                var task=file.orElseThrow().getTask(goal.taskId());
+                boolean bound=task instanceof CustomTask custom&&binding(custom).filter(goal::equals).isPresent();
+                if(bound&&team.getProgress(task)==1&&team.isCompleted(task))completed++;
+                else if(next.equals("none"))next=goal.name();
+            }
+            result.add("Team "+team.getTeamId()+" | guide "+completed+"/"+KingdomQuestGoal.values().length+" | next "+next+" | locked "+team.isLocked());
+        });
         result.add("Shared guide only: no Kingdom rewards, inventory, currencies, profession ranks or tier changes");
         return List.copyOf(result);
     }
