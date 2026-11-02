@@ -3,6 +3,13 @@
   "minVersion": "0.8",
   "package": "com.mohymods.kingdomsmp.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["PlayerListAircraftMixin"],
-  "injectors": {"defaultRequire": 1}
+  "mixins": [
+    "PlayerListAircraftMixin",
+    "AircraftVehicleMovementMixin",
+    "AircraftControlMessageMixin",
+    "AircraftDismountMomentumMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

@@ -40,6 +40,7 @@ public final class RoyalAdminCommands {
                     }
                     line(c.getSource(),com.mohymods.kingdomsmp.integration.waystones.WaystoneAccess.status());
                     line(c.getSource(),com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.status());
+                    line(c.getSource(),com.mohymods.kingdomsmp.integration.aircraft.AircraftPacketGuard.status());
                     if(com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.available())line(c.getSource(),"Aircraft current access: "+(com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.denial(c.getSource().getServer()).isEmpty()?"UNLOCKED":com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.denial(c.getSource().getServer())));
                     line(c.getSource(),"Ad Astra destination split, recipes and full-pack alternate routes require separate verified adapters.");return 1;
                 })))

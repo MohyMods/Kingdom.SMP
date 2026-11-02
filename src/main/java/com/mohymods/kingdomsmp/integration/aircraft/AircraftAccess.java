@@ -91,7 +91,7 @@ public final class AircraftAccess {
             failure=unavailable="Unverified Immersive Aircraft "+version+"; requires "+VERSION+". World startup refused rather than exposing unverified aircraft access.";
             bus.addListener(EventPriority.HIGHEST,(ServerAboutToStartEvent e)->{throw new IllegalStateException(failure);});return;
         }
-        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");}
+        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();}
         catch(ReflectiveOperationException e){throw new IllegalStateException("Verified aircraft API unavailable; refusing unprotected aircraft access",e);}
         unavailable="";
         bus.addListener(EventPriority.HIGHEST,AircraftAccess::use);
@@ -100,6 +100,12 @@ public final class AircraftAccess {
         bus.addListener(EventPriority.HIGHEST,AircraftAccess::interactAt);
         bus.addListener(EventPriority.LOWEST,AircraftAccess::mount);
         bus.addListener(AircraftAccess::tick);
+    }
+    /** Only the verified current controlling rider can use native vehicle lift. No player-flight grant. */
+    public static boolean nativeLift(ServerPlayer p){
+        if(!p.server.isSameThread()||p.hasDisconnected()||!p.isAlive()||p.isSpectator()||p.server.getPlayerList().getPlayer(p.getUUID())!=p)return false;
+        Entity root=p.getRootVehicle();
+        return aircraft(root)&&root.getControllingPassenger()==p&&denial(p.server).isEmpty();
     }
     public static boolean aircraft(Entity e){return vehicle!=null&&vehicle.isInstance(e);}
     public static boolean aircraftItem(ItemStack stack){return item!=null&&item.isInstance(stack.getItem());}
