@@ -27,7 +27,7 @@ public final class AircraftSales {
   public static final String MARKER = "KingdomAircraftRegistration";
 
   public record Quote(
-      UUID nonce, long revision, String action, long price, long issued, String text) {}
+      UUID nonce, long revision, String action, long price, long day, long issued, String text) {}
 
   private static final Map<ServerPlayer, Quote> QUOTES = new WeakHashMap<>();
 
@@ -61,7 +61,25 @@ public final class AircraftSales {
     CommerceService.verifyReceipt(p, store);
     long price = 0;
     String text;
-    if (action.startsWith("air:buy:")) {
+    if (action.startsWith("air:upgrade:")) {
+      var part = AircraftEquipment.part(action.substring(12));
+      var rules = AircraftEquipment.rules(p.server);
+      price = rules.price(part);
+      AircraftEquipment.stack(part);
+      if (store.shopSold(day(), part.resource()) >= rules.dailyStock())
+        throw new IllegalStateException("Today's shared stock of this upgrade has sold out.");
+      if (store.balance(p.getUUID()) < price)
+        throw new IllegalStateException("Insufficient coins for this upgrade.");
+      text =
+          "Buy one native "
+              + part.title()
+              + " for exactly "
+              + price
+              + " coins into private Mailbox. Shared daily stock is finite and resets at UTC"
+              + " midnight. Fit it in a compatible native aircraft inventory slot; it is not"
+              + " installed remotely. Native slot compatibility and current registration/claim"
+              + " permissions still apply.";
+    } else if (action.startsWith("air:buy:")) {
       String type = action.substring(8);
       price = price(p, type);
       if (store.balance(p.getUUID()) < price)
@@ -75,6 +93,15 @@ public final class AircraftSales {
               + " Corin's counter. One native aircraft item is delivered to private Mailbox. Fuel"
               + " and upgrades are not included. Deployment still requires a valid site, Tier 6 and"
               + " the Aerodrome.";
+    } else if (action.startsWith("air:recover:")) {
+      var record = pendingOwned(p, UUID.fromString(action.substring(12)));
+      text =
+          "Cancel this unfinished "
+              + title(record.type())
+              + " deployment and return its canonical native airframe to your private Mailbox. No"
+              + " further payment. This invalidates its pending world body and all old physical"
+              + " copies. Active aircraft cannot be recovered this way; buyer registration and crew"
+              + " are retained.";
     } else {
       var parsed = parseCrew(action);
       var record = store.aircraft(parsed.registration()).orElseThrow();
@@ -94,7 +121,9 @@ public final class AircraftSales {
               + " suspends a current rider safely.";
     }
     QUOTES.put(
-        p, new Quote(UUID.randomUUID(), store.revision(), action, price, System.nanoTime(), text));
+        p,
+        new Quote(
+            UUID.randomUUID(), store.revision(), action, price, day(), System.nanoTime(), text));
   }
 
   public static String confirm(ServerPlayer p, UUID nonce) throws IOException {
@@ -108,6 +137,26 @@ public final class AircraftSales {
         || System.nanoTime() - q.issued() > 30_000_000_000L)
       throw new IllegalStateException(
           "Aircraft review expired or registry/funds changed. Review again.");
+    if (q.action().startsWith("air:upgrade:")) {
+      var part = AircraftEquipment.part(q.action().substring(12));
+      var rules = AircraftEquipment.rules(p.server);
+      if (day() != q.day() || rules.price(part) != q.price())
+        throw new IllegalStateException("Trading day or upgrade price changed; review again.");
+      store.shopBuy(
+          q.nonce(),
+          p.getUUID(),
+          part.resource(),
+          part.title(),
+          (CompoundTag) AircraftEquipment.stack(part).save(p.registryAccess()),
+          1,
+          q.day(),
+          rules.dailyStock(),
+          q.price(),
+          q.price());
+      return part.title()
+          + " purchased once. Claim it in private Mailbox, then fit a compatible aircraft through"
+          + " its normal inventory.";
+    }
     if (q.action().startsWith("air:buy:")) {
       String type = q.action().substring(8);
       if (price(p, type) != q.price()) throw new IllegalStateException("Aircraft price changed.");
@@ -118,9 +167,30 @@ public final class AircraftSales {
       return "Aircraft registered to you. Claim the native airframe in Mailbox; use Corin's"
           + " Supplies list to share access.";
     }
+    if (q.action().startsWith("air:recover:")) {
+      var record = pendingOwned(p, UUID.fromString(q.action().substring(12)));
+      var item =
+          ItemStack.parse(p.registryAccess(), record.item())
+              .orElseThrow(
+                  () -> new IllegalStateException("Canonical pending airframe is unavailable"));
+      mark(item, store.id(), record.id(), Math.addExact(record.generation(), 1));
+      store.packAircraft(
+          q.nonce(), p.getUUID(), record.id(), (CompoundTag) item.save(p.registryAccess()));
+      return "Unfinished deployment canceled. Claim the airframe in private Mailbox; old pending"
+          + " body and copies are invalid. No coins charged.";
+    }
     var crew = parseCrew(q.action());
     store.shareAircraft(q.nonce(), p.getUUID(), crew.registration(), crew.actor(), crew.allow());
     return "Aircraft shared access saved. Buyer registration is unchanged.";
+  }
+
+  private static AircraftState.Registration pendingOwned(ServerPlayer p, UUID id) {
+    var record = CommerceService.store(p.server).aircraft(id).orElseThrow();
+    if (!record.owner().equals(p.getUUID()) || record.phase() != AircraftState.Phase.STARTING)
+      throw new IllegalStateException(
+          "Only the buyer can recover an unfinished deployment. Active aircraft are never reissued"
+              + " by absence.");
+    return record;
   }
 
   private record Crew(UUID registration, UUID actor, boolean allow) {}
@@ -159,6 +229,21 @@ public final class AircraftSales {
               price,
               "AIRCRAFT"));
     }
+    var equipmentRules = AircraftEquipment.rules(p.server);
+    for (var part : AircraftEquipment.PARTS) {
+      AircraftEquipment.stack(part);
+      long sold = CommerceService.store(p.server).shopSold(day(), part.resource());
+      rows.add(
+          new CommerceView.Entry(
+              "air:upgrade:" + part.id(),
+              part.title(),
+              "Native nonweapon aircraft upgrade · "
+                  + Math.max(0, equipmentRules.dailyStock() - sold)
+                  + " left today. Private item delivery; fit a compatible native inventory slot."
+                  + " Registration and claims remain required for aircraft use.",
+              equipmentRules.price(part),
+              sold >= equipmentRules.dailyStock() ? "OUT_OF_STOCK" : "AIRCRAFT_UPGRADE"));
+    }
     for (var record : CommerceService.store(p.server).aircraft())
       if (record.owner().equals(p.getUUID())) {
         if (rows.size() >= 120) break;
@@ -178,6 +263,16 @@ public final class AircraftSales {
                     + " through their inventory.",
                 0,
                 "AIRCRAFT_RECORD"));
+        if (record.phase() == AircraftState.Phase.STARTING && rows.size() < 120)
+          rows.add(
+              new CommerceView.Entry(
+                  "air:recover:" + record.id(),
+                  "Recover unfinished " + title(record.type()),
+                  "Cancel the pending deployment and return the canonical native airframe to"
+                      + " private Mailbox. Invalidates old body/copies; no payment. Does not"
+                      + " replace an active aircraft.",
+                  0,
+                  "AIRCRAFT_RECOVER"));
         for (UUID crew : record.crew()) {
           if (rows.size() >= 120) break;
           rows.add(
@@ -206,6 +301,10 @@ public final class AircraftSales {
         }
       }
     return List.copyOf(rows);
+  }
+
+  private static long day() {
+    return Math.floorDiv(System.currentTimeMillis(), 86_400_000L);
   }
 
   private static String name(MinecraftServer s, UUID id) {
@@ -348,6 +447,12 @@ public final class AircraftSales {
               AtomicNbt.read(CommerceService.playerFile(p.server, p.getUUID())))))
         throw new IOException("Aircraft inventory receipt was not committed");
       finish(p.server, store.aircraft(record.id()).orElseThrow());
+      if (store.aircraft(record.id()).orElseThrow().phase() == AircraftState.Phase.STARTING)
+        p.sendSystemMessage(
+            Component.literal(
+                "Aircraft deployment is saved but waiting for a valid loaded site. Revisit the"
+                    + " footprint or recover the unfinished airframe at Corin's counter; no second"
+                    + " purchase is required."));
       p.inventoryMenu.sendAllDataToRemote();
       return InteractionResultHolder.success(p.getItemInHand(hand));
     } catch (IOException | ReflectiveOperationException | RuntimeException failure) {

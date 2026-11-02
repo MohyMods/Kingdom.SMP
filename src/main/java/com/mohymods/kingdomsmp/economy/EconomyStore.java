@@ -319,6 +319,8 @@ public final class EconomyStore {
     public synchronized long shopSold(long period,String resource){if(period<0)throw new IllegalArgumentException("Invalid trading day");identifier(resource);return shopSold.getOrDefault(new ShopDay(period,resource),0L);}
     /** Canonical origin only: client item names/tags never authorize an earlier claim gate. */
     public synchronized boolean shopDelivery(UUID mail){var op=find(mail);return op!=null&&(op.kind()==Kind.SHOP_BUY||op.kind()==Kind.GEAR_BUY||op.kind()==Kind.AIRCRAFT_BUY||op.kind()==Kind.AIRCRAFT_PACK);}
+    /** Canonical purchased-item provenance, never a client supplied resource or name. */
+    public synchronized Optional<String> shopItemResource(UUID mail){healthy();var op=find(mail);return op!=null&&op.kind()==Kind.SHOP_BUY&&itemMail.containsKey(mail)?Optional.of(op.key()):Optional.empty();}
     public synchronized boolean aircraftDelivery(UUID mail){healthy();var op=find(mail);return op!=null&&(op.kind()==Kind.AIRCRAFT_BUY||op.kind()==Kind.AIRCRAFT_PACK)&&itemMail.containsKey(mail);}
     public synchronized List<AircraftState.Registration> aircraft(){healthy();return aircraft.records();}
     public synchronized Optional<AircraftState.Registration> aircraft(UUID id){healthy();return aircraft.get(id);}

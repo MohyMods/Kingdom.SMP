@@ -127,7 +127,7 @@ public final class AircraftState {
   void pack(UUID id, UUID owner, CompoundTag item) {
     var old = required(id);
     if (!old.owner().equals(owner)
-        || old.phase() != Phase.ACTIVE
+        || old.phase() != Phase.ACTIVE && old.phase() != Phase.STARTING
         || !item.getString("id").equals(old.type())
         || item.getInt("count") != 1)
       throw new IllegalStateException("Aircraft cannot be returned");

@@ -164,4 +164,28 @@ class AircraftEconomyTest {
     assertEquals(1, s.aircraft().size());
     assertEquals(1, s.itemMailbox(buyer).size());
   }
+
+  @Test
+  void unfinishedDeploymentReturnsOneCanonicalAirframeWithoutAnotherDebit() throws Exception {
+    var s = bought();
+    var pending =
+        s.prepareAircraftDeployment(
+            UUID.randomUUID(), buyer, registration, body(), "minecraft:overworld");
+    s.recoverItem(new EconomyStore.Receipt(s.id(), pending.sequence()));
+    assertThrows(
+        IllegalStateException.class,
+        () -> s.packAircraft(UUID.randomUUID(), crew, registration, item()));
+    var operation = UUID.randomUUID();
+    s.packAircraft(operation, buyer, registration, item());
+    s.packAircraft(operation, buyer, registration, item());
+    var record = open().aircraft(registration).orElseThrow();
+    assertEquals(AircraftState.Phase.PACKED, record.phase());
+    assertEquals(1, record.generation());
+    assertTrue(record.deployment().isEmpty());
+    assertEquals(10000, s.balance(buyer));
+    assertEquals(2, s.itemMailbox(buyer).size());
+    assertThrows(
+        IllegalStateException.class,
+        () -> s.activateAircraft(UUID.randomUUID(), buyer, registration));
+  }
 }

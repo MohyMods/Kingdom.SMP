@@ -68,6 +68,11 @@ public final class AuctionService {
         validateItem(item);return item;
     }
     private static ItemStack decodeMail(ServerPlayer p,EconomyStore.ItemMail mail){
+        if(com.mohymods.kingdomsmp.integration.aircraft.AircraftEquipment.canonicalDelivery(CommerceService.store(p.server),mail.id())){
+            if(!mail.owner().equals(p.getUUID()))throw new IllegalStateException("Aircraft equipment delivery belongs to another player");
+            var item=ItemStack.parse(p.registryAccess(),mail.item()).orElseThrow(()->new IllegalStateException("Native equipment registry unavailable"));
+            if(!com.mohymods.kingdomsmp.integration.aircraft.AircraftEquipment.pristine(item))throw new IllegalStateException("Canonical native equipment is not pristine");return item;
+        }
         if(CommerceService.store(p.server).aircraftDelivery(mail.id())){
             if(!mail.owner().equals(p.getUUID()))throw new IllegalStateException("Aircraft delivery belongs to another player");
             var item=ItemStack.parse(p.registryAccess(),mail.item()).orElseThrow(()->new IllegalStateException("Native aircraft registry is unavailable"));

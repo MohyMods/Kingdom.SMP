@@ -93,7 +93,12 @@ public final class AircraftSalesRuntimeTests {
                           "Third dedicated JVM retains the same active native UUID and buyer"
                               + " rights; no absent-frame respawn");
                       h.assertTrue(
-                          store.itemMailbox(p.getUUID()).stream().allMatch(m -> m.claimed()),
+                          store.itemMailbox(p.getUUID()).stream()
+                              .allMatch(
+                                  m ->
+                                      m.claimed()
+                                          || proof.hasUUID("cancelMail")
+                                              && m.id().equals(proof.getUUID("cancelMail"))),
                           "Both original and returned private deliveries remain claimed exactly"
                               + " once");
                       if (proof.hasUUID("pending")) {
@@ -112,9 +117,38 @@ public final class AircraftSalesRuntimeTests {
                         h.assertTrue(
                             store.pendingItem().isEmpty()
                                 && !store.quarantined()
-                                && store.aircraft().size() == 2,
+                                && store.aircraft().size() == 3,
                             "Both bought aircraft retain one canonical record with no quarantined"
                                 + " or pending native receipt");
+                        h.assertTrue(
+                            p.getInventory().items.stream()
+                                    .filter(
+                                        item ->
+                                            item.is(
+                                                AircraftEquipment.stack(
+                                                        AircraftEquipment.part(
+                                                            "immersive_aircraft:enhanced_propeller"))
+                                                    .getItem()))
+                                    .mapToInt(ItemStack::getCount)
+                                    .sum()
+                                == 1,
+                            "Exactly one legitimately purchased and removed native upgrade survives"
+                                + " the receipt/recovery restarts");
+                        var canceled =
+                            store.aircraft(proof.getUUID("cancelRegistration")).orElseThrow();
+                        h.assertTrue(
+                            canceled.phase() == AircraftState.Phase.PACKED
+                                && canceled.generation() == 1
+                                && level.getEntity(proof.getUUID("cancelBody")) == null
+                                && store.itemMailbox(p.getUUID()).stream()
+                                        .filter(
+                                            m ->
+                                                m.id().equals(proof.getUUID("cancelMail"))
+                                                    && !m.claimed())
+                                        .count()
+                                    == 1,
+                            "Canceled unfinished body stays absent; exactly one unclaimed"
+                                + " new-generation airframe survives restart");
                         h.succeed();
                         com.mojang.logging.LogUtils.getLogger()
                             .info(
@@ -124,6 +158,7 @@ public final class AircraftSalesRuntimeTests {
                                     + " native body, without recharging or reissuing items");
                         return;
                       }
+                      cancelPending(h, p, project, proof);
                       AircraftSales.review(p, "air:buy:immersive_aircraft:biplane");
                       var nextQuote = AircraftSales.quote(p).orElseThrow();
                       AircraftSales.confirm(p, nextQuote.nonce());
@@ -137,7 +172,15 @@ public final class AircraftSalesRuntimeTests {
                               .filter(AircraftSales::registered)
                               .findFirst()
                               .orElseThrow();
-                      var pendingSite = project.origin().offset(55, 1, 13);
+                      var pendingSite =
+                          project
+                              .origin()
+                              .offset(
+                                  Boolean.getBoolean("kingdom.testAircraftRecoveryPreview")
+                                      ? 200
+                                      : 55,
+                                  1,
+                                  13);
                       for (var floor :
                           BlockPos.betweenClosed(
                               pendingSite.offset(-8, -1, -8), pendingSite.offset(8, -1, 8)))
@@ -201,7 +244,7 @@ public final class AircraftSalesRuntimeTests {
                             .filter(AircraftSales::registered)
                             .findFirst()
                             .orElseThrow();
-                    p.setItemInHand(InteractionHand.MAIN_HAND, item);
+                    hold(p, item);
                     place(h, p, project.origin().offset(40, 1, 13));
                     var latest = store.aircraft(record.id()).orElseThrow();
                     h.assertTrue(
@@ -257,7 +300,7 @@ public final class AircraftSalesRuntimeTests {
                           .filter(AircraftSales::registered)
                           .findFirst()
                           .orElseThrow();
-                  p.setItemInHand(InteractionHand.MAIN_HAND, item);
+                  hold(p, item);
                   h.assertTrue(
                       !net.minecraft.world.item.crafting.Ingredient.of(item.getItem()).test(item)
                           && net.minecraft.world.item.crafting.Ingredient.of(item.getItem())
@@ -331,6 +374,7 @@ public final class AircraftSalesRuntimeTests {
                       "Revocation immediately disables cargo and powered lift before periodic safe"
                           + " landing");
                   peer.stopRiding();
+                  equipment(h, p, npc, plane);
                   // The native drop call follows ordinary native removal/dropInventory in actual
                   // destruction.
                   // Empty native frame avoids injecting cargo or pretending to test crash combat
@@ -377,6 +421,180 @@ public final class AircraftSalesRuntimeTests {
                               + " mail/deployment, copied item denied, buyer crew grant/revoke,"
                               + " native return and stale body suppression");
                 }));
+  }
+
+  private static void equipment(GameTestHelper h, ServerPlayer p, Entity npc, Entity plane)
+      throws Exception {
+    var store = CommerceService.store(p.server);
+    at(p, npc);
+    CommerceService.openResident(p, (ReeveEntity) npc);
+    long before = store.balance(p.getUUID());
+    var part = AircraftEquipment.part("immersive_aircraft:enhanced_propeller");
+    h.assertTrue(
+        CommerceService.snapshot(p, 1, 1, "").entries().stream()
+                .filter(row -> row.state().equals("AIRCRAFT_UPGRADE"))
+                .count()
+            == 6,
+        "Corin lists the six verified native nonweapon upgrades");
+    AircraftSales.review(p, "air:upgrade:" + part.id());
+    var q = AircraftSales.quote(p).orElseThrow();
+    AircraftSales.confirm(p, q.nonce());
+    h.assertTrue(
+        store.balance(p.getUUID()) == before - q.price()
+            && store.shopSold(q.day(), part.resource()) == 1,
+        "Upgrade debit and one finite shared daily stock unit commit together");
+    claim(p, q.nonce());
+    boolean repeated = false;
+    try {
+      claim(p, q.nonce());
+    } catch (IllegalStateException expected) {
+      repeated = true;
+    }
+    h.assertTrue(repeated, "Claimed upgrade private mail cannot issue another item");
+    p.teleportTo(p.serverLevel(), plane.getX(), plane.getY(), plane.getZ() - 3.5, 0, 0);
+    p.serverLevel().getChunkSource().move(p);
+    plane.getClass().getMethod("openInventory", ServerPlayer.class).invoke(plane, p);
+    var menu = p.containerMenu;
+    h.assertTrue(
+        menu != p.inventoryMenu && menu.stillValid(p),
+        "Actual owner opens native registered-aircraft equipment inventory");
+    int source = -1;
+    for (int i = 0; i < menu.slots.size(); i++)
+      if (menu.getSlot(i).container == p.getInventory()
+          && menu.getSlot(i).getItem().is(AircraftEquipment.stack(part).getItem())) {
+        source = i;
+        break;
+      }
+    h.assertTrue(source >= 0, "Exactly purchased propeller is in actual player inventory");
+    var description = plane.getClass().getMethod("getInventoryDescription").invoke(plane);
+    var slots =
+        (java.util.List<?>)
+            description
+                .getClass()
+                .getMethod("getSlots", String.class)
+                .invoke(description, "upgrade");
+    int upgrade = (int) slots.getFirst().getClass().getMethod("index").invoke(slots.getFirst());
+    h.assertTrue(
+        menu.getSlot(upgrade).mayPlace(menu.getSlot(source).getItem()),
+        "Verified native upgrade slot accepts the purchased part");
+    click(p, source);
+    click(p, upgrade);
+    h.assertTrue(
+        ((Container) plane).getItem(upgrade).is(AircraftEquipment.stack(part).getItem())
+            && menu.getCarried().isEmpty(),
+        "Actual vanilla container click packets install one purchased upgrade with no cursor"
+            + " duplicate");
+    click(p, upgrade);
+    click(p, source);
+    h.assertTrue(
+        ((Container) plane).getItem(upgrade).isEmpty()
+            && menu.getCarried().isEmpty()
+            && menu.getSlot(source).getItem().getCount() == 1,
+        "Actual native removal returns exactly one purchased upgrade; empty frame is used for"
+            + " subsequent return fixture");
+    p.closeContainer();
+    at(p, npc);
+  }
+
+  private static void click(ServerPlayer p, int slot) {
+    var menu = p.containerMenu;
+    p.connection.handleContainerClick(
+        new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(
+            menu.containerId,
+            menu.getStateId(),
+            slot,
+            0,
+            net.minecraft.world.inventory.ClickType.PICKUP,
+            ItemStack.EMPTY,
+            new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>()));
+  }
+
+  private static void cancelPending(
+      GameTestHelper h, ServerPlayer p, ConstructionStore.Project project, CompoundTag proof)
+      throws Exception {
+    var level = p.serverLevel();
+    var store = CommerceService.store(p.server);
+    AircraftSales.review(p, "air:buy:immersive_aircraft:biplane");
+    var purchase = AircraftSales.quote(p).orElseThrow();
+    AircraftSales.confirm(p, purchase.nonce());
+    claim(p, purchase.nonce());
+    var item =
+        p.getInventory().items.stream().filter(AircraftSales::registered).findFirst().orElseThrow();
+    var oldCopy = item.copy();
+    var body =
+        net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE
+            .get(net.minecraft.resources.ResourceLocation.parse("immersive_aircraft:biplane"))
+            .create(level);
+    var site = project.origin().offset(40, 1, 20);
+    body.moveTo(site.getX() + .5, site.getY(), site.getZ() + .5);
+    body.getPersistentData()
+        .put(
+            AircraftSales.MARKER,
+            item.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA)
+                .copyTag()
+                .getCompound(AircraftSales.MARKER));
+    var serialized = new CompoundTag();
+    h.assertTrue(body.save(serialized), "Native cancellation fault body serializes");
+    CommerceService.checkpoint(p);
+    var staged =
+        store.prepareAircraftDeployment(
+            UUID.randomUUID(),
+            p.getUUID(),
+            purchase.nonce(),
+            serialized,
+            level.dimension().location().toString());
+    item.shrink(1);
+    CommerceService.putReceipt(p, new EconomyStore.Receipt(store.id(), staged.sequence()));
+    CommerceService.checkpoint(p);
+    h.assertTrue(
+        store.recoverItem(
+            CommerceService.receipt(
+                AtomicNbt.read(CommerceService.playerFile(p.server, p.getUUID())))),
+        "Real consumed native receipt before cancellation");
+    h.assertTrue(
+        level.addFreshEntity(body),
+        "Saved STARTING fault body is genuinely present before cancellation");
+    h.assertTrue(
+        CommerceService.snapshot(p, 1, 1, "").entries().stream()
+            .anyMatch(row -> row.id().equals("air:recover:" + purchase.nonce())),
+        "Actual Royal counter lists unfinished airframe recovery");
+    long balance = store.balance(p.getUUID());
+    AircraftSales.review(p, "air:recover:" + purchase.nonce());
+    var recovery = AircraftSales.quote(p).orElseThrow();
+    AircraftSales.confirm(p, recovery.nonce());
+    h.assertTrue(
+        store.balance(p.getUUID()) == balance
+            && store.aircraft(purchase.nonce()).orElseThrow().phase() == AircraftState.Phase.PACKED,
+        "Reviewed cancellation creates canonical returned mail without another debit");
+    h.assertTrue(
+        AircraftSales.validateBody(body) && body.isRemoved(),
+        "Existing pending body is obsolete and removed without cargo or airframe drops");
+    boolean replay = false;
+    try {
+      AircraftSales.confirm(p, recovery.nonce());
+    } catch (IllegalStateException expected) {
+      replay = true;
+    }
+    h.assertTrue(replay, "Canceled review cannot return another airframe");
+    var preservedHand = p.getMainHandItem().copy();
+    p.setItemInHand(InteractionHand.MAIN_HAND, oldCopy);
+    h.assertTrue(
+        oldCopy.getItem().use(level, p, InteractionHand.MAIN_HAND).getResult()
+                == InteractionResult.FAIL
+            && p.getMainHandItem().getCount() == 1,
+        "Old physical copy cannot deploy after unfinished cancellation");
+    p.setItemInHand(InteractionHand.MAIN_HAND, preservedHand);
+    proof.putUUID("cancelRegistration", purchase.nonce());
+    proof.putUUID("cancelMail", recovery.nonce());
+    proof.putUUID("cancelBody", body.getUUID());
+  }
+
+  private static void hold(ServerPlayer p, ItemStack item) {
+    int slot = p.getInventory().items.indexOf(item);
+    if (slot < 0 || slot >= 9)
+      throw new IllegalStateException(
+          "Private native fixture requires the claimed airframe in its actual hotbar slot");
+    p.getInventory().selected = slot;
   }
 
   private static void place(GameTestHelper h, ServerPlayer p, BlockPos site) throws Exception {
