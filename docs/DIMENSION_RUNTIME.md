@@ -1,3 +1,5 @@
+> Current space authority/evidence: D050/D051 and SPACE_RUNTIME.md now implement the approved10/11planet split, early native handover guards and launch persistence fixes. Waystones and aircraft scopes are recorded in their runtime documents. The older open-scope statements below are historical where superseded; full-pack closure remains open.
+
 # Actual destination enforcement
 
 The existing native NeoForge `EntityTravelToDimensionEvent` guard now covers the approved Aether4, Nether5, Twilight6, Otherside8 and End12 schedule. It queries current canonical kingdom state at each transition, including direct `ServerPlayer.changeDimension` and cross-dimension `teleportTo`, and denies transferred item entities too. There is no automatic OP bypass. Overworld return remains unrestricted; same-dimension movement is unchanged. Existing world tiers, dimensions, inventories, rewards and historical records are not converted or deleted. Already-inside players are not forcibly relocated.

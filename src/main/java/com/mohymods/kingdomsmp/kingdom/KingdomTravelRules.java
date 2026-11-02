@@ -15,9 +15,11 @@ public final class KingdomTravelRules {
     public static List<Realm> realms(){return REALMS;}
     public static int requiredTier(String destination){
         if(destination==null)throw new IllegalArgumentException("Missing destination");
+        if(com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.space(destination))return com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.requiredTier(destination);
         return REALMS.stream().filter(r->r.dimension().equals(destination)).mapToInt(Realm::tier).findFirst().orElse(1);
     }
     public static String name(String destination){
+        if(com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.space(destination))return com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.name(destination);
         return REALMS.stream().filter(r->r.dimension().equals(destination)).map(Realm::name).findFirst().orElse(destination);
     }
     public static boolean allowed(int attainedTier,String destination){

@@ -16,12 +16,12 @@ class MilestoneCatalogTest {
     private JsonObject requirement(JsonObject o,int tier,int index){return tier(o,tier).getAsJsonArray("requirements").get(index).getAsJsonObject();}
     private MilestoneValidator.Report validate(JsonObject o)throws Exception{return MilestoneValidator.validate(read(o),s->Set.of(s));}
     private String notes(MilestoneValidator.Report r,int tier){return String.join("\n",r.issues(tier))+String.join("\n",r.catalogIssues());}
-    @Test void bundledDefinitionsKeepExactUserCandidatesAndPinnedHistory()throws Exception{
+    @Test void bundledDefinitionsKeepExactApprovedCostsAndDisabledCurrentProposals()throws Exception{
         var c=read(tree());assertTrue(MilestoneService.legacyCompatible(c.tier(1)));assertEquals(12,c.milestones().size());
         Map<String,Long> costs=new HashMap<>();c.tier(2).requirements().forEach(r->costs.put(r.ingredient(),r.quantity()));
         assertEquals(Map.of("#minecraft:logs",2048L,"minecraft:cobblestone",3072L,"minecraft:wheat",768L,"minecraft:iron_ingot",192L,"minecraft:copper_ingot",384L,"minecraft:glass",256L,"minecraft:brick",384L,"minecraft:leather",64L),costs);
         assertEquals("proposal",c.tier(2).approval());assertEquals("kingdom_smp:royal_storehouse",c.tier(2).reward());
-        assertEquals(12,c.tier(12).nextTier());assertEquals("kingdom_smp:town_hall",c.tier(12).reward());
+        assertEquals(12,c.tier(12).nextTier());assertEquals("kingdom_smp:royal_legacy_monument",c.tier(12).reward());
     }
     @Test void strictJsonRejectsUnknownDuplicateTrailingAndUnsupportedData()throws Exception{
         var o=tree();o.addProperty("enabled",true);invalid(o);
@@ -59,10 +59,14 @@ class MilestoneCatalogTest {
     @Test void netherCostsAfterUnlockHaveNoDimensionCycle()throws Exception{
         var notes=notes(validate(tree()),5);assertFalse(notes.contains("Inaccessible"),notes);assertFalse(notes.contains("Circular progression"),notes);
     }
-    @Test void endCostToUnlockEndIsDetectedAndTierNineSourcesAreAllowed()throws Exception{
-        var o=tree();requirement(o,8,0).addProperty("item","minecraft:dragon_breath");var notes=notes(validate(o),8);
-        assertTrue(notes.contains("requires Tier 9"),notes);assertTrue(notes.contains("Circular progression"),notes);
+    @Test void endCostToUnlockTierTwelveIsDetectedAndEarlierProposalsAreEndFree()throws Exception{
+        var o=tree();requirement(o,11,0).addProperty("item","minecraft:dragon_breath");var notes=notes(validate(o),11);
+        assertTrue(notes.contains("requires Tier 12"),notes);assertTrue(notes.contains("Circular progression"),notes);
         assertFalse(notes(validate(tree()),9).contains("Inaccessible"));
+        var endOnly=java.util.Set.of("minecraft:end_stone","minecraft:purpur_block","minecraft:shulker_shell","minecraft:dragon_breath","minecraft:end_rod","minecraft:purpur_pillar");
+        for(var milestone:read(tree()).milestones())if(milestone.tier()<12)for(var r:milestone.requirements())assertFalse(endOnly.contains(r.ingredient()),"Pre12 default proposal must not reintroduce an End deadlock: "+r.ingredient());
+        o.getAsJsonArray("capabilities").forEach(e->{if(e.getAsJsonObject().get("id").getAsString().equals("kingdom_smp:end"))e.getAsJsonObject().addProperty("available_from_tier",9);});
+        assertTrue(notes(validate(o),11).contains("must be 12"),"An edited data file cannot move the fixed End prerequisite back to9");
     }
     @Test void fabricatedEarlierUnlockCannotBypassVerifiedRealmGate()throws Exception{
         var o=tree();o.getAsJsonArray("capabilities").forEach(e->{if(e.getAsJsonObject().get("id").getAsString().equals("kingdom_smp:nether"))e.getAsJsonObject().addProperty("available_from_tier",1);});

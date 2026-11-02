@@ -41,6 +41,7 @@ public final class KingdomSmp {
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.kingdom.KingdomTravel::travel);
         com.mohymods.kingdomsmp.integration.waystones.WaystoneAccess.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.register(NeoForge.EVENT_BUS);
+        com.mohymods.kingdomsmp.integration.space.SpaceAccess.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.milestone.MilestoneService::sync);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);

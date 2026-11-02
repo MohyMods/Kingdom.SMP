@@ -34,7 +34,7 @@ public final class RoyalAdminCommands {
                 .then(Commands.literal("travel").then(Commands.literal("inspect").executes(c->{
                     var server=c.getSource().getServer();int tier=ContributionService.kingdom(server).attainedTier();
                     line(c.getSource(),"Current kingdom Tier "+tier+". Destination entry checks apply server-side to players and transferred entities; no travel or tier is granted.");
-                    for(var realm:com.mohymods.kingdomsmp.kingdom.KingdomTravelRules.realms()){
+                    for(var realm:java.util.stream.Stream.concat(com.mohymods.kingdomsmp.kingdom.KingdomTravelRules.realms().stream(),com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.realms().stream().map(r->new com.mohymods.kingdomsmp.kingdom.KingdomTravelRules.Realm(r.dimension(),r.name(),r.tier()))).toList()){
                         var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,net.minecraft.resources.ResourceLocation.parse(realm.dimension()));
                         line(c.getSource(),realm.name()+" | "+realm.dimension()+" | Tier "+realm.tier()+" | "+(tier>=realm.tier()?"UNLOCKED":"LOCKED")+" | dimension registered: "+(server.getLevel(key)!=null));
                     }
@@ -42,7 +42,7 @@ public final class RoyalAdminCommands {
                     line(c.getSource(),com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.status());
                     line(c.getSource(),com.mohymods.kingdomsmp.integration.aircraft.AircraftPacketGuard.status());
                     if(com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.available())line(c.getSource(),"Aircraft current access: "+(com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.denial(c.getSource().getServer()).isEmpty()?"UNLOCKED":com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.denial(c.getSource().getServer())));
-                    line(c.getSource(),"Ad Astra destination split, recipes and full-pack alternate routes require separate verified adapters.");return 1;
+                    line(c.getSource(),com.mohymods.kingdomsmp.integration.space.SpaceAccess.status());return 1;
                 })))
                 .then(Commands.literal("integrations").then(Commands.literal("ftbquests").executes(c->{for(var line:com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.inspect(c.getSource().getServer()))c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal(line),false);return 1;})))
                 .then(Commands.literal("inspect").executes(context -> overview(context.getSource())))

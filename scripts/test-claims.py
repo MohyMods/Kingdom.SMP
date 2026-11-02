@@ -8,15 +8,18 @@ import tempfile
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--seed-aircraft-restore-world',type=Path,help='Copy a stopped verified private claim-server fixture for saved-aircraft restoration tests only')
-parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
+parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
 parser.add_argument('--mods', default='work/claim-test-mods')
 parser.add_argument('--verify-wharf-restart', action='store_true')
+parser.add_argument('--stage-space-preview', action='store_true', help='Stop the private space fixture after its verified Tier9 preparation for actual graphical checks')
 args=parser.parse_args()
-marker={'kingdom_smp_aircraft_packet_tests':'AIRCRAFT_PACKETS_PREPARED:','kingdom_smp_aircraft_restore_tests':'AIRCRAFT_RESTORE_PREPARED:','kingdom_smp_aircraft_tests':'AIRCRAFT_PREPARED:','kingdom_smp_waystone_tests':'WAYSTONE_PREPARED:','kingdom_smp_quest_tests':'FTB_SETTLEMENT_PREPARED:','kingdom_smp_travel_tests':'TRAVEL_PREPARED:','kingdom_smp_archive_tests':'ARCHIVE_PREPARED:','kingdom_smp_wharf_tests':'WHARF_ASSERTIONS_PASSED:','kingdom_smp_hut_foundation_tests':'HUT_FOUNDATION_PREPARED:','kingdom_smp_foundation_resume_tests':'FOUNDATION_RESTART_PREPARED:','kingdom_smp_foundation_tests':'FOUNDATION_ASSERTIONS_PASSED:','kingdom_smp_hunt_tests':'HUNT_ASSERTIONS_PASSED:','kingdom_smp_farmer_loop_tests':'FARMER_FULL_LOOP_ASSERTIONS_PASSED:','kingdom_smp_gear_shop_tests':'FARMER_GEAR_SHOP_ASSERTIONS_PASSED:','kingdom_smp_farmer_gear_tests':'FARMER_GEAR_ASSERTIONS_PASSED:','kingdom_smp_bounty_tests':'BOUNTY_ASSERTIONS_PASSED:','kingdom_smp_farmer_events_tests':'FARMER_EVENTS_ASSERTIONS_PASSED:','kingdom_smp_farmer_tests':'FARMER_QUEST_ASSERTIONS_PASSED:','kingdom_smp_profession_tests':'PROFESSION_CONTRACT_ASSERTIONS_PASSED:','kingdom_smp_crop_tests':'CROP_RECOVERY_ASSERTIONS_PASSED:','kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
+marker={'kingdom_smp_space_tests':'SPACE_FLOOR_PREPARED:','kingdom_smp_aircraft_packet_tests':'AIRCRAFT_PACKETS_PREPARED:','kingdom_smp_aircraft_restore_tests':'AIRCRAFT_RESTORE_PREPARED:','kingdom_smp_aircraft_tests':'AIRCRAFT_PREPARED:','kingdom_smp_waystone_tests':'WAYSTONE_PREPARED:','kingdom_smp_quest_tests':'FTB_SETTLEMENT_PREPARED:','kingdom_smp_travel_tests':'TRAVEL_PREPARED:','kingdom_smp_archive_tests':'ARCHIVE_PREPARED:','kingdom_smp_wharf_tests':'WHARF_ASSERTIONS_PASSED:','kingdom_smp_hut_foundation_tests':'HUT_FOUNDATION_PREPARED:','kingdom_smp_foundation_resume_tests':'FOUNDATION_RESTART_PREPARED:','kingdom_smp_foundation_tests':'FOUNDATION_ASSERTIONS_PASSED:','kingdom_smp_hunt_tests':'HUNT_ASSERTIONS_PASSED:','kingdom_smp_farmer_loop_tests':'FARMER_FULL_LOOP_ASSERTIONS_PASSED:','kingdom_smp_gear_shop_tests':'FARMER_GEAR_SHOP_ASSERTIONS_PASSED:','kingdom_smp_farmer_gear_tests':'FARMER_GEAR_ASSERTIONS_PASSED:','kingdom_smp_bounty_tests':'BOUNTY_ASSERTIONS_PASSED:','kingdom_smp_farmer_events_tests':'FARMER_EVENTS_ASSERTIONS_PASSED:','kingdom_smp_farmer_tests':'FARMER_QUEST_ASSERTIONS_PASSED:','kingdom_smp_profession_tests':'PROFESSION_CONTRACT_ASSERTIONS_PASSED:','kingdom_smp_crop_tests':'CROP_RECOVERY_ASSERTIONS_PASSED:','kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
 root = Path(__file__).resolve().parent.parent
 subprocess.run(['python3', str(root / 'scripts/download-claim-test-mods.py')], check=True)
 if args.namespace in ('kingdom_smp_aircraft_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_packet_tests'):
     subprocess.run(['python3', str(root / 'scripts/download-aircraft-test-mods.py'), '--destination', args.mods], check=True)
+if args.namespace == 'kingdom_smp_space_tests':
+    subprocess.run(['python3', str(root / 'scripts/download-space-test-mods.py'), '--destination', args.mods], check=True)
 if args.namespace == 'kingdom_smp_waystone_tests':
     subprocess.run(['python3', str(root / 'scripts/download-waystone-test-mods.py'), '--destination', args.mods], check=True)
 if args.namespace == 'kingdom_smp_quest_tests':
@@ -60,6 +63,7 @@ command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
 print(f'Isolated claim fixture: {fixture}', flush=True)
 restart_markers = {
+    'kingdom_smp_space_tests': ['SPACE_FLOOR_PREPARED:', 'SPACE_COUNTDOWN_PREPARED:', 'SPACE_FLOOR_RESTART_VERIFIED:'],
     'kingdom_smp_aircraft_packet_tests': ['AIRCRAFT_PACKETS_PREPARED:', 'AIRCRAFT_PACKETS_RESTART_VERIFIED:'],
     'kingdom_smp_aircraft_restore_tests': ['AIRCRAFT_RESTORE_PREPARED:', 'AIRCRAFT_RESTORE_ALLOWED:', 'AIRCRAFT_RESTORE_LOCKED:', 'AIRCRAFT_RESTORE_FTB:', 'AIRCRAFT_RESTORE_OPAC:', 'AIRCRAFT_RESTORE_PRESERVED:', 'AIRCRAFT_RESTORE_RECOVERED:'],
     'kingdom_smp_aircraft_tests': ['AIRCRAFT_PREPARED:', 'AIRCRAFT_CONSTRUCTED:', 'AIRCRAFT_RESTART_VERIFIED:'],
@@ -71,6 +75,10 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.stage_space_preview:
+    if args.namespace != "kingdom_smp_space_tests":
+        raise SystemExit("--stage-space-preview requires the native space namespace")
+    markers = markers[:1]
 if args.verify_wharf_restart:
     if args.namespace != 'kingdom_smp_wharf_tests':
         raise SystemExit('--verify-wharf-restart requires kingdom_smp_wharf_tests')

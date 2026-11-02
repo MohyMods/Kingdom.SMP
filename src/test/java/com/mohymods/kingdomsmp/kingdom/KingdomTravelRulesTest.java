@@ -14,13 +14,22 @@ class KingdomTravelRulesTest {
             assertTrue(KingdomTravelRules.allowed(tier,"minecraft:overworld"));
         }
     }
+    @Test void exactSpaceDestinationsRetainApprovedInitialAndAdvancedBoundaries(){
+        for(String destination:com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.destinations()){
+            assertEquals(com.mohymods.kingdomsmp.integration.space.SpaceTravelRules.requiredTier(destination),KingdomTravelRules.requiredTier(destination));
+            assertFalse(KingdomTravelRules.allowed(9,destination));
+        }
+        assertTrue(KingdomTravelRules.allowed(10,"ad_astra:moon"));assertFalse(KingdomTravelRules.allowed(10,"ad_astra:mars"));assertTrue(KingdomTravelRules.allowed(11,"ad_astra:mars"));
+        assertTrue(KingdomTravelRules.allowed(1,"minecraft:overworld"));
+        assertTrue(KingdomTravelRules.allowed(1,"ad_astra:unreviewed_addon"));
+    }
     @Test void noUnapprovedCustomRealmGateIsInvented(){assertTrue(KingdomTravelRules.allowed(1,"example:realm"));}
     @Test void realmLabelsAndScheduleAreImmutable(){
         assertEquals("The Aether",KingdomTravelRules.name("aether:the_aether"));
         assertEquals("Twilight Forest",KingdomTravelRules.name("twilightforest:twilight_forest"));
         assertEquals("The Otherside",KingdomTravelRules.name("deeperdarker:otherside"));
         assertThrows(UnsupportedOperationException.class,()->KingdomTravelRules.realms().clear());
-        assertTrue(KingdomTravelRules.allowed(1,"ad_astra:moon"),"Planet split is not silently invented");
+        assertFalse(KingdomTravelRules.allowed(9,"ad_astra:moon"),"Approved earliest space floor applies without inventing an advanced planetary split");
         assertThrows(IllegalArgumentException.class,()->KingdomTravelRules.requiredTier(null));
     }
     @Test void invalidProgressCannotAuthorizeTravel(){

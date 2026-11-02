@@ -57,7 +57,7 @@
     },
     {
       "id": "kingdom_smp:end",
-      "available_from_tier": 9,
+      "available_from_tier": 12,
       "requires": [
         "kingdom_smp:overworld"
       ],
@@ -999,50 +999,6 @@
       "scoring_policy": "pending_review",
       "requirements": [
         {
-          "id": "kingdom_smp:end_stone",
-          "item": "minecraft:end_stone",
-          "quantity": 1024,
-          "category": "kingdom_smp:end",
-          "requires": [],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "End Stone"
-          }
-        },
-        {
-          "id": "kingdom_smp:purpur_block",
-          "item": "minecraft:purpur_block",
-          "quantity": 512,
-          "category": "kingdom_smp:crafted",
-          "requires": [],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "Purpur Block"
-          }
-        },
-        {
-          "id": "kingdom_smp:shulker_shell",
-          "item": "minecraft:shulker_shell",
-          "quantity": 24,
-          "category": "kingdom_smp:exploration",
-          "requires": [],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "Shulker Shell"
-          }
-        },
-        {
-          "id": "kingdom_smp:dragon_breath",
-          "item": "minecraft:dragon_breath",
-          "quantity": 32,
-          "category": "kingdom_smp:challenge",
-          "requires": [],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "Dragon Breath"
-          }
-        },
-        {
           "id": "kingdom_smp:diamond_block",
           "item": "minecraft:diamond_block",
           "quantity": 8,
@@ -1093,15 +1049,7 @@
           }
         }
       ],
-      "objectives": [
-        {
-          "id": "kingdom_smp:community_objective_9",
-          "kind": "admin",
-          "target": "kingdom_smp:community_objective_9",
-          "requires": [],
-          "description": "Community End expedition and safe return (proposal; exact evidence pending)"
-        }
-      ],
+      "objectives": [],
       "reward": "kingdom_smp:reward_pending_9"
     },
     {
@@ -1112,28 +1060,6 @@
       "title": "Tier 10 balance proposal",
       "scoring_policy": "pending_review",
       "requirements": [
-        {
-          "id": "kingdom_smp:end_rod",
-          "item": "minecraft:end_rod",
-          "quantity": 128,
-          "category": "kingdom_smp:crafted",
-          "requires": [],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "End Rod"
-          }
-        },
-        {
-          "id": "kingdom_smp:shulker_shell",
-          "item": "minecraft:shulker_shell",
-          "quantity": 32,
-          "category": "kingdom_smp:exploration",
-          "requires": [],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "Shulker Shell"
-          }
-        },
         {
           "id": "kingdom_smp:netherite_ingot",
           "item": "minecraft:netherite_ingot",
@@ -1182,19 +1108,6 @@
           "tracking": "shared_consumed",
           "display": {
             "name": "Wilden Tribute"
-          }
-        },
-        {
-          "id": "kingdom_smp:storage_stabilizer_tier3",
-          "item": "occultism:storage_stabilizer_tier3",
-          "quantity": 4,
-          "category": "kingdom_smp:magic",
-          "requires": [
-            "kingdom_smp:occultism_magic"
-          ],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "Storage Stabilizer Tier3"
           }
         },
         {
@@ -1287,19 +1200,6 @@
           "tracking": "shared_consumed",
           "display": {
             "name": "Legendary Ink"
-          }
-        },
-        {
-          "id": "kingdom_smp:storage_stabilizer_tier4",
-          "item": "occultism:storage_stabilizer_tier4",
-          "quantity": 4,
-          "category": "kingdom_smp:magic",
-          "requires": [
-            "kingdom_smp:occultism_magic"
-          ],
-          "tracking": "shared_consumed",
-          "display": {
-            "name": "Storage Stabilizer Tier4"
           }
         },
         {
@@ -1449,10 +1349,10 @@
           "requires": [
             "kingdom_smp:master_production"
           ],
-          "description": "Final kingdom construction project and approved Town Hall award policy (proposal; exact evidence pending)"
+          "description": "Post-unlock Dragon/End exploration and proposed Royal Legacy Monument finale (proposal; exact evidence and award policy pending)"
         }
       ],
-      "reward": "kingdom_smp:town_hall"
+      "reward": "kingdom_smp:royal_legacy_monument"
     }
   ]
 }

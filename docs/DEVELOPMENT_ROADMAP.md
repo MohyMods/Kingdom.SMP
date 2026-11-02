@@ -1,3 +1,5 @@
+> D050 settles buyer-owned/shareable aircraft registration and Moon/Earth orbits10 versus advanced planets/orbits11. Native aircraft controls/cargo/powered flight are now verified in AERODROME_RUNTIME.md; space launch/landing/fuel/countdown/menu acceptance is being completed. Purchase/registry/flight services and full-pack acceptance remain open.
+
 > Aerodrome construction/native use boundary now verified (AERODROME_RUNTIME.md); aircraft purchase/registration/repair/upgrades/contracts, SDK payload routes and full flight/pack acceptance remain open. Keep progressing without intermediate binary releases.
 
 > Verified continuous integration work: Waystones9 native normal/forced/async travel boundary, actual client denial/unlocked travel/restart and optional-absent startup now pass. See WAYSTONE_RUNTIME.md. Aircraft/Aerodrome, space, remaining professions/tier content and full-pack acceptance remain open; continue without a per-feature release.

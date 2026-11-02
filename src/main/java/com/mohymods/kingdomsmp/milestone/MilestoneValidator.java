@@ -10,7 +10,7 @@ public final class MilestoneValidator {
     public static final Map<String,Integer> VERIFIED_CAPABILITIES=Map.ofEntries(
             Map.entry(K+"overworld",1),Map.entry(K+"crafting",1),Map.entry(K+"smelting",1),
             Map.entry(K+"agriculture",1),Map.entry(K+"animal_husbandry",1),Map.entry(K+"mining",1),
-            Map.entry(K+"nether",5),Map.entry(K+"end",9),Map.entry(K+"founders_lodge",2));
+            Map.entry(K+"nether",5),Map.entry(K+"end",12),Map.entry(K+"founders_lodge",2));
     private static final Map<String,Set<String>> SOURCES=vanillaSources();
     private MilestoneValidator(){}
     public record Report(Map<Integer,List<String>> issues,List<String> catalogIssues){

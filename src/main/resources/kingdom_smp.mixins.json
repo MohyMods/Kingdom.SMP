@@ -10,7 +10,11 @@
     "AircraftDismountMomentumMixin",
     "AircraftInventoryMenuMixin",
     "AircraftInventoryOpenMixin",
-    "AircraftInventorySyncMixin"
+    "AircraftInventorySyncMixin",
+    "SpaceLaunchMixin",
+    "SpaceLandingMixin",
+    "SpaceFuelCommitMixin",
+    "SpacePlanetMenuMixin"
   ],
   "injectors": {
     "defaultRequire": 1
