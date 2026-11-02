@@ -23,7 +23,7 @@ import java.nio.file.*;
 @GameTestHolder("kingdom_smp_travel_tests") @PrefixGameTestTemplate(false)
 public final class DimensionTravelRuntimeTests {
     /** Test-only native saved-data fixture; deliberately no shared package or production tier-grant API. */
-    private static void seed(net.minecraft.server.MinecraftServer server,int tier)throws Exception{
+    static void seed(net.minecraft.server.MinecraftServer server,int tier)throws Exception{
         var tag=KingdomSavedData.get(server).save(new CompoundTag(),server.registryAccess());tag.putInt("tier",tier);tag.putLong("revision",tier);
         var load=KingdomSavedData.class.getDeclaredMethod("load",CompoundTag.class,net.minecraft.core.HolderLookup.Provider.class);load.setAccessible(true);
         var data=(KingdomSavedData)load.invoke(null,tag,server.registryAccess());data.setDirty();server.overworld().getDataStorage().set(KingdomSavedData.DATA_NAME,data);

@@ -39,6 +39,7 @@ public final class KingdomSmp {
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.progression.TierTwoService::login);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.progression.TierTwoService::logout);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.kingdom.KingdomTravel::travel);
+        com.mohymods.kingdomsmp.integration.waystones.WaystoneAccess.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.milestone.MilestoneService::sync);
         BuilderHutService.installDialogueOpener(KingdomNetworking::openBuilderDialogue);
         modBus.addListener(KingdomNetworking::register);

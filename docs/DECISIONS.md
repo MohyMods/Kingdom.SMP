@@ -227,3 +227,7 @@ Extends the existing native server travel guard to the already approved Aether4,
 ## D-043 — real shared quest guide entry and preserved presentation
 
 Uses the approved FTB Quests settlement projection as an actual Royal Gilded navigation destination. Exact loaded-client checks prevent an unavailable book button from becoming an action; Royal entry centers the settlement overview. Existing stable IDs, dependencies, rewardless predicates and Kingdom authority remain unchanged. New templates use the actual1.21compound item format. Known bindings repair only absent runtimeicons, preserving nonemptycustomicons and existingcampaign/layout files; FTB may normalize its own serialization. Actual team/latejoin/reset/invitedparty/restart and graphical checks are recorded in FTB_SETTLEMENT_GUIDE.md. This adds no profession objectives, tier costs, economic grant or fullcampaign completion claim.
+
+## D-044 — native Waystones Tier9 boundary
+
+Implements the approved Tier9 gate against exact Waystones21.1.46/Balm21.0.66. Normal pre-cost and forced per-entity commit validation retain destination gates, existing costs/permissions/vetoes and saved nodes. Unsupported installed API pairs refuse startup; absent mods remain optional. No new progression values or rewards. Full404JUnit, actual two-JVM native security/restart and ordinary graphical8denial/9travel/restart pass. See WAYSTONE_RUNTIME.md; this is no full-pack certification.

@@ -38,7 +38,8 @@ public final class RoyalAdminCommands {
                         var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,net.minecraft.resources.ResourceLocation.parse(realm.dimension()));
                         line(c.getSource(),realm.name()+" | "+realm.dimension()+" | Tier "+realm.tier()+" | "+(tier>=realm.tier()?"UNLOCKED":"LOCKED")+" | dimension registered: "+(server.getLevel(key)!=null));
                     }
-                    line(c.getSource(),"Ad Astra destination split, Waystone actions, recipes and full-pack alternate routes require separate verified adapters.");return 1;
+                    line(c.getSource(),com.mohymods.kingdomsmp.integration.waystones.WaystoneAccess.status());
+                    line(c.getSource(),"Ad Astra destination split, recipes and full-pack alternate routes require separate verified adapters.");return 1;
                 })))
                 .then(Commands.literal("integrations").then(Commands.literal("ftbquests").executes(c->{for(var line:com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.inspect(c.getSource().getServer()))c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal(line),false);return 1;})))
                 .then(Commands.literal("inspect").executes(context -> overview(context.getSource())))

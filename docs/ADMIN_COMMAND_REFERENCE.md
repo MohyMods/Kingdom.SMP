@@ -4,7 +4,7 @@ Permission2 `/kingdom admin integrations ftbquests` now includes actual per-team
 
 ## Realm diagnostics
 
-`/kingdom admin travel inspect` requires permission2 and reports actual attained tier, each approved destination key/gate, locked/unlocked status and whether its dimension is actually registered. It grants no tier, permission bypass or travel. Aether4, Nether5, Twilight6, Otherside8 and End12 are checked at the native server transition. Planetary split, Waystone actions and full-pack alternate routes remain separate unfinished work.
+`/kingdom admin travel inspect` requires permission2 and reports actual attained tier, each approved destination key/gate, locked/unlocked status and whether its dimension is actually registered. It grants no tier, permission bypass or travel. Aether4, Nether5, Twilight6, Otherside8 and End12 are checked at the native server transition. The same command reports the actual optional Waystones21.1.46/Balm21.0.66 adapter; its native use/travel gate enforces Tier9 while retaining destination restrictions. Planetary split, aircraft and full-pack alternate routes remain separate unfinished work.
 
 ## Durable journal maintenance
 
