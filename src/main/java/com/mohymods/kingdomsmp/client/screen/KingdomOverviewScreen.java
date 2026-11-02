@@ -144,8 +144,8 @@ public final class KingdomOverviewScreen extends Screen {
         List<Component> paragraphs = new ArrayList<>();
         if (!ClientOverviewController.status().getString().isEmpty()) paragraphs.add(ClientOverviewController.status());
         paragraphs.add(state);
+        if(selectedTier==4||selectedTier==5||selectedTier==6||selectedTier==8||selectedTier==9||selectedTier==12)paragraphs.add(gate(selectedTier));
         paragraphs.add(Component.literal(snapshot.milestoneDetails().get(selectedTier-1)));
-        if(selectedTier==5||selectedTier==9||selectedTier==12)paragraphs.add(gate(selectedTier));
         renderParagraphs(graphics, paragraphs,
                 layout.contentX() + 6, y + 5, layout.contentWidth() - 12, height - 10);
     }
@@ -206,7 +206,10 @@ public final class KingdomOverviewScreen extends Screen {
     private Component gate(int tier) {
         return text(switch (tier) {
             case 1, 2 -> "gate.founders_lodge";
+            case 4 -> "gate.aether";
             case 5 -> "gate.nether";
+            case 6 -> "gate.twilight";
+            case 8 -> "gate.otherside";
             case 9 -> "gate.waystones";
             case 12 -> "gate.town_hall";
             default -> "gate.unspecified";

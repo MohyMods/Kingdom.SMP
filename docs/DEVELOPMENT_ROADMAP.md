@@ -42,7 +42,7 @@ Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECT
 | Twelve professions / 288 quests | Canonical roster and approved Farmer24 implemented | Full accelerated earned Farmer native loop passes; all24 graphical/natural-duration balance and remaining264definitions/nine building gates remain open; no invented filler |
 | FTB Quests journal integration | Exact2101.1.37 nine-task read-only settlement projection loads | Real campaign/personal-team acceptance and full actual-content chapters remain open; stable task IDs and no duplicate rewards |
 | Vanilla realm entry | Nether5 / End12 tested | Unknown mod routes, already-inside policy and actual Tier12 arrival remain unverified |
-| Aether4 / Twilight6 / Otherside8 / space10–11 / Waystones9 | Not integrated | Exact artifacts, recipes, alternate routes and non-End prerequisites |
+| Aether4 / Twilight6 / Otherside8 / space10–11 / Waystones9 | Exact first three destination gates verified; space/Waystone actions unfinished | Actual2JVM boundary/restart and graphical denial/UI checks pass; alternate portal/vehicle/login routes, recipes and non-End closure remain open |
 | Aerodrome / aircraft | Not implemented | Tier≥6 AND completed Aerodrome; actual Immersive Aircraft adapter, reviewed type schedule |
 | Royal Legacy Monument / End finale | Approved scope; not implemented | Exact construction/award/participation policy; no End resource needed to reach12 |
 | Royal Administration sandbox | Partial existing commands only | Durable isolated test mode and real permissioned/confirmed/audited controls alongside features |

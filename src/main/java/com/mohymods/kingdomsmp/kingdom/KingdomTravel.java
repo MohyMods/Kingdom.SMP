@@ -22,7 +22,7 @@ public final class KingdomTravel {
             long now=System.nanoTime();Long last=LAST_NOTICE.get(player);
             if(last==null||now-last>=5_000_000_000L){
                 LAST_NOTICE.put(player,now);
-                String realm=required==5?"The Nether":"The End";
+                String realm=KingdomTravelRules.name(destination);
                 player.displayClientMessage(Component.literal(realm+" opens at kingdom Tier "+required+". Current tier: "+tier+"."),true);
             }
         }

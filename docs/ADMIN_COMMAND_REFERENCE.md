@@ -1,3 +1,7 @@
+## Realm diagnostics
+
+`/kingdom admin travel inspect` requires permission2 and reports actual attained tier, each approved destination key/gate, locked/unlocked status and whether its dimension is actually registered. It grants no tier, permission bypass or travel. Aether4, Nether5, Twilight6, Otherside8 and End12 are checked at the native server transition. Planetary split, Waystone actions and full-pack alternate routes remain separate unfinished work.
+
 ## Durable journal maintenance
 
 Permission4: `/kingdom admin economy archive inspect`, `review <reason>`, and the resulting clickable `confirm <nonce>`. Reviews expire60seconds and bind the actor and unchanged journal. Pending native inventory work refuses; balances/revision/IDs never reset. Back up the complete world including closed segments and matching player saves. [Format, bounds and recovery](ECONOMY_ARCHIVES.md).
