@@ -42,12 +42,17 @@ public final class AircraftPacketRuntimeTests {
    var description=call(plane,"getInventoryDescription");var boilers=(List<?>)description.getClass().getMethod("getSlots",String.class).invoke(description,"boiler");
    h.assertTrue(!boilers.isEmpty(),"Native aircraft defines real fuel slots");
    int fuelSlot=(int)call(boilers.getFirst(),"index");((Container)plane).setItem(fuelSlot,new ItemStack(Items.COAL,4));
+   int weaponSlot=(int)call(((List<?>)description.getClass().getMethod("getSlots",String.class).invoke(description,"weapon")).getFirst(),"index");
+   int ammoSlot=(int)call(((List<?>)description.getClass().getMethod("getSlots",String.class).invoke(description,"inventory")).get(1),"index");
+   ((Container)plane).setItem(weaponSlot,new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("immersive_aircraft:heavy_crossbow"))));
+   ((Container)plane).setItem(ammoSlot,new ItemStack(Items.ARROW,32));
    h.runAfterDelay(3,()->guard(h,()->{
     h.assertTrue((float)call(plane,"getFuelUtilization")>0&&((Container)plane).getItem(fuelSlot).getCount()<4,"Actual native ticks consume coal into native fuel; no injected engine/fuel value");
     send(p,"EnginePowerMessage",new Class<?>[]{float.class},.5f);
     h.assertTrue((float)call(plane,"getEngineTarget")==.5f,"Transformed native receiveServer accepts legitimate fuelled pilot throttle");
     var peer=ClaimRuntimeTests.vanillaPlayer(level,UUID.nameUUIDFromBytes("OfflinePlayer:PacketPeer".getBytes(java.nio.charset.StandardCharsets.UTF_8)),"PacketPeer");
     inventory(h,p,peer,plane,pos);
+    weapon(h,p,peer,plane,weaponSlot,ammoSlot);
     // Embedded peers acknowledge the real server teleport explicitly, like a client.
     var teleportId=net.minecraft.server.network.ServerGamePacketListenerImpl.class.getDeclaredField("awaitingTeleport");teleportId.setAccessible(true);
     p.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(teleportId.getInt(p.connection)));
@@ -103,6 +108,23 @@ public final class AircraftPacketRuntimeTests {
    }));
   }));
  }
+ private static void weapon(GameTestHelper h,ServerPlayer pilot,ServerPlayer peer,Entity plane,int slot,int ammoSlot)throws Exception{
+  var nativeAllowed=plane.getClass().getMethod("canFireWeapon",Entity.class,int.class,int.class);
+  h.assertTrue(Boolean.TRUE.equals(nativeAllowed.invoke(plane,pilot,slot,0)),"Real equipped native crossbow and ammunition permit its actual controlling operator");
+  var ammo=((Container)plane).getItem(ammoSlot);int beforeAmmo=ammo.getCount();
+  var before=new HashSet<java.util.UUID>();h.getLevel().getEntities().getAll().forEach(entity->{if(entity instanceof net.minecraft.world.entity.projectile.AbstractArrow)before.add(entity.getUUID());});
+  var fireTypes=new Class<?>[]{int.class,int.class,Vector3f.class};
+  send(peer,"FireMessage",fireTypes,slot,0,new Vector3f(0,0,1));
+  send(pilot,"FireMessage",fireTypes,slot,0,new Vector3f(1000,0,0));
+  send(pilot,"FireMessage",fireTypes,slot,0,new Vector3f(1,1,1));
+  h.assertTrue(((Container)plane).getItem(ammoSlot).getCount()==beforeAmmo,"Wrong operator and oversized native direction cannot consume ammunition");
+  var afterInvalid=new ArrayList<net.minecraft.world.entity.projectile.AbstractArrow>();h.getLevel().getEntities().getAll().forEach(entity->{if(entity instanceof net.minecraft.world.entity.projectile.AbstractArrow arrow&&!before.contains(arrow.getUUID()))afterInvalid.add(arrow);});
+  h.assertTrue(afterInvalid.isEmpty(),"Rejected direction cannot move a muzzle or create a remote projectile");
+  send(pilot,"FireMessage",fireTypes,slot,0,new Vector3f(0,0,1));
+  var created=new ArrayList<net.minecraft.world.entity.projectile.AbstractArrow>();h.getLevel().getEntities().getAll().forEach(entity->{if(entity instanceof net.minecraft.world.entity.projectile.AbstractArrow arrow&&!before.contains(arrow.getUUID()))created.add(arrow);});
+  h.assertTrue(!created.isEmpty()&&((Container)plane).getItem(ammoSlot).getCount()<beforeAmmo,"Actual legal native weapon fire creates projectiles and consumes real ammunition");
+  for(var arrow:created){h.assertTrue(arrow.getOwner()==pilot&&arrow.distanceToSqr(plane)<100,"Native projectile retains the real operator and local muzzle origin for downstream claim protection");arrow.discard();}
+ }
  private static void inventory(GameTestHelper h,ServerPlayer p,ServerPlayer peer,Entity plane,BlockPos pos)throws Exception{
   var level=h.getLevel();var description=call(plane,"getInventoryDescription");var getSlots=description.getClass().getMethod("getSlots",String.class);
   int cargo=(int)call(((List<?>)getSlots.invoke(description,"inventory")).getFirst(),"index");
@@ -112,7 +134,7 @@ public final class AircraftPacketRuntimeTests {
   DimensionTravelRuntimeTests.seed(p.server,5);drain(peer);
   send(peer,"InventoryRequest",new Class<?>[]{int.class},plane.getId());var messages=drain(peer);boolean visual=false;
   for(Object packet:messages)if(packet instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket custom&&custom.payload().getClass().getName().equals("immersive_aircraft.network.s2c.InventoryUpdateMessage")){
-   var update=custom.payload();int slot=(int)call(update,"getIndex");h.assertTrue(slot!=cargo,"Actual initial native public synchronization never transmits private cargo");
+   var update=custom.payload();int slot=(int)call(update,"getIndex");h.assertTrue(slot<cargo,"Actual initial native public synchronization never transmits private cargo or ammunition");
    if(slot==upgrade){var stack=(ItemStack)update.getClass().getMethod("getStack",Entity.class).invoke(update,plane);h.assertTrue(ItemStack.isSameItemSameComponents(stack,equipment),"Public render equipment preserves the actual native item");visual=true;}
   }
   h.assertTrue(visual,"A non-owner may still receive visual upgrades below the flight unlock tier");

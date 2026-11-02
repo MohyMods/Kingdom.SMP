@@ -16,7 +16,8 @@ class AircraftPacketRulesTest {
  @Test void damageAndWeaponDirectionsNeverPropagateNonfiniteOrUnboundedValues(){
   assertTrue(AircraftPacketRules.collision(0));assertTrue(AircraftPacketRules.collision(100));
   for(float v:new float[]{-1,Float.NaN,Float.POSITIVE_INFINITY,Float.MAX_VALUE})assertFalse(AircraftPacketRules.collision(v));
-  assertTrue(AircraftPacketRules.direction(0,0,0));assertTrue(AircraftPacketRules.direction(-1,.5f,1));
+  assertTrue(AircraftPacketRules.direction(0,0,0));assertTrue(AircraftPacketRules.direction(-.57735f,.57735f,.57735f));
+  assertFalse(AircraftPacketRules.direction(1,1,1));assertFalse(AircraftPacketRules.direction(1000,0,0));
   assertFalse(AircraftPacketRules.direction(0,0,Float.NaN));assertFalse(AircraftPacketRules.direction(Float.MAX_VALUE,0,0));
  }
  @Test void exitRetainsOrdinaryMomentumAndSafelyBoundsEveryMalformedVector(){

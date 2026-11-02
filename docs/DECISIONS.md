@@ -247,3 +247,7 @@ Server-authoritative native control handlers now reject malformed numeric inputs
 ## D-048 — private native aircraft cargo and post-open claim checks
 
 Limits public initial aircraft synchronization to the SDK's noncargo slot types while keeping visual equipment available to other players. The native cargo opening and stillValid boundaries require current tier/building, real actor, distance and verified entity-interaction claim rights; vanilla checks these before every click. Native controls remain intact.410JUnit, actual outbound packets/authorized transfers/independent FTB/OPAC/tier revocations across two JVMs, core-only regression and real graphical pickup/return/server restart pass. Exact native cargo/upgrade/fuel/pilot/purse identities are recorded in AERODROME_RUNTIME.md. No new ownership rule or financial escrow guarantee is invented.
+
+## D-049 — native weapon direction cannot relocate the muzzle
+
+Exact SDK bytecode shows that a nonunit client vector changes projectile creation position before shooting. Bound its finite length to the native unit-vector format with1%rounding allowance; retain zero drop vectors and native operator/ammunition/cooldown behavior.410JUnit/full build and real equipped-crossbow/ammunition/projectile tests across two native JVMs pass, along with existing inventory/control/lift/claims/purse checks. Actual local projectiles retain the pilot owner. This is a security boundary, not a new aircraft weapon progression policy or full-pack combat certification.
