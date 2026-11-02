@@ -67,6 +67,14 @@ public final class AuctionService {
         var item=ItemStack.parse(p.registryAccess(),tag).orElseThrow(()->new IllegalStateException("Escrow item requires registry recovery."));
         validateItem(item);return item;
     }
+    private static ItemStack decodeMail(ServerPlayer p,EconomyStore.ItemMail mail){
+        if(CommerceService.store(p.server).aircraftDelivery(mail.id())){
+            if(!mail.owner().equals(p.getUUID()))throw new IllegalStateException("Aircraft delivery belongs to another player");
+            var item=ItemStack.parse(p.registryAccess(),mail.item()).orElseThrow(()->new IllegalStateException("Native aircraft registry is unavailable"));
+            if(!com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.aircraftItem(item)||!com.mohymods.kingdomsmp.integration.aircraft.AircraftSales.registered(item)||item.getCount()!=1)throw new IllegalStateException("Canonical aircraft delivery needs registry recovery");return item;
+        }
+        return decode(p,mail.item());
+    }
     private static EconomyStore.ItemMail mail(ServerPlayer p,String selected){
         UUID id;try{id=UUID.fromString(selected);}catch(IllegalArgumentException e){throw new IllegalArgumentException("Choose a valid item delivery.");}
         return CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().filter(m->m.id().equals(id)&&!m.claimed()).findFirst().orElseThrow(()->new IllegalStateException("No such unclaimed item in your mailbox."));
@@ -104,7 +112,7 @@ public final class AuctionService {
     public static List<CommerceView.Entry> mailEntries(ServerPlayer p){
         List<CommerceView.Entry> out=new ArrayList<>();
         for(var m:CommerceService.store(p.server).itemMailbox(p.getUUID()).stream().filter(m->!m.claimed()).limit(128).toList()){
-            var item=decode(p,m.item());String title=item.getCount()+" × "+item.getHoverName().getString();
+            var item=decodeMail(p,m);String title=item.getCount()+" × "+item.getHoverName().getString();
             out.add(new CommerceView.Entry(m.id().toString(),bounded(title,64),bounded(m.description()+". Exact components retained. Claim at "+(CommerceService.store(p.server).shopDelivery(m.id())?"a resident counter":"the Royal Bank")+" with enough inventory space; nothing is dropped.",256),0,"ITEMS"));
         }
         return out;
@@ -124,7 +132,7 @@ public final class AuctionService {
         if(s.pendingItem().isPresent()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.quarantined())throw new IllegalStateException("Auction inventory reconciliation is pending.");
         ItemStack item=ItemStack.EMPTY;int slot=p.getInventory().selected;String text;
         if(tab==2){
-            item=decode(p,mail(p,selected).item());if(capacity(p,item)<item.getCount())throw new IllegalStateException("Make enough main-inventory space for the entire item delivery.");
+            item=decodeMail(p,mail(p,selected));if(capacity(p,item)<item.getCount())throw new IllegalStateException("Make enough main-inventory space for the entire item delivery.");
             text="Claim exactly "+item.getCount()+" × "+item.getHoverName().getString()+" with its saved components. Native inventory receipt and mailbox claim are reconciled together. No items are dropped.";
         }else if(selected.equals("sell")||selected.equals("sell_timed")){
             if(price<1||price>1_000_000_000L)throw new IllegalArgumentException("Enter a total price between 1 and 1,000,000,000 coins.");
@@ -168,7 +176,7 @@ public final class AuctionService {
         try{
             CommerceService.checkpoint(p);EconomyStore.PendingItem pending;
             if(q.tab()==2){
-                var item=decode(p,mail(p,q.selected()).item());if(capacity(p,item)<item.getCount())throw new IllegalStateException("Make room for the entire delivery.");
+                var item=decodeMail(p,mail(p,q.selected()));if(capacity(p,item)<item.getCount())throw new IllegalStateException("Make room for the entire delivery.");
                 pending=s.prepareItemClaim(q.nonce(),p.getUUID(),UUID.fromString(q.selected()));insert(p,item);
             }else{
                 var item=q.item();validateItem(item);long now=System.currentTimeMillis();

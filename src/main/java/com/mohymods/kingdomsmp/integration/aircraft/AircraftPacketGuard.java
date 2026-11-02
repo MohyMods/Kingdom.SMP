@@ -37,7 +37,7 @@ public final class AircraftPacketGuard {
             // Dismount must remain possible even after eligibility changes. Its velocity
             // is bounded by the dedicated primitive-field mixin, without changing exit rights.
             if(schema.kind().equals("CommandMessage")&&((Enum<?>)schema.get(packet,"key")).name().equals("DISMOUNT"))return true;
-            if(!p.isAlive()||p.isSpectator()||!AircraftAccess.denial(p.server).isEmpty())return deny(p);
+            if(!p.isAlive()||p.isSpectator()||!AircraftAccess.denial(p.server).isEmpty()||!AircraftSales.denial(p,vehicle).isEmpty())return deny(p);
             boolean valid=switch(schema.kind()){
                 case "PilotInputMessage"->AircraftPacketRules.pilot(schema.number(packet,"x"),schema.number(packet,"y"),schema.number(packet,"z"));
                 case "EnginePowerMessage"->AircraftPacketRules.throttle(schema.number(packet,"engineTarget"));

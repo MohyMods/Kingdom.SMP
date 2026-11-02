@@ -26,7 +26,7 @@ public final class AircraftInventoryAccess {
     }
     public static boolean entity(ServerPlayer p,Entity entity){
         return current(p)&&p.isAlive()&&!p.isSpectator()&&AircraftAccess.aircraft(entity)&&entity.distanceTo(p)<8
-                &&AircraftAccess.denial(p.server).isEmpty()&&PlacementProtection.entityInteraction(p,entity)==null;
+                &&AircraftAccess.denial(p.server).isEmpty()&&AircraftSales.denial(p,entity).isEmpty()&&PlacementProtection.entityInteraction(p,entity)==null;
     }
     /** Nearby clients may render equipment even while flight is locked; cargo needs the real menu. */
     public static boolean publicSlot(ServerPlayer p,int entityId,int index){

@@ -1,3 +1,5 @@
+> D051/D052 current: approved space split/native fuel/countdown/menu and buyer-owned Corin aircraft purchases/shared crew are verified in SPACE_RUNTIME.md and AIRCRAFT_PURCHASES.md.418JUnit, four dedicated aircraft purchase/recovery boots, previous control/cargo and legacy regressions plus actual purchase/placement/mounted restart and Royal screen scaling pass. Continue repair/upgrades/contracts and remaining approved release dependencies; no per-feature binaries or1.0claim. Older open purchase/registration notes below are superseded for this tested slice.
+
 > D050 settles buyer-owned/shareable aircraft registration and Moon/Earth orbits10 versus advanced planets/orbits11. Native aircraft controls/cargo/powered flight are now verified in AERODROME_RUNTIME.md; space launch/landing/fuel/countdown/menu acceptance is being completed. Purchase/registry/flight services and full-pack acceptance remain open.
 
 > Aerodrome construction/native use boundary now verified (AERODROME_RUNTIME.md); aircraft purchase/registration/repair/upgrades/contracts, SDK payload routes and full flight/pack acceptance remain open. Keep progressing without intermediate binary releases.

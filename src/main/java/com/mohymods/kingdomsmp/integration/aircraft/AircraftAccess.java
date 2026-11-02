@@ -39,7 +39,7 @@ public final class AircraftAccess {
         var ref=RESTORED.get(p);Entity entity=ref==null?null:ref.get();
         try{
             if(entity!=null&&p.getVehicle()==entity){
-                String why=denial(p.server);if(why.isEmpty())why=com.mohymods.kingdomsmp.placement.PlacementProtection.restoredVehicleInteraction(p,entity);
+                String why=denial(p.server);if(why.isEmpty())why=AircraftSales.denial(p,entity);if(why.isEmpty())why=com.mohymods.kingdomsmp.placement.PlacementProtection.restoredVehicleInteraction(p,entity);
                 if(why==null||why.isEmpty()){p.getPersistentData().remove(LANDING);return;}
                 suspend(p,why);return;
             }
@@ -105,7 +105,7 @@ public final class AircraftAccess {
     public static boolean nativeLift(ServerPlayer p){
         if(!p.server.isSameThread()||p.hasDisconnected()||!p.isAlive()||p.isSpectator()||p.server.getPlayerList().getPlayer(p.getUUID())!=p)return false;
         Entity root=p.getRootVehicle();
-        return aircraft(root)&&root.getControllingPassenger()==p&&denial(p.server).isEmpty();
+        return aircraft(root)&&root.getControllingPassenger()==p&&denial(p.server).isEmpty()&&AircraftSales.denial(p,root).isEmpty();
     }
     public static boolean aircraft(Entity e){return vehicle!=null&&vehicle.isInstance(e);}
     public static boolean aircraftItem(ItemStack stack){return item!=null&&item.isInstance(stack.getItem());}
@@ -122,13 +122,13 @@ public final class AircraftAccess {
         return aerodromeComplete(server)?"":"Finish or repair the Royal Aerodrome before using aircraft.";
     }
     private static boolean denied(ServerPlayer p){String why=denial(p.server);if(why.isEmpty())return false;p.displayClientMessage(Component.literal(why),true);return true;}
-    private static boolean deploymentDenied(ServerPlayer p,ItemStack stack){
+    public static boolean deploymentDenied(ServerPlayer p,ItemStack stack){
         if(denied(p))return true;
         try{
             var id=net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
             if(!net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.containsKey(id))throw new IllegalStateException("Aircraft item has no verified native entity type");
             // Match VehicleItem's server-side OUTLINE ray and exact water policy, using native registered dimensions.
-            var hit=p.pick(p.blockInteractionRange(),0,onWater.getBoolean(stack.getItem()));
+            var hit=p.pick(p.blockInteractionRange(),1,onWater.getBoolean(stack.getItem()));
             if(hit.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK)return false; // Native no-target failure remains unchanged.
             var bounds=net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.get(id).getDimensions().makeBoundingBox(hit.getLocation());
             if(!p.serverLevel().getWorldBorder().isWithinBounds(bounds))throw new IllegalStateException("Aircraft footprint crosses the world border");
@@ -143,10 +143,12 @@ public final class AircraftAccess {
             return false;
         }catch(ReflectiveOperationException|RuntimeException error){p.displayClientMessage(Component.literal("Aircraft site blocked. See chat for the placement rule."),true);p.sendSystemMessage(Component.literal("Aircraft deployment refused: "+error.getMessage()));return true;}
     }
+    public static boolean onWater(ItemStack stack)throws IllegalAccessException{return onWater.getBoolean(stack.getItem());}
     private static void use(PlayerInteractEvent.RightClickItem e){if(e.getEntity() instanceof ServerPlayer p&&aircraftItem(e.getItemStack())&&deploymentDenied(p,e.getItemStack()))e.setCanceled(true);}
     private static void useBlock(PlayerInteractEvent.RightClickBlock e){if(e.getEntity() instanceof ServerPlayer p&&aircraftItem(e.getItemStack())&&deploymentDenied(p,e.getItemStack()))e.setCanceled(true);}
     private static boolean boardingDenied(ServerPlayer p,Entity target){
         if(denied(p))return true;
+        String access=AircraftSales.denial(p,target);if(!access.isEmpty()){p.displayClientMessage(Component.literal(access),true);return true;}
         String why=com.mohymods.kingdomsmp.placement.PlacementProtection.entityInteraction(p,target);
         if(why==null)return false;p.displayClientMessage(Component.literal(why.replace("resident","aircraft")),true);return true;
     }
@@ -156,10 +158,11 @@ public final class AircraftAccess {
     private static void tick(ServerTickEvent.Post e){
         // One integrity scan per second for all actual riders, no scans or tickets when nobody is aboard.
         if(e.getServer().getTickCount()%20!=0)return;
+        AircraftSales.recover(e.getServer());
         Boolean allowed=null;
         for(var p:java.util.List.copyOf(e.getServer().getPlayerList().getPlayers()))if(!p.hasDisconnected()&&aircraft(p.getVehicle())){
             if(allowed==null)allowed=denial(e.getServer()).isEmpty();
-            if(!allowed)suspend(p,"Aircraft access suspended. Tier 6 and an intact Aerodrome are required.");
+            if(!allowed)suspend(p,"Aircraft access suspended. Tier 6 and an intact Aerodrome are required.");else{String why=AircraftSales.denial(p,p.getVehicle());if(!why.isEmpty())suspend(p,why);}
         }
     }
 }

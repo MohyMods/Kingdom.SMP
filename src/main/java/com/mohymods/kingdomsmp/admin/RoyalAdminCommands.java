@@ -17,6 +17,11 @@ public final class RoyalAdminCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> commands() {
         return Commands.literal("admin").requires(source -> source.hasPermission(2))
                 .executes(context -> overview(context.getSource()))
+                .then(Commands.literal("aircraft").then(Commands.literal("inspect").executes(c->{
+                    var store=com.mohymods.kingdomsmp.economy.CommerceService.store(c.getSource().getServer());
+                    line(c.getSource(),"Registered aircraft: "+store.aircraft().size()+"; buyer-owned/shared access. Inspection never grants frames or alters legacy aircraft.");
+                    for(var aircraft:store.aircraft().stream().limit(64).toList())line(c.getSource(),aircraft.id()+" | "+aircraft.type()+" | buyer "+aircraft.owner()+" | "+aircraft.phase()+" | generation "+aircraft.generation()+" | crew "+aircraft.crew());return 1;
+                })))
                 .then(ownerCommands())
                 .then(com.mohymods.kingdomsmp.profession.FarmerInspectionService.commands())
                 .then(com.mohymods.kingdomsmp.progression.TierTwoService.commands())
