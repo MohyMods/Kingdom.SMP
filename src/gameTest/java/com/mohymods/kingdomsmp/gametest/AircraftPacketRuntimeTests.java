@@ -46,6 +46,8 @@ public final class AircraftPacketRuntimeTests {
     h.assertTrue((float)call(plane,"getFuelUtilization")>0&&((Container)plane).getItem(fuelSlot).getCount()<4,"Actual native ticks consume coal into native fuel; no injected engine/fuel value");
     send(p,"EnginePowerMessage",new Class<?>[]{float.class},.5f);
     h.assertTrue((float)call(plane,"getEngineTarget")==.5f,"Transformed native receiveServer accepts legitimate fuelled pilot throttle");
+    var peer=ClaimRuntimeTests.vanillaPlayer(level,UUID.nameUUIDFromBytes("OfflinePlayer:PacketPeer".getBytes(java.nio.charset.StandardCharsets.UTF_8)),"PacketPeer");
+    inventory(h,p,peer,plane,pos);
     // Embedded peers acknowledge the real server teleport explicitly, like a client.
     var teleportId=net.minecraft.server.network.ServerGamePacketListenerImpl.class.getDeclaredField("awaitingTeleport");teleportId.setAccessible(true);
     p.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(teleportId.getInt(p.connection)));
@@ -75,7 +77,6 @@ public final class AircraftPacketRuntimeTests {
     var offThread=new java.util.concurrent.atomic.AtomicBoolean(true);var thread=new Thread(()->offThread.set(AircraftPacketGuard.permit(p,enginePacket)));thread.start();thread.join();
     h.assertTrue(!offThread.get(),"Native boundary refuses an off-thread call without touching world state");
     // A forged sender cannot replace the native controlling pilot, even with eligible access.
-    var peer=ClaimRuntimeTests.vanillaPlayer(level,UUID.nameUUIDFromBytes("OfflinePlayer:PacketPeer".getBytes(java.nio.charset.StandardCharsets.UTF_8)),"PacketPeer");
     send(peer,"EnginePowerMessage",new Class<?>[]{float.class},1f);
     h.assertTrue((float)call(plane,"getEngineTarget")==.5f,"Unseated authenticated peer cannot control another player's aircraft");
     DimensionTravelRuntimeTests.seed(server,5);
@@ -102,6 +103,45 @@ public final class AircraftPacketRuntimeTests {
    }));
   }));
  }
+ private static void inventory(GameTestHelper h,ServerPlayer p,ServerPlayer peer,Entity plane,BlockPos pos)throws Exception{
+  var level=h.getLevel();var description=call(plane,"getInventoryDescription");var getSlots=description.getClass().getMethod("getSlots",String.class);
+  int cargo=(int)call(((List<?>)getSlots.invoke(description,"inventory")).getFirst(),"index");
+  int upgrade=(int)call(((List<?>)getSlots.invoke(description,"upgrade")).getFirst(),"index");
+  var cargoStack=new ItemStack(Items.DIAMOND,13);((Container)plane).setItem(cargo,cargoStack.copy());
+  var equipment=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse("immersive_aircraft:enhanced_propeller")));((Container)plane).setItem(upgrade,equipment.copy());
+  DimensionTravelRuntimeTests.seed(p.server,5);drain(peer);
+  send(peer,"InventoryRequest",new Class<?>[]{int.class},plane.getId());var messages=drain(peer);boolean visual=false;
+  for(Object packet:messages)if(packet instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket custom&&custom.payload().getClass().getName().equals("immersive_aircraft.network.s2c.InventoryUpdateMessage")){
+   var update=custom.payload();int slot=(int)call(update,"getIndex");h.assertTrue(slot!=cargo,"Actual initial native public synchronization never transmits private cargo");
+   if(slot==upgrade){var stack=(ItemStack)update.getClass().getMethod("getStack",Entity.class).invoke(update,plane);h.assertTrue(ItemStack.isSameItemSameComponents(stack,equipment),"Public render equipment preserves the actual native item");visual=true;}
+  }
+  h.assertTrue(visual,"A non-owner may still receive visual upgrades below the flight unlock tier");
+  var original=p.containerMenu;plane.getClass().getMethod("openInventory",ServerPlayer.class).invoke(plane,p);
+  h.assertTrue(p.containerMenu==original,"Locked native initial menu opening refuses cargo disclosure");DimensionTravelRuntimeTests.seed(p.server,6);
+  try{ClaimRuntimeTests.ftbClaim(p,pos);}catch(IllegalStateException existing){if(!existing.getMessage().endsWith("ALREADY_CLAIMED"))throw existing;}ClaimRuntimeTests.opacClaim(level,p.getUUID(),pos);
+  drain(p);plane.getClass().getMethod("openInventory",ServerPlayer.class).invoke(plane,p);var menu=p.containerMenu;
+  h.assertTrue(menu!=original&&menu.stillValid(p),"Real authorized native aircraft menu opens with current tier and both claim APIs");
+  var initial=drain(p);boolean full=initial.stream().anyMatch(packet->packet instanceof net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket content&&content.getItems().stream().anyMatch(item->ItemStack.isSameItemSameComponents(item,cargoStack)&&item.getCount()==13));
+  if(!full)com.mojang.logging.LogUtils.getLogger().error("Native cargo sync diagnostic slot={} container={} menu={} packets={}",cargo,((Container)plane).getItem(cargo),menu.getItems(),initial.stream().map(v->v.getClass().getName()).toList());
+  h.assertTrue(full,"Authorized native full menu synchronization retains actual cargo contents");
+  ClaimRuntimeTests.ftbUnclaim(level,pos);ClaimRuntimeTests.ftbClaim(peer,pos);
+  h.assertTrue(!menu.stillValid(p),"An already-open native cargo menu rechecks independently revoked FTB rights");
+  for(var kind:List.of(net.minecraft.world.inventory.ClickType.PICKUP,net.minecraft.world.inventory.ClickType.QUICK_MOVE,net.minecraft.world.inventory.ClickType.SWAP))click(p,cargo,kind);
+  h.assertTrue(((Container)plane).getItem(cargo).getCount()==13&&menu.getCarried().isEmpty(),"Actual vanilla click packets after FTB revocation cannot extract, shift-transfer or swap cargo");
+  ClaimRuntimeTests.ftbUnclaim(level,pos);ClaimRuntimeTests.ftbClaim(p,pos);ClaimRuntimeTests.opacUnclaim(level,pos);ClaimRuntimeTests.opacClaim(level,peer.getUUID(),pos);
+  h.assertTrue(!menu.stillValid(p),"OPAC independently invalidates the same open native menu");click(p,cargo,net.minecraft.world.inventory.ClickType.PICKUP);
+  h.assertTrue(((Container)plane).getItem(cargo).getCount()==13&&menu.getCarried().isEmpty(),"Current OPAC denial precedes native inventory mutation");
+  ClaimRuntimeTests.opacUnclaim(level,pos);ClaimRuntimeTests.opacClaim(level,p.getUUID(),pos);
+  DimensionTravelRuntimeTests.seed(p.server,5);click(p,cargo,net.minecraft.world.inventory.ClickType.QUICK_MOVE);
+  h.assertTrue(!menu.stillValid(p)&&((Container)plane).getItem(cargo).getCount()==13,"Post-open tier revocation also refuses native cargo transfer");DimensionTravelRuntimeTests.seed(p.server,6);
+  h.assertTrue(menu.stillValid(p),"Restored real rights revive the original menu without a new aircraft or copied cargo");
+  click(p,cargo,net.minecraft.world.inventory.ClickType.PICKUP);
+  h.assertTrue(((Container)plane).getItem(cargo).isEmpty()&&menu.getCarried().getCount()==13,"Actual authorized native cargo pickup remains functional");
+  click(p,cargo,net.minecraft.world.inventory.ClickType.PICKUP);
+  h.assertTrue(((Container)plane).getItem(cargo).getCount()==13&&menu.getCarried().isEmpty(),"Putting cargo back preserves exact count and empties cursor");p.closeContainer();
+ }
+ private static void click(ServerPlayer p,int slot,net.minecraft.world.inventory.ClickType kind){var menu=p.containerMenu;p.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(menu.containerId,menu.getStateId(),slot,0,kind,ItemStack.EMPTY,new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>()));}
+ private static List<Object> drain(ServerPlayer p){var channel=(io.netty.channel.embedded.EmbeddedChannel)p.connection.getConnection().channel();p.connection.getConnection().flushChannel();channel.runPendingTasks();var result=new ArrayList<Object>();Object packet;while((packet=channel.readOutbound())!=null){if(packet instanceof net.minecraft.network.protocol.game.ClientboundBundlePacket bundle)bundle.subPackets().forEach(result::add);else result.add(packet);}return result;}
  private static boolean floating(ServerPlayer p)throws Exception{var field=net.minecraft.server.network.ServerGamePacketListenerImpl.class.getDeclaredField("clientVehicleIsFloating");field.setAccessible(true);return field.getBoolean(p.connection);}
  private static Object call(Object target,String name)throws Exception{return target.getClass().getMethod(name).invoke(target);}
  private static Object message(String name,Class<?>[] types,Object...args)throws Exception{return Class.forName("immersive_aircraft.network.c2s."+name).getConstructor(types).newInstance(args);}

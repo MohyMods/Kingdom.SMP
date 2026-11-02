@@ -91,7 +91,7 @@ public final class AircraftAccess {
             failure=unavailable="Unverified Immersive Aircraft "+version+"; requires "+VERSION+". World startup refused rather than exposing unverified aircraft access.";
             bus.addListener(EventPriority.HIGHEST,(ServerAboutToStartEvent e)->{throw new IllegalStateException(failure);});return;
         }
-        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();}
+        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();AircraftInventoryAccess.bind();}
         catch(ReflectiveOperationException e){throw new IllegalStateException("Verified aircraft API unavailable; refusing unprotected aircraft access",e);}
         unavailable="";
         bus.addListener(EventPriority.HIGHEST,AircraftAccess::use);
