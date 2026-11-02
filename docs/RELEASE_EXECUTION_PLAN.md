@@ -1,3 +1,5 @@
+> D055: Corin’s real daily flight dispatch is implemented and tested; see AIR_DISPATCH_RUNTIME.md. Continue durable cargo/scouting services and the complete remaining backlog. No intermediate binary release.
+
 > D054 durable workshop repair is verified in AIRCRAFT_REPAIRS.md; D052/D053 purchases/shared crew/recovery/native upgrades remain. Continue actual flight/cargo/scouting services and remaining release requirements without intermediate releases.
 
 > D052/D053 aircraft purchasing/shared crew, native-item authenticated placement/restart, unfinished recovery and six native upgrade shop/fitting flows are verified in AIRCRAFT_PURCHASES.md. Continue repair/cargo/scouting/flight services and the full remaining backlog; no per-feature releases.

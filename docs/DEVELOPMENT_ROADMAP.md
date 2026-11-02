@@ -1,3 +1,5 @@
+> D055: Corin’s real daily flight dispatch is implemented and tested; see AIR_DISPATCH_RUNTIME.md. Continue durable cargo/scouting services and the complete remaining backlog. No intermediate binary release.
+
 > D054 current: Corin workshop repair/refund now has real426unit/native failure-restart/current-claim and ordinary-client acceptance (AIRCRAFT_REPAIRS.md). Continue actual flight/cargo/scouting contracts and remaining approved1.0dependencies; no per-feature binary releases.
 
 > D053 current: actual unfinished-placement recovery and six finite-stock native upgrade purchases/claims/fitting are verified (AIRCRAFT_PURCHASES.md);420JUnit and four dedicated restart/security boots, actual Royal client cancellation and paid propeller fitting. Continue repair/flight/cargo/scouting and remaining release dependencies without intermediate binaries.

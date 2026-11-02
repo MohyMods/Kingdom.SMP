@@ -115,6 +115,64 @@ public final class AircraftState {
     return repair;
   }
 
+  public record FlightKey(UUID pilot, long day) {}
+
+  public record FlightAward(
+      UUID id, UUID pilot, long day, long reward, long budget, UUID registration) {}
+
+  private final Map<FlightKey, FlightAward> flightAwards = new HashMap<>();
+  private final Map<Long, Long> flightSpent = new HashMap<>(), flightBudgets = new HashMap<>();
+
+  public Optional<FlightAward> flightAward(UUID pilot, long day) {
+    return Optional.ofNullable(flightAwards.get(new FlightKey(pilot, day)));
+  }
+
+  public long flightSpent(long day) {
+    return flightSpent.getOrDefault(day, 0L);
+  }
+
+  public OptionalLong flightBudget(long day) {
+    var value = flightBudgets.get(day);
+    return value == null ? OptionalLong.empty() : OptionalLong.of(value);
+  }
+
+  void awardFlight(
+      UUID id,
+      UUID pilot,
+      long day,
+      long reward,
+      long budget,
+      UUID registration,
+      long generation,
+      int minimum,
+      long meters,
+      int samples) {
+    var record = required(registration);
+    if (day < 0
+        || flightAward(pilot, day).isPresent()
+        || !record.permits(pilot)
+        || record.phase() != Phase.ACTIVE
+        || record.generation() != generation
+        || minimum < 32
+        || minimum > 100_000
+        || meters < minimum
+        || meters > 1_000_000
+        || samples < 8
+        || samples > 2_000_000
+        || reward < 1
+        || budget < reward
+        || budget > 1_000_000_000L
+        || flightSpent(day) > budget - reward
+        || flightBudgets.containsKey(day) && flightBudgets.get(day) != budget
+        || !flightBudgets.isEmpty() && day < Collections.max(flightBudgets.keySet()))
+      throw new IllegalStateException(
+          "Dispatch completion, daily quota or shared reward pool is unavailable");
+    flightAwards.put(
+        new FlightKey(pilot, day), new FlightAward(id, pilot, day, reward, budget, registration));
+    flightSpent.put(day, Math.addExact(flightSpent(day), reward));
+    flightBudgets.putIfAbsent(day, budget);
+  }
+
   public static final Set<String> TYPES =
       Set.of(
           "immersive_aircraft:biplane",
@@ -131,6 +189,9 @@ public final class AircraftState {
     next.records.putAll(records);
     next.repairs.putAll(repairs);
     next.deliveredRepairs.putAll(deliveredRepairs);
+    next.flightAwards.putAll(flightAwards);
+    next.flightSpent.putAll(flightSpent);
+    next.flightBudgets.putAll(flightBudgets);
     return next;
   }
 

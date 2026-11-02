@@ -91,7 +91,7 @@ public final class AircraftAccess {
             failure=unavailable="Unverified Immersive Aircraft "+version+"; requires "+VERSION+". World startup refused rather than exposing unverified aircraft access.";
             bus.addListener(EventPriority.HIGHEST,(ServerAboutToStartEvent e)->{throw new IllegalStateException(failure);});return;
         }
-        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();AircraftInventoryAccess.bind();AircraftRepairs.bind(vehicle);}
+        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();AircraftInventoryAccess.bind();AircraftRepairs.bind(vehicle);FlightService.bind();}
         catch(ReflectiveOperationException e){throw new IllegalStateException("Verified aircraft API unavailable; refusing unprotected aircraft access",e);}
         unavailable="";
         bus.addListener(EventPriority.HIGHEST,AircraftAccess::use);
@@ -156,6 +156,7 @@ public final class AircraftAccess {
     private static void interactAt(PlayerInteractEvent.EntityInteractSpecific e){if(e.getEntity() instanceof ServerPlayer p&&aircraft(e.getTarget())&&boardingDenied(p,e.getTarget()))e.setCanceled(true);}
     private static void mount(EntityMountEvent e){var restore=RESTORING.get();if(restore!=null&&restore.player()==e.getEntityMounting()&&restore.vehicle()==e.getEntityBeingMounted())return;if(e.isMounting()&&e.getEntityMounting() instanceof ServerPlayer p&&aircraft(e.getEntityBeingMounted())&&boardingDenied(p,e.getEntityBeingMounted()))e.setCanceled(true);}
     private static void tick(ServerTickEvent.Post e){
+        FlightService.tick(e.getServer());
         // One integrity scan per second for all actual riders, no scans or tickets when nobody is aboard.
         if(e.getServer().getTickCount()%20!=0)return;
         AircraftSales.recover(e.getServer());AircraftRepairs.recover(e.getServer());

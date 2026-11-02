@@ -61,6 +61,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.building.ConstructionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.progression.TierTwoService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.CommerceService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.integration.aircraft.FlightService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.AuctionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.profession.FarmerQuestService.initialize(event.getServer());
         KingdomState state = ContributionService.kingdom(event.getServer());
