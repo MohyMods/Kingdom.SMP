@@ -108,6 +108,20 @@ public final class EconomyStore {
     @FunctionalInterface interface Writer { void write(Path path,CompoundTag tag)throws IOException; }
     private final Path file;private final UUID identity;private final Writer writer;
     private List<Operation> history;
+    /** Sharing the immutable closed prefix avoids copying years of audit references on every transaction. */
+    private static final class JournalHistory extends AbstractList<Operation> implements RandomAccess {
+        final List<Operation> closed,active;
+        JournalHistory(List<Operation> closed,List<Operation> active){this.closed=List.copyOf(closed);this.active=List.copyOf(active);}
+        @Override public int size(){return closed.size()+active.size();}
+        @Override public Operation get(int index){Objects.checkIndex(index,size());return index<closed.size()?closed.get(index):active.get(index-closed.size());}
+    }
+    private static List<Operation> appended(List<Operation> history,Operation op){
+        if(history instanceof JournalHistory journal){var next=new ArrayList<>(journal.active);next.add(op);return new JournalHistory(journal.closed,next);}
+        var next=new ArrayList<>(history);next.add(op);return List.copyOf(next);
+    }
+    private List<Operation> aligned(List<Operation> records){return archivedCount==0?List.copyOf(records):new JournalHistory(records.subList(0,archivedCount),records.subList(archivedCount,records.size()));}
+    private List<EconomyArchive.Segment> archives=List.of();
+    private int archivedCount;
     private Map<UUID,Long> balances=new HashMap<>();
     private Map<String,Purchase> purchases=new HashMap<>();
     private Map<UUID,Mail> mail=new HashMap<>();
@@ -123,13 +137,25 @@ public final class EconomyStore {
     private ContractState contracts=new ContractState();
     private CommunityContractState community=new CommunityContractState();
     private EquipmentState equipment=new EquipmentState();
+    // Rebuilt only from the canonical ordered journal. Never persisted as a second money authority.
+    private record PlayerDay(long day,UUID player) { }
+    private record FarmerFood(UUID player,ProfessionRank rank,String item) { }
+    private final Map<UUID,Operation> operationIndex=new HashMap<>();
+    private final Map<UUID,Long> receiptIndex=new HashMap<>();
+    private final Map<Long,Long> dailyNpcSpent=new HashMap<>();
+    private final Map<ShopDay,Long> dailyResourceSold=new HashMap<>();
+    private final Map<PlayerDay,Long> dailyPlayerProceeds=new HashMap<>();
+    private final Map<FarmerFood,Long> farmerFoodTotals=new HashMap<>();
+    private long latestSalePeriod,equipmentSpent,shopSpent,removedTax;
     private boolean quarantined;
-    private EconomyStore(Path file,UUID identity,Writer writer,List<Operation> history,PendingSale pending,PendingTransfer transfer,PendingItem pendingItem){
-        this.file=file;this.identity=identity;this.writer=writer;this.history=List.copyOf(history);
+    private EconomyStore(Path file,UUID identity,Writer writer,List<Operation> history,PendingSale pending,PendingTransfer transfer,PendingItem pendingItem){this(file,identity,writer,history,pending,transfer,pendingItem,List.of());}
+    private EconomyStore(Path file,UUID identity,Writer writer,List<Operation> history,PendingSale pending,PendingTransfer transfer,PendingItem pendingItem,List<EconomyArchive.Segment> archives){
+        this.file=file;this.identity=identity;this.writer=writer;this.archives=List.copyOf(archives);this.archivedCount=archives.isEmpty()?0:Math.toIntExact(archives.getLast().last());this.history=aligned(history);
         Set<UUID> seen=new HashSet<>();
         for(int i=0;i<history.size();i++){
             var op=history.get(i);if(op.sequence()!=i+1L||!seen.add(op.id()))throw new IllegalArgumentException("Duplicate or unordered economy operation");
             apply(op,balances,purchases,mail,listings,itemMail,orders,shopSold,professionRosters,contracts,community,equipment);
+            index(op);
         }
         this.pending=pending;this.transfer=transfer;this.pendingItem=pendingItem;
         if((pending!=null?1:0)+(transfer!=null?1:0)+(pendingItem!=null?1:0)>1)throw new IllegalArgumentException("Two inventory operations prepared simultaneously");
@@ -145,7 +171,7 @@ public final class EconomyStore {
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
                     ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy());var nextHistory=new ArrayList<>(history);nextHistory.add(op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
+            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy());var nextHistory=appended(history,op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false);
         }
         budget(history,listings,itemMail,mail,orders,false);
     }
@@ -154,16 +180,23 @@ public final class EconomyStore {
         Path file=directory.resolve("kingdomsmp_economy.dat"),seal=directory.resolve("kingdomsmp_economy.created");
         if(Files.exists(file,LinkOption.NOFOLLOW_LINKS)!=Files.exists(seal,LinkOption.NOFOLLOW_LINKS))throw new IOException("Economy journal/identity mismatch; restore matching backup");
         if(!Files.exists(file,LinkOption.NOFOLLOW_LINKS)){
+            Path closed=EconomyArchive.directory(directory);
+            if(Files.exists(closed,LinkOption.NOFOLLOW_LINKS)){
+                if(!Files.isDirectory(closed,LinkOption.NOFOLLOW_LINKS))throw new IOException("Invalid linked economy archive directory; matching journal recovery required");
+                try(var entries=Files.list(closed)){if(entries.findAny().isPresent())throw new IOException("Existing economy archives require their matching journal and identity seal; do not regenerate financial authority");}
+            }
             var s=new EconomyStore(file,UUID.randomUUID(),writer,List.of(),null,null,null);var mark=new CompoundTag();mark.putUUID("identity",s.identity);
             AtomicNbt.write(seal,mark);writer.write(file,s.encode(List.of(),null));return s;
         }
         try{
             var tag=AtomicNbt.read(file);var mark=AtomicNbt.read(seal);
             require(tag,"schema",Tag.TAG_INT);require(tag,"revision",Tag.TAG_LONG);require(tag,"history",Tag.TAG_LIST);
-            if(tag.getInt("schema")!=1||!tag.hasUUID("identity")||!mark.hasUUID("identity")||!tag.getUUID("identity").equals(mark.getUUID("identity")))throw new IOException("Invalid economy identity/schema");
-            var list=tag.getList("history",Tag.TAG_COMPOUND);
-            if(list.size()>MAX_OPERATIONS||list.size()!=((ListTag)tag.get("history")).size()||tag.getLong("revision")!=list.size())throw new IOException("Invalid economy history bounds");
-            List<Operation> operations=new ArrayList<>();for(int i=0;i<list.size();i++)operations.add(decode(list.getCompound(i)));
+            int schema=tag.getInt("schema");if((schema!=1&&schema!=2)||!tag.hasUUID("identity")||!mark.hasUUID("identity")||!tag.getUUID("identity").equals(mark.getUUID("identity")))throw new IOException("Invalid economy identity/schema");
+            if(schema==1&&tag.contains("archives"))throw new IOException("Legacy economy cannot reference archives");
+            List<EconomyArchive.Segment> archives=schema==2?EconomyArchive.descriptors(tag):List.of();
+            var list=tag.getList("history",Tag.TAG_COMPOUND);long archived=archives.isEmpty()?0:archives.getLast().last();
+            if(list.size()>MAX_OPERATIONS||list.size()!=((ListTag)tag.get("history")).size()||tag.getLong("revision")!=archived+list.size()||tag.getLong("revision")>EconomyArchive.MAX_TOTAL_OPERATIONS)throw new IOException("Invalid economy history bounds");
+            List<Operation> operations=new ArrayList<>();if(!archives.isEmpty())for(var row:EconomyArchive.read(directory,tag.getUUID("identity"),archives))operations.add(decode(row));for(int i=0;i<list.size();i++)operations.add(decode(list.getCompound(i)));
             PendingSale pending=null;
             if(tag.contains("pending")){
                 require(tag,"pending",Tag.TAG_COMPOUND);var p=tag.getCompound("pending");
@@ -187,7 +220,7 @@ public final class EconomyStore {
                 if(!p.hasUUID("operation")||!p.hasUUID("player"))throw new IOException("Invalid pending item identity");
                 pendingItem=new PendingItem(p.getLong("sequence"),p.getUUID("operation"),p.getUUID("player"),ItemAction.valueOf(p.getString("action")),p.getCompound("payload"),p.getLong("previousReceipt"));
             }
-            return new EconomyStore(file,tag.getUUID("identity"),writer,operations,pending,transfer,pendingItem);
+            return new EconomyStore(file,tag.getUUID("identity"),writer,operations,pending,transfer,pendingItem,archives);
         }catch(RuntimeException e){throw new IOException("Corrupt economy checkpoint",e);}
     }
     public synchronized UUID id(){return identity;}
@@ -236,7 +269,7 @@ public final class EconomyStore {
         var data=new CompoundTag();data.putString("item",item);data.putInt("goal",goal);data.putInt("unitReward",unitReward);data.putLong("budget",budget);
         return prepareItem(new Operation(history.size()+1L,operation,Kind.COMMUNITY_DELIVERY,player,player,Math.multiplyExact((long)quantity,unitReward),project,project.startsWith("kingdom_smp:fishing_contract/")?"Wharf fishing contract":"Community food contract",null,week,quantity,data),ItemAction.COMMUNITY_DELIVERY);
     }
-    public synchronized long farmerFoodConsumed(UUID player,ProfessionRank band,String item){long total=0;for(var op:history)if(op.kind()==Kind.FARMER_DELIVERY&&op.target().equals(player)&&FarmerQuests.catalog().definition(op.key()).orElseThrow().rank()==band)total=Math.addExact(total,op.payload().getCompound("inputs").getInt(item));return total;}
+    public synchronized long farmerFoodConsumed(UUID player,ProfessionRank band,String item){return farmerFoodTotals.getOrDefault(new FarmerFood(player,band,item),0L);}
     public synchronized long farmerContractPeriods(UUID player,ProfessionRank band,String cycle){return contracts.farmerPeriods.stream().filter(p->p.player().equals(player)&&p.band().equals(band.id())&&p.cycle().equals(cycle)).count();}
     public synchronized long contractPoolSpent(String cycle,long period){return contracts.spent(cycle,period);}
     /** Root pins a real approved repeatable delivery's item/terms and removes actual native inventory. */
@@ -285,8 +318,8 @@ public final class EconomyStore {
     public synchronized long shopSold(long period,String resource){if(period<0)throw new IllegalArgumentException("Invalid trading day");identifier(resource);return shopSold.getOrDefault(new ShopDay(period,resource),0L);}
     /** Canonical origin only: client item names/tags never authorize an earlier claim gate. */
     public synchronized boolean shopDelivery(UUID mail){var op=find(mail);return op!=null&&(op.kind()==Kind.SHOP_BUY||op.kind()==Kind.GEAR_BUY);}
-    public synchronized long equipmentCoinsSpent(){long sum=0;for(var op:history)if(op.kind()==Kind.GEAR_BUY)sum=Math.addExact(sum,op.amount());return sum;}
-    public synchronized long shopCoinsSpent(){long sum=0;for(var op:history)if(op.kind()==Kind.SHOP_BUY)sum=Math.addExact(sum,op.amount());return sum;}
+    public synchronized long equipmentCoinsSpent(){return equipmentSpent;}
+    public synchronized long shopCoinsSpent(){return shopSpent;}
     /** Debit, finite stock consumption and recoverable delivery commit together. Root validates real counter/catalogue. */
     public synchronized ItemMail shopBuy(UUID operation,UUID buyer,String resource,String title,CompoundTag item,int quantity,long period,int stock,long minimum,long maximum)throws IOException{
         identifier(resource);var data=new CompoundTag();data.put("item",checkedItem(item));data.putInt("stock",stock);data.putLong("minimum",minimum);data.putLong("maximum",maximum);
@@ -295,13 +328,8 @@ public final class EconomyStore {
         if(!replayed(op))append(op);return itemMail.get(operation);
     }
     /** Permanently removed from circulation by explicit D-029 approval; retained for audit only. */
-    public synchronized long taxRemoved(){long total=0;for(var op:history){
-        if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)total=Math.addExact(total,tax(op.amount(),listings.get(op.reference()).master()));
-        else if(op.kind()==Kind.FILL_ORDER)total=Math.addExact(total,tax(op.amount(),orders.get(op.reference()).master()));
-    }return total;}
-    public synchronized long expectedReceipt(UUID player){
-        for(int i=history.size()-1;i>=0;i--){var op=history.get(i);if((op.kind()==Kind.SALE||op.kind()==Kind.TRANSFER||op.kind()==Kind.LIST_ITEM||op.kind()==Kind.CLAIM_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.FARMER_DELIVERY||op.kind()==Kind.COMMUNITY_DELIVERY)&&op.target().equals(player))return op.sequence();}return 0;
-    }
+    public synchronized long taxRemoved(){return removedTax;}
+    public synchronized long expectedReceipt(UUID player){return receiptIndex.getOrDefault(player,0L);}
     /** Caller must require operator permission, exact-target confirmation and a reason. */
     public synchronized void adminSet(UUID operation,UUID actor,UUID target,long amount,String reason)throws IOException{
         var op=operation(operation,Kind.ADMIN_SET,actor,target,amount,"admin",reason,null,0,0);
@@ -335,15 +363,13 @@ public final class EconomyStore {
     }
     public synchronized Usage usage(long period,String resource,UUID player){
         if(period<0)throw new IllegalArgumentException("Invalid trading period");identifier(resource);Objects.requireNonNull(player);
-        long spent=0,quantity=0,personal=0;
-        for(var op:history)if(op.kind()==Kind.SALE&&op.period()==period){spent=Math.addExact(spent,op.amount());if(op.key().equals(resource))quantity=Math.addExact(quantity,op.quantity());if(op.target().equals(player))personal=Math.addExact(personal,op.amount());}
-        return new Usage(spent,quantity,personal);
+        return new Usage(dailyNpcSpent.getOrDefault(period,0L),dailyResourceSold.getOrDefault(new ShopDay(period,resource),0L),dailyPlayerProceeds.getOrDefault(new PlayerDay(period,player),0L));
     }
     /** Budget/allowance are coins, resourceQuota is units; period is server-derived UTC day. */
     public synchronized PendingSale prepareSale(UUID operation,UUID player,String resource,int quantity,long proceeds,long period,long sharedBudget,long resourceQuota,long playerAllowance)throws IOException{
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy has an inventory operation pending recovery");
         if(find(operation)!=null)throw new IllegalArgumentException("Inventory sale operation already committed");
-        long latest=history.stream().filter(o->o.kind()==Kind.SALE).mapToLong(Operation::period).max().orElse(0);
+        long latest=latestSalePeriod;
         if(period<latest)throw new IllegalArgumentException("Trading period cannot move backwards");
         money(sharedBudget);money(playerAllowance);if(resourceQuota<0)throw new IllegalArgumentException("Invalid resource quota");
         var next=new PendingSale(history.size()+1L,operation,player,resource,quantity,proceeds,period,expectedReceipt(player));
@@ -407,7 +433,8 @@ public final class EconomyStore {
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy paused for inventory reconciliation");
         if(find(op.id())!=null)throw new IllegalArgumentException("Native item operation already committed");
         var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy());var nextHistory=new ArrayList<>(history);nextHistory.add(op);
+        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy());var nextHistory=appended(history,op);
+        maybeArchive();
         budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,action==ItemAction.LIST||action==ItemAction.TIMED_LIST||action==ItemAction.ORDER_FILL||action==ItemAction.CONTRACT_DELIVERY||action==ItemAction.COMMUNITY_DELIVERY);
         var item=new PendingItem(op.sequence(),op.id(),op.actor(),action,encodeOperation(op),expectedReceipt(op.actor()));persist(history,null,null,item);pendingItem=item;return item;
     }
@@ -489,12 +516,48 @@ public final class EconomyStore {
     private Operation operation(UUID id,Kind kind,UUID actor,UUID target,long amount,String key,String detail,UUID reference,long period,int quantity){
         return new Operation(history.size()+1L,id,kind,actor,target,amount,key,detail,reference,period,quantity);
     }
-    private Operation find(UUID id){Objects.requireNonNull(id);return history.stream().filter(o->o.id().equals(id)).findFirst().orElse(null);}
+    private Operation find(UUID id){return operationIndex.get(Objects.requireNonNull(id));}
     private boolean replayed(Operation next){
         healthy();var old=find(next.id());if(old==null)return false;
         if(old.kind()!=next.kind()||!old.actor().equals(next.actor())||!old.target().equals(next.target())||old.amount()!=next.amount()||!old.key().equals(next.key())
                 ||!old.detail().equals(next.detail())||!Objects.equals(old.reference(),next.reference())||old.period()!=next.period()||old.quantity()!=next.quantity()||!old.payload().equals(next.payload()))throw new IllegalArgumentException("Operation ID reused for different transaction");
         return true;
+    }
+    /** Publish derived lookup state only after a validated replay or successful durable append. */
+    private void index(Operation op){
+        operationIndex.put(op.id(),op);
+        if(switch(op.kind()){case SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,COMMUNITY_DELIVERY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
+        if(op.kind()==Kind.SALE){latestSalePeriod=Math.max(latestSalePeriod,op.period());dailyNpcSpent.merge(op.period(),op.amount(),Math::addExact);dailyResourceSold.merge(new ShopDay(op.period(),op.key()),(long)op.quantity(),Math::addExact);dailyPlayerProceeds.merge(new PlayerDay(op.period(),op.target()),op.amount(),Math::addExact);}
+        if(op.kind()==Kind.GEAR_BUY)equipmentSpent=Math.addExact(equipmentSpent,op.amount());
+        if(op.kind()==Kind.SHOP_BUY)shopSpent=Math.addExact(shopSpent,op.amount());
+        if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)removedTax=Math.addExact(removedTax,tax(op.amount(),listings.get(op.reference()).master()));
+        else if(op.kind()==Kind.FILL_ORDER)removedTax=Math.addExact(removedTax,tax(op.amount(),orders.get(op.reference()).master()));
+        if(op.kind()==Kind.FARMER_DELIVERY){var rank=FarmerQuests.catalog().definition(op.key()).orElseThrow().rank();var inputs=op.payload().getCompound("inputs");for(var item:inputs.getAllKeys())farmerFoodTotals.merge(new FarmerFood(op.target(),rank,item),(long)inputs.getInt(item),Math::addExact);}
+    }
+    public record ArchiveStatus(long revision,int activeOperations,int closedSegments,long reservedOperations,int activeBytes,boolean nativePending){}
+    public synchronized ArchiveStatus archiveStatus(){healthy();return new ArchiveStatus(history.size(),history.size()-archivedCount,archives.size(),reservedOperations(listings,itemMail,mail,orders),encodedBytes(encode(history,null,null,null)),pending!=null||transfer!=null||pendingItem!=null);}
+    /** Server-authorized metadata maintenance only. Does not reset IDs, balances, global sequences or native receipts. */
+    public synchronized ArchiveStatus archive(UUID actor,String reason)throws IOException{healthy();return archiveTo(history.size(),actor,reason);}
+    private void maybeArchive()throws IOException{
+        if(pending!=null||transfer!=null||pendingItem!=null)return;
+        int active=history.size()-archivedCount;
+        if(active>=8192||active>128&&encodedBytes(encode(history,null,null,null))>=MAX_LISTING_JOURNAL_BYTES)archiveTo(history.size()-128,new UUID(0,0),"Automatic closed-journal rotation");
+    }
+    private ArchiveStatus archiveTo(int cutoff,UUID actor,String reason)throws IOException{
+        if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Resolve the matching native inventory checkpoint before archiving");
+        Objects.requireNonNull(actor);text(reason,128);if(cutoff<=archivedCount)return archiveStatus();
+        List<ListTag> batches=new ArrayList<>();int cursor=archivedCount;
+        while(cursor<cutoff){var batch=new ListTag();int bytes=512;while(cursor<cutoff&&batch.size()<EconomyArchive.MAX_SEGMENT_OPERATIONS){var row=encodeOperation(history.get(cursor));int size=encodedBytes(row);if(!batch.isEmpty()&&bytes+size>EconomyArchive.MAX_SEGMENT_BYTES)break;if(bytes+size>EconomyArchive.MAX_SEGMENT_BYTES)throw new IllegalStateException("An economy record exceeds immutable segment capacity");batch.add(row);bytes+=size;cursor++;}batches.add(batch);}
+        if(archives.size()+batches.size()>EconomyArchive.MAX_SEGMENTS)throw new IllegalStateException("Economy archive manifest limit reached; preserve and review the complete audit before extending capacity");
+        var oldArchives=archives;int oldCount=archivedCount;var next=new ArrayList<>(archives);String previous=next.isEmpty()?"":next.getLast().sha256();long first=archivedCount+1L;
+        try{
+            for(var batch:batches){var segment=EconomyArchive.seal(file.getParent(),identity,first,previous,batch,actor,reason);next.add(segment);first=segment.last()+1;previous=segment.sha256();}
+            // Reject any malformed new chain before changing the authoritative pointer or native inventory.
+            EconomyArchive.read(file.getParent(),identity,next);
+            archives=List.copyOf(next);archivedCount=cutoff;persist(history,null,null,null);history=aligned(history);
+        }catch(IOException|RuntimeException failure){archives=oldArchives;archivedCount=oldCount;quarantined=true;throw failure;}
+        com.mojang.logging.LogUtils.getLogger().info("ECONOMY_ARCHIVE identity={} actor={} reason={} closedThrough={} segments={} revision={}",identity,actor,reason,archivedCount,archives.size(),history.size());
+        return archiveStatus();
     }
     private void healthy(){if(quarantined)throw new IllegalStateException("Economy storage quarantined; restart and reconcile matching checkpoints");}
     private static long reservedOperations(Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,Map<UUID,BuyOrder> orders){
@@ -502,13 +565,13 @@ public final class EconomyStore {
     }
     private void budget(List<Operation> operations,Map<UUID,Listing> listings,Map<UUID,ItemMail> items,Map<UUID,Mail> mail,Map<UUID,BuyOrder> orders,boolean listingAdmission){
         long reserved=reservedOperations(listings,items,mail,orders);int bytes=encodedBytes(encode(operations,null,null,null));
-        if(operations.size()+reserved>MAX_OPERATIONS||bytes+reserved*1024>MAX_JOURNAL_BYTES||listingAdmission&&bytes>MAX_LISTING_JOURNAL_BYTES)
-            throw new IllegalStateException("Economy archive required; existing escrow recovery capacity is reserved");
+        if(operations.size()+reserved>EconomyArchive.MAX_TOTAL_OPERATIONS||operations.size()-archivedCount+reserved>MAX_OPERATIONS||bytes+reserved*1024>MAX_JOURNAL_BYTES||listingAdmission&&bytes>MAX_LISTING_JOURNAL_BYTES)
+            throw new IllegalStateException("Economy journal/archive admission limit reached; inspect administrator archive status. Existing escrow recovery capacity remains reserved");
     }
-    private void capacity(){
-        long reserved=reservedOperations(listings,itemMail,mail,orders);
-        if(history.size()+1L+reserved>MAX_OPERATIONS||encodedBytes(encode(history,null,null,null))+1024L+reserved*1024>MAX_JOURNAL_BYTES)
-            throw new IllegalStateException("Economy archive required; existing escrow recovery capacity is reserved");
+    private void capacity()throws IOException{
+        maybeArchive();long reserved=reservedOperations(listings,itemMail,mail,orders);
+        if(history.size()+1L+reserved>EconomyArchive.MAX_TOTAL_OPERATIONS||history.size()-archivedCount+1L+reserved>MAX_OPERATIONS||encodedBytes(encode(history,null,null,null))+1024L+reserved*1024>MAX_JOURNAL_BYTES)
+            throw new IllegalStateException("Economy journal/archive admission limit reached; inspect administrator archive status. Existing escrow recovery capacity remains reserved");
     }
     private static int encodedBytes(CompoundTag data){
         try{var bytes=new ByteArrayOutputStream();NbtIo.write(data,new DataOutputStream(bytes));return bytes.size();}
@@ -519,9 +582,10 @@ public final class EconomyStore {
     }
     private void appendResolved(Operation op)throws IOException{
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();var nextCommunity=community.copy();var nextEquipment=equipment.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts,nextCommunity,nextEquipment);var next=new ArrayList<>(history);next.add(op);
+        var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();var nextCommunity=community.copy();var nextEquipment=equipment.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts,nextCommunity,nextEquipment);var next=appended(history,op);
+        if(pending==null&&transfer==null&&pendingItem==null)maybeArchive();
         budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.COMMUNITY_DELIVERY||op.kind()==Kind.GEAR_BUY||op.kind()==Kind.HUNT_ACCEPT);persist(next,null);
-        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=List.copyOf(next);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;community=nextCommunity;equipment=nextEquipment;pendingItem=null;
+        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=appended(history,op);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;community=nextCommunity;equipment=nextEquipment;pendingItem=null;index(op);
     }
     private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold,Map<UUID,ProfessionRoster> professionRosters,ContractState contracts,CommunityContractState community,EquipmentState equipment){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
@@ -757,8 +821,9 @@ public final class EconomyStore {
     private CompoundTag encode(List<Operation> operations,PendingSale next){return encode(operations,next,null);}
     private CompoundTag encode(List<Operation> operations,PendingSale next,PendingTransfer transfer){return encode(operations,next,transfer,null);}
     private CompoundTag encode(List<Operation> operations,PendingSale next,PendingTransfer transfer,PendingItem item){
-        var tag=new CompoundTag();tag.putInt("schema",1);tag.putUUID("identity",identity);tag.putLong("revision",operations.size());
-        var list=new ListTag();for(var op:operations)list.add(encodeOperation(op));tag.put("history",list);
+        var tag=new CompoundTag();tag.putInt("schema",archives.isEmpty()?1:2);tag.putUUID("identity",identity);tag.putLong("revision",operations.size());
+        if(!archives.isEmpty())tag.put("archives",EconomyArchive.descriptors(archives));
+        var list=new ListTag();for(int i=archivedCount;i<operations.size();i++)list.add(encodeOperation(operations.get(i)));tag.put("history",list);
         if(next!=null){var p=new CompoundTag();p.putLong("sequence",next.sequence());p.putUUID("operation",next.operation());p.putUUID("player",next.player());p.putString("resource",next.resource());p.putInt("quantity",next.quantity());p.putLong("proceeds",next.proceeds());p.putLong("period",next.period());p.putLong("previousReceipt",next.previousReceipt());tag.put("pending",p);}
         if(transfer!=null){var p=new CompoundTag();p.putLong("sequence",transfer.sequence());p.putUUID("operation",transfer.operation());p.putUUID("player",transfer.player());p.putLong("delta",transfer.delta());p.putLong("previousReceipt",transfer.previousReceipt());tag.put("transfer",p);}
         if(item!=null){var p=new CompoundTag();p.putLong("sequence",item.sequence());p.putUUID("operation",item.operation());p.putUUID("player",item.player());p.putString("action",item.action().name());p.put("payload",item.payload());p.putLong("previousReceipt",item.previousReceipt());tag.put("pendingItem",p);}

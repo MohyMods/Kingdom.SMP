@@ -87,7 +87,8 @@ public final class PlacementProtection {
             }
             if (ModList.get().isLoaded("openpartiesandclaims")) {
                 requireVersion("openpartiesandclaims", "0.33.0"); Object protection=Opac.PROTECTION.invoke(Opac.API.invoke(null,actor.server));
-                if (bool(Opac.ENTITY_INTERACTION.invoke(protection,null,actor,target,actor.getMainHandItem(),InteractionHand.MAIN_HAND,false,false,true)))
+                // Counter buttons do not use the held item on the NPC/world. Normal right-click events still check real item use.
+                if (bool(Opac.ENTITY_INTERACTION.invoke(protection,null,actor,target,net.minecraft.world.item.ItemStack.EMPTY,InteractionHand.MAIN_HAND,false,false,true)))
                     return "Open Parties and Claims denies interaction with this resident.";
             }
             return null;

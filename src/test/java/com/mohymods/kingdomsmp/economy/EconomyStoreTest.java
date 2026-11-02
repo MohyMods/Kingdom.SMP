@@ -225,4 +225,13 @@ class EconomyStoreTest {
         assertEquals(1000,s.balance(player));
     }
 
+    @Test void dailyAndReceiptLookupsReplayAllPlayersResourcesAndOnlyCommittedPeriods()throws Exception{
+        var s=open();var first=s.prepareSale(UUID.randomUUID(),player,"minecraft:wheat",64,64,123,1000,1000,1000);s.recoverSale(new EconomyStore.Receipt(s.id(),first.sequence()));
+        var second=s.prepareSale(UUID.randomUUID(),other,"minecraft:stone",32,16,123,1000,1000,1000);s.recoverSale(new EconomyStore.Receipt(s.id(),second.sequence()));
+        assertEquals(new EconomyStore.Usage(80,64,64),s.usage(123,"minecraft:wheat",player));assertEquals(new EconomyStore.Usage(80,32,16),s.usage(123,"minecraft:stone",other));
+        var canceled=s.prepareSale(UUID.randomUUID(),player,"minecraft:wheat",4,8,124,1000,1000,1000);assertEquals(new EconomyStore.Usage(0,0,0),s.usage(124,"minecraft:wheat",player));
+        assertFalse(s.recoverSale(new EconomyStore.Receipt(s.id(),first.sequence())));assertEquals(first.sequence(),s.expectedReceipt(player));assertEquals(second.sequence(),s.expectedReceipt(other));
+        var last=s.prepareSale(UUID.randomUUID(),player,"minecraft:wheat",2,2,123,1000,1000,1000);s.recoverSale(new EconomyStore.Receipt(s.id(),last.sequence()));
+        var restored=open();assertEquals(3,restored.revision());assertEquals(new EconomyStore.Usage(82,66,66),restored.usage(123,"minecraft:wheat",player));assertEquals(new EconomyStore.Usage(0,0,0),restored.usage(124,"minecraft:wheat",player));assertEquals(last.sequence(),restored.expectedReceipt(player));assertEquals(second.sequence(),restored.expectedReceipt(other));assertEquals(66,restored.balance(player));assertEquals(16,restored.balance(other));
+    }
 }

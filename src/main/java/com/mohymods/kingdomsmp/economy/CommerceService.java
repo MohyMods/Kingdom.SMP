@@ -278,6 +278,7 @@ public final class CommerceService {
         .then(Commands.literal("open").executes(c->{CommerceNetworking.open(c.getSource().getPlayerOrException(),0);return 1;}))
         .then(Commands.literal("balance").executes(c->{var p=c.getSource().getPlayerOrException();c.getSource().sendSuccess(()->Component.literal("Available purse: "+store(p.server).balance(p.getUUID())+" coins."),false);return 1;}));}
     public static LiteralArgumentBuilder<CommandSourceStack> adminCommands(){return Commands.literal("economy")
+        .then(EconomyArchiveCommands.commands())
         .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).executes(c->{var p=EntityArgument.getPlayer(c,"player");var s=store(p.server);c.getSource().sendSuccess(()->Component.literal("Economy "+s.id()+" revision "+s.revision()+" · "+p.getGameProfile().getName()+": "+s.balance(p.getUUID())+" coins · pending "+s.pendingSale().isPresent()+" · quarantined "+s.quarantined()),false);return 1;})))
         .then(Commands.literal("set").requires(s->s.hasPermission(4)).then(Commands.argument("player",EntityArgument.player()).then(Commands.argument("coins",LongArgumentType.longArg(0,EconomyStore.MAX_COINS))
             .executes(c->{c.getSource().sendSuccess(()->Component.literal("Review the exact player/coin amount; append confirm <reason> to change the real balance."),false);return 1;})

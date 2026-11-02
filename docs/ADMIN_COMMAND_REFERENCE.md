@@ -1,3 +1,7 @@
+## Durable journal maintenance
+
+Permission4: `/kingdom admin economy archive inspect`, `review <reason>`, and the resulting clickable `confirm <nonce>`. Reviews expire60seconds and bind the actor and unchanged journal. Pending native inventory work refuses; balances/revision/IDs never reset. Back up the complete world including closed segments and matching player saves. [Format, bounds and recovery](ECONOMY_ARCHIVES.md).
+
 ## 0.11 actual NPC market inspection
 
 `/kingdom admin market inspect` reports canonical daily purchased/sold quantities, buying-budget usage, configured buying/selling bounds, finite stock and cumulative NPC purchase coin sink. It uses the existing administrator permission. Daily restocking is derived automatically from UTC day; no new manual restock or economic repair command is claimed in this slice.
