@@ -34,13 +34,13 @@ Current authority: [D-023 master directive](sources/MASTER_IMPLEMENTATION_DIRECT
 | Owner physical Hut plan/bootstrap | Implemented and tested | One-time owner assignment, authenticated recoverable plan, native instant bootstrap, one Aldric |
 | 19×15 two-floor Town Hall / Steward | Implemented; live acceptance in checkpoint report | Original furnished building, authenticated plans, Aldric construction, persistent Elara identity and actual progress services |
 | Automatic valid-site authorization | Implemented and tested | Full existing server checks, both claims adapters, new profile only; legacy admin review retained |
-| Four-block non-destructive foundations | Not implemented | Current sites still require existing complete terrain support |
-| Architect first-buyer market / pre-Bank payment | Not implemented | One primary entitlement, atomic stock/charge, reviewed 500–15k building prices and recovery |
-| Tier 3 Royal Bank / economy / auctions / transfers | Not implemented | Approved service gates; transaction/escrow recovery and unresolved exact policies |
-| Tier 3 Bounty Hall / Fisherman's Wharf | Approved scope; not implemented | Their real services; proposed blueprint prices remain unapproved |
+| Four-block non-destructive foundations | Implemented and verified for public and initial Hut plans | Immutable supports, both claims, real process restarts and copied legacy preservation; keep full-pack acceptance open |
+| Architect first-buyer market / pre-Bank payment | Implemented and verified | Unique physical entitlements, canonical purse/stock/mail and six building definitions; ordinary numerical defaults under D-024, no per-feature releases |
+| Tier 3 Royal Bank / economy / auctions / transfers | Implemented and verified slices | Native receipts, bank, fixed/timed auctions, buy orders, permanent tax sink; long-term capacity, balance and full-pack acceptance remain open |
+| Tier 3 Bounty Hall / Fisherman's Wharf | Functional services implemented; reduced-pack runtime/client verification | Garrick provisions/hunts; Tomas fish market, weekly deliveries, actual catch collection and recognition derby; exact Aquaculture2.7.21; long-term/full-pack acceptance remains open |
 | Later contribution/resource tiers | Proposed, inactive | Diverse acquisition; no inaccessible or circular prerequisites; approve balance/scoring/objectives before activation |
-| Twelve professions / 288 quests | Not implemented | Approved definitions/XP/rank data; validate one representative profession first; no filler quests |
-| FTB Quests journal integration | Reported installed, not integrated | Exact 2101.1.37 artifact/API, real chapters/team/personal sync and no duplicate reward paths |
+| Twelve professions / 288 quests | Canonical roster and approved Farmer24 implemented | Full accelerated earned Farmer native loop passes; all24 graphical/natural-duration balance and remaining264definitions/nine building gates remain open; no invented filler |
+| FTB Quests journal integration | Exact2101.1.37 nine-task read-only settlement projection loads | Real campaign/personal-team acceptance and full actual-content chapters remain open; stable task IDs and no duplicate rewards |
 | Vanilla realm entry | Nether5 / End12 tested | Unknown mod routes, already-inside policy and actual Tier12 arrival remain unverified |
 | Aether4 / Twilight6 / Otherside8 / space10–11 / Waystones9 | Not integrated | Exact artifacts, recipes, alternate routes and non-End prerequisites |
 | Aerodrome / aircraft | Not implemented | Tier≥6 AND completed Aerodrome; actual Immersive Aircraft adapter, reviewed type schedule |

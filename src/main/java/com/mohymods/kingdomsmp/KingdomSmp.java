@@ -45,6 +45,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.register(NeoForge.EVENT_BUS,com.mohymods.kingdomsmp.integration.ftbquests.AuthoritativeQuestSnapshot::read);
         com.mohymods.kingdomsmp.profession.FarmerQuestService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.bounty.HuntService.register(NeoForge.EVENT_BUS);
+        com.mohymods.kingdomsmp.fishing.FishingCatchService.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
     }

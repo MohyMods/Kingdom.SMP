@@ -14,7 +14,7 @@ public enum KingdomQuestGoal {
     public static final String VERSIONED_PREFIX = TAG_PREFIX + "v1/";
     public static final long CHAPTER_ID = 0x4B534D5000000001L;
     private static final Map<String,Integer> PAID_BUILDINGS = Map.of("kingdom_smp:farmers_house",2,
-            "kingdom_smp:builders_workshop",2,"kingdom_smp:lumberjacks_lodge",2,"kingdom_smp:royal_bank",3,"kingdom_smp:royal_bounty_hall",3);
+            "kingdom_smp:builders_workshop",2,"kingdom_smp:lumberjacks_lodge",2,"kingdom_smp:royal_bank",3,"kingdom_smp:royal_bounty_hall",3,"kingdom_smp:fishermans_wharf",3);
     private final String key;
     private final int sequence;
 

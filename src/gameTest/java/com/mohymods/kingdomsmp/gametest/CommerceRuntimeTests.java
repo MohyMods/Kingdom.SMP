@@ -37,6 +37,9 @@ public final class CommerceRuntimeTests {
         var definition=BlueprintRegistry.get(hall.blueprint(),hall.blueprintVersion());
         var counter=hall.origin().offset(definition.rotate(definition.home(),hall.rotation()));
         near(winner,counter,0);near(other,counter,-1);
+        ClaimRuntimeTests.publicResidentAccess(level,winner.getUUID()); // Legitimate owner-configured public NPC access; no block-edit or administrator bypass.
+        h.assertTrue(com.mohymods.kingdomsmp.placement.PlacementProtection.entityInteraction(other,level.getEntity(hall.npc()))==null,"Public resident exceptions permit the ordinary second customer");
+        h.assertTrue(com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,other,counter,counter)!=null,"Public service access does not grant terrain-edit permission");
         var money=CommerceService.store(server);
         h.assertTrue(money.balance(winner.getUUID())==0,"Early income starts with no fabricated wallet balance");
 

@@ -525,8 +525,9 @@ public final class ConstructionService {
             player.sendSystemMessage(Component.literal("The resident is unavailable: check the completed building, proximity and registered identity."));return;
         }
         if(purchased(p)){
-            try{requireTier(player.server,p);}catch(IllegalStateException denied){player.sendSystemMessage(Component.literal(denied.getMessage()));return;}
-            com.mohymods.kingdomsmp.economy.CommerceService.openResident(player,reeve);return;
+            try{requireTier(player.server,p);com.mohymods.kingdomsmp.economy.CommerceService.openResident(player,reeve);}
+            catch(IllegalArgumentException|IllegalStateException denied){player.sendSystemMessage(Component.literal(denied.getMessage()));}
+            return;
         }
         select(player,p.id());
         ConstructionNetworking.open(player,resident(player.server,p)+(hall(p)?" — Royal Steward: A kingdom is a promise kept together. I will keep our accounts of progress; you decide our future.":" — Reeve: Every beam has a builder, every gift a name. I keep the record; you write our history.")+" Choose Community milestone or Kingdom overview below.");

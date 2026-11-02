@@ -37,7 +37,7 @@ public final class CommerceService {
     private static final Map<ServerPlayer,UUID> COUNTERS=new WeakHashMap<>();
     private record Quote(UUID nonce,long revision,int tab,String selected,int quantity,long amount,long period,long issued,List<ItemStack> inventory) { }
     private CommerceService() { }
-    public static void initialize(MinecraftServer server){STORES.remove(server);CATALOGS.remove(server);QUOTES.keySet().removeIf(p->p.server==server);COUNTERS.keySet().removeIf(p->p.server==server);BuyOrderService.initialize(server);MarketService.initialize(server);com.mohymods.kingdomsmp.profession.ProfessionService.initialize(server);store(server);}
+    public static void initialize(MinecraftServer server){STORES.remove(server);CATALOGS.remove(server);QUOTES.keySet().removeIf(p->p.server==server);COUNTERS.keySet().removeIf(p->p.server==server);BuyOrderService.initialize(server);MarketService.initialize(server);com.mohymods.kingdomsmp.fishing.FishingService.initialize(server);com.mohymods.kingdomsmp.profession.ProfessionService.initialize(server);store(server);}
     public static CommerceCatalog catalog(MinecraftServer server){
         var c=CATALOGS.get(server);if(c!=null)return c;
         try{c=CommerceCatalog.load(server.getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-commerce.json"));CATALOGS.put(server,c);return c;}
@@ -67,33 +67,53 @@ public final class CommerceService {
         try{verifyReceipt(p,store(p.server));}
         catch(IOException|RuntimeException e){LogUtils.getLogger().error("Economy player checkpoint mismatch {}",p.getUUID(),e);p.connection.disconnect(Component.literal("Economy checkpoint needs recovery. Restore matching player and kingdom data."));}
     }
-    public static void logout(PlayerEvent.PlayerLoggedOutEvent event){if(event.getEntity() instanceof ServerPlayer p){QUOTES.remove(p);COUNTERS.remove(p);BankService.close(p);AuctionService.close(p);BuyOrderService.close(p);com.mohymods.kingdomsmp.profession.ProfessionService.close(p);com.mohymods.kingdomsmp.profession.ContractService.close(p);com.mohymods.kingdomsmp.progression.TierTwoService.close(p);}}
+    public static void logout(PlayerEvent.PlayerLoggedOutEvent event){if(event.getEntity() instanceof ServerPlayer p){QUOTES.remove(p);COUNTERS.remove(p);com.mohymods.kingdomsmp.fishing.FishingService.close(p);BankService.close(p);AuctionService.close(p);BuyOrderService.close(p);com.mohymods.kingdomsmp.profession.ProfessionService.close(p);com.mohymods.kingdomsmp.profession.ContractService.close(p);com.mohymods.kingdomsmp.progression.TierTwoService.close(p);}}
     public static void openResident(ServerPlayer player,ReeveEntity resident){
         if(!ConstructionService.registeredReeve(resident)||!player.hasLineOfSight(resident)||player.distanceToSqr(resident)>64)throw new IllegalStateException("Visit the registered resident at the completed building.");
-        COUNTERS.put(player,resident.getUUID());var project=ConstructionService.projectForResident(resident);int tab=project!=null&&project.blueprint().equals(RoyalBankBlueprint.ID)?3:project!=null&&project.blueprint().equals(RoyalBountyHallBlueprint.ID)?8:1;String greeting=project==null?"":resident.getName().getString()+" — "+BlueprintRegistry.greeting(project.blueprint());net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,snapshot(player,0,tab,greeting).withOpen(true));
+        String denial=com.mohymods.kingdomsmp.placement.PlacementProtection.entityInteraction(player,resident);if(denial!=null)throw new IllegalStateException(denial);
+        com.mohymods.kingdomsmp.fishing.FishingService.close(player);COUNTERS.put(player,resident.getUUID());var project=ConstructionService.projectForResident(resident);int tab=project!=null&&project.blueprint().equals(RoyalBankBlueprint.ID)?3:project!=null&&project.blueprint().equals(RoyalBountyHallBlueprint.ID)?8:1;String greeting=project==null?"":resident.getName().getString()+" — "+BlueprintRegistry.greeting(project.blueprint());net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,snapshot(player,0,tab,greeting).withOpen(true));
     }
     public static void requireResidentCounter(ServerPlayer player){requireCounter(player);}
+    public static com.mohymods.kingdomsmp.persistence.ConstructionStore.Project counterProject(ServerPlayer player){var selected=COUNTERS.get(player);var entity=selected==null?null:player.serverLevel().getEntity(selected);return entity instanceof ReeveEntity npc&&ConstructionService.registeredReeve(npc)?ConstructionService.projectForResident(npc):null;}
+    private static void buildingDependencies(String id){if(id.equals(FishermansWharfBlueprint.ID.toString()))com.mohymods.kingdomsmp.fishing.AquacultureAccess.require();}
+
     static void requireCounter(ServerPlayer player){
         if(!player.isAlive()||player.isSpectator()||player.serverLevel()!=player.server.overworld()||player.containerMenu!=player.inventoryMenu||!player.containerMenu.getCarried().isEmpty()
                 ||player.gameMode.getGameModeForPlayer()!=GameType.SURVIVAL&&player.gameMode.getGameModeForPlayer()!=GameType.ADVENTURE)throw new IllegalStateException("Trade alive in Survival/Adventure with containers closed.");
         if(ContributionService.kingdom(player.server).attainedTier()<2)throw new IllegalStateException("Royal commerce opens at Tier 2.");
         // Reopening the exchange by command after login must work at the actual Bank,
         // without relying on an earlier NPC interaction cached in this process.
-        try{BankService.requireCounter(player);return;}catch(IllegalStateException unavailable){ }
-        UUID selected=COUNTERS.get(player);var home=ConstructionService.lodge(player.server);
+        UUID selected=COUNTERS.get(player);
+        if(selected==null)try{BankService.requireCounter(player);return;}catch(IllegalStateException unavailable){ }
+        var home=ConstructionService.lodge(player.server);
         if(selected==null&&home!=null)selected=home.npc();
         var entity=selected==null?null:player.serverLevel().getEntity(selected);
         if(!(entity instanceof ReeveEntity npc)||!npc.isAlive()||!ConstructionService.registeredReeve(npc)||player.distanceToSqr(npc)>64||!player.hasLineOfSight(npc))throw new IllegalStateException("Visit Elara or an assigned resident within eight blocks and clear sight.");
+        String denial=com.mohymods.kingdomsmp.placement.PlacementProtection.entityInteraction(player,npc);if(denial!=null)throw new IllegalStateException(denial);
         var p=ConstructionService.projectForResident(npc);
         if(p==null||!ConstructionService.structureIntact(player.serverLevel(),p))throw new IllegalStateException("The service building is damaged or unloaded.");
+        if(p.blueprint().equals(RoyalBankBlueprint.ID)){BankService.requireCounter(player);return;}
         var hall=ConstructionService.lodge(player.server);
         if(hall==null||hall.phase()!=Phase.COMPLETE||hall.npcDead()||!ConstructionService.structureIntact(player.serverLevel(),hall))throw new IllegalStateException("Complete and maintain the kingdom headquarters before using commerce.");
     }
     public static CommerceView handle(ServerPlayer player,CommerceRequest request){
-        if(request.action()==4){QUOTES.remove(player);COUNTERS.remove(player);BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);return snapshot(player,request.requestId(),request.tab(),"");}
+        if(request.action()==4){QUOTES.remove(player);COUNTERS.remove(player);com.mohymods.kingdomsmp.fishing.FishingService.close(player);BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);return snapshot(player,request.requestId(),request.tab(),"");}
         String notice="";
         try{
-            if(request.action()==0){AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);QUOTES.remove(player);}
+            if(request.action()==0){com.mohymods.kingdomsmp.fishing.FishingService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);QUOTES.remove(player);}
+            if(request.tab()==1&&(request.selected().startsWith("fish:")||request.action()==2&&com.mohymods.kingdomsmp.fishing.FishingService.quote(player).filter(q->q.nonce().equals(request.review())).isPresent())){
+                QUOTES.remove(player);
+                if(request.action()==1)com.mohymods.kingdomsmp.fishing.FishingService.review(player,request.selected(),request.quantity());
+                else if(request.action()==2)notice=com.mohymods.kingdomsmp.fishing.FishingService.confirm(player,request.review());
+                else throw new IllegalArgumentException("Unsupported Fishmonger action");
+                return snapshot(player,request.requestId(),1,notice);
+            }
+            if(request.tab()==8&&(request.selected().startsWith("fishing:")||request.action()==2&&com.mohymods.kingdomsmp.fishing.FishingContractService.quote(player).filter(q->q.nonce().equals(request.review())).isPresent())){
+                if(request.action()==1)com.mohymods.kingdomsmp.fishing.FishingContractService.review(player,request.selected(),request.quantity());
+                else if(request.action()==2)notice=com.mohymods.kingdomsmp.fishing.FishingContractService.confirm(player,request.review());
+                else throw new IllegalArgumentException("Unsupported fishing delivery action");
+                return snapshot(player,request.requestId(),8,notice);
+            }
             if(request.tab()==8){
                 if(request.action()==0)com.mohymods.kingdomsmp.profession.ContractService.close(player);
                 else if(request.action()==1){if(request.selected().startsWith("hunt:")){com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.bounty.HuntService.review(player,request.selected());}else if(request.selected().startsWith("bounty:")){com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.bounty.CommunityContractService.review(player,request.selected(),request.quantity());}else com.mohymods.kingdomsmp.profession.ContractService.review(player,request.selected());}
@@ -124,7 +144,7 @@ public final class CommerceService {
                 return snapshot(player,request.requestId(),request.tab(),notice);
             }
             if(request.tab()>=3){
-                if(request.action()==0){BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);}
+                if(request.action()==0){com.mohymods.kingdomsmp.fishing.FishingService.close(player);BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);}
                 else if(request.tab()==3&&request.action()==1)notice=BankService.review(player,request.selected(),request.quantity()).text();
                 else if(request.tab()==3&&request.action()==2)notice=BankService.confirm(player,request.review());
                 else if(request.tab()==4&&request.action()==1){com.mohymods.kingdomsmp.progression.TierTwoService.handleReview(player,request.selected(),request.quantity());notice="Review your exact shared contribution.";}
@@ -149,7 +169,7 @@ public final class CommerceService {
         requireCounter(player);var s=store(player.server);verifyReceipt(player,s);
         if(s.quarantined()||s.pendingSale().isPresent()||s.pendingTransfer().isPresent()||s.pendingItem().isPresent())throw new IllegalStateException("Commerce paused for recovery.");
         long amount;int quantity=1;long day=day();
-        if(tab==0){var b=catalog(player.server).building(selected);if(ContributionService.kingdom(player.server).attainedTier()<b.tier())throw new IllegalStateException("Requires kingdom Tier "+b.tier()+".");if(s.purchase(selected).isPresent())throw new IllegalStateException("Sold out: one founder already owns this entitlement.");amount=b.price();if(s.balance(player.getUUID())<amount)throw new IllegalStateException("Insufficient coins. Earn coins through Essentials.");}
+        if(tab==0){var b=catalog(player.server).building(selected);buildingDependencies(b.id());if(ContributionService.kingdom(player.server).attainedTier()<b.tier())throw new IllegalStateException("Requires kingdom Tier "+b.tier()+".");if(s.purchase(selected).isPresent())throw new IllegalStateException("Sold out: one founder already owns this entitlement.");amount=b.price();if(s.balance(player.getUUID())<amount)throw new IllegalStateException("Insufficient coins. Earn coins through Essentials.");}
         else if(tab==1){var sale=selected.startsWith("shop:")?MarketService.purchase(player,selected.substring(5),requested):MarketService.sale(player,selected,requested);quantity=sale.quantity();amount=sale.amount();}
         else{var mail=mail(player,s,selected);if(mail.kind()!=EconomyStore.MailKind.COINS||mail.claimed())throw new IllegalStateException("This delivery has no unclaimed coins.");amount=mail.amount();}
         QUOTES.put(player,new Quote(UUID.randomUUID(),s.revision(),tab,selected,quantity,amount,day,System.nanoTime(),inventory(player)));return "Review the exact transaction; nothing has been changed yet.";
@@ -158,7 +178,7 @@ public final class CommerceService {
         requireCounter(player);Quote q=QUOTES.remove(player);var s=store(player.server);
         if(q==null||!q.nonce().equals(nonce)||System.nanoTime()-q.issued()>30_000_000_000L)throw new IllegalStateException("Review expired. Review the transaction again.");
         if(s.revision()!=q.revision()||day()!=q.period())throw new IllegalStateException("Stock, balance or trading day changed. Review again.");
-        if(q.tab()==0){var b=catalog(player.server).building(q.selected());if(ContributionService.kingdom(player.server).attainedTier()<b.tier()||b.price()!=q.amount())throw new IllegalStateException("Building eligibility changed.");
+        if(q.tab()==0){var b=catalog(player.server).building(q.selected());buildingDependencies(b.id());if(ContributionService.kingdom(player.server).attainedTier()<b.tier()||b.price()!=q.amount())throw new IllegalStateException("Building eligibility changed.");
             s.purchase(q.nonce(),player.getUUID(),player.getGameProfile().getName(),b.id(),b.price());
             try{materialize(player.server,s);}catch(IllegalStateException e){return "Purchase committed. Blueprint delivery awaits recovery; no second payment is required.";}
             player.server.getPlayerList().broadcastSystemMessage(Component.literal(player.getGameProfile().getName()+" is "+b.founder()+". "+b.title()+" blueprint sold out."),false);
@@ -166,20 +186,25 @@ public final class CommerceService {
         }
         if(q.tab()==2){var m=mail(player,s,q.selected());s.claimCoins(player.getUUID(),m.id());return "Claimed "+m.amount()+" coins to your available purse.";}
         if(q.selected().startsWith("shop:")){verifyReceipt(player,s);return MarketService.buy(player,q.nonce(),q.selected().substring(5),q.quantity(),q.amount(),q.period());}
-        var supply=catalog(player.server).supply(q.selected());
-        if(!sameInventory(player,q.inventory()))throw new IllegalStateException("Inventory changed. Review the sale again.");
+        var supply=catalog(player.server).supply(q.selected());var config=catalog(player.server);
+        return sellInventory(player,q.nonce(),key(supply.id()),supply.item(),supply.title(),q.quantity(),q.amount(),q.period(),config.budget(),supply.quota(),com.mohymods.kingdomsmp.profession.ProfessionService.allowance(player,q.selected(),config.allowance(),config.budget()),q.inventory());
+    }
+    /** Trusted reviewed counter operation; all resource sellers use the same native receipt/recovery protocol. */
+    public static String sellInventory(ServerPlayer player,UUID operation,String resource,net.minecraft.world.item.Item item,String title,int quantity,long amount,long period,long budget,long quota,long allowance,List<ItemStack> reviewed)throws IOException{
+        requireCounter(player);var s=store(player.server);
+        if(!sameInventory(player,reviewed))throw new IllegalStateException("Inventory changed. Review the sale again.");
         verifyReceipt(player,s);CompoundTag old=player.getPersistentData().copy();boolean checkpointStarted=false;
         try{
-            checkpoint(player);var pending=s.prepareSale(q.nonce(),player.getUUID(),key(supply.id()),q.quantity(),q.amount(),q.period(),catalog(player.server).budget(),supply.quota(),com.mohymods.kingdomsmp.profession.ProfessionService.allowance(player,q.selected(),catalog(player.server).allowance(),catalog(player.server).budget()));
-            int remaining=q.quantity();for(int i=0;i<36&&remaining>0;i++){var stack=player.getInventory().getItem(i);if(matches(stack,supply)){int n=Math.min(remaining,stack.getCount());stack.shrink(n);remaining-=n;}}
+            checkpoint(player);var pending=s.prepareSale(operation,player.getUUID(),resource,quantity,amount,period,budget,quota,allowance);
+            int remaining=quantity;for(int i=0;i<36&&remaining>0;i++){var stack=player.getInventory().getItem(i);if(ItemStack.isSameItemSameComponents(stack,new ItemStack(item))){int n=Math.min(remaining,stack.getCount());stack.shrink(n);remaining-=n;}}
             if(remaining!=0)throw new IllegalStateException("Inventory changed during sale.");
             putReceipt(player,new EconomyStore.Receipt(s.id(),pending.sequence()));checkpointStarted=true;checkpoint(player);
             if(!s.recoverSale(receipt(AtomicNbt.read(playerFile(player.server,player.getUUID())))))throw new IOException("Native inventory receipt was not committed");
             player.getInventory().setChanged();player.inventoryMenu.sendAllDataToRemote();
-            LogUtils.getLogger().info("ROYAL_RESOURCE_SALE operation={} player={} resource={} quantity={} coins={}",q.nonce(),player.getUUID(),q.selected(),q.quantity(),q.amount());
-            return "Sold "+q.quantity()+" "+supply.title()+" for "+q.amount()+" coins. Payment saved.";
+            LogUtils.getLogger().info("ROYAL_RESOURCE_SALE operation={} player={} resource={} quantity={} coins={}",operation,player.getUUID(),resource,quantity,amount);
+            return "Sold "+quantity+" "+title+" for "+amount+" coins. Payment saved.";
         }catch(IOException|RuntimeException failure){
-            if(!checkpointStarted){for(int i=0;i<36;i++)player.getInventory().setItem(i,q.inventory().get(i).copy());for(var k:new HashSet<>(player.getPersistentData().getAllKeys()))player.getPersistentData().remove(k);player.getPersistentData().merge(old);}
+            if(!checkpointStarted){for(int i=0;i<36;i++)player.getInventory().setItem(i,reviewed.get(i).copy());for(var k:new HashSet<>(player.getPersistentData().getAllKeys()))player.getPersistentData().remove(k);player.getPersistentData().merge(old);}
             s.quarantine();player.connection.disconnect(Component.literal("Commerce interrupted. Inventory and payment require checkpoint recovery."));throw failure;
         }
     }
@@ -187,22 +212,23 @@ public final class CommerceService {
     private static List<CommerceView.Entry> contractEntries(ServerPlayer player){
         var id=COUNTERS.get(player);var entity=id==null?null:player.serverLevel().getEntity(id);
         var project=entity instanceof com.mohymods.kingdomsmp.npc.ReeveEntity resident?ConstructionService.projectForResident(resident):null;
+        if(project!=null&&project.blueprint().equals(FishermansWharfBlueprint.ID))return com.mohymods.kingdomsmp.fishing.FishingContractService.entries(player);
         if(project!=null&&project.blueprint().equals(RoyalBountyHallBlueprint.ID)){var rows=new ArrayList<>(com.mohymods.kingdomsmp.bounty.HuntService.entries(player));rows.addAll(com.mohymods.kingdomsmp.bounty.CommunityContractService.entries(player));return List.copyOf(rows);}
         if(project!=null){var role=java.util.Arrays.stream(com.mohymods.kingdomsmp.profession.Profession.values()).filter(p->p.buildingId().equals(project.blueprint().toString())).findFirst();if(role.isPresent())return com.mohymods.kingdomsmp.profession.ContractService.entries(player).stream().filter(row->row.id().startsWith(role.get().id()+"/")).toList();}
         var entries=new ArrayList<>(com.mohymods.kingdomsmp.profession.ContractService.entries(player));entries.addAll(com.mohymods.kingdomsmp.bounty.CommunityContractService.entries(player));entries.addAll(com.mohymods.kingdomsmp.bounty.HuntService.entries(player));return List.copyOf(entries);
     }
     public static CommerceView snapshot(ServerPlayer player,long requestId,int tab,String notice){
         var s=store(player.server);var c=catalog(player.server);long version=s.revision()+ConstructionService.store(player.server).revision();if(ConstructionService.royal(player.server))version+=com.mohymods.kingdomsmp.progression.TierTwoService.ledger(player.server).revision();int tier=ContributionService.kingdom(player.server).attainedTier();List<CommerceView.Entry> rows=new ArrayList<>();
-        if(tab==8){var q=com.mohymods.kingdomsmp.profession.ContractService.quote(player).orElse(null);var b=com.mohymods.kingdomsmp.bounty.CommunityContractService.quote(player).orElse(null);var hunt=com.mohymods.kingdomsmp.bounty.HuntService.quote(player).orElse(null);var entries=contractEntries(player);return new CommerceView(requestId,version,false,8,tier,s.balance(player.getUUID()),entries,hunt!=null?hunt.nonce():b!=null?b.nonce():q==null?CommerceRequest.NONE:q.nonce(),hunt!=null?hunt.text():b!=null?b.text():q==null?"":q.text(),notice);}
+        if(tab==8){var fishing=com.mohymods.kingdomsmp.fishing.FishingContractService.quote(player).orElse(null);if(fishing!=null)return new CommerceView(requestId,version,false,8,tier,s.balance(player.getUUID()),contractEntries(player),fishing.nonce(),fishing.text(),notice);var q=com.mohymods.kingdomsmp.profession.ContractService.quote(player).orElse(null);var b=com.mohymods.kingdomsmp.bounty.CommunityContractService.quote(player).orElse(null);var hunt=com.mohymods.kingdomsmp.bounty.HuntService.quote(player).orElse(null);var entries=contractEntries(player);return new CommerceView(requestId,version,false,8,tier,s.balance(player.getUUID()),entries,hunt!=null?hunt.nonce():b!=null?b.nonce():q==null?CommerceRequest.NONE:q.nonce(),hunt!=null?hunt.text():b!=null?b.text():q==null?"":q.text(),notice);}
         if(tab==7){var q=com.mohymods.kingdomsmp.profession.ProfessionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,7,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.profession.ProfessionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==6){var q=BuyOrderService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BuyOrderService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==5){var q=AuctionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),AuctionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==3){var q=BankService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BankService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==4){var q=com.mohymods.kingdomsmp.progression.TierTwoService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.progression.TierTwoService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==0)for(var b:c.buildings()){
-            var sold=s.purchase(b.id());String state=sold.isPresent()?"SOLD":tier<b.tier()?"LOCKED":"AVAILABLE";
-            rows.add(new CommerceView.Entry(b.id(),b.title(),sold.isPresent()?"Founder: "+sold.get().buyerName()+". Unique entitlement sold.":"Tier "+b.tier()+" · Materials included · "+b.founder(),b.price(),state));
-        }else if(tab==1){rows.addAll(MarketService.entries(player,tier));
+            var sold=s.purchase(b.id());boolean missing=b.id().equals(FishermansWharfBlueprint.ID.toString())&&!com.mohymods.kingdomsmp.fishing.AquacultureAccess.available();String state=sold.isPresent()?"SOLD":tier<b.tier()||missing?"LOCKED":"AVAILABLE";
+            rows.add(new CommerceView.Entry(b.id(),b.title(),sold.isPresent()?"Founder: "+sold.get().buyerName()+". Unique entitlement sold.":"Tier "+b.tier()+" · Materials included · "+b.founder()+(missing?". "+com.mohymods.kingdomsmp.fishing.AquacultureAccess.unavailable():""),b.price(),state));
+        }else if(tab==1){if(com.mohymods.kingdomsmp.fishing.FishingService.atCounter(player)){var fish=com.mohymods.kingdomsmp.fishing.FishingService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.fishing.FishingService.entries(player),fish==null?CommerceRequest.NONE:fish.nonce(),fish==null?"":fish.text(),notice);}rows.addAll(MarketService.entries(player,tier));
         }else for(var m:s.mailbox(player.getUUID()).stream().filter(m->!m.claimed()).limit(32).toList()){
             boolean bp=m.kind()==EconomyStore.MailKind.BLUEPRINT, hunt=m.kind()==EconomyStore.MailKind.HUNT_ESCROW;
             rows.add(new CommerceView.Entry(m.id().toString(),bp?c.building(m.building()).title()+" plan":hunt?"Reserved hunting reward":"Coin delivery",bp?c.building(m.building()).founder()+" · Manage your permanent, recoverable plan. One building only.":m.description(),m.amount(),bp?"BLUEPRINT":hunt?"HUNT_ESCROW":"COINS"));

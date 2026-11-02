@@ -53,14 +53,15 @@ public final class AuctionService {
     }
     /** Supported initial scope: vanilla stacks, with simple components retained exactly. */
     public static void validateItem(ItemStack item){
+        boolean fishingRod=com.mohymods.kingdomsmp.fishing.AquacultureAccess.plainRod(item);
         if(item.isEmpty()||item.getCount()>Math.min(64,item.getMaxStackSize())
                 ||item.getItem() instanceof BlockItem block&&block.getBlock() instanceof ShulkerBoxBlock
-                ||!BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals("minecraft")&&!com.mohymods.kingdomsmp.equipment.FarmerGearItems.known(item)
-                ||item.has(DataComponents.CONTAINER)||item.has(DataComponents.BUNDLE_CONTENTS)
+                ||!BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals("minecraft")&&!com.mohymods.kingdomsmp.equipment.FarmerGearItems.known(item)&&!fishingRod
+                ||item.has(DataComponents.CONTAINER)&&!fishingRod||item.has(DataComponents.BUNDLE_CONTENTS)
                 ||item.has(DataComponents.BLOCK_ENTITY_DATA)||item.has(DataComponents.ENTITY_DATA)
                 ||item.has(DataComponents.CONTAINER_LOOT)||item.has(DataComponents.CUSTOM_DATA)
                 ||item.has(DataComponents.CHARGED_PROJECTILES))
-            throw new IllegalStateException("Use a vanilla or registered Farmer equipment stack without stored items, entity data or custom ownership data. Kingdom plans and coins cannot be auctioned.");
+            throw new IllegalStateException("Use a vanilla stack, registered Farmer equipment or verified pristine fishing rod without stored items, entity data or custom ownership data. Kingdom plans and coins cannot be auctioned.");
     }
     private static ItemStack decode(ServerPlayer p,CompoundTag tag){
         var item=ItemStack.parse(p.registryAccess(),tag).orElseThrow(()->new IllegalStateException("Escrow item requires registry recovery."));
@@ -85,7 +86,7 @@ public final class AuctionService {
     public static List<CommerceView.Entry> entries(ServerPlayer p){
         var s=CommerceService.store(p.server);List<CommerceView.Entry> out=new ArrayList<>();boolean usable=true;
         try{BankService.requireCounter(p);}catch(IllegalStateException e){usable=false;}
-        out.add(new CommerceView.Entry("sell","List held item","Hold one supported vanilla stack. Choose quantity and TOTAL price. Escrow removes only the reviewed items. Listings expire after 24 hours. Ordinary tax5%, Master equipment10%; rounded up.",0,usable?"LIST":"LOCKED"));
+        out.add(new CommerceView.Entry("sell","List held item","Hold a supported vanilla, Farmer equipment or pristine fishing rod stack. Choose quantity and TOTAL price. Escrow removes only the reviewed items. Listings expire after 24 hours. Ordinary tax5%, Master equipment10%; rounded up.",0,usable?"LIST":"LOCKED"));
         out.add(new CommerceView.Entry("sell_timed","Create timed auction","Hold a supported stack and set its total starting price. Funds are reserved for each bid. Starts at 24 hours; bids rise by at least 5% and extend a closing auction to two minutes. Ordinary5%/Master10% sale tax leaves circulation.",0,usable?"LIST_TIMED":"LOCKED"));
         for(var l:s.listings().stream().filter(EconomyStore.Listing::active).sorted(Comparator.comparingLong(EconomyStore.Listing::created).thenComparing(EconomyStore.Listing::id)).limit(30).toList()){
             boolean mine=l.seller().equals(p.getUUID());long minutes=Math.max(0,(l.expires()-System.currentTimeMillis()+59_999)/60_000);

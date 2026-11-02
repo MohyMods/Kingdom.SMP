@@ -69,6 +69,35 @@ public final class PlacementProtection {
         }
     }
 
+    /** Current entity interaction policy, including public-NPC exceptions. This does not require terrain-edit rights. */
+    public static String entityInteraction(ServerPlayer actor, Entity target) {
+        if (!actor.server.isSameThread()) throw new IllegalStateException("Claim checks require the server thread.");
+        if (!actor.isAlive() || actor.isSpectator() || actor instanceof net.neoforged.neoforge.common.util.FakePlayer
+                || actor.server.getPlayerList().getPlayer(actor.getUUID()) != actor || target == null || !target.isAlive()
+                || target.level() != actor.serverLevel() || !actor.serverLevel().hasChunkAt(target.blockPosition()))
+            return "Resident access requires the real living online player and a loaded resident in this dimension.";
+        if (!installed()) return null;
+        try {
+            if (ModList.get().isLoaded("ftbchunks")) {
+                requireVersion("ftbchunks", "2101.1.22"); Object api=Ftb.API.invoke(null);
+                if (!Boolean.TRUE.equals(Ftb.READY.invoke(api))) return "FTB Chunks manager is not ready; resident access paused.";
+                Object manager=Ftb.MANAGER.invoke(api);
+                if (bool(Ftb.DENIED.invoke(manager,actor,InteractionHand.MAIN_HAND,target.blockPosition(),Ftb.INTERACT_ENTITY,target)))
+                    return "FTB Chunks denies interaction with this resident.";
+            }
+            if (ModList.get().isLoaded("openpartiesandclaims")) {
+                requireVersion("openpartiesandclaims", "0.33.0"); Object protection=Opac.PROTECTION.invoke(Opac.API.invoke(null,actor.server));
+                if (bool(Opac.ENTITY_INTERACTION.invoke(protection,null,actor,target,actor.getMainHandItem(),InteractionHand.MAIN_HAND,false,false,true)))
+                    return "Open Parties and Claims denies interaction with this resident.";
+            }
+            return null;
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError failure) {
+            String key="resident:"+failure.getClass().getName()+":"+failure.getMessage();
+            if (WARNED.add(key)) LogUtils.getLogger().warn("Claim entity adapter unavailable; resident transaction refused",failure);
+            return "Installed claim entity API/version could not be verified; resident access paused. See the server log.";
+        }
+    }
+
     /** Permission events use the same actual player who authorized delegated construction. */
     public static Entity eventActor(ServerLevel level, UUID owner, Entity builder) {
         if (!installed()) return builder;
@@ -91,7 +120,7 @@ public final class PlacementProtection {
     // Reflection keeps absent optional APIs off the core class path. Bind public exact-binary interfaces.
     private static final class Ftb {
         static final Method API, READY, MANAGER, DENIED;
-        static final Object EDIT;
+        static final Object EDIT, INTERACT_ENTITY;
         static {
             try {
                 Class<?> root = Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI");
@@ -101,17 +130,19 @@ public final class PlacementProtection {
                 API = root.getMethod("api"); READY = api.getMethod("isManagerLoaded"); MANAGER = api.getMethod("getManager");
                 DENIED = manager.getMethod("shouldPreventInteraction", Entity.class, InteractionHand.class, BlockPos.class, protection, Entity.class);
                 EDIT = protection.getField("EDIT_BLOCK").get(null);
+                INTERACT_ENTITY = protection.getField("INTERACT_ENTITY").get(null);
             } catch (ReflectiveOperationException failure) { throw new ExceptionInInitializerError(failure); }
         }
     }
     private static final class Opac {
-        static final Method API, PROTECTION, DENIED;
+        static final Method API, PROTECTION, DENIED, ENTITY_INTERACTION;
         static {
             try {
                 Class<?> api = Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");
                 Class<?> protection = Class.forName("xaero.pac.common.server.claims.protection.api.IChunkProtectionAPI");
                 API = api.getMethod("get", MinecraftServer.class); PROTECTION = api.getMethod("getChunkProtection");
                 DENIED = protection.getMethod("onEntityPlaceBlock", Entity.class, ServerLevel.class, BlockPos.class);
+                ENTITY_INTERACTION = protection.getMethod("onEntityInteraction",Entity.class,Entity.class,Entity.class,net.minecraft.world.item.ItemStack.class,InteractionHand.class,boolean.class,boolean.class,boolean.class);
             } catch (ReflectiveOperationException failure) { throw new ExceptionInInitializerError(failure); }
         }
     }

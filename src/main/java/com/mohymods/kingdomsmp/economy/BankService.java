@@ -35,7 +35,8 @@ public final class BankService {
             if(!project.blueprint().equals(RoyalBankBlueprint.ID)||project.phase()!=Phase.COMPLETE||project.npcDead()||!project.npcIssued())continue;
             var entity=player.serverLevel().getEntity(project.npc());
             if(entity instanceof ReeveEntity banker&&banker.isAlive()&&ConstructionService.registeredReeve(banker)
-                    &&player.distanceToSqr(banker)<=64&&player.hasLineOfSight(banker)&&ConstructionService.structureIntact(player.serverLevel(),project))return;
+                    &&player.distanceToSqr(banker)<=64&&player.hasLineOfSight(banker)&&ConstructionService.structureIntact(player.serverLevel(),project)
+                    &&com.mohymods.kingdomsmp.placement.PlacementProtection.entityInteraction(player,banker)==null)return;
         }
         throw new IllegalStateException("Visit the registered Banker within eight blocks at the intact completed Royal Bank.");
     }

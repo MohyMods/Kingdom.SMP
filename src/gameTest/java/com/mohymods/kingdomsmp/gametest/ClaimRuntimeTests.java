@@ -97,7 +97,7 @@ public final class ClaimRuntimeTests {
 
     @SuppressWarnings("unchecked")
     static ClaimPlayer player(ServerLevel level,String name)throws Exception{
-        return player(level,UUID.randomUUID(),name);
+        return player(level,Boolean.getBoolean("kingdom.testDeterministicPeers")?UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(java.nio.charset.StandardCharsets.UTF_8)):UUID.randomUUID(),name);
     }
     @SuppressWarnings("unchecked")
     static ClaimPlayer player(ServerLevel level,UUID identity,String name)throws Exception{
@@ -119,6 +119,25 @@ public final class ClaimRuntimeTests {
                 .invoke(root.getMethod("api").invoke(null),actor,actor.serverLevel().dimension(),new ChunkPos(position),false);
         if(!Boolean.TRUE.equals(Class.forName("dev.ftb.mods.ftbchunks.api.ClaimResult").getMethod("isSuccess").invoke(result)))throw new IllegalStateException("FTB fixture claim failed: "+result);
     }
+    /** Owner-authorized fixture policy: public resident use only; terrain-edit protection remains private. */
+    static void publicResidentAccess(ServerLevel level,UUID owner)throws Exception{
+        var api=Class.forName("dev.ftb.mods.ftbteams.api.FTBTeamsAPI").getMethod("api").invoke(null);
+        var manager=Class.forName("dev.ftb.mods.ftbteams.api.FTBTeamsAPI$API").getMethod("getManager").invoke(api);
+        var team=((java.util.Optional<?>)Class.forName("dev.ftb.mods.ftbteams.api.TeamManager").getMethod("getTeamForPlayerID",UUID.class).invoke(manager,owner)).orElseThrow();
+        var property=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksProperties").getField("ENTITY_INTERACT_MODE").get(null);
+        var privacy=Class.forName("dev.ftb.mods.ftbteams.api.property.PrivacyMode").getField("PUBLIC").get(null);
+        var teamType=Class.forName("dev.ftb.mods.ftbteams.api.Team");teamType.getMethod("setProperty",Class.forName("dev.ftb.mods.ftbteams.api.property.TeamProperty"),Object.class).invoke(team,property,privacy);teamType.getMethod("markDirty").invoke(team);
+        var opacType=Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");var opac=opacType.getMethod("get",net.minecraft.server.MinecraftServer.class).invoke(null,level.getServer());
+        var configManager=opacType.getMethod("getPlayerConfigManager").invoke(opac);var config=Class.forName("xaero.pac.common.server.player.config.api.v2.IPlayerConfigManagerAPI").getMethod("getLoadedConfig",UUID.class).invoke(configManager,owner);
+        var option=Class.forName("xaero.pac.common.server.player.config.api.v2.PlayerConfigOptions").getField("CLAIM_EXCEPTION_ENTITIES_BY_PLAYERS").get(null);
+        Class.forName("xaero.pac.common.server.player.config.api.v2.IPlayerConfigAPI").getMethod("tryToSet",Class.forName("xaero.pac.common.server.player.config.api.v2.IPlayerConfigOptionSpecAPI"),Object.class).invoke(config,option,"E");
+    }
+    static void ftbUnclaim(ServerLevel level,BlockPos pos)throws Exception{
+        var root=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI");var api=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI$API");var manager=api.getMethod("getManager").invoke(root.getMethod("api").invoke(null));
+        var keyType=Class.forName("dev.ftb.mods.ftblibrary.math.ChunkDimPos");var key=keyType.getConstructor(net.minecraft.world.level.Level.class,BlockPos.class).newInstance(level,pos);
+        var chunk=Class.forName("dev.ftb.mods.ftbchunks.api.ClaimedChunkManager").getMethod("getChunk",keyType).invoke(manager,key);
+        if(chunk!=null)Class.forName("dev.ftb.mods.ftbchunks.api.ClaimedChunk").getMethod("unclaim",net.minecraft.commands.CommandSourceStack.class,boolean.class).invoke(chunk,level.getServer().createCommandSourceStack().withPermission(4),false);
+    }
     private static void ftbClear(net.minecraft.server.MinecraftServer server)throws Exception{
         var root=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI");var api=Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI$API");
         var manager=api.getMethod("getManager").invoke(root.getMethod("api").invoke(null));
@@ -134,7 +153,7 @@ public final class ClaimRuntimeTests {
         Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI").getMethod("claim",ResourceLocation.class,UUID.class,int.class,int.class,int.class,boolean.class)
                 .invoke(opac(level),level.dimension().location(),owner,0,pos.getX()>>4,pos.getZ()>>4,false);
     }
-    private static void opacUnclaim(ServerLevel level,BlockPos pos)throws Exception{
+    static void opacUnclaim(ServerLevel level,BlockPos pos)throws Exception{
         Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI").getMethod("unclaim",ResourceLocation.class,int.class,int.class)
                 .invoke(opac(level),level.dimension().location(),pos.getX()>>4,pos.getZ()>>4);
     }

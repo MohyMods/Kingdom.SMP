@@ -19,6 +19,7 @@ public final class KingdomBlueprints {
     public static final DeferredItem<Item> BUILDER=register("builder_blueprint");
     public static final DeferredItem<Item> LUMBERJACK=register("lumberjack_blueprint");
     public static final DeferredItem<Item> BOUNTY=register("royal_bounty_hall_blueprint");
+    public static final DeferredItem<Item> WHARF=register("fishermans_wharf_blueprint");
     public static final DeferredItem<Item> BANK=register("royal_bank_blueprint");
     private static DeferredItem<Item> register(String id){return ITEMS.register(id,()->new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)){
         @Override public InteractionResultHolder<ItemStack> use(Level level,net.minecraft.world.entity.player.Player player,InteractionHand hand){
@@ -39,6 +40,7 @@ public final class KingdomBlueprints {
         if(id.equals(ProfessionBlueprints.LUMBERJACK))return LUMBERJACK.get();
         if(id.equals(RoyalBountyHallBlueprint.ID))return BOUNTY.get();
         if(id.equals(RoyalBankBlueprint.ID))return BANK.get();
+        if(id.equals(FishermansWharfBlueprint.ID))return WHARF.get();
         throw new IllegalArgumentException("Unsupported blueprint item");
     }
     public static net.minecraft.resources.ResourceLocation definition(ItemStack stack){
@@ -49,6 +51,7 @@ public final class KingdomBlueprints {
         if(stack.is(BUILDER.get()))return ProfessionBlueprints.BUILDER;
         if(stack.is(LUMBERJACK.get()))return ProfessionBlueprints.LUMBERJACK;
         if(stack.is(BOUNTY.get()))return RoyalBountyHallBlueprint.ID;
+        if(stack.is(WHARF.get()))return FishermansWharfBlueprint.ID;
         return stack.is(BANK.get())?RoyalBankBlueprint.ID:null;
     }
     private KingdomBlueprints() { }

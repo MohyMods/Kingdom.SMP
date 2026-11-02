@@ -31,7 +31,7 @@ public final class ReeveEntity extends Villager {
             var project=ConstructionService.projectForResident(this);
             if(project!=null){
                 var id=project.blueprint();
-                var profession=id.equals(ProfessionBlueprints.FARMER)?VillagerProfession.FARMER:id.equals(ProfessionBlueprints.BUILDER)?VillagerProfession.MASON:id.equals(ProfessionBlueprints.LUMBERJACK)?VillagerProfession.FLETCHER:VillagerProfession.CARTOGRAPHER;
+                var profession=id.equals(ProfessionBlueprints.FARMER)?VillagerProfession.FARMER:id.equals(ProfessionBlueprints.BUILDER)?VillagerProfession.MASON:id.equals(ProfessionBlueprints.LUMBERJACK)?VillagerProfession.FLETCHER:id.equals(FishermansWharfBlueprint.ID)?VillagerProfession.FISHERMAN:VillagerProfession.CARTOGRAPHER;
                 setVillagerData(new VillagerData(VillagerType.PLAINS,profession,1));
             }
         }

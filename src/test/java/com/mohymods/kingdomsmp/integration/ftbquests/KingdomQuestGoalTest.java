@@ -66,4 +66,12 @@ class KingdomQuestGoalTest {
         assertEquals(0x4B534D5000001105L,KingdomQuestGoal.PURCHASE.taskId());
         assertFalse(KingdomQuestGoal.PURCHASE.complete(snapshot(2,Set.of(),Set.of("kingdom_smp:royal_bank"),true,false)));
     }
+    @Test void wharfProgressNeedsActualTierPurchaseAndVerifiedBuildingWithoutNewRewardAuthority(){
+        var wharf=Set.of("kingdom_smp:fishermans_wharf");
+        assertFalse(KingdomQuestGoal.PURCHASE.complete(snapshot(2,wharf,wharf,true,false)));
+        assertTrue(KingdomQuestGoal.PURCHASE.complete(snapshot(3,Set.of(),wharf,true,false)));
+        assertFalse(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,Set.of(),wharf,true,false)));
+        assertFalse(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,wharf,Set.of(),true,false)));
+        assertTrue(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,wharf,wharf,true,false)));
+    }
 }

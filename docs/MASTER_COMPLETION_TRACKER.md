@@ -181,7 +181,7 @@ DIMENSION_PROGRESSION.md records the confirmed schedule, revised dependency grap
 | Four-block safe supports | NOT STARTED | Existing prepared-support checks preserved, not a working automatic foundation engine |
 | Architect first-buyer market / early payments | NOT STARTED | One primary entitlement; atomic charge/stock, reviewed individual 500–15k prices and pre-Bank funding/payment path |
 | Tier 3 Bank / transfers / mailboxes / auctions | NOT STARTED | Real transaction/escrow recovery and reviewed unresolved policies before consumption |
-| Bounty Hall / Fisherman's Wharf | NOT STARTED | Confirmed Tier 3 scope; proposed blueprint prices not final; actual service/contracts/economy tests required |
+| Bounty Hall / Fisherman's Wharf | IMPLEMENTED / REDUCED-PACK VERIFIED | Real progressive buildings and named residents; Garrick hunts/provisions, exact Aquaculture2.7.21fish market/weekly native deliveries/catch collection/diversity recognition. Restart/client slices verified; full277pack and long-term balance remain open. |
 | Royal Aerodrome / aircraft gates | NOT STARTED | Confirmed ≥6 AND completed building; per-aircraft schedule proposed; reported version is not a working adapter |
 | Vanilla End Tier 12 gate | TESTED | All-tier boundary unit checks and native pre-unlock transfer denial; no world/history rewrite. Third-party bypasses/legacy-inside handling not verified |
 | Waystones Tier 9 / other dimension routes | NOT STARTED | Reported versions only; actual adapters and metadata/recipe reconciliation pending. Inactive old catalogue remains historical, not active requirements |
