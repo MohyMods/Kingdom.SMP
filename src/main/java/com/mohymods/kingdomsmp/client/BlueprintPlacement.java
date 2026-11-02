@@ -86,7 +86,8 @@ public final class BlueprintPlacement {
     }
     public static void hud(RenderGuiEvent.Post event){
         var c=Minecraft.getInstance();if(!active()||c.screen!=null||c.options.hideGui)return;
-        var g=event.getGuiGraphics();int y=14,w=Math.min(510,c.getWindow().getGuiScaledWidth()-32);
+        var g=event.getGuiGraphics();// Leave the conventional upper-right minimap area clear at compact GUI scales.
+        int y=14,w=Math.min(510,c.getWindow().getGuiScaledWidth()-112);
         int color=!current()?0xFFE4B858:result.valid()?0xFF65E68A:0xFFFF7474;
         var controls=c.font.split(net.minecraft.network.chat.Component.literal(ROTATE.getTranslatedKeyMessage().getString()+" rotate · Shift reverse · "+UP.getTranslatedKeyMessage().getString()+" / "+DOWN.getTranslatedKeyMessage().getString()+" height "+height+" · Use: review"),w);
         String reason=(current()?result.reason():"Aim at loaded ground; waiting for the server's site checks.")+(inspecting?" Last ground site held for inspection; aim at ground to move it.":"");

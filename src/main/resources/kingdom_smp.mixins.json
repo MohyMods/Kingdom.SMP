@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mohymods.kingdomsmp.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["PlayerListAircraftMixin"],
+  "injectors": {"defaultRequire": 1}
+}

@@ -20,7 +20,7 @@
   "kingdomsmp.screen.revision": "Revision %s",
   "kingdomsmp.screen.tier.progress": "Current kingdom tier: %s / 12",
   "kingdomsmp.screen.overview.detail": "The kingdom begins at Tier 1: First Hearth. Tier, shared resource totals, and your score below come from persisted server data.",
-  "kingdomsmp.screen.gates": "Realm entry: Aether Tier 4; Nether Tier 5; Twilight Forest Tier 6; Otherside Tier 8; End Tier 12. Waystones require Tier 9. Requires the corresponding installed mods. Space, aircraft and full-pack alternate routes need separate integrations.",
+  "kingdomsmp.screen.gates": "Realm entry: Aether Tier 4; Nether Tier 5; Twilight Forest Tier 6; Otherside Tier 8; End Tier 12. Waystones require Tier 9. Aircraft require Tier 6 AND a completed Royal Aerodrome. Corresponding mods required; space and full-pack alternate routes remain unfinished.",
   "kingdomsmp.screen.selected": "Tier %s · %s",
   "kingdomsmp.screen.state.attained": "Attained",
   "kingdomsmp.screen.state.current": "Current",
@@ -63,6 +63,7 @@
   "item.kingdom_smp.journeyman_farmer_hoe": "Fieldwarden's Hoe",
   "item.kingdom_smp.fortune_x_hoe": "Fortune X Hoe",
   "kingdomsmp.screen.gate.aether": "The Aether opens at kingdom Tier 4 when installed. Entry is enforced by the server; later milestone costs remain separate.",
-  "kingdomsmp.screen.gate.twilight": "Twilight Forest opens at kingdom Tier 6 when installed. Its own boss progression still applies. Aircraft also needs a completed Aerodrome; that service is unfinished.",
-  "kingdomsmp.screen.gate.otherside": "The Otherside opens at kingdom Tier 8 when Deeper and Darker is installed. Existing portal and dimension requirements still apply."
+  "kingdomsmp.screen.gate.twilight": "Twilight Forest opens at kingdom Tier 6 when installed. Its own boss progression still applies. Aircraft deployment and boarding also require a completed Royal Aerodrome. Aircraft sales and flight contracts remain unfinished.",
+  "kingdomsmp.screen.gate.otherside": "The Otherside opens at kingdom Tier 8 when Deeper and Darker is installed. Existing portal and dimension requirements still apply.",
+  "item.kingdom_smp.royal_aerodrome_blueprint": "Royal Aerodrome Blueprint"
 }

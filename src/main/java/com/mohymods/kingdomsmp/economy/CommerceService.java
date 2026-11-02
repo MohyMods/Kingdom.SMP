@@ -75,7 +75,7 @@ public final class CommerceService {
     }
     public static void requireResidentCounter(ServerPlayer player){requireCounter(player);}
     public static com.mohymods.kingdomsmp.persistence.ConstructionStore.Project counterProject(ServerPlayer player){var selected=COUNTERS.get(player);var entity=selected==null?null:player.serverLevel().getEntity(selected);return entity instanceof ReeveEntity npc&&ConstructionService.registeredReeve(npc)?ConstructionService.projectForResident(npc):null;}
-    private static void buildingDependencies(String id){if(id.equals(FishermansWharfBlueprint.ID.toString()))com.mohymods.kingdomsmp.fishing.AquacultureAccess.require();}
+    private static void buildingDependencies(String id){if(id.equals(RoyalAerodromeBlueprint.ID.toString()))com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.require();if(id.equals(FishermansWharfBlueprint.ID.toString()))com.mohymods.kingdomsmp.fishing.AquacultureAccess.require();}
 
     static void requireCounter(ServerPlayer player){
         if(!player.isAlive()||player.isSpectator()||player.serverLevel()!=player.server.overworld()||player.containerMenu!=player.inventoryMenu||!player.containerMenu.getCarried().isEmpty()
@@ -226,8 +226,8 @@ public final class CommerceService {
         if(tab==3){var q=BankService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BankService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==4){var q=com.mohymods.kingdomsmp.progression.TierTwoService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.progression.TierTwoService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==0)for(var b:c.buildings()){
-            var sold=s.purchase(b.id());boolean missing=b.id().equals(FishermansWharfBlueprint.ID.toString())&&!com.mohymods.kingdomsmp.fishing.AquacultureAccess.available();String state=sold.isPresent()?"SOLD":tier<b.tier()||missing?"LOCKED":"AVAILABLE";
-            rows.add(new CommerceView.Entry(b.id(),b.title(),sold.isPresent()?"Founder: "+sold.get().buyerName()+". Unique entitlement sold.":"Tier "+b.tier()+" · Materials included · "+b.founder()+(missing?". "+com.mohymods.kingdomsmp.fishing.AquacultureAccess.unavailable():""),b.price(),state));
+            var sold=s.purchase(b.id());boolean air=b.id().equals(RoyalAerodromeBlueprint.ID.toString());boolean missing=air?!com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.available():b.id().equals(FishermansWharfBlueprint.ID.toString())&&!com.mohymods.kingdomsmp.fishing.AquacultureAccess.available();String state=sold.isPresent()?"SOLD":tier<b.tier()||missing?"LOCKED":"AVAILABLE";
+            rows.add(new CommerceView.Entry(b.id(),b.title(),sold.isPresent()?"Founder: "+sold.get().buyerName()+". Unique entitlement sold.":"Tier "+b.tier()+" · Materials included · "+b.founder()+(missing?". "+(air?com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.unavailable():com.mohymods.kingdomsmp.fishing.AquacultureAccess.unavailable()):""),b.price(),state));
         }else if(tab==1){if(com.mohymods.kingdomsmp.fishing.FishingService.atCounter(player)){var fish=com.mohymods.kingdomsmp.fishing.FishingService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.fishing.FishingService.entries(player),fish==null?CommerceRequest.NONE:fish.nonce(),fish==null?"":fish.text(),notice);}rows.addAll(MarketService.entries(player,tier));
         }else for(var m:s.mailbox(player.getUUID()).stream().filter(m->!m.claimed()).limit(32).toList()){
             boolean bp=m.kind()==EconomyStore.MailKind.BLUEPRINT, hunt=m.kind()==EconomyStore.MailKind.HUNT_ESCROW;

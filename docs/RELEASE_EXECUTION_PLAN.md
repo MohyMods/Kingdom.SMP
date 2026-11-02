@@ -1,3 +1,5 @@
+> Aerodrome hangar/native use prerequisite is verified; continue its payload, powered-flight and actual service dependencies rather than treating the building as complete1.0content. See AERODROME_RUNTIME.md.
+
 # Kingdom SMP 1.0.0 execution plan
 
 Latest user operating directive supersedes intermediate-release instructions: continue the complete backlog, make tested internal commits, publish no per-feature JARs/release packages, and do not stop at feature boundaries. Main remains protected. Existing d0d123f content, saves and evidence are retained. Only verified acceptance closes requirements; no percentage implies release readiness.

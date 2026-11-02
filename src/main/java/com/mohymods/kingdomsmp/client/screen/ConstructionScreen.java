@@ -25,10 +25,11 @@ public final class ConstructionScreen extends Screen {
     private String xValue,yValue,zValue;
     private final List<RoyalButton> mutations=new ArrayList<>();
     private String localNotice="";
+    private String serverNotice;
     private final String greeting;
     public ConstructionScreen(ConstructionView view,Screen parent){
         super(text(residentGreeting(view.notice())?view.resident()+" · "+(view.modern()?"Royal Steward":"Reeve"):view.title()));
-        this.view=view;this.parent=parent;rotation=view.rotation();
+        this.view=view;this.parent=parent;rotation=view.rotation();serverNotice=view.notice();
         greeting=residentGreeting(view.notice())?view.notice():"";
         if(!greeting.isBlank()||view.notice().startsWith("Community milestone board"))tab=1;
     }
@@ -38,6 +39,7 @@ public final class ConstructionScreen extends Screen {
         boolean rebuild=updated.requestId()>0||!updated.phase().equals(view.phase())||updated.reviewAction()!=view.reviewAction()||updated.admin()!=view.admin()||!updated.blueprint().equals(view.blueprint());
         if(rebuild)remember();
         if(!updated.blueprint().equals(view.blueprint())){xValue=null;yValue=null;zValue=null;tab=0;}
+        if(updated.requestId()>0||!updated.notice().isBlank()||!updated.phase().equals(view.phase()))serverNotice=updated.notice();
         view=updated;
         if(updated.requestId()>0&&updated.hasSite()){rotation=updated.rotation();xValue=Integer.toString(updated.origin().getX());yValue=Integer.toString(updated.origin().getY());zValue=Integer.toString(updated.origin().getZ());rebuild=true;}
         if(rebuild){scroll=0;clearWidgets();init();}
@@ -122,7 +124,7 @@ public final class ConstructionScreen extends Screen {
             RoyalProgress.render(g,x,y,w,8,view.placed()/(double)view.total());
             g.drawString(font,"Placed: "+view.placed()+" / "+view.total(),x,y+13,RoyalPalette.TEXT,false);
             int offset=view.phase().equals("APPROVED")&&view.owner()?80:56;
-            if(h>offset+16){RoyalPanel.parchment(g,x,y+offset,w,h-offset);paragraphs(g,List.of(text(greeting),text(view.activity()),text(siteText()),text(view.modern()?view.blueprint().equals(com.mohymods.kingdomsmp.building.BlueprintRegistry.HUT)?"Aldric Stonehand · Builder. Your starting construction service.":view.phase().equals("COMPLETE")?view.resident()+" · "+com.mohymods.kingdomsmp.building.BlueprintRegistry.occupation(view.blueprint())+". Visit the resident or service lectern.":view.resident()+" arrives after the complete "+view.title()+" is verified.":view.phase().equals("COMPLETE")?"Mira Ashford · Reeve. Visit her or the milestone lectern to inspect the kingdom's progress.":"Mira Ashford, the Reeve, will arrive after the whole Lodge is built and verified."),text(view.modern()?"Royal services: Architect, Essentials and Mailbox. Banking requires the completed Tier 3 Royal Bank.":"Legacy Lodge entitlement preserved. Banking, Royal Trading and Charter follow their own unlocks."),text(greeting.isBlank()?notice():"")),x+8,y+offset+8,w-16,h-offset-16);}
+            if(h>offset+16){RoyalPanel.parchment(g,x,y+offset,w,h-offset);paragraphs(g,List.of(text(greeting),text(greeting.isBlank()?notice():""),text(view.activity()),text(siteText()),text(view.modern()?view.blueprint().equals(com.mohymods.kingdomsmp.building.BlueprintRegistry.HUT)?"Aldric Stonehand · Builder. Your starting construction service.":view.phase().equals("COMPLETE")?view.resident()+" · "+com.mohymods.kingdomsmp.building.BlueprintRegistry.occupation(view.blueprint())+". Visit the resident or service lectern.":view.resident()+" arrives after the complete "+view.title()+" is verified.":view.phase().equals("COMPLETE")?"Mira Ashford · Reeve. Visit her or the milestone lectern to inspect the kingdom's progress.":"Mira Ashford, the Reeve, will arrive after the whole Lodge is built and verified."),text(view.modern()?"Royal services: Architect, Essentials and Mailbox. Banking requires the completed Tier 3 Royal Bank.":"Legacy Lodge entitlement preserved. Banking, Royal Trading and Charter follow their own unlocks.")),x+8,y+offset+8,w-16,h-offset-16);}
         }else{
             RoyalPanel.parchment(g,x,y+52,w,h-52);paragraphs(g,List.of(text("ROYAL CONSTRUCTION ADMINISTRATION"),text(siteText()),text("Review the site nearby. No terrain replacement or player-property destruction is permitted."),text(view.activity()),text("Recent private construction audit:\n"+view.audit()),text(notice())),x+8,y+60,w-16,h-68);
         }
@@ -141,7 +143,7 @@ public final class ConstructionScreen extends Screen {
         lines.add(text("Review expires after five minutes. If the site or proposal changes, review it again."));lines.add(text(view.activity()));lines.add(text(notice()));return lines;
     }
     private String siteText(){return view.hasSite()?"Overworld · "+view.origin().toShortString()+" · "+new String[]{"North","East","South","West"}[view.rotation()]+" · "+view.width()+" × "+view.depth()+" × "+view.height()+" · "+(view.valid()?"No obstruction at last review":"Site requires attention"):"No construction site selected.";}
-    private String notice(){return !localNotice.isBlank()?localNotice:!ConstructionController.status().isBlank()?ConstructionController.status():view.notice();}
+    private String notice(){return !localNotice.isBlank()?localNotice:!ConstructionController.status().isBlank()?ConstructionController.status():serverNotice;}
     private void paragraphs(GuiGraphics g,List<Component> paragraphs,int x,int y,int w,int h){
         if(h<=0)return;List<FormattedCharSequence> lines=new ArrayList<>();for(var p:paragraphs){if(p.getString().isBlank())continue;lines.addAll(font.split(p,w-6));lines.add(FormattedCharSequence.EMPTY);}
         maxScroll=Math.max(0,lines.size()*12-h);scroll=Math.clamp(scroll,0,maxScroll);g.enableScissor(x,y,x+w,y+h);

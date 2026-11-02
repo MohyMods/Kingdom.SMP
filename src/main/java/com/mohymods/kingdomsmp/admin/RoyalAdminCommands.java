@@ -39,6 +39,8 @@ public final class RoyalAdminCommands {
                         line(c.getSource(),realm.name()+" | "+realm.dimension()+" | Tier "+realm.tier()+" | "+(tier>=realm.tier()?"UNLOCKED":"LOCKED")+" | dimension registered: "+(server.getLevel(key)!=null));
                     }
                     line(c.getSource(),com.mohymods.kingdomsmp.integration.waystones.WaystoneAccess.status());
+                    line(c.getSource(),com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.status());
+                    if(com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.available())line(c.getSource(),"Aircraft current access: "+(com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.denial(c.getSource().getServer()).isEmpty()?"UNLOCKED":com.mohymods.kingdomsmp.integration.aircraft.AircraftAccess.denial(c.getSource().getServer())));
                     line(c.getSource(),"Ad Astra destination split, recipes and full-pack alternate routes require separate verified adapters.");return 1;
                 })))
                 .then(Commands.literal("integrations").then(Commands.literal("ftbquests").executes(c->{for(var line:com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.inspect(c.getSource().getServer()))c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal(line),false);return 1;})))
