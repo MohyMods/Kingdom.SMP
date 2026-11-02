@@ -20,6 +20,7 @@ public final class RoyalAdminCommands {
                 .then(Commands.literal("aircraft").then(Commands.literal("inspect").executes(c->{
                     var store=com.mohymods.kingdomsmp.economy.CommerceService.store(c.getSource().getServer());
                     line(c.getSource(),"Registered aircraft: "+store.aircraft().size()+"; buyer-owned/shared access. Inspection never grants frames or alters legacy aircraft.");
+                    line(c.getSource(),"Workshop repair reservations: "+store.aircraftRepairs().size()+" | held coins "+store.aircraftRepairEscrow());for(var repair:store.aircraftRepairs().stream().limit(64).toList())line(c.getSource(),"Repair "+repair.id()+" | registration "+repair.registration()+" | actor "+repair.actor()+" | coins "+repair.price()+" | pending native receipt");
                     for(var aircraft:store.aircraft().stream().limit(64).toList())line(c.getSource(),aircraft.id()+" | "+aircraft.type()+" | buyer "+aircraft.owner()+" | "+aircraft.phase()+" | generation "+aircraft.generation()+" | crew "+aircraft.crew());return 1;
                 })))
                 .then(ownerCommands())

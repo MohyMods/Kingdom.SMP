@@ -46,7 +46,7 @@ public final class AircraftSales {
     return project != null && project.blueprint().equals(RoyalAerodromeBlueprint.ID);
   }
 
-  private static void require(ServerPlayer p) {
+  static void require(ServerPlayer p) {
     CommerceService.requireResidentCounter(p);
     AircraftAccess.require();
     String why = AircraftAccess.denial(p.server);
@@ -61,7 +61,26 @@ public final class AircraftSales {
     CommerceService.verifyReceipt(p, store);
     long price = 0;
     String text;
-    if (action.startsWith("air:upgrade:")) {
+    if (action.startsWith("air:repair:")) {
+      var id = UUID.fromString(action.substring(11));
+      price = AircraftRepairs.price(p, id);
+      if (store.balance(p.getUUID()) < price)
+        throw new IllegalStateException("Insufficient coins for this workshop repair");
+      text =
+          "Reserve exactly "
+              + price
+              + " coins to restore your parked, unoccupied aircraft to full health. Keep the engine"
+              + " off and stay near Corin. Payment remains reserved until the repair is safely"
+              + " saved. Interrupted work resumes without another charge. You can still repair the"
+              + " aircraft by hand.";
+    } else if (action.startsWith("air:repaircancel:")) {
+      var repair = AircraftRepairs.refundable(p, UUID.fromString(action.substring(17)));
+      text =
+          "Cancel the undelivered workshop repair and return exactly "
+              + repair.price()
+              + " reserved coins once. Corin must be able to inspect the original aircraft."
+              + " Completed repairs cannot be refunded.";
+    } else if (action.startsWith("air:upgrade:")) {
       var part = AircraftEquipment.part(action.substring(12));
       var rules = AircraftEquipment.rules(p.server);
       price = rules.price(part);
@@ -137,6 +156,11 @@ public final class AircraftSales {
         || System.nanoTime() - q.issued() > 30_000_000_000L)
       throw new IllegalStateException(
           "Aircraft review expired or registry/funds changed. Review again.");
+    if (q.action().startsWith("air:repair:"))
+      return AircraftRepairs.purchase(
+          p, q.nonce(), UUID.fromString(q.action().substring(11)), q.price());
+    if (q.action().startsWith("air:repaircancel:"))
+      return AircraftRepairs.refund(p, q.nonce(), UUID.fromString(q.action().substring(17)));
     if (q.action().startsWith("air:upgrade:")) {
       var part = AircraftEquipment.part(q.action().substring(12));
       var rules = AircraftEquipment.rules(p.server);
@@ -263,6 +287,7 @@ public final class AircraftSales {
                     + " through their inventory.",
                 0,
                 "AIRCRAFT_RECORD"));
+        if (rows.size() < 116) rows.addAll(AircraftRepairs.entries(p, record));
         if (record.phase() == AircraftState.Phase.STARTING && rows.size() < 120)
           rows.add(
               new CommerceView.Entry(
@@ -372,6 +397,8 @@ public final class AircraftSales {
       if (record.phase() != AircraftState.Phase.ACTIVE
           || !record.deployment().getCompound("entity").getUUID("UUID").equals(entity.getUUID()))
         return "Aircraft deployment is pending or obsolete.";
+      if (CommerceService.store(p.server).aircraftRepair(record.id()).isPresent())
+        return "This airframe has a reserved workshop repair awaiting durable completion.";
       return record.permits(p.getUUID())
           ? ""
           : "Only the registered buyer and their shared crew may use this aircraft.";
@@ -599,7 +626,8 @@ public final class AircraftSales {
         entity.discard();
         return true;
       }
-      return record.phase() != AircraftState.Phase.ACTIVE;
+      return record.phase() != AircraftState.Phase.ACTIVE
+          || store.aircraftRepair(record.id()).isPresent();
     } catch (RuntimeException e) {
       return true; /* Preserve unknown authority without granting use or movement. */
     }

@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -337,6 +337,16 @@ public final class EconomyStore {
     public synchronized void shareAircraft(UUID operation,UUID owner,UUID registration,UUID target,boolean allow)throws IOException{
         var data=new CompoundTag();data.putUUID("crew",target);data.putBoolean("allow",allow);var op=new Operation(history.size()+1L,operation,Kind.AIRCRAFT_SHARE,owner,owner,0,"aircraft","Aircraft shared access",registration,0,0,data);if(!replayed(op))append(op);
     }
+    public synchronized List<AircraftState.Repair> aircraftRepairs(){healthy();return aircraft.repairs();}
+    public synchronized Optional<AircraftState.Repair> aircraftRepair(UUID registration){healthy();return aircraft.repair(registration);}
+    public synchronized Optional<UUID> deliveredAircraftRepair(UUID registration){healthy();return aircraft.deliveredRepair(registration);}
+    public synchronized long aircraftRepairEscrow(){healthy();return aircraft.repairs().stream().mapToLong(AircraftState.Repair::price).sum();}
+    public synchronized void buyAircraftRepair(UUID operation,UUID actor,UUID registration,float health,long rate)throws IOException{
+        var record=aircraft.get(registration).orElseThrow();var data=new CompoundTag();data.putUUID("entity",record.deployment().getCompound("entity").getUUID("UUID"));data.putLong("generation",record.generation());data.putFloat("health",health);data.putLong("rate",rate);var op=new Operation(history.size()+1L,operation,Kind.AIRCRAFT_REPAIR_BUY,actor,actor,AircraftState.repairPrice(health,rate),"aircraft_repair","Reserved aircraft repair",registration,0,0,data);if(!replayed(op))append(op);
+    }
+    public synchronized void settleAircraftRepair(UUID operation,UUID actor,UUID ticket,boolean refund)throws IOException{
+        var old=find(operation);long amount=refund?(old==null?aircraft.repairTicket(ticket).orElseThrow().price():old.amount()):0;var op=operation(operation,refund?Kind.AIRCRAFT_REPAIR_REFUND:Kind.AIRCRAFT_REPAIR_APPLY,actor,actor,amount,"aircraft_repair",refund?"Refunded undelivered aircraft repair":"Applied aircraft repair",ticket,0,0);if(!replayed(op))append(op);
+    }
     public synchronized long equipmentCoinsSpent(){return equipmentSpent;}
     public synchronized long shopCoinsSpent(){return shopSpent;}
     /** Debit, finite stock consumption and recoverable delivery commit together. Root validates real counter/catalogue. */
@@ -547,6 +557,7 @@ public final class EconomyStore {
         operationIndex.put(op.id(),op);
         if(switch(op.kind()){case SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
         if(op.kind()==Kind.SALE){latestSalePeriod=Math.max(latestSalePeriod,op.period());dailyNpcSpent.merge(op.period(),op.amount(),Math::addExact);dailyResourceSold.merge(new ShopDay(op.period(),op.key()),(long)op.quantity(),Math::addExact);dailyPlayerProceeds.merge(new PlayerDay(op.period(),op.target()),op.amount(),Math::addExact);}
+        if(op.kind()==Kind.AIRCRAFT_REPAIR_APPLY)shopSpent=Math.addExact(shopSpent,find(op.reference()).amount());
         if(op.kind()==Kind.GEAR_BUY)equipmentSpent=Math.addExact(equipmentSpent,op.amount());
         if(op.kind()==Kind.SHOP_BUY||op.kind()==Kind.AIRCRAFT_BUY)shopSpent=Math.addExact(shopSpent,op.amount());
         if(op.kind()==Kind.BUY_ITEM||op.kind()==Kind.SETTLE_TIMED)removedTax=Math.addExact(removedTax,tax(op.amount(),listings.get(op.reference()).master()));
@@ -603,13 +614,19 @@ public final class EconomyStore {
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
         var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();var nextCommunity=community.copy();var nextEquipment=equipment.copy();var nextAircraft=aircraft.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts,nextCommunity,nextEquipment,nextAircraft);var next=appended(history,op);
         if(pending==null&&transfer==null&&pendingItem==null)maybeArchive();
-        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.COMMUNITY_DELIVERY||op.kind()==Kind.GEAR_BUY||op.kind()==Kind.HUNT_ACCEPT||op.kind()==Kind.AIRCRAFT_BUY,nextAircraft);persist(next,null);
+        budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.COMMUNITY_DELIVERY||op.kind()==Kind.GEAR_BUY||op.kind()==Kind.HUNT_ACCEPT||op.kind()==Kind.AIRCRAFT_BUY||op.kind()==Kind.AIRCRAFT_REPAIR_BUY,nextAircraft);persist(next,null);
         balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=appended(history,op);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;community=nextCommunity;equipment=nextEquipment;aircraft=nextAircraft;pendingItem=null;index(op);
     }
     private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold,Map<UUID,ProfessionRoster> professionRosters,ContractState contracts,CommunityContractState community,EquipmentState equipment,AircraftState aircraft){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
+            case AIRCRAFT_REPAIR_BUY->{
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()==null||op.quantity()!=0||op.period()!=0||!op.key().equals("aircraft_repair")||!op.detail().equals("Reserved aircraft repair")||!data.getAllKeys().equals(Set.of("entity","generation","health","rate"))||!data.hasUUID("entity")||!data.contains("generation",Tag.TAG_LONG)||!data.contains("health",Tag.TAG_FLOAT)||!data.contains("rate",Tag.TAG_LONG)||balance<op.amount())throw new IllegalStateException("Invalid or unfunded repair reservation");aircraft.buyRepair(op.id(),op.actor(),op.reference(),data.getUUID("entity"),data.getLong("generation"),data.getFloat("health"),data.getLong("rate"),op.amount());balances.put(op.actor(),balance-op.amount());
+            }
+            case AIRCRAFT_REPAIR_APPLY,AIRCRAFT_REPAIR_REFUND->{
+                boolean refund=op.kind()==Kind.AIRCRAFT_REPAIR_REFUND;if(!op.actor().equals(op.target())||op.reference()==null||op.quantity()!=0||op.period()!=0||!op.payload().isEmpty()||!op.key().equals("aircraft_repair")||!op.detail().equals(refund?"Refunded undelivered aircraft repair":"Applied aircraft repair"))throw new IllegalArgumentException("Invalid aircraft repair settlement");var repair=aircraft.repairTicket(op.reference()).orElseThrow();if(op.amount()!=(refund?repair.price():0))throw new IllegalStateException("Repair settlement differs from its canonical reservation");aircraft.settleRepair(op.reference(),op.actor(),!refund);if(refund){long next=Math.addExact(balance,repair.price());money(next);balances.put(op.actor(),next);}
+            }
             case AIRCRAFT_BUY->{
                 if(!op.actor().equals(op.target())||op.reference()!=null||op.quantity()!=1||op.period()!=0||op.amount()<1||op.amount()>1_000_000_000L||!op.detail().equals("Registered aircraft purchase")||!op.payload().getAllKeys().equals(Set.of("item"))||balance<op.amount()||itemMail.containsKey(op.id()))throw new IllegalStateException("Aircraft purchase cannot be funded");
                 var item=checkedItem(op.payload().getCompound("item"));aircraft.buy(op.id(),op.actor(),op.key(),item);balances.put(op.target(),balance-op.amount());itemMail.put(op.id(),new ItemMail(op.id(),op.target(),item,"Buyer-registered aircraft",false));

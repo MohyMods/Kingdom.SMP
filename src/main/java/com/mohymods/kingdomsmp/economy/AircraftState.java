@@ -44,6 +44,77 @@ public final class AircraftState {
     }
   }
 
+  public record Repair(
+      UUID id,
+      UUID registration,
+      UUID actor,
+      UUID entity,
+      long generation,
+      float health,
+      long rate,
+      long price) {}
+
+  private final Map<UUID, Repair> repairs = new LinkedHashMap<>();
+  private final Map<UUID, UUID> deliveredRepairs = new HashMap<>();
+
+  public Optional<UUID> deliveredRepair(UUID registration) {
+    return Optional.ofNullable(deliveredRepairs.get(registration));
+  }
+
+  public List<Repair> repairs() {
+    return List.copyOf(repairs.values());
+  }
+
+  public Optional<Repair> repair(UUID registration) {
+    return Optional.ofNullable(repairs.get(registration));
+  }
+
+  public Optional<Repair> repairTicket(UUID ticket) {
+    return repairs.values().stream().filter(r -> r.id().equals(ticket)).findFirst();
+  }
+
+  public static long repairPrice(float health, long rate) {
+    if (!Float.isFinite(health) || health <= 0 || health >= 1 || rate < 1 || rate > 1_000_000_000L)
+      throw new IllegalArgumentException("Invalid damaged-airframe repair terms");
+    return java.math.BigDecimal.ONE
+        .subtract(new java.math.BigDecimal(Float.toString(health)))
+        .multiply(java.math.BigDecimal.valueOf(rate))
+        .setScale(0, java.math.RoundingMode.CEILING)
+        .longValueExact();
+  }
+
+  void buyRepair(
+      UUID id,
+      UUID actor,
+      UUID registration,
+      UUID entity,
+      long generation,
+      float health,
+      long rate,
+      long price) {
+    var record = required(registration);
+    if (!record.owner().equals(actor)
+        || record.phase() != Phase.ACTIVE
+        || record.generation() != generation
+        || !record.deployment().getCompound("entity").getUUID("UUID").equals(entity)
+        || repairs.containsKey(registration)
+        || repairPrice(health, rate) != price)
+      throw new IllegalStateException("Aircraft repair is unavailable or already reserved");
+    repairs.put(
+        registration, new Repair(id, registration, actor, entity, generation, health, rate, price));
+  }
+
+  Repair settleRepair(UUID ticket, UUID actor, boolean delivered) {
+    var repair =
+        repairTicket(ticket)
+            .orElseThrow(() -> new IllegalStateException("No pending aircraft repair"));
+    if (!repair.actor().equals(actor))
+      throw new IllegalStateException("Repair reservation belongs to another player");
+    repairs.remove(repair.registration());
+    if (delivered) deliveredRepairs.put(repair.registration(), repair.id());
+    return repair;
+  }
+
   public static final Set<String> TYPES =
       Set.of(
           "immersive_aircraft:biplane",
@@ -58,6 +129,8 @@ public final class AircraftState {
   AircraftState copy() {
     var next = new AircraftState();
     next.records.putAll(records);
+    next.repairs.putAll(repairs);
+    next.deliveredRepairs.putAll(deliveredRepairs);
     return next;
   }
 
@@ -127,10 +200,13 @@ public final class AircraftState {
   void pack(UUID id, UUID owner, CompoundTag item) {
     var old = required(id);
     if (!old.owner().equals(owner)
+        || repairs.containsKey(id)
         || old.phase() != Phase.ACTIVE && old.phase() != Phase.STARTING
         || !item.getString("id").equals(old.type())
         || item.getInt("count") != 1)
       throw new IllegalStateException("Aircraft cannot be returned");
+    deliveredRepairs.remove(
+        id); // A legitimately packed next-generation body has no old service receipt.
     records.put(
         id,
         new Registration(

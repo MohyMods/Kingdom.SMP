@@ -91,7 +91,7 @@ public final class AircraftAccess {
             failure=unavailable="Unverified Immersive Aircraft "+version+"; requires "+VERSION+". World startup refused rather than exposing unverified aircraft access.";
             bus.addListener(EventPriority.HIGHEST,(ServerAboutToStartEvent e)->{throw new IllegalStateException(failure);});return;
         }
-        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();AircraftInventoryAccess.bind();}
+        try{vehicle=Class.forName("immersive_aircraft.entity.VehicleEntity");item=Class.forName("immersive_aircraft.item.VehicleItem");onWater=item.getDeclaredField("onWater");if(!onWater.trySetAccessible())throw new IllegalStateException("Aircraft deployment fluid policy unavailable");AircraftPacketGuard.bind();AircraftInventoryAccess.bind();AircraftRepairs.bind(vehicle);}
         catch(ReflectiveOperationException e){throw new IllegalStateException("Verified aircraft API unavailable; refusing unprotected aircraft access",e);}
         unavailable="";
         bus.addListener(EventPriority.HIGHEST,AircraftAccess::use);
@@ -158,7 +158,7 @@ public final class AircraftAccess {
     private static void tick(ServerTickEvent.Post e){
         // One integrity scan per second for all actual riders, no scans or tickets when nobody is aboard.
         if(e.getServer().getTickCount()%20!=0)return;
-        AircraftSales.recover(e.getServer());
+        AircraftSales.recover(e.getServer());AircraftRepairs.recover(e.getServer());
         Boolean allowed=null;
         for(var p:java.util.List.copyOf(e.getServer().getPlayerList().getPlayers()))if(!p.hasDisconnected()&&aircraft(p.getVehicle())){
             if(allowed==null)allowed=denial(e.getServer()).isEmpty();

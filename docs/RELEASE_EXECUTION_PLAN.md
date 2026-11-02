@@ -1,3 +1,5 @@
+> D054 durable workshop repair is verified in AIRCRAFT_REPAIRS.md; D052/D053 purchases/shared crew/recovery/native upgrades remain. Continue actual flight/cargo/scouting services and remaining release requirements without intermediate releases.
+
 > D052/D053 aircraft purchasing/shared crew, native-item authenticated placement/restart, unfinished recovery and six native upgrade shop/fitting flows are verified in AIRCRAFT_PURCHASES.md. Continue repair/cargo/scouting/flight services and the full remaining backlog; no per-feature releases.
 
 > Aerodrome hangar/native use prerequisite is verified; continue its payload, powered-flight and actual service dependencies rather than treating the building as complete1.0content. See AERODROME_RUNTIME.md.
