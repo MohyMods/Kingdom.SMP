@@ -49,6 +49,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.profession.FarmerQuestService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.bounty.HuntService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.fishing.FishingCatchService.register(NeoForge.EVENT_BUS);
+        com.mohymods.kingdomsmp.title.TitleService.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(this::serverStarted);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
     }
@@ -61,6 +62,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.building.ConstructionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.progression.TierTwoService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.CommerceService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.title.TitleService.initialize(event.getServer());
         com.mohymods.kingdomsmp.integration.aircraft.FlightService.initialize(event.getServer());
         com.mohymods.kingdomsmp.integration.aircraft.CargoService.initialize(event.getServer());com.mohymods.kingdomsmp.integration.aircraft.ScoutService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.AuctionService.initialize(event.getServer());
@@ -78,6 +80,7 @@ public final class KingdomSmp {
                 .then(com.mohymods.kingdomsmp.milestone.MilestoneService.commands())
                 .then(com.mohymods.kingdomsmp.economy.CommerceService.commands())
                 .then(com.mohymods.kingdomsmp.profession.ProfessionService.commands())
+                .then(com.mohymods.kingdomsmp.title.TitleService.commands())
                 .then(Commands.literal("status").executes(context -> {
                     KingdomState state = ContributionService.kingdom(context.getSource().getServer());
                     context.getSource().sendSuccess(() -> Component.translatable("kingdom_smp.command.status",

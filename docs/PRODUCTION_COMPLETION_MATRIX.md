@@ -98,3 +98,6 @@ D057: Corin’s finite physical refueling coal supply is functional and tested t
 
 
 D058: actual shared reconnaissance is functional through Corin, genuine registered powered flight, saved biome-tagged regions, profile Steward report and canonical once-only Mailbox reward.469JUnit, three final native JVMs and two further report-stage JVMs pass; actual ordinary Survival Royal review/claim AND client/server restart retain38300purse/six recognized regions/300paid/original frames/no bypass grants. See AIR_SCOUT_RUNTIME.md for exact scope and retained failed tests. Scouting closes this service slice; full Aerodrome, natural multiplayer and277-entry compatibility acceptance and Monument remain open. Coarse release totals stay unchanged.
+
+
+D059: founder/profession title selection is functional: canonical first-buyer labels, genuinely earned ranks including inactive history, private self-only reviewed preference, clear, ordinary chat/tab display, real post-login restoration and OP2 inspection.477JUnit/full build, two actual native JVMs, aircraft-absent legacy claims and real Royal client/chat/player-list/restart pass; EARNED_TITLES_RUNTIME.md. This does not complete achievement titles, all profession content, FTB Ranks integration or the1.0full-pack criteria.

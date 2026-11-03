@@ -77,3 +77,6 @@ Latest source c0889d3 / 0.5.1-dev passed full142JUnit, core native lifecycle and
 
 
 D058: shared reconnaissance joins the existing flight dispatch, cargo, refueling, repair, upgrade and registered purchase slices. Current server-position/biome evidence, global unique-region recognition, finite once-only rewards, present FTB/OPAC and genuine restart/client flows are tested (AIR_SCOUT_RUNTIME.md). Continue selectable earned founder/profession titles, then remaining public building/tier/integration/campaign and full release acceptance in RELEASE_EXECUTION_PLAN. No intermediate binary release or1.0claim.
+
+
+D059: approved earned founder/profession title selector, actual chat/player-list display and restart are verified (EARNED_TITLES_RUNTIME.md). Continue the approved first buyer's NPC naming flow through normal construction UI, preserving existing Aldric/Steward identities and all world/claim authority, then remaining common framework/buildings/achievement recognition and whole RELEASE_EXECUTION_PLAN. No intermediate binary release.

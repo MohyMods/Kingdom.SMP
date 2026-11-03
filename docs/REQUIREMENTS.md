@@ -152,3 +152,6 @@ D057 supplies actual native-compatible refueling coal through Corin, canonical f
 
 
 D058 implementation evidence: approved Aerodrome reconnaissance now records actual powered Overworld flight and new-to-kingdom regions, with reviewed Steward report and private finite rewards. Implementation defaults are configurable and do not approve future tier costs or new profession quests. Shared canonical recognition, buyer/shared crew/current native generation, both claim policies and saved observation recovery remain authoritative. AIR_SCOUT_RUNTIME.md documents verified native/client scope and open natural/full-pack acceptance.
+
+
+D059 evidence: server-derived founder/profession recognition is selectable and clearable through Royal Titles and /kingdom title. Inactive rank identity remains available without active gameplay bonuses. Display changes never mutate permissions or original founder records. EARNED_TITLES_RUNTIME.md separates verified native/client/restart scope from remaining achievement/full-pack acceptance.

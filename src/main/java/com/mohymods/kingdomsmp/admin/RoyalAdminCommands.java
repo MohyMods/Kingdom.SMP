@@ -27,6 +27,7 @@ public final class RoyalAdminCommands {
                     line(c.getSource(),"Workshop repair reservations: "+store.aircraftRepairs().size()+" | held coins "+store.aircraftRepairEscrow());for(var repair:store.aircraftRepairs().stream().limit(64).toList())line(c.getSource(),"Repair "+repair.id()+" | registration "+repair.registration()+" | actor "+repair.actor()+" | coins "+repair.price()+" | pending native receipt");
                     for(var aircraft:store.aircraft().stream().limit(64).toList())line(c.getSource(),aircraft.id()+" | "+aircraft.type()+" | buyer "+aircraft.owner()+" | "+aircraft.phase()+" | generation "+aircraft.generation()+" | crew "+aircraft.crew());return 1;
                 })))
+                .then(Commands.literal("titles").then(Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player()).executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");line(c.getSource(),"Selected title: "+com.mohymods.kingdomsmp.title.TitleService.book(p.server).selected(p.getUUID())+" | cosmetic only");for(var earned:com.mohymods.kingdomsmp.title.TitleService.earned(p))line(c.getSource(),earned.id()+" | "+earned.label());return 1;})))
                 .then(ownerCommands())
                 .then(com.mohymods.kingdomsmp.profession.FarmerInspectionService.commands())
                 .then(com.mohymods.kingdomsmp.progression.TierTwoService.commands())
