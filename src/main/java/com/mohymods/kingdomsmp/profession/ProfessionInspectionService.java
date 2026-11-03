@@ -54,9 +54,10 @@ public final class ProfessionInspectionService {
             if(state.is(Blocks.DIRT_PATH)&&level.getBlockState(pos.above()).getCollisionShape(level,pos.above()).isEmpty()&&level.getBlockState(pos.above(2)).getCollisionShape(level,pos.above(2)).isEmpty())routes.add(pos);
         }
         int route=largestConnected(routes);
-        if(d.profession()==Profession.BUILDER){if(doors<1||stairs<1)throw new IllegalStateException("Working entrance needs a supported clear two-sided doorway, stairs and usable navigation; administrator must attest actual project authorship and consent");}
-        else if(route<8||markers<2||saplings<1||logs<1)throw new IllegalStateException("Forest route needs8connected clear path cells,2light markers, replacement saplings and a timber work area; administrator must inspect safe felling and consent");
+        if(d.profession()==Profession.BUILDER&&d.rank()==ProfessionRank.APPRENTICE){if(doors<1||stairs<1)throw new IllegalStateException("Working entrance needs a supported clear two-sided doorway, stairs and usable navigation; administrator must attest actual project authorship and consent");}
+        else if(d.profession()==Profession.LUMBERJACK&&(route<8||markers<2||saplings<1||logs<1))throw new IllegalStateException("Forest route needs8connected clear path cells,2light markers, replacement saplings and a timber work area; administrator must inspect safe felling and consent");
         String proof="doors="+doors+",stairs="+stairs+",route="+route+",lights="+markers+",saplings="+saplings+",logs="+logs+",snapshot="+Long.toUnsignedString(snapshot,16);
+        if(d.profession()==Profession.BUILDER&&d.rank()==ProfessionRank.JOURNEYMAN)proof=BuilderInspectionGeometry.validate(level,id,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
         if(id.equals("kingdom_smp:builder/a08")){
             var retained=new StringBuilder(proof);
             for(var prior:RetainedBuildingQuests.ids().stream().filter(q->RetainedBuildingQuests.get(q).rank()==ProfessionRank.APPRENTICE).sorted().toList()){

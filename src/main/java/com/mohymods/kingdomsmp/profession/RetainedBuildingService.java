@@ -123,7 +123,8 @@ public final class RetainedBuildingService {
         try{return new Snapshot(count,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.toString().getBytes(StandardCharsets.UTF_8))));}
         catch(NoSuchAlgorithmException impossible){throw new IllegalStateException("SHA-256 unavailable",impossible);}
     }
-    private static int connectedRoute(ServerLevel level,Set<BlockPos> cells){
+    static int connectedRoute(ServerLevel level,Set<BlockPos> cells){return connectedRoute(level,cells,p->true);}
+    static int connectedRoute(ServerLevel level,Set<BlockPos> cells,java.util.function.Predicate<BlockPos> countable){
         var remaining=new HashSet<>(cells);int largest=0;
         Set<BlockPos> approaches=new HashSet<>();
         for(var project:ConstructionService.store(level.getServer()).projects()){
@@ -140,7 +141,7 @@ public final class RetainedBuildingService {
         while(!remaining.isEmpty()){
             var first=remaining.iterator().next();remaining.remove(first);var queue=new ArrayDeque<BlockPos>();queue.add(first);int count=0;boolean reaches=false;
             while(!queue.isEmpty()){
-                var pos=queue.removeFirst();count++;if(approaches.contains(pos.above()))reaches=true;
+                var pos=queue.removeFirst();if(countable.test(pos))count++;if(approaches.contains(pos.above()))reaches=true;
                 for(var direction:Direction.Plane.HORIZONTAL)for(int dy=-1;dy<=1;dy++){var next=pos.relative(direction).offset(0,dy,0);if(remaining.remove(next))queue.addLast(next);}
             }
             if(reaches)largest=Math.max(largest,count);
