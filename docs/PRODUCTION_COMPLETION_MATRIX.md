@@ -104,3 +104,6 @@ D059: founder/profession title selection is functional: canonical first-buyer la
 
 
 D060: existing pre-construction naming now has a reviewed Royal Resident tab; full480tests, final targeted15integrity/payload tests and three native JVMs verify real purchased workshop/name/restart/progressive spawn/unique identity and unchanged finance/Steward. Graphical text-entry acceptance remains open; optional extended QA stopped per new risk-based priorities. RESIDENT_NAMING_RUNTIME.md.
+
+
+Shared profession evaluation now runs the approved Farmer24through common sum/per-category/event/manual rules; no objective, quantity, evidence, rank or reward change.44targeted proof/economy/roster tests, one real native complete24objective/4800XP/purchased-tools walk and full486JUnit integration build pass. Remaining264objective definitions are a complete disabled PROPOSAL awaiting one batch review, not implemented/approved quests. User priorities place reusable professions first, then tiers/buildings/restrictions, full campaign, admin/critical integrations and full-pack release acceptance.

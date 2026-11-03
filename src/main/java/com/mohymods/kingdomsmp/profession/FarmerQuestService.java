@@ -112,26 +112,16 @@ public final class FarmerQuestService {
     private static int births(ServerPlayer p,ProfessionRank band){return count(p,band,"cow")+count(p,band,"sheep")+count(p,band,"chicken")+count(p,band,"pig");}
     public static boolean ready(ServerPlayer p,String id){
         var roster=CommerceService.store(p.server).professions(p.getUUID());if(!roster.isActive(Profession.FARMER)||roster.track(Profession.FARMER).completedQuestIds().contains(id)||!FarmerQuests.catalog().mayAttempt(Profession.FARMER,id,roster.track(Profession.FARMER).completedQuestIds()))return false;
-        var d=FarmerQuests.catalog().definition(id).orElseThrow();String slot=id.substring(id.lastIndexOf('/')+1);var rules=FarmerQuestRules.get(p.server);
-        return switch(slot){
-            case "a01"->count(p,d.rank(),"soil")>=rules.goal(slot);
-            case "a02"->count(p,d.rank(),"wheat")>=rules.goal(slot);
-            case "a03"->count(p,d.rank(),"carrot")>=rules.goal(slot);
-            case "a04"->count(p,d.rank(),"potato")>=rules.goal(slot);
-            case "a05"->births(p,d.rank())>=rules.goal(slot);
-            case "a06"->count(p,d.rank(),"bread")>=rules.goal(slot)&&CommerceService.store(p.server).farmerFoodConsumed(p.getUUID(),ProfessionRank.APPRENTICE,"minecraft:bread")>=rules.goal(slot);
-            case "j01"->count(p,d.rank(),"beetroot")>=rules.goal(slot)&&count(p,d.rank(),"wheat")>=rules.goal(slot);
-            case "j02"->count(p,d.rank(),"carrot")>=rules.goal(slot)&&count(p,d.rank(),"potato")>=rules.goal(slot);
-            case "j03"->count(p,d.rank(),"melon")+count(p,d.rank(),"pumpkin")>=rules.goal(slot);
-            case "j04"->count(p,d.rank(),"cow")>=rules.goal(slot)&&count(p,d.rank(),"sheep")>=rules.goal(slot)&&count(p,d.rank(),"chicken")>=rules.goal(slot);
-            case "j07","m04"->CommerceService.store(p.server).farmerContractPeriods(p.getUUID(),d.rank(),slot.equals("j07")?"daily":"weekly")>=rules.goal(slot);
-            case "m01"->List.of("wheat","carrot","potato","beetroot").stream().mapToInt(metric->count(p,d.rank(),metric)).sum()>=rules.goal(slot)&&List.of("wheat","carrot","potato","beetroot").stream().allMatch(metric->count(p,d.rank(),metric)>=rules.goal("m01_category"));
-            case "m02"->births(p,d.rank())>=rules.goal(slot)&&List.of("cow","sheep","chicken","pig").stream().allMatch(metric->count(p,d.rank(),metric)>=rules.goal("m02_category"));
-            case "m05"->CommerceService.store(p.server).communityMasterProofs(p.getUUID())>=rules.goal(slot);
-            case "m06"->count(p,d.rank(),"replant")>=rules.goal(slot);
-            default->false;
-        };
+        var definition=FarmerQuests.catalog().definition(id).orElseThrow();var rules=FarmerQuestRules.get(p.server);var store=CommerceService.store(p.server);
+        return FarmerObjectives.rule(id).ready(metric->switch(metric){
+            case "contracts/daily"->store.farmerContractPeriods(p.getUUID(),definition.rank(),"daily");
+            case "contracts/weekly"->store.farmerContractPeriods(p.getUUID(),definition.rank(),"weekly");
+            case "community/master_food"->store.communityMasterProofs(p.getUUID());
+            case "consumed/minecraft:bread"->store.farmerFoodConsumed(p.getUUID(),definition.rank(),"minecraft:bread");
+            default->count(p,definition.rank(),metric);
+        },rules::goal);
     }
+
     public static void complete(ServerPlayer p,UUID operation,String id)throws IOException{
         CommerceService.requireResidentCounter(p);if(!ProfessionService.available(p,Profession.FARMER)||!ready(p,id))throw new IllegalStateException("This objective is not proven. "+status(p,id));
         CommerceService.store(p.server).completeFarmerQuest(operation,p.getUUID(),id,status(p,id));

@@ -301,3 +301,8 @@ Implements the approved self-only cosmetic selector using existing canonical fir
 ## D060 — reviewed interface for existing new-resident naming
 
 Expose the existing unused Hall/purchased-holder naming policy in the Royal Construction Resident tab. Server-owned exact project/name review, identity preservation and unchanged placement protections; protocol15, no gameplay-save migration. Backend/storage/native issuance verified; graphical text-entry acceptance remains open. See RESIDENT_NAMING_RUNTIME.md. Latest user priorities now put shared profession/content completion ahead of secondary polish and broad repeat QA.
+
+
+## D061 — shared objective evaluation and one proposed264quest review
+
+User confirms only Farmer’s24concrete objectives were approved and authorizes one complete proposal for the other eleven professions,24each/8perband, then a single batch approval request. Proposed content and missing availability gates remain disabled. Farmer definitions/quantities/evidence/rewards and history remain unchanged. Risk-based delivery priorities now emphasize shared professions and core progression over secondary polish/blanket repeated QA. QuestObjective/FarmerObjectives replaces bespoke readiness conditions with shared bounded sum/per-category criteria and explicit non-auto-grant delivery/inspection types. Full486JUnit plus the actual native Farmer24walk pass; no new quest activation or1.0claim.
