@@ -1,3 +1,5 @@
+> D057: Corin’s physical refueling supply/private claim/native boiler burn and restart are verified in AIRCRAFT_FUEL_RUNTIME.md. Continue scouting and the complete remaining release backlog; no intermediate binary release.
+
 > D056: transported native cargo and explicit saved-receipt NPC resume are verified in AIR_CARGO_RUNTIME.md. Continue remaining Aerodrome refueling/scouting and the complete approved backlog; no intermediate binary release.
 
 > D055: Corin’s real daily flight dispatch is implemented and tested; see AIR_DISPATCH_RUNTIME.md. Continue durable cargo/scouting services and the complete remaining backlog. No intermediate binary release.

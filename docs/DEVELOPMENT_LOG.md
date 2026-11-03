@@ -183,3 +183,8 @@ Completed and tested a real daily Aerodrome flight dispatch, durable per-pilot t
 ## D056 — continuous transported-cargo implementation, no binary release
 
 Implemented native storage transport proof, exact partial goods consumption only after canonical finite reservation, world-saved receipts, explicit NPC resume/cancel and once-only private payment.456JUnit/fullbuild, actual four-JVM ACK-I/O failure and restart recovery, independent current FTB/OPAC review denials, original dispatch/legacy regressions and real ordinary-client consume/mail/claim/restart/scaling pass. Exact source/fixture limitations in AIR_CARGO_RUNTIME.md; final strengthened native inventory-removal probe is tracked there. Normal defaults enable after protocol acceptance; existing explicit administrator disables are preserved. No automatic entity-load item removal, per-feature binary publication or1.0claim. Continue refueling/scouting and full approved backlog.
+
+
+## D057 — Corin physical refueling supply, continuous source work
+
+Fixed server-derived coal packs use canonical stock/debit/mail and actual native boiler slots.458JUnit/fullbuild, two actual native paid-fuel/claim/fitting/burn/restart boots and actual normal Corin right-click/Royal purchase/claim pass. Read-only proofs/screens and limits in AIRCRAFT_FUEL_RUNTIME.md. Existing cargo-world records preserved in a separately copied GUI test world. No per-feature binary release, remote instant-fill claim or1.0completion. Continue scouting and all remaining approved dependencies.

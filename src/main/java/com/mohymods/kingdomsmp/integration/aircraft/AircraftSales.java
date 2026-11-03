@@ -80,6 +80,23 @@ public final class AircraftSales {
               + repair.price()
               + " reserved coins once. Corin must be able to inspect the original aircraft."
               + " Completed repairs cannot be refunded.";
+    } else if (action.equals(AircraftFuel.ACTION)) {
+      var fuel = AircraftFuel.rules(p.server);
+      price = fuel.price();
+      if (store.shopSold(day(), AircraftFuel.RESOURCE) > fuel.dailyStock() - fuel.packSize())
+        throw new IllegalStateException("Today's shared refueling coal stock is sold out");
+      if (store.balance(p.getUUID()) < price)
+        throw new IllegalStateException("Insufficient coins for this refueling pack");
+      text =
+          "Buy "
+              + fuel.packSize()
+              + " coal for exactly "
+              + price
+              + " coins into private Mailbox. Claim the physical fuel, then load a compatible"
+              + " native boiler slot through the aircraft inventory. Native fuel consumption,"
+              + " current registration/shared access and both claim protections remain. This"
+              + " purchase does not remotely refill an engine. Shared daily stock resets at 00:00"
+              + " UTC.";
     } else if (action.startsWith("air:upgrade:")) {
       var part = AircraftEquipment.part(action.substring(12));
       var rules = AircraftEquipment.rules(p.server);
@@ -161,6 +178,24 @@ public final class AircraftSales {
           p, q.nonce(), UUID.fromString(q.action().substring(11)), q.price());
     if (q.action().startsWith("air:repaircancel:"))
       return AircraftRepairs.refund(p, q.nonce(), UUID.fromString(q.action().substring(17)));
+    if (q.action().equals(AircraftFuel.ACTION)) {
+      var fuel = AircraftFuel.rules(p.server);
+      if (day() != q.day() || fuel.price() != q.price())
+        throw new IllegalStateException("Fuel trading day or price changed; review again");
+      store.shopBuy(
+          q.nonce(),
+          p.getUUID(),
+          AircraftFuel.RESOURCE,
+          "Aircraft refueling coal",
+          (CompoundTag) fuel.stack().save(p.registryAccess()),
+          fuel.packSize(),
+          q.day(),
+          fuel.dailyStock(),
+          fuel.unitPrice(),
+          fuel.unitPrice());
+      return "Refueling coal purchased once. Claim it in private Mailbox, then load the native"
+                 + " boiler slot; no engine was refilled remotely.";
+    }
     if (q.action().startsWith("air:upgrade:")) {
       var part = AircraftEquipment.part(q.action().substring(12));
       var rules = AircraftEquipment.rules(p.server);
@@ -253,6 +288,20 @@ public final class AircraftSales {
               price,
               "AIRCRAFT"));
     }
+    var fuel = AircraftFuel.rules(p.server);
+    long fuelSold = CommerceService.store(p.server).shopSold(day(), AircraftFuel.RESOURCE);
+    rows.add(
+        0,
+        new CommerceView.Entry(
+            AircraftFuel.ACTION,
+            "Coal refueling pack",
+            fuel.packSize()
+                + " coal · "
+                + Math.max(0, fuel.dailyStock() - fuelSold)
+                + " coal left today. Claim through private Mailbox, then load a compatible native"
+                + " boiler slot. Normal registration and claim permissions apply.",
+            fuel.price(),
+            fuelSold > fuel.dailyStock() - fuel.packSize() ? "OUT_OF_STOCK" : "AIRCRAFT_FUEL"));
     var equipmentRules = AircraftEquipment.rules(p.server);
     for (var part : AircraftEquipment.PARTS) {
       AircraftEquipment.stack(part);
@@ -399,7 +448,9 @@ public final class AircraftSales {
         return "Aircraft deployment is pending or obsolete.";
       if (CommerceService.store(p.server).aircraftRepair(record.id()).isPresent())
         return "This airframe has a reserved workshop repair awaiting durable completion.";
-      if(CargoTransactions.blocked(entity,record,CommerceService.store(p.server)))return "This airframe has cargo unloading or receipt recovery pending; visit its headquarters Steward.";
+      if (CargoTransactions.blocked(entity, record, CommerceService.store(p.server)))
+        return "This airframe has cargo unloading or receipt recovery pending; visit its"
+                   + " headquarters Steward.";
       return record.permits(p.getUUID())
           ? ""
           : "Only the registered buyer and their shared crew may use this aircraft.";
@@ -629,7 +680,7 @@ public final class AircraftSales {
       }
       return record.phase() != AircraftState.Phase.ACTIVE
           || store.aircraftRepair(record.id()).isPresent()
-          || CargoTransactions.blocked(entity,record,store);
+          || CargoTransactions.blocked(entity, record, store);
     } catch (RuntimeException e) {
       return true; /* Preserve unknown authority without granting use or movement. */
     }

@@ -146,3 +146,6 @@ D054: actual buyer workshop repairs use canonical held coins and a world-saved e
 
 
 D056 implements the approved native-aircraft cargo delivery slice with live transport/storage proof, exact source-slot consumption only after canonical reservation, saved native receipt before once-only private payment, explicit restart resume/cancel, current claims and read-only operator inspection. Numeric defaults/config and precise executed456unit/native/actual-client acceptance are in AIR_CARGO_RUNTIME.md; broad refueling/scouting/full-pack and1.0acceptance remain open.
+
+
+D057 supplies actual native-compatible refueling coal through Corin, canonical finite shop/private mail and normal native boiler slots. Physical player inventory recovery and existing ownership/claims are preserved; no remote engine-value edits. AIRCRAFT_FUEL_RUNTIME.md distinguishes458unit/native restart and actual client purchase acceptance from still-open scouting/full-pack scope.

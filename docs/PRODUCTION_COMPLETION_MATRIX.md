@@ -92,3 +92,6 @@ D055: daily flight-dispatch acceptance and explicit limitations are in [AIR_DISP
 
 
 D056: real transported native cargo, exact partial goods consumption and durable once-only payment/restart are implemented;456JUnit/full build and actual native journey/failure/NPC-resume plus ordinary client consume/mail/claim/restart/scaling scope are documented in AIR_CARGO_RUNTIME.md. Broad aircraft services and full-pack acceptance remain unfinished; coarse service totals are unchanged. No full profession/1.0completion implication.
+
+
+D057: Corin’s finite physical refueling coal supply is functional and tested through real purchase/private claim/native boiler burn/restart.458JUnit/fullbuild and actual Royal screen/client transaction evidence in AIRCRAFT_FUEL_RUNTIME.md. This does not certify remote convenience fills, scouting or the entire Aerodrome/full-pack/1.0scope; coarse counts stay unchanged.
