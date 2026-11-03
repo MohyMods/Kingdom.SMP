@@ -110,4 +110,44 @@ class FlightBookTest {
       assertEquals(bad, Files.readString(path));
     }
   }
+
+  @Test
+  void cargoBooksCannotRewriteDispatchIdentitiesOrCrossLoadEvidence() throws Exception {
+    var dispatch = FlightBook.open(directory, economy);
+    var m = fresh();
+    dispatch.put(m);
+    dispatch.checkpoint();
+    var saved = Files.readAllBytes(directory.resolve("kingdomsmp_air_dispatch.dat"));
+    var oldId =
+        UUID.nameUUIDFromBytes(
+            ("kingdom_smp:air_dispatch/" + economy + "/" + pilot + "/100")
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    assertEquals(oldId, m.id());
+    var cargo = FlightBook.openCargo(directory, economy);
+    assertThrows(IllegalArgumentException.class, () -> cargo.put(m));
+    assertNotEquals(m.id(), FlightBook.cargoMissionId(economy, pilot, 100));
+    var cm =
+        new FlightBook.Mission(
+            FlightBook.cargoMissionId(economy, pilot, 100),
+            pilot,
+            100,
+            m.origin(),
+            m.target(),
+            128,
+            500,
+            5000,
+            null,
+            null,
+            -1,
+            0,
+            0,
+            false,
+            false,
+            false);
+    cargo.put(cm);
+    cargo.checkpoint();
+    assertEquals(cm, FlightBook.openCargo(directory, economy).get(pilot).orElseThrow());
+    assertEquals(m, FlightBook.open(directory, economy).get(pilot).orElseThrow());
+    assertArrayEquals(saved, Files.readAllBytes(directory.resolve("kingdomsmp_air_dispatch.dat")));
+  }
 }

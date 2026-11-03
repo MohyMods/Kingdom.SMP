@@ -191,7 +191,7 @@ public final class FlightService {
   }
 
   public static void review(ServerPlayer p, String action) {
-    close(p);
+    close(p);CargoService.close(p);
     com.mohymods.kingdomsmp.profession.ContractService.close(p);
     com.mohymods.kingdomsmp.fishing.FishingContractService.close(p);
     com.mohymods.kingdomsmp.bounty.CommunityContractService.close(p);

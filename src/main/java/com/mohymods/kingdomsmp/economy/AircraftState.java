@@ -98,6 +98,7 @@ public final class AircraftState {
         || record.generation() != generation
         || !record.deployment().getCompound("entity").getUUID("UUID").equals(entity)
         || repairs.containsKey(registration)
+        || cargo.pending(registration).isPresent()
         || repairPrice(health, rate) != price)
       throw new IllegalStateException("Aircraft repair is unavailable or already reserved");
     repairs.put(
@@ -182,11 +183,14 @@ public final class AircraftState {
           "immersive_aircraft:quadrocopter",
           "immersive_aircraft:bamboo_hopper",
           "immersive_aircraft:warship");
+  CargoState cargo = new CargoState();
+
   private final Map<UUID, Registration> records = new LinkedHashMap<>();
 
   AircraftState copy() {
     var next = new AircraftState();
     next.records.putAll(records);
+    next.cargo=cargo.copy();
     next.repairs.putAll(repairs);
     next.deliveredRepairs.putAll(deliveredRepairs);
     next.flightAwards.putAll(flightAwards);
@@ -266,6 +270,7 @@ public final class AircraftState {
         || !item.getString("id").equals(old.type())
         || item.getInt("count") != 1)
       throw new IllegalStateException("Aircraft cannot be returned");
+    cargo.packed(id);
     deliveredRepairs.remove(
         id); // A legitimately packed next-generation body has no old service receipt.
     records.put(

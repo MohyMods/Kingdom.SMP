@@ -166,20 +166,30 @@ public final class FlightBook {
   }
 
   private final Path file;
+  private final String purpose;
   private final UUID economy, identity;
   private final Map<UUID, Mission> missions = new LinkedHashMap<>();
   private boolean dirty;
 
-  private FlightBook(Path file, UUID economy, UUID identity) {
+  private FlightBook(Path file, UUID economy, UUID identity, String purpose) {
     this.file = file;
+    this.purpose = purpose;
     this.economy = economy;
     this.identity = identity;
   }
 
   public static UUID missionId(UUID economy, UUID pilot, long day) {
+    return missionId(economy, pilot, day, "air_dispatch");
+  }
+
+  public static UUID cargoMissionId(UUID economy, UUID pilot, long day) {
+    return missionId(economy, pilot, day, "air_cargo");
+  }
+
+  private static UUID missionId(UUID economy, UUID pilot, long day, String purpose) {
     if (day < 0) throw new IllegalArgumentException("Invalid UTC day");
     return UUID.nameUUIDFromBytes(
-        ("kingdom_smp:air_dispatch/" + economy + "/" + pilot + "/" + day)
+        ("kingdom_smp:" + purpose + "/" + economy + "/" + pilot + "/" + day)
             .getBytes(java.nio.charset.StandardCharsets.UTF_8));
   }
 
@@ -192,7 +202,7 @@ public final class FlightBook {
   }
 
   public void put(Mission mission) {
-    if (!mission.id().equals(missionId(economy, mission.pilot(), mission.day()))
+    if (!mission.id().equals(missionId(economy, mission.pilot(), mission.day(), purpose))
         || !missions.containsKey(mission.pilot()) && missions.size() >= 128)
       throw new IllegalArgumentException("Invalid dispatch identity or player limit");
     missions.put(mission.pilot(), mission);
@@ -200,14 +210,22 @@ public final class FlightBook {
   }
 
   public static FlightBook open(Path directory, UUID economy) throws IOException {
-    var file = directory.resolve("kingdomsmp_air_dispatch.dat");
-    var seal = directory.resolve("kingdomsmp_air_dispatch.created");
+    return open(directory, economy, "air_dispatch");
+  }
+
+  public static FlightBook openCargo(Path directory, UUID economy) throws IOException {
+    return open(directory, economy, "air_cargo");
+  }
+
+  private static FlightBook open(Path directory, UUID economy, String purpose) throws IOException {
+    var file = directory.resolve("kingdomsmp_" + purpose + ".dat");
+    var seal = directory.resolve("kingdomsmp_" + purpose + ".created");
     boolean exists = Files.exists(file, LinkOption.NOFOLLOW_LINKS),
         marked = Files.exists(seal, LinkOption.NOFOLLOW_LINKS);
     if (exists != marked)
       throw new IOException("Dispatch evidence/identity mismatch; restore matching data");
     if (!exists) {
-      var book = new FlightBook(file, economy, UUID.randomUUID());
+      var book = new FlightBook(file, economy, UUID.randomUUID(), purpose);
       var marker = new CompoundTag();
       marker.putUUID("economy", economy);
       marker.putUUID("identity", book.identity);
@@ -233,7 +251,7 @@ public final class FlightBook {
         || rows.size() > 128
         || !rows.isEmpty() && rows.getElementType() != Tag.TAG_COMPOUND)
       throw new IOException("Malformed or foreign air dispatch evidence");
-    var book = new FlightBook(file, economy, data.getUUID("identity"));
+    var book = new FlightBook(file, economy, data.getUUID("identity"), purpose);
     try {
       for (var value : rows) {
         var mission = decode((CompoundTag) value);

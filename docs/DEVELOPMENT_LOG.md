@@ -178,3 +178,8 @@ Actual ordinary Survivalowner client tested1280×800and960×640, partial60/64per
 ## D055 — continuous source implementation, no binary release
 
 Completed and tested a real daily Aerodrome flight dispatch, durable per-pilot travel evidence, finite canonical once-only mailbox payment, current permission/report validation and explicit teleport interruption. 436JUnit, actual dedicated route/restart/claim tests, extra final-payment claim probes, legacy optional-absent and native Waystones regressions pass. Actual ordinary client Royal report/claim and client/server restart retain the exact purse and all registrations; see AIR_DISPATCH_RUNTIME.md. Native/graphical fixture limitations are explicit. Continue cargo/scouting and the full remaining backlog without a per-feature release or1.0claim.
+
+
+## D056 — continuous transported-cargo implementation, no binary release
+
+Implemented native storage transport proof, exact partial goods consumption only after canonical finite reservation, world-saved receipts, explicit NPC resume/cancel and once-only private payment.456JUnit/fullbuild, actual four-JVM ACK-I/O failure and restart recovery, independent current FTB/OPAC review denials, original dispatch/legacy regressions and real ordinary-client consume/mail/claim/restart/scaling pass. Exact source/fixture limitations in AIR_CARGO_RUNTIME.md; final strengthened native inventory-removal probe is tracked there. Normal defaults enable after protocol acceptance; existing explicit administrator disables are preserved. No automatic entity-load item removal, per-feature binary publication or1.0claim. Continue refueling/scouting and full approved backlog.

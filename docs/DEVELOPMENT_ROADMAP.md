@@ -1,3 +1,5 @@
+> D056: transported native cargo and explicit saved-receipt NPC resume are verified in AIR_CARGO_RUNTIME.md. Continue remaining Aerodrome refueling/scouting and the complete approved backlog; no intermediate binary release.
+
 > D055: Corin’s real daily flight dispatch is implemented and tested; see AIR_DISPATCH_RUNTIME.md. Continue durable cargo/scouting services and the complete remaining backlog. No intermediate binary release.
 
 > D054 current: Corin workshop repair/refund now has real426unit/native failure-restart/current-claim and ordinary-client acceptance (AIRCRAFT_REPAIRS.md). Continue actual flight/cargo/scouting contracts and remaining approved1.0dependencies; no per-feature binary releases.

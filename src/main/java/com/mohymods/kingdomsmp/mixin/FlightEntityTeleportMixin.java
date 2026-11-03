@@ -12,17 +12,27 @@ abstract class FlightEntityTeleportMixin {
   @Inject(method = "teleportTo(DDD)V", at = @At("RETURN"))
   private void kingdom$teleported(CallbackInfo ci) {
     FlightService.interruptTeleport((Entity) (Object) this);
+    com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
+        (Entity) (Object) this);
   }
 
   @Inject(
       method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z",
       at = @At("RETURN"))
   private void kingdom$transferred(CallbackInfoReturnable<Boolean> ci) {
-    if (ci.getReturnValue()) FlightService.interruptTeleport((Entity) (Object) this);
+    if (ci.getReturnValue()) {
+      FlightService.interruptTeleport((Entity) (Object) this);
+      com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
+          (Entity) (Object) this);
+    }
   }
 
   @Inject(method = "changeDimension", at = @At("RETURN"))
   private void kingdom$changedDimension(CallbackInfoReturnable<Entity> ci) {
-    if (ci.getReturnValue() != null) FlightService.interruptTeleport((Entity) (Object) this);
+    if (ci.getReturnValue() != null) {
+      FlightService.interruptTeleport((Entity) (Object) this);
+      com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
+          (Entity) (Object) this);
+    }
   }
 }

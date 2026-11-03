@@ -399,6 +399,7 @@ public final class AircraftSales {
         return "Aircraft deployment is pending or obsolete.";
       if (CommerceService.store(p.server).aircraftRepair(record.id()).isPresent())
         return "This airframe has a reserved workshop repair awaiting durable completion.";
+      if(CargoTransactions.blocked(entity,record,CommerceService.store(p.server)))return "This airframe has cargo unloading or receipt recovery pending; visit its headquarters Steward.";
       return record.permits(p.getUUID())
           ? ""
           : "Only the registered buyer and their shared crew may use this aircraft.";
@@ -627,7 +628,8 @@ public final class AircraftSales {
         return true;
       }
       return record.phase() != AircraftState.Phase.ACTIVE
-          || store.aircraftRepair(record.id()).isPresent();
+          || store.aircraftRepair(record.id()).isPresent()
+          || CargoTransactions.blocked(entity,record,store);
     } catch (RuntimeException e) {
       return true; /* Preserve unknown authority without granting use or movement. */
     }
