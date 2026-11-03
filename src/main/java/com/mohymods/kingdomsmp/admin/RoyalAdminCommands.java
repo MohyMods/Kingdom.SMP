@@ -30,6 +30,7 @@ public final class RoyalAdminCommands {
                 .then(Commands.literal("titles").then(Commands.argument("player",net.minecraft.commands.arguments.EntityArgument.player()).executes(c->{var p=net.minecraft.commands.arguments.EntityArgument.getPlayer(c,"player");line(c.getSource(),"Selected title: "+com.mohymods.kingdomsmp.title.TitleService.book(p.server).selected(p.getUUID())+" | cosmetic only");for(var earned:com.mohymods.kingdomsmp.title.TitleService.earned(p))line(c.getSource(),earned.id()+" | "+earned.label());return 1;})))
                 .then(ownerCommands())
                 .then(com.mohymods.kingdomsmp.profession.FarmerInspectionService.commands())
+                .then(com.mohymods.kingdomsmp.profession.ProfessionInspectionService.commands())
                 .then(com.mohymods.kingdomsmp.progression.TierTwoService.commands())
                 .then(com.mohymods.kingdomsmp.economy.CommerceService.adminCommands())
                 .then(com.mohymods.kingdomsmp.economy.AuctionService.adminCommands())

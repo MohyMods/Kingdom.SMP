@@ -13,10 +13,10 @@ import java.util.*;
 public final class ProfessionService {
     public record Quote(UUID nonce,long revision,String action,String from,String to,long fee,long issued,String text){ }
     private static final Map<ServerPlayer,Quote> QUOTES=new WeakHashMap<>();
-    private static final ProfessionQuestCatalog QUESTS=FarmerQuests.catalog();
+    private static final ProfessionQuestCatalog QUESTS=ProfessionQuestService.catalog();
     private ProfessionService(){ }
     public static void close(ServerPlayer p){QUOTES.remove(p);FarmerDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
-    public static void initialize(MinecraftServer server){ProfessionRules.clear(server);ContractService.initialize(server);QUOTES.keySet().removeIf(p->p.server==server);}
+    public static void initialize(MinecraftServer server){ProfessionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
     public static ProfessionQuestCatalog quests(){return QUESTS;}
     public static Optional<Quote> quote(ServerPlayer p){var q=QUOTES.get(p);if(q!=null&&(q.revision()!=CommerceService.store(p.server).revision()||System.nanoTime()-q.issued()>30_000_000_000L)){close(p);q=null;}return Optional.ofNullable(q);}
     public static String rankName(ProfessionRank rank){return rank.id().substring(0,1).toUpperCase(Locale.ROOT)+rank.id().substring(1);}
@@ -34,8 +34,8 @@ public final class ProfessionService {
             var delivery=FarmerDeliveryService.review(p,selected.substring(5));var q=new Quote(delivery.nonce(),delivery.revision(),"food","",delivery.quest(),0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;
         }
         if(selected.startsWith("quest:")){
-            String id=selected.substring(6);if(!FarmerQuestService.ready(p,id))throw new IllegalStateException(FarmerQuestService.status(p,id));
-            String text="Record "+FarmerQuests.title(id)+" and "+FarmerQuests.xp(id)+" XP once. "+FarmerQuestService.status(p,id)+" No inventory or coins are consumed by this event objective.";
+            String id=selected.substring(6);if(!ProfessionQuestService.ready(p,id))throw new IllegalStateException(ProfessionQuestService.status(p,id));
+            String text="Record "+ProfessionQuestService.title(id)+" and "+ProfessionQuestService.xp(id)+" XP once. "+ProfessionQuestService.status(p,id)+" No inventory or coins are consumed by this event objective.";
             var q=new Quote(UUID.randomUUID(),s.revision(),"quest","",id,0,System.nanoTime(),text);QUOTES.put(p,q);return q;
         }
         var parts=selected.split(":",-1);String action,from,to;
@@ -53,7 +53,7 @@ public final class ProfessionService {
         if(q==null||!q.nonce().equals(nonce)||q.revision()!=s.revision()||System.nanoTime()-q.issued()>30_000_000_000L)throw new IllegalStateException("Profession review expired or wallet/roster changed. Review again.");
         if(q.action().equals("gear"))return com.mohymods.kingdomsmp.equipment.FarmerGearService.confirm(p,q.nonce());
         if(q.action().equals("food"))return FarmerDeliveryService.confirm(p,q.nonce());
-        if(q.action().equals("quest")){FarmerQuestService.complete(p,q.nonce(),q.to());return FarmerQuests.title(q.to())+" recorded once; earned XP saved.";}
+        if(q.action().equals("quest")){ProfessionQuestService.complete(p,q.nonce(),q.to());return ProfessionQuestService.title(q.to())+" recorded once; earned XP saved.";}
         requireBuilding(p,Profession.byId(q.to()));s.changeProfession(q.nonce(),p.getUUID(),q.action(),q.from(),q.to());return name(Profession.byId(q.to()))+" is active. Your progress is saved.";
     }
     public static List<CommerceView.Entry> entries(ServerPlayer p){
@@ -61,14 +61,14 @@ public final class ProfessionService {
         for(var profession:Profession.values()){
             boolean active=roster.isActive(profession),eligible=available(p,profession);long fee=0;
             if(!active&&roster.active().size()<3)fee=roster.enroll(profession).fee();
-            result.add(new CommerceView.Entry("learn:"+profession.id(),name(profession),active?"Active "+rankName(roster.rank(profession,QUESTS))+". XP "+String.format(Locale.ROOT,"%,d",roster.track(profession).xp())+"; quests "+roster.track(profession).completedQuestIds().size()+"/24. Only active professions grant bonuses. "+(profession==Profession.FARMER?"Select an objective below to see your progress.":"Quest progression for this profession is not yet available."):!eligible?"Requires its completed, intact profession building.":roster.active().size()>=3?"Three professions are active. Select a replacement below for 15,000 coins. Inactive progress is kept.":"The first three professions you learn are free. Switching or reactivating costs 15,000 coins. You may have up to three active professions.",fee,active?"PROF_ACTIVE":eligible&&roster.active().size()<3?"PROF_ENROLL":"LOCKED"));
+            result.add(new CommerceView.Entry("learn:"+profession.id(),name(profession),active?"Active "+rankName(roster.rank(profession,QUESTS))+". XP "+String.format(Locale.ROOT,"%,d",roster.track(profession).xp())+"; quests "+roster.track(profession).completedQuestIds().size()+"/24. Only active professions grant bonuses. "+(QUESTS.definitions().values().stream().anyMatch(d->d.profession()==profession)?"Select an objective below to see your progress.":"Quest progression for this profession is not yet available."):!eligible?"Requires its completed, intact profession building.":roster.active().size()>=3?"Three professions are active. Select a replacement below for 15,000 coins. Inactive progress is kept.":"The first three professions you learn are free. Switching or reactivating costs 15,000 coins. You may have up to three active professions.",fee,active?"PROF_ACTIVE":eligible&&roster.active().size()<3?"PROF_ENROLL":"LOCKED"));
         }
         for(var from:Profession.values())if(roster.isActive(from))for(var to:Profession.values())if(!roster.isActive(to)&&available(p,to))result.add(new CommerceView.Entry("switch:"+from.id()+":"+to.id(),name(from)+" → "+name(to),"Replace this active profession for 15,000 coins. Its XP and completed quests are kept, but its bonuses stop.",15000,"PROF_SWITCH"));
         for(var definition:QUESTS.definitions().values().stream().sorted(Comparator.comparing(ProfessionQuestCatalog.Definition::id)).toList()){
-            var id=definition.id();boolean done=roster.track(Profession.FARMER).completedQuestIds().contains(id);
-            boolean delivery=FarmerDeliveryService.eligible(p,id);
-            boolean ongoing=roster.isActive(Profession.FARMER)&&QUESTS.mayAttempt(Profession.FARMER,id,roster.track(Profession.FARMER).completedQuestIds());
-            result.add(new CommerceView.Entry((delivery?"food:":"quest:")+id,"Farmer · "+FarmerQuests.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+FarmerQuestService.status(p,id),0,done?"COMPLETE":delivery?"PROF_DELIVERY":FarmerQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
+            var id=definition.id();var role=definition.profession();boolean done=roster.track(role).completedQuestIds().contains(id);
+            boolean delivery=role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
+            boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());
+            result.add(new CommerceView.Entry((delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
         }
         result.addAll(com.mohymods.kingdomsmp.equipment.FarmerGearService.entries(p));
         return List.copyOf(result);

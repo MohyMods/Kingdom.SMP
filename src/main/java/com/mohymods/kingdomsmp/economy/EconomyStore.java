@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -271,7 +271,8 @@ public final class EconomyStore {
         return prepareItem(new Operation(history.size()+1L,operation,Kind.COMMUNITY_DELIVERY,player,player,Math.multiplyExact((long)quantity,unitReward),project,project.startsWith("kingdom_smp:fishing_contract/")?"Wharf fishing contract":"Community food contract",null,week,quantity,data),ItemAction.COMMUNITY_DELIVERY);
     }
     public synchronized long farmerFoodConsumed(UUID player,ProfessionRank band,String item){return farmerFoodTotals.getOrDefault(new FarmerFood(player,band,item),0L);}
-    public synchronized long farmerContractPeriods(UUID player,ProfessionRank band,String cycle){return contracts.farmerPeriods.stream().filter(p->p.player().equals(player)&&p.band().equals(band.id())&&p.cycle().equals(cycle)).count();}
+    public synchronized long professionContractPeriods(UUID player,Profession profession,ProfessionRank band,String cycle){healthy();Objects.requireNonNull(player);Objects.requireNonNull(profession);Objects.requireNonNull(band);if(!Set.of("daily","weekly").contains(cycle))throw new IllegalArgumentException("Unknown contract cycle");return contracts.professionPeriods.stream().filter(p->p.player().equals(player)&&p.profession().equals(profession.id())&&p.band().equals(band.id())&&p.cycle().equals(cycle)).count();}
+    public synchronized long farmerContractPeriods(UUID player,ProfessionRank band,String cycle){return professionContractPeriods(player,Profession.FARMER,band,cycle);}
     public synchronized long contractPoolSpent(String cycle,long period){return contracts.spent(cycle,period);}
     /** Root pins a real approved repeatable delivery's item/terms and removes actual native inventory. */
     public synchronized PendingItem prepareContract(UUID operation,UUID player,String profession,String cycle,long period,int quantity,long reward,long pool,CompoundTag item)throws IOException{
@@ -304,6 +305,22 @@ public final class EconomyStore {
         if(evidence==null||evidence.isBlank()||evidence.length()>256)throw new IllegalArgumentException("Bounded server objective evidence required");
         var data=new CompoundTag();data.putString("evidence",evidence);data.putInt("contentVersion",1);
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_QUEST,player,player,FarmerQuests.xp(quest),quest,"Farmer objective completed",null,0,0,data);
+        if(!replayed(op))append(op);return professions(player);
+    }
+    /** OP2 site authority is checked by the root; immutable actor/site/snapshot audit is stored with XP. */
+    public synchronized ProfessionRoster approveProfessionInspection(UUID operation,UUID admin,UUID player,String quest,String evidence)throws IOException{
+        var d=InspectionQuests.get(quest);
+        if(evidence==null||evidence.isBlank()||evidence.length()>256)throw new IllegalArgumentException("Bounded site inspection evidence required");
+        var data=new CompoundTag();data.putInt("contentVersion",1);data.putString("evidence",evidence);
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_INSPECTION,admin,player,d.xp(),quest,"Profession site inspection",null,0,0,data);
+        if(!replayed(op))append(op);return professions(player);
+    }
+    /** Canonical distinct consumed-contract proofs, never a client-supplied evidence count. */
+    public synchronized ProfessionRoster completeCommissionQuest(UUID operation,UUID player,String quest,int required)throws IOException{
+        var d=CommissionQuests.get(quest);
+        if(required<1||required>365)throw new IllegalArgumentException("Invalid commission goal");
+        var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_COMMISSION,player,player,CommissionQuests.xp(quest),quest,"Profession commissions completed",null,0,0,data);
         if(!replayed(op))append(op);return professions(player);
     }
     private static ProfessionRoster.Transition professionTransition(ProfessionRoster roster,CompoundTag data){
@@ -757,6 +774,28 @@ public final class EconomyStore {
                 if(roster.track(Profession.FARMER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Farmer objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
             }
+            case PROFESSION_INSPECTION->{
+                var d=InspectionQuests.get(op.key());var data=op.payload();
+                if(op.reference()!=null||op.period()!=0||op.quantity()!=0||!op.detail().equals("Profession site inspection")||!data.getAllKeys().equals(Set.of("contentVersion","evidence")))throw new IllegalArgumentException("Invalid profession inspection");
+                require(data,"contentVersion",Tag.TAG_INT);require(data,"evidence",Tag.TAG_STRING);
+                if(data.getInt("contentVersion")!=1||data.getString("evidence").isBlank()||data.getString("evidence").length()>256||op.amount()!=d.xp())throw new IllegalArgumentException("Invalid inspection audit/content/XP");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
+                if(roster.track(d.profession()).completedQuestIds().contains(op.key()))throw new IllegalStateException("Profession inspection already completed");
+                professionRosters.put(op.target(),roster.completeQuest(d.profession(),op.key(),op.amount(),InspectionQuests.catalog()));
+            }
+            case PROFESSION_COMMISSION->{
+                var d=CommissionQuests.get(op.key());var data=op.payload();
+                if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||!op.detail().equals("Profession commissions completed")
+                    ||!data.getAllKeys().equals(Set.of("contentVersion","required")))throw new IllegalArgumentException("Invalid profession commission");
+                require(data,"contentVersion",Tag.TAG_INT);require(data,"required",Tag.TAG_INT);
+                int required=data.getInt("required");
+                if(data.getInt("contentVersion")!=1||required<1||required>365||op.amount()!=CommissionQuests.xp(op.key()))throw new IllegalArgumentException("Invalid commission content/XP");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
+                if(roster.track(d.profession()).completedQuestIds().contains(op.key()))throw new IllegalStateException("Commission quest already completed");
+                long count=contracts.professionPeriods.stream().filter(v->v.player().equals(op.target())&&v.profession().equals(d.profession().id())&&v.band().equals(d.rank().id())&&v.cycle().equals(d.cycle())).count();
+                if(count<required)throw new IllegalStateException("Not enough distinct canonical commission periods");
+                professionRosters.put(op.target(),roster.completeQuest(d.profession(),op.key(),op.amount(),CommissionQuests.catalog()));
+            }
             case COMPLETE_CONTRACT->{
                 var data=op.payload();if(!data.getAllKeys().equals(Set.of("profession","cycle","required","pool","item")))throw new IllegalArgumentException("Invalid contract payload");
                 require(data,"profession",Tag.TAG_STRING);require(data,"cycle",Tag.TAG_STRING);require(data,"required",Tag.TAG_INT);require(data,"pool",Tag.TAG_LONG);require(data,"item",Tag.TAG_COMPOUND);
@@ -768,7 +807,7 @@ public final class EconomyStore {
                 var slot=new ContractState.Slot(op.target(),role.id(),cycle,op.period());var key=new ContractState.Pool(cycle,op.period());long spent=contracts.spent(cycle,op.period());
                 if(contracts.completed.contains(slot)||op.amount()>pool-spent)throw new IllegalStateException("Contract already completed or shared reward pool exhausted");
                 contracts.completed.add(slot);contracts.spent.put(key,Math.addExact(spent,op.amount()));
-                if(role==Profession.FARMER)contracts.farmerPeriods.add(new ContractState.QuestPeriod(op.target(),FarmerQuests.band(professionRosters.get(op.target())).id(),cycle,op.period()));
+                contracts.professionPeriods.add(new ContractState.QuestPeriod(op.target(),role.id(),professionRosters.get(op.target()).progressBand(role).id(),cycle,op.period()));
                 mail.put(op.id(),new Mail(op.id(),op.target(),MailKind.COINS,op.amount(),"",cycle+" "+role.id()+" contract reward",false));
             }
             case PROFESSION_CHANGE->{

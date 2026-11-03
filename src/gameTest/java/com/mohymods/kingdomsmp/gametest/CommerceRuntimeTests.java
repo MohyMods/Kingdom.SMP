@@ -27,9 +27,13 @@ public final class CommerceRuntimeTests {
         completeCommerceLoop(h,()->{h.succeed();com.mojang.logging.LogUtils.getLogger().info("COMMERCE_TEST_ASSERTIONS_PASSED: real earning, exclusive purchase, mailbox, purchased construction and resident");});
     }
     public static void completeCommerceLoop(GameTestHelper h,Runnable completion)throws Exception{
-        TownHallRuntimeTests.newWorldLoop(h,()->{try{servicesAndPurchasedBuilding(h,completion);}catch(Exception e){h.runAfterDelay(1,()->h.fail(message(e)));}});
+        completePurchasedProfessionLoop(h,"kingdom_smp:farmers_house",completion);
     }
-    private static void servicesAndPurchasedBuilding(GameTestHelper h,Runnable completion)throws Exception{
+    public static void completePurchasedProfessionLoop(GameTestHelper h,String building,Runnable completion)throws Exception{
+        if(!Set.of("kingdom_smp:farmers_house","kingdom_smp:builders_workshop","kingdom_smp:lumberjacks_lodge").contains(building))throw new IllegalArgumentException("Private fixture supports the existing Tier2 profession buildings only");
+        TownHallRuntimeTests.newWorldLoop(h,()->{try{servicesAndPurchasedBuilding(h,building,completion);}catch(Exception e){h.runAfterDelay(1,()->h.fail(message(e)));}});
+    }
+    private static void servicesAndPurchasedBuilding(GameTestHelper h,String building,Runnable completion)throws Exception{
         var level=h.getLevel();var server=level.getServer();var hall=ConstructionService.lodge(server);
         var winner=server.getPlayerList().getPlayer(hall.owner());
         var other=server.getPlayerList().getPlayers().stream().filter(p->!p.getUUID().equals(hall.owner())).findFirst().orElseThrow();
@@ -40,7 +44,7 @@ public final class CommerceRuntimeTests {
         ClaimRuntimeTests.publicResidentAccess(level,winner.getUUID()); // Legitimate owner-configured public NPC access; no block-edit or administrator bypass.
         h.assertTrue(com.mohymods.kingdomsmp.placement.PlacementProtection.entityInteraction(other,level.getEntity(hall.npc()))==null,"Public resident exceptions permit the ordinary second customer");
         h.assertTrue(com.mohymods.kingdomsmp.placement.PlacementProtection.check(level,other,counter,counter)!=null,"Public service access does not grant terrain-edit permission");
-        var money=CommerceService.store(server);
+        var money=CommerceService.store(server);long buildingPrice=CommerceService.catalog(server).building(building).price();
         h.assertTrue(money.balance(winner.getUUID())==0,"Early income starts with no fabricated wallet balance");
 
         // A quote authorizes neither a changed inventory nor a moved player.
@@ -51,16 +55,15 @@ public final class CommerceRuntimeTests {
         give(winner,Items.WHEAT,64);var first=review(winner,1,"wheat",64);confirm(winner,first,1,"wheat",64);
         h.assertTrue(count(winner,Items.WHEAT)==0&&money.balance(winner.getUUID())==64,"Actual sixty-four wheat consumed for server-derived sixty-four coins");
         verifyNativeInventory(h,winner,money);
-        give(winner,Items.WHEAT,1024);var income=review(winner,1,"wheat",1024);confirm(winner,income,1,"wheat",1024);
-        h.assertTrue(money.balance(winner.getUUID())==1088&&count(winner,Items.WHEAT)==0,"Pre-Bank supplies orders produce spendable early currency");
+        give(winner,Items.WHEAT,(int)buildingPrice+24);var income=review(winner,1,"wheat",(int)buildingPrice+24);confirm(winner,income,1,"wheat",(int)buildingPrice+24);
+        h.assertTrue(money.balance(winner.getUUID())==buildingPrice+88&&count(winner,Items.WHEAT)==0,"Pre-Bank supplies orders produce spendable early currency");
         give(winner,Items.WHEAT,16);var distance=review(winner,1,"wheat",16);
         winner.moveTo(counter.getX()+100,counter.getY(),counter.getZ());
         refused(h,()->confirm(winner,distance,1,"wheat",16),"Leaving actual Steward counter invalidates transaction");
-        h.assertTrue(count(winner,Items.WHEAT)==16&&money.balance(winner.getUUID())==1088,"Out-of-range confirmation has no financial or inventory effects");
+        h.assertTrue(count(winner,Items.WHEAT)==16&&money.balance(winner.getUUID())==buildingPrice+88,"Out-of-range confirmation has no financial or inventory effects");
         near(winner,counter,0);winner.getInventory().clearContent();
 
-        String building="kingdom_smp:farmers_house";
-        h.assertTrue(CommerceService.catalog(server).building(building).price()==1000,"Isolated default schema-1 Farmer listing costs 1000");
+        h.assertTrue(buildingPrice>=1000&&buildingPrice<=1500,"Pinned Tier2 profession price fits the ordinary native earning fixture");
         // Second peer funding is explicit test setup, not evidence of player-earned currency.
         money.adminSet(UUID.randomUUID(),server.getSingleplayerProfile()==null?other.getUUID():server.getSingleplayerProfile().getId(),other.getUUID(),2000,"Isolated second-buyer race fixture");
         var firstBuyer=review(winner,0,building,1);var secondBuyer=review(other,0,building,1);

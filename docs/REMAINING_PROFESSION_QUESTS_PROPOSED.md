@@ -1,3 +1,5 @@
+> **APPROVED DESIGN BASELINE — user confirmation,2026-11-03.** The complete264quest proposal at commit `9004b3ea9e92dfeebcb8b7105ad6b440fb8f24e8`, including configurable quantities, profession-building/technology prerequisites,100/200/300XP, rank rules and purchase-only unlocks, is now approved. The original proposal below is retained as the reviewed historical text. Approval does not certify native bindings or activate unvalidated quests. Farmer24remains unchanged. Implement in validated batches, preserve all saves/claims/transaction protections, and do not invent Librarian signature equipment.
+
 # PROPOSED — remaining 264 profession quests, batch review v1
 
 **Status: PROPOSED, NOT APPROVED, NOT ENABLED.** Prepared under the user's explicit request for one complete eleven-profession specification. This is not a recovered historical approval. Farmer's24 approved quests, IDs, objectives, quantities, rewards and existing records are unchanged. Approval of this document is not a claim that mod adapters or the full pack have already passed runtime tests.

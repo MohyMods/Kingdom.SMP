@@ -34,6 +34,12 @@ public final class ProfessionRoster {
     public Set<Profession> active() { return active; }
     public Track track(Profession profession) { return tracks.getOrDefault(Objects.requireNonNull(profession), new Track(0, Set.of())); }
     public boolean isActive(Profession profession) { return active.contains(Objects.requireNonNull(profession)); }
+    /** Objective band at the instant authoritative evidence is earned; not a perk/rank grant. */
+    public ProfessionRank progressBand(Profession profession){
+        var completed=track(profession).completedQuestIds();
+        for(var band:List.of(ProfessionRank.APPRENTICE,ProfessionRank.JOURNEYMAN))for(int n=1;n<=8;n++)if(!completed.contains(profession.questId(band,n)))return band;
+        return ProfessionRank.MASTER;
+    }
     public ProfessionRank rank(Profession profession, ProfessionQuestCatalog catalog) { return catalog.rank(profession, track(profession).completedQuestIds()); }
     public boolean perksEligible(Profession profession, ProfessionRank minimum, ProfessionQuestCatalog catalog) {
         return isActive(profession) && rank(profession, catalog).ordinal() >= Objects.requireNonNull(minimum).ordinal();

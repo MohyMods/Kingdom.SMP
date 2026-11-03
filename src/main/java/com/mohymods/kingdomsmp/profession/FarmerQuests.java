@@ -21,7 +21,7 @@ public final class FarmerQuests {
         }
         CATALOG = ProfessionQuestCatalog.approved(definitions);
     }
-    public static ProfessionRank band(ProfessionRoster roster) {var ids=roster.track(Profession.FARMER).completedQuestIds();if(!CATALOG.completedBand(Profession.FARMER,ProfessionRank.APPRENTICE,ids))return ProfessionRank.APPRENTICE;return CATALOG.completedBand(Profession.FARMER,ProfessionRank.JOURNEYMAN,ids)?ProfessionRank.MASTER:ProfessionRank.JOURNEYMAN;}
+    public static ProfessionRank band(ProfessionRoster roster) { return roster.progressBand(Profession.FARMER); }
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
     public static String id(ProfessionRank rank,int ordinal) { return Profession.FARMER.questId(rank,ordinal); }
     public static boolean inspection(String id) { return Set.of(id(ProfessionRank.APPRENTICE,8),id(ProfessionRank.JOURNEYMAN,8),id(ProfessionRank.MASTER,7),id(ProfessionRank.MASTER,8)).contains(id); }
