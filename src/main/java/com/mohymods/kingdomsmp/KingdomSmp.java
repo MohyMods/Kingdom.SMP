@@ -48,6 +48,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.register(NeoForge.EVENT_BUS,com.mohymods.kingdomsmp.integration.ftbquests.AuthoritativeQuestSnapshot::read);
         com.mohymods.kingdomsmp.profession.FarmerQuestService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.CraftQuestEvidence.register(NeoForge.EVENT_BUS);
+        com.mohymods.kingdomsmp.profession.RetainedBuildingEvents.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.bounty.HuntService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.fishing.FishingCatchService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.title.TitleService.register(NeoForge.EVENT_BUS);
@@ -68,6 +69,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.integration.aircraft.CargoService.initialize(event.getServer());com.mohymods.kingdomsmp.integration.aircraft.ScoutService.initialize(event.getServer());
         com.mohymods.kingdomsmp.economy.AuctionService.initialize(event.getServer());
         com.mohymods.kingdomsmp.profession.FarmerQuestService.initialize(event.getServer());
+        com.mohymods.kingdomsmp.profession.RetainedBuildingEvents.initialize(event.getServer());
         KingdomState state = ContributionService.kingdom(event.getServer());
         LOGGER.info("Kingdom SMP loaded: schema={}, tier={}, revision={}",
                 state.schemaVersion(), state.attainedTier(), state.revision());

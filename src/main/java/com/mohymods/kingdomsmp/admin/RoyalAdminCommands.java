@@ -31,6 +31,7 @@ public final class RoyalAdminCommands {
                 .then(ownerCommands())
                 .then(com.mohymods.kingdomsmp.profession.FarmerInspectionService.commands())
                 .then(com.mohymods.kingdomsmp.profession.ProfessionInspectionService.commands())
+                .then(com.mohymods.kingdomsmp.profession.RetainedBuildingService.commands())
                 .then(com.mohymods.kingdomsmp.progression.TierTwoService.commands())
                 .then(com.mohymods.kingdomsmp.economy.CommerceService.adminCommands())
                 .then(com.mohymods.kingdomsmp.economy.AuctionService.adminCommands())

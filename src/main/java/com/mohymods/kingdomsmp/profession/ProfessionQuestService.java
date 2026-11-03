@@ -11,15 +11,17 @@ public final class ProfessionQuestService {
     static {
         var definitions=new ArrayList<>(FarmerQuests.catalog().definitions().values());
         definitions.addAll(CommissionQuests.catalog().definitions().values());
-        definitions.addAll(InspectionQuests.catalog().definitions().values());
+        definitions.addAll(InspectionQuests.catalog().definitions().values().stream().filter(d->InspectionQuests.contains(d.id())).toList());
         definitions.addAll(CraftDeliveryQuests.catalog().definitions().values());
+        definitions.addAll(RetainedBuildingQuests.catalog().definitions().values());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
-    public static String title(String id) { return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
-    public static long xp(String id) { return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
+    public static String title(String id) { if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
+    public static long xp(String id) { if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
     public static String status(ServerPlayer player,String id) {
+        if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.status(player,id);
         if(CraftDeliveryQuests.contains(id))return CraftDeliveryService.status(player,id);
         if(InspectionQuests.contains(id)){
             var d=InspectionQuests.get(id);var roster=CommerceService.store(player.server).professions(player.getUUID());
@@ -34,6 +36,7 @@ public final class ProfessionQuestService {
         return count+" / "+CommissionQuestRules.get(player.server).goal(id)+" distinct "+d.cycle()+" contracts completed during this objective band. Deliver at the assigned profession resident; payment claims do not create extra progress.";
     }
     public static boolean ready(ServerPlayer player,String id) {
+        if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.ready(player,id);
         if(InspectionQuests.contains(id)||CraftDeliveryQuests.contains(id))return false;
         if (!CommissionQuests.contains(id)) return FarmerQuestService.ready(player,id);
         var d=CommissionQuests.get(id);var store=CommerceService.store(player.server);var roster=store.professions(player.getUUID());
@@ -43,6 +46,7 @@ public final class ProfessionQuestService {
             && store.professionContractPeriods(player.getUUID(),d.profession(),d.rank(),d.cycle()) >= CommissionQuestRules.get(player.server).goal(id);
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
+        if(RetainedBuildingQuests.contains(id)){RetainedBuildingService.complete(player,operation,id);return;}
         if(CraftDeliveryQuests.contains(id))throw new IllegalStateException("Use the reviewed crafted-material delivery; an event completion cannot consume materials");
         if(InspectionQuests.contains(id))throw new IllegalStateException("An authenticated administrator must inspect and confirm this site");
         if (!CommissionQuests.contains(id)) { FarmerQuestService.complete(player,operation,id); return; }

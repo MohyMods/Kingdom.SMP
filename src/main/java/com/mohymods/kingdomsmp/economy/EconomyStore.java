@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -305,6 +305,20 @@ public final class EconomyStore {
         if(evidence==null||evidence.isBlank()||evidence.length()>256)throw new IllegalArgumentException("Bounded server objective evidence required");
         var data=new CompoundTag();data.putString("evidence",evidence);data.putInt("contentVersion",1);
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_QUEST,player,player,FarmerQuests.xp(quest),quest,"Farmer objective completed",null,0,0,data);
+        if(!replayed(op))append(op);return professions(player);
+    }
+    public synchronized List<BuilderWorksite> builderWorksites(){healthy();return contracts.currentSites.values().stream().map(contracts.workSites::get).sorted(Comparator.comparing(BuilderWorksite::id)).toList();}
+    public synchronized Optional<BuilderWorksite> builderWorksite(UUID player,String quest){healthy();return Optional.ofNullable(contracts.workSites.get(contracts.currentSites.get(new ContractState.WorksiteSlot(player,quest))));}
+    /** Operator permission, live claims/reservations and bounded local review are verified by the root. */
+    public synchronized BuilderWorksite authorizeBuilderWorksite(UUID operation,UUID admin,UUID player,String quest,String dimension,net.minecraft.core.BlockPos from,net.minecraft.core.BlockPos to,String reason)throws IOException{
+        var site=new BuilderWorksite(operation,admin,player,quest,dimension,from,to,reason);var data=new CompoundTag();data.putInt("contentVersion",1);data.put("site",site.save());
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_WORKSITE,admin,player,0,quest,"Builder worksite authorization",null,0,0,data);
+        if(!replayed(op))append(op);return site;
+    }
+    /** Root verifies actual retained native placements and support; a packet never supplies these facts. */
+    public synchronized ProfessionRoster completeRetainedBuilding(UUID operation,UUID player,String quest,UUID site,int required,int retained,String snapshot)throws IOException{
+        var d=RetainedBuildingQuests.get(quest);var data=new CompoundTag();data.putInt("contentVersion",1);data.putUUID("site",site);data.putInt("required",required);data.putString("snapshot",snapshot);
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_RETAINED,player,player,d.xp(),quest,"Retained player construction",null,0,retained,data);
         if(!replayed(op))append(op);return professions(player);
     }
     /** Verified native crafting plus permanently consumed outputs share one native receipt boundary. */
@@ -779,6 +793,26 @@ public final class EconomyStore {
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
                 if(roster.track(Profession.FARMER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Farmer objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
+            }
+            case PROFESSION_WORKSITE->{
+                var data=op.payload();
+                if(!data.getAllKeys().equals(Set.of("contentVersion","site"))||op.amount()!=0||op.reference()!=null||op.period()!=0||op.quantity()!=0||!op.detail().equals("Builder worksite authorization"))throw new IllegalArgumentException("Invalid worksite operation");
+                require(data,"contentVersion",Tag.TAG_INT);require(data,"site",Tag.TAG_COMPOUND);if(data.getInt("contentVersion")!=1)throw new IllegalArgumentException("Unknown worksite content version");
+                var site=BuilderWorksite.load(data.getCompound("site"));var d=RetainedBuildingQuests.get(op.key());
+                if(!site.id().equals(op.id())||!site.admin().equals(op.actor())||!site.player().equals(op.target())||!site.quest().equals(op.key())||contracts.workSites.containsKey(site.id())||contracts.workSites.size()>=RetainedPlacementEvidence.MAX_SITES)throw new IllegalArgumentException("Invalid worksite identity or capacity");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
+                if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(op.key())||!RetainedBuildingQuests.catalog().mayAttempt(d.profession(),op.key(),roster.track(d.profession()).completedQuestIds()))throw new IllegalStateException("Worksite profession/objective unavailable");
+                contracts.workSites.put(site.id(),site);contracts.currentSites.put(new ContractState.WorksiteSlot(site.player(),site.quest()),site.id());
+            }
+            case PROFESSION_RETAINED->{
+                var d=RetainedBuildingQuests.get(op.key());var data=op.payload();
+                if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!op.detail().equals("Retained player construction")||!data.getAllKeys().equals(Set.of("contentVersion","site","required","snapshot")))throw new IllegalArgumentException("Invalid retained construction completion");
+                require(data,"contentVersion",Tag.TAG_INT);require(data,"required",Tag.TAG_INT);require(data,"snapshot",Tag.TAG_STRING);
+                if(!data.hasUUID("site")||data.getInt("contentVersion")!=1||data.getInt("required")<1||data.getInt("required")>2048||op.quantity()<data.getInt("required")||op.quantity()>32768||op.amount()!=d.xp()||!data.getString("snapshot").matches("[a-f0-9]{64}"))throw new IllegalArgumentException("Invalid retained quantity, snapshot or XP");
+                var site=contracts.workSites.get(data.getUUID("site"));
+                if(site==null||!site.player().equals(op.target())||!site.quest().equals(op.key())||!site.id().equals(contracts.currentSites.get(new ContractState.WorksiteSlot(op.target(),op.key()))))throw new IllegalStateException("Retained evidence has no matching current authorization");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(d.profession()).completedQuestIds().contains(op.key()))throw new IllegalStateException("Retained objective already completed");
+                professionRosters.put(op.target(),roster.completeQuest(d.profession(),op.key(),op.amount(),RetainedBuildingQuests.catalog()));
             }
             case PROFESSION_DELIVERY->{
                 var d=CraftDeliveryQuests.get(op.key());var data=op.payload();

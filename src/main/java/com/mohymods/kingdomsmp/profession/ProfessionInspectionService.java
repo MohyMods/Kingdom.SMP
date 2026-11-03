@@ -56,7 +56,18 @@ public final class ProfessionInspectionService {
         int route=largestConnected(routes);
         if(d.profession()==Profession.BUILDER){if(doors<1||stairs<1)throw new IllegalStateException("Working entrance needs a supported clear two-sided doorway, stairs and usable navigation; administrator must attest actual project authorship and consent");}
         else if(route<8||markers<2||saplings<1||logs<1)throw new IllegalStateException("Forest route needs8connected clear path cells,2light markers, replacement saplings and a timber work area; administrator must inspect safe felling and consent");
-        return "doors="+doors+",stairs="+stairs+",route="+route+",lights="+markers+",saplings="+saplings+",logs="+logs+",snapshot="+Long.toUnsignedString(snapshot,16);
+        String proof="doors="+doors+",stairs="+stairs+",route="+route+",lights="+markers+",saplings="+saplings+",logs="+logs+",snapshot="+Long.toUnsignedString(snapshot,16);
+        if(id.equals("kingdom_smp:builder/a08")){
+            var retained=new StringBuilder(proof);
+            for(var prior:RetainedBuildingQuests.catalog().definitions().keySet().stream().sorted().toList()){
+                var actual=RetainedBuildingService.inspectCompletedProject(player,prior);int goal=RetainedBuildingRules.get(admin.server).goal(prior);
+                if(actual.count()<goal)throw new IllegalStateException("Retain and maintain the approved earlier project: "+prior+" "+actual.count()+"/"+goal);
+                retained.append('|').append(prior).append('=').append(actual.count()).append(':').append(actual.hash());
+            }
+            try{proof="doors="+doors+",stairs="+stairs+",retained="+java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(retained.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));}
+            catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
+        }
+        return proof;
     }
     static int largestConnected(Set<BlockPos> positions){
         Set<BlockPos> remaining=new HashSet<>(positions);int largest=0;
@@ -91,7 +102,7 @@ public final class ProfessionInspectionService {
     public static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> commands(){
         return Commands.literal("profession").requires(s->s.hasPermission(2))
             .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).then(Commands.argument("quest",ResourceLocationArgument.id())
-                .suggests((c,b)->{InspectionQuests.catalog().definitions().keySet().stream().sorted().forEach(b::suggest);return b.buildFuture();})
+                .suggests((c,b)->{InspectionQuests.ids().stream().sorted().forEach(b::suggest);return b.buildFuture();})
                 .then(Commands.argument("center",BlockPosArgument.blockPos()).then(Commands.argument("reason",StringArgumentType.greedyString()).executes(c->{try{
                     var admin=c.getSource().getPlayerOrException();String id=ResourceLocationArgument.getId(c,"quest").toString();var nonce=review(admin,EntityArgument.getPlayer(c,"player"),id,BlockPosArgument.getLoadedBlockPos(c,"center"),StringArgumentType.getString(c,"reason"));
                     var r=REVIEWS.get(admin);c.getSource().sendSuccess(()->Component.literal("Review "+InspectionQuests.get(id).name()+"; "+r.snapshot()+"; "+r.reason()+". ").append(Component.literal("[Confirm inspection]").withStyle(s->s.withColor(0xE8C66A).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/kingdom admin profession confirm "+nonce)))),false);return 1;

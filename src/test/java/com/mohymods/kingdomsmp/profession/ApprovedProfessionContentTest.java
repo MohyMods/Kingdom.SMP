@@ -25,9 +25,9 @@ class ApprovedProfessionContentTest {
         }
         assertEquals(304,rows.values().stream().mapToInt(d->d.prerequisites().size()).sum());
         assertEquals(24,FarmerQuests.catalog().definitions().size());
-        assertEquals(29,ProfessionQuestService.catalog().definitions().size());
+        assertEquals(34,ProfessionQuestService.catalog().definitions().size());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:mechanic/m08").isEmpty());
-        assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/a01").isEmpty());
+        assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/a01").isPresent());
     }
     @Test void changedBaselineMissingSlotAndUnknownValidatorFailClosed()throws Exception{
         String original=bundled();
