@@ -19,7 +19,8 @@
     "SpaceLaunchMixin",
     "SpaceLandingMixin",
     "SpaceFuelCommitMixin",
-    "SpacePlanetMenuMixin"
+    "SpacePlanetMenuMixin",
+    "TreeFeatureMixin"
   ],
   "injectors": {
     "defaultRequire": 1

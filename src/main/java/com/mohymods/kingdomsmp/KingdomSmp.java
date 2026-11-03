@@ -49,6 +49,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.profession.FarmerQuestService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.CraftQuestEvidence.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.RetainedBuildingEvents.register(NeoForge.EVENT_BUS);
+        com.mohymods.kingdomsmp.profession.TreeEvents.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.bounty.HuntService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.fishing.FishingCatchService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.title.TitleService.register(NeoForge.EVENT_BUS);

@@ -32,6 +32,7 @@ public final class CraftDeliveryService {
         if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Crafted-material delivery and earned XP are saved.";
         if(!roster.isActive(d.profession()))return "Activate "+ProfessionService.name(d.profession())+" before earning crafting evidence.";
         var inputs=CraftDeliveryRules.get(p.server).inputs(id);
+        if(id.equals(CraftDeliveryQuests.TIMBER))return CraftQuestEvidence.count(p,d.profession(),d.rank(),"planks")+"/"+inputs.get("planks")+" crafted planks; "+CraftQuestEvidence.count(p,d.profession(),d.rank(),"stripped_logs")+"/"+inputs.get("stripped_logs")+" stripped logs. Permanently deliver these amounts in any plain Overworld wood species at your resident.";
         String counts=inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())+"/"+e.getValue()+" crafted "+new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.getKey()))).getHoverName().getString()).collect(java.util.stream.Collectors.joining(", "));
         return counts+". Permanently deliver these quantities at your profession resident. Both native crafting and delivery are required.";
     }
@@ -41,12 +42,23 @@ public final class CraftDeliveryService {
             result.put(BuiltInRegistries.ITEM.get(key),n);
         });return Map.copyOf(result);
     }
+    private static Map<String,Integer> resolve(String id,Map<String,Integer> goals,List<ItemStack> inventory){
+        if(!id.equals(CraftDeliveryQuests.TIMBER))return goals;
+        var remaining=new HashMap<>(goals);Map<String,Integer> actual=new HashMap<>();
+        for(var stack:inventory){
+            if(stack.isEmpty()||!ItemStack.isSameItemSameComponents(stack,new ItemStack(stack.getItem())))continue;
+            String item=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),category=CraftDeliveryQuests.metrics(Profession.LUMBERJACK).get(item);if(category==null)continue;
+            int take=Math.min(stack.getCount(),remaining.get(category));if(take>0){actual.merge(item,take,Math::addExact);remaining.put(category,remaining.get(category)-take);}
+        }
+        if(remaining.values().stream().anyMatch(n->n>0))throw new IllegalStateException("Bring the full plain plank/stripped-log quantities; variants can be mixed and nothing is consumed by review");return Map.copyOf(actual);
+    }
     public static Quote review(ServerPlayer p,String id)throws IOException{
         var d=CraftDeliveryQuests.get(id);ContractService.requireCounter(p,d.profession());
         if(!eligible(p,id))throw new IllegalStateException(status(p,id));
         var store=CommerceService.store(p.server);CommerceService.verifyReceipt(p,store);var inputs=CraftDeliveryRules.get(p.server).inputs(id);
         List<ItemStack> before=new ArrayList<>();for(int i=0;i<36;i++)before.add(p.getInventory().getItem(i).copy());
         // Reuse the existing tested exact-component native inventory exchange, without returned containers.
+        inputs=resolve(id,inputs,before);
         var after=FarmerInventoryExchange.plan(before,items(inputs),Map.of());
         String text="Permanently deliver "+FarmerDeliveryService.describe(inputs)+" to complete "+d.name()+" for "+d.xp()+" profession XP once. Your native crafting evidence is verified. No coin or equipment reward is minted.";
         var q=new Quote(UUID.randomUUID(),store.revision(),id,inputs,before,after,System.nanoTime(),text);QUOTES.put(p,q);return q;
@@ -55,7 +67,7 @@ public final class CraftDeliveryService {
         var q=QUOTES.remove(p);var store=CommerceService.store(p.server);CommerceService.verifyReceipt(p,store);
         if(q==null||!q.nonce().equals(nonce)||q.revision()!=store.revision()||System.nanoTime()-q.issued()>30_000_000_000L)throw new IllegalStateException("Craft delivery review expired; review again");
         var d=CraftDeliveryQuests.get(q.quest());ContractService.requireCounter(p,d.profession());
-        if(!eligible(p,q.quest())||!CraftDeliveryRules.get(p.server).inputs(q.quest()).equals(q.inputs()))throw new IllegalStateException("Craft objective or configuration changed; review again");
+        if(!eligible(p,q.quest())||!CraftDeliveryRules.get(p.server).inputs(q.quest()).equals(CraftDeliveryQuests.totals(q.quest(),q.inputs())))throw new IllegalStateException("Craft objective or configuration changed; review again");
         var before=q.before();for(int i=0;i<36;i++)if(!ItemStack.matches(p.getInventory().getItem(i),before.get(i)))throw new IllegalStateException("Inventory changed; review the full delivery again");
         var old=p.getPersistentData().copy();boolean checkpointStarted=false;
         try{

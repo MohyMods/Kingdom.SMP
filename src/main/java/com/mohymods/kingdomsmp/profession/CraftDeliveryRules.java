@@ -28,12 +28,12 @@ public final class CraftDeliveryRules {
         try{
             var data=JsonParser.parseString(Files.readString(path)).getAsJsonObject();
             if(!data.keySet().equals(Set.of("schema","deliveries"))||number(data,"schema")!=1)throw new IllegalArgumentException("Invalid craft delivery schema");
-            var configured=data.getAsJsonObject("deliveries");if(!configured.keySet().equals(rows.keySet()))throw new IllegalArgumentException("Unknown or missing delivery objective");
+            var configured=data.getAsJsonObject("deliveries");if(!rows.keySet().containsAll(configured.keySet())||!configured.has(CraftDeliveryQuests.MASONRY))throw new IllegalArgumentException("Unknown or missing delivery objective");
             Map<String,Map<String,Integer>> result=new HashMap<>();
             for(var id:rows.keySet()){
-                var row=configured.getAsJsonObject(id);var counts=new HashMap<String,Integer>();var tag=new CompoundTag();
+                var row=configured.has(id)?configured.getAsJsonObject(id):rows.getAsJsonObject(id);var counts=new HashMap<String,Integer>();var tag=new CompoundTag();
                 for(var item:row.keySet()){int count=number(row,item);tag.putInt(item,count);counts.put(item,count);}
-                CraftDeliveryQuests.validate(id,tag);result.put(id,Map.copyOf(counts));
+                CraftDeliveryQuests.validateGoals(id,tag);result.put(id,Map.copyOf(counts));
             }
             return new CraftDeliveryRules(result);
         }catch(RuntimeException e){throw new IOException("Malformed bounded craft-delivery configuration",e);}

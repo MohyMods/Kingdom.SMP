@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -319,6 +319,12 @@ public final class EconomyStore {
     public synchronized ProfessionRoster completeRetainedBuilding(UUID operation,UUID player,String quest,UUID site,int required,int retained,String snapshot)throws IOException{
         var d=RetainedBuildingQuests.get(quest);var data=new CompoundTag();data.putInt("contentVersion",1);data.putUUID("site",site);data.putInt("required",required);data.putString("snapshot",snapshot);
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_RETAINED,player,player,d.xp(),quest,"Retained player construction",null,0,retained,data);
+        if(!replayed(op))append(op);return professions(player);
+    }
+    /** Root reads native server-owned tree evidence; no packet supplies a count, rank or XP. */
+    public synchronized ProfessionRoster completeTreeQuest(UUID operation,UUID player,String quest,int required,int actual)throws IOException{
+        var definition=TreeQuestService.get(quest);var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_TREE,player,player,ApprovedProfessionContent.get(quest).xp(),quest,"Native tree objective",null,0,actual,data);
         if(!replayed(op))append(op);return professions(player);
     }
     /** Verified native crafting plus permanently consumed outputs share one native receipt boundary. */
@@ -793,6 +799,14 @@ public final class EconomyStore {
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
                 if(roster.track(Profession.FARMER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Farmer objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
+            }
+            case PROFESSION_TREE->{
+                var d=TreeQuestService.get(op.key());var approved=ApprovedProfessionContent.get(op.key());var data=op.payload();
+                if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!op.detail().equals("Native tree objective")||!data.getAllKeys().equals(Set.of("contentVersion","required")))throw new IllegalArgumentException("Invalid native tree completion");
+                require(data,"contentVersion",Tag.TAG_INT);require(data,"required",Tag.TAG_INT);
+                if(data.getInt("contentVersion")!=1||data.getInt("required")<1||data.getInt("required")>100000||op.quantity()<data.getInt("required")||op.quantity()>ProfessionEvidence.MAX_COUNTER||op.amount()!=approved.xp())throw new IllegalArgumentException("Invalid native tree count or XP");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.LUMBERJACK).completedQuestIds().contains(op.key()))throw new IllegalStateException("Tree objective already completed");
+                professionRosters.put(op.target(),roster.completeQuest(Profession.LUMBERJACK,op.key(),op.amount(),TreeQuestService.catalog()));
             }
             case PROFESSION_WORKSITE->{
                 var data=op.payload();

@@ -12,6 +12,9 @@ public final class CraftQuestEvidence {
     private CraftQuestEvidence() { }
     public static void register(IEventBus bus){bus.addListener(CraftQuestEvidence::crafted);}
     private static void crafted(PlayerEvent.ItemCraftedEvent event){
+        try{recordCraft(event);}catch(RuntimeException failure){if(event.getEntity() instanceof ServerPlayer p)TreeLifecycle.failure(p.server,failure);}
+    }
+    private static void recordCraft(PlayerEvent.ItemCraftedEvent event){
         if(!(event.getEntity() instanceof ServerPlayer p)||p instanceof FakePlayer||p.isCreative()||p.isSpectator()||!p.isAlive()||p.server.getPlayerList().getPlayer(p.getUUID())!=p)return;
         var store=CommerceService.initializedStore(p.server).orElse(null);if(store==null||store.quarantined())return;
         var roster=store.professions(p.getUUID());var output=event.getCrafting();
@@ -19,12 +22,13 @@ public final class CraftQuestEvidence {
         String id=BuiltInRegistries.ITEM.getKey(output.getItem()).toString();
         for(var role:roster.active()){
             var metric=CraftDeliveryQuests.metrics(role).get(id);if(metric==null)continue;
+            if(com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(p.server).attainedTier()<ApprovedProfessionContent.get(role.questId(roster.progressBand(role),1)).minimumTier())continue;
             var data=ProfessionEvidenceSavedData.get(p.server);
             if(data.evidence(role).record(p.getUUID(),roster.progressBand(role),metric,output.getCount(),null))data.setDirty();
         }
     }
     public static int count(ServerPlayer p,Profession role,ProfessionRank band,String item){
-        var metric=CraftDeliveryQuests.metrics(role).get(item);if(metric==null)throw new IllegalArgumentException("No validated crafting metric for output");
+        var metrics=CraftDeliveryQuests.metrics(role);var metric=metrics.containsValue(item)?item:metrics.get(item);if(metric==null)throw new IllegalArgumentException("No validated crafting metric for output");
         return ProfessionEvidenceSavedData.get(p.server).evidence(role).count(p.getUUID(),band,metric);
     }
 }

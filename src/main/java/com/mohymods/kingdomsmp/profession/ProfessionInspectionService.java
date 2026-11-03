@@ -67,6 +67,13 @@ public final class ProfessionInspectionService {
             try{proof="doors="+doors+",stairs="+stairs+",retained="+java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(retained.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));}
             catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
         }
+        if(id.equals("kingdom_smp:lumberjack/a08")){
+            var data=TreeSavedData.get(admin.server).evidence();var history=new StringBuilder(proof);
+            for(var metric:List.of("oak","birch","spruce","grown")){int count=data.evidence().count(player.getUUID(),ProfessionRank.APPRENTICE,metric);if(count<1)throw new IllegalStateException("Present actual recorded species and replacement history: "+metric);history.append('|').append(metric).append('=').append(count);}
+            boolean mature=data.plantedNear(level.dimension().location().toString(),center).entrySet().stream().anyMatch(e->{var pos=BlockPos.of(e.getKey().position());return level.hasChunkAt(pos)&&level.getBlockState(pos).toString().equals(e.getValue().state());});
+            if(!mature)throw new IllegalStateException("Present a real native-grown replacement tree near the inspected woodland");
+            try{proof="forest=maintained,history="+java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(history.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
+        }
         return proof;
     }
     static int largestConnected(Set<BlockPos> positions){
