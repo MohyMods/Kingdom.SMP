@@ -5,7 +5,7 @@ import com.mohymods.kingdomsmp.profession.BuilderWorksite;
 final class ContractState {
     record Slot(UUID player,String profession,String cycle,long period) { }
     record Pool(String cycle,long period) { }
-    record QuestPeriod(UUID player,String profession,String band,String cycle,long period) { }
+    record QuestPeriod(UUID player,String profession,String band,String cycle,long period,int tier) { }
     record WorksiteSlot(UUID player,String quest) { }
     final Map<UUID,BuilderWorksite> workSites=new HashMap<>();
     final Map<WorksiteSlot,UUID> currentSites=new HashMap<>();

@@ -9,17 +9,21 @@ public final class CommissionQuests {
     private static final ProfessionQuestCatalog CATALOG;
     static {
         var definitions = new HashMap<String, Definition>();
-        for (var role : List.of(Profession.BUILDER, Profession.LUMBERJACK)) {
-            String id = role.questId(ProfessionRank.APPRENTICE, 7);
-            var approved=ApprovedProfessionContent.get(id);
-            if(!approved.validation().equals(Set.of(ApprovedProfessionContent.Validation.CONTRACT))||approved.minimumTier()!=2||!approved.quantity().equals("3 daily periods"))throw new IllegalStateException("Validated commission differs from approved content");
-            definitions.put(id, new Definition(id, role, approved.rank(),approved.name(), "daily", 3));
+        for (var role : List.of(Profession.BUILDER, Profession.LUMBERJACK)) for(var rank:ProfessionRank.values()) {
+            String id=role.questId(rank,rank==ProfessionRank.MASTER?6:7);var approved=ApprovedProfessionContent.get(id);
+            String cycle=rank==ProfessionRank.JOURNEYMAN?"weekly":"daily";int goal=rank==ProfessionRank.APPRENTICE?3:rank==ProfessionRank.JOURNEYMAN?2:5;
+            if(!approved.validation().equals(Set.of(ApprovedProfessionContent.Validation.CONTRACT))||!approved.quantity().equals(goal+" "+cycle+" periods"))throw new IllegalStateException("Validated commission differs from approved content");
+            definitions.put(id,new Definition(id,role,rank,approved.name(),cycle,goal));
         }
-        DEFINITIONS = Map.copyOf(definitions);
-        CATALOG = ProfessionQuestCatalog.approved(definitions.values().stream().map(d ->
-                new ProfessionQuestCatalog.Definition(d.id(), d.profession(), d.rank(), 7, Set.of())).toList());
+        DEFINITIONS=Map.copyOf(definitions);
+        // Earlier bands are prerequisite metadata only; they do not activate their objective adapters.
+        Set<String> closure=new HashSet<>(definitions.keySet());
+        for(var d:definitions.values())for(var band:ProfessionRank.values())if(band.ordinal()<d.rank().ordinal())for(int n=1;n<=8;n++)closure.add(d.profession().questId(band,n));
+        var queue=new ArrayDeque<>(closure);while(!queue.isEmpty())for(var prior:ApprovedProfessionContent.get(queue.removeFirst()).prerequisites())if(closure.add(prior))queue.addLast(prior);
+        CATALOG=ProfessionQuestCatalog.approved(closure.stream().map(id->ApprovedProfessionContent.get(id).slot()).toList());
     }
     private CommissionQuests() { }
+    public static Set<String> ids(){return DEFINITIONS.keySet();}
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
     public static boolean contains(String id) { return DEFINITIONS.containsKey(id); }
     public static Definition get(String id) {

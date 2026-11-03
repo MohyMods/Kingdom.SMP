@@ -21,4 +21,10 @@ class CommissionQuestRulesTest {
         }
         Files.writeString(path,defaults.replace("builder/a07","miner/a07"));assertThrows(IOException.class,()->CommissionQuestRules.load(path));
     }
+    @Test void legacyTwoEntryConfigurationIsPreservedAndNewBandDefaultsAreAdditive()throws Exception{
+        var path=directory.resolve("legacy.json");String legacy="{\"schema\":1,\"goals\":{\"kingdom_smp:builder/a07\":4,\"kingdom_smp:lumberjack/a07\":6}}";Files.writeString(path,legacy);var rules=CommissionQuestRules.load(path);
+        assertEquals(4,rules.goal("kingdom_smp:builder/a07"));assertEquals(6,rules.goal("kingdom_smp:lumberjack/a07"));for(var role:new String[]{"builder","lumberjack"}){assertEquals(2,rules.goal("kingdom_smp:"+role+"/j07"));assertEquals(5,rules.goal("kingdom_smp:"+role+"/m06"));}assertEquals(legacy,Files.readString(path));
+        assertEquals(6,CommissionQuests.ids().size());assertTrue(CommissionQuests.catalog().definition("kingdom_smp:builder/j08").isPresent());assertFalse(ProfessionQuestService.catalog().definition("kingdom_smp:builder/j08").isPresent());
+    }
+
 }

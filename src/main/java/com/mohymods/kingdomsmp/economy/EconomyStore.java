@@ -272,11 +272,25 @@ public final class EconomyStore {
     }
     public synchronized long farmerFoodConsumed(UUID player,ProfessionRank band,String item){return farmerFoodTotals.getOrDefault(new FarmerFood(player,band,item),0L);}
     public synchronized long professionContractPeriods(UUID player,Profession profession,ProfessionRank band,String cycle){healthy();Objects.requireNonNull(player);Objects.requireNonNull(profession);Objects.requireNonNull(band);if(!Set.of("daily","weekly").contains(cycle))throw new IllegalArgumentException("Unknown contract cycle");return contracts.professionPeriods.stream().filter(p->p.player().equals(player)&&p.profession().equals(profession.id())&&p.band().equals(band.id())&&p.cycle().equals(cycle)).count();}
+    public synchronized long commissionContractPeriods(UUID player,String quest){
+        healthy();return commissionPeriods(contracts,player,quest);
+    }
+    private static long commissionPeriods(ContractState contracts,UUID player,String quest){
+        Objects.requireNonNull(player);var d=CommissionQuests.get(quest);int minimum=ApprovedProfessionContent.get(quest).minimumTier();
+        return contracts.professionPeriods.stream().filter(p->p.player().equals(player)&&p.profession().equals(d.profession().id())&&p.band().equals(d.rank().id())&&p.cycle().equals(d.cycle())&&(p.tier()>=minimum||p.tier()==0&&d.rank()==ProfessionRank.APPRENTICE)).count();
+    }
     public synchronized long farmerContractPeriods(UUID player,ProfessionRank band,String cycle){return professionContractPeriods(player,Profession.FARMER,band,cycle);}
     public synchronized long contractPoolSpent(String cycle,long period){return contracts.spent(cycle,period);}
     /** Root pins a real approved repeatable delivery's item/terms and removes actual native inventory. */
     public synchronized PendingItem prepareContract(UUID operation,UUID player,String profession,String cycle,long period,int quantity,long reward,long pool,CompoundTag item)throws IOException{
-        var data=new CompoundTag();data.putString("profession",profession);data.putString("cycle",cycle);data.putInt("required",quantity);data.putLong("pool",pool);data.put("item",checkedItem(item));
+        return prepareContractInternal(operation,player,profession,cycle,period,quantity,reward,pool,item,0);
+    }
+    /** New native receipts pin actual world tier; legacy receipts stay readable without invented history. */
+    public synchronized PendingItem prepareContract(UUID operation,UUID player,String profession,String cycle,long period,int quantity,long reward,long pool,CompoundTag item,int tier)throws IOException{
+        if(tier<1||tier>12)throw new IllegalArgumentException("Invalid authoritative contract tier");return prepareContractInternal(operation,player,profession,cycle,period,quantity,reward,pool,item,tier);
+    }
+    private PendingItem prepareContractInternal(UUID operation,UUID player,String profession,String cycle,long period,int quantity,long reward,long pool,CompoundTag item,int tier)throws IOException{
+        var data=new CompoundTag();data.putString("profession",profession);data.putString("cycle",cycle);data.putInt("required",quantity);data.putLong("pool",pool);data.put("item",checkedItem(item));if(tier>0)data.putInt("questTier",tier);
         var op=new Operation(history.size()+1L,operation,Kind.COMPLETE_CONTRACT,player,player,reward,"kingdom_smp:contract/"+profession+"/"+cycle,"Profession delivery contract",null,period,quantity,data);
         return prepareItem(op,ItemAction.CONTRACT_DELIVERY);
     }
@@ -856,12 +870,13 @@ public final class EconomyStore {
                 if(data.getInt("contentVersion")!=1||required<1||required>365||op.amount()!=CommissionQuests.xp(op.key()))throw new IllegalArgumentException("Invalid commission content/XP");
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
                 if(roster.track(d.profession()).completedQuestIds().contains(op.key()))throw new IllegalStateException("Commission quest already completed");
-                long count=contracts.professionPeriods.stream().filter(v->v.player().equals(op.target())&&v.profession().equals(d.profession().id())&&v.band().equals(d.rank().id())&&v.cycle().equals(d.cycle())).count();
+                long count=commissionPeriods(contracts,op.target(),op.key());
                 if(count<required)throw new IllegalStateException("Not enough distinct canonical commission periods");
                 professionRosters.put(op.target(),roster.completeQuest(d.profession(),op.key(),op.amount(),CommissionQuests.catalog()));
             }
             case COMPLETE_CONTRACT->{
-                var data=op.payload();if(!data.getAllKeys().equals(Set.of("profession","cycle","required","pool","item")))throw new IllegalArgumentException("Invalid contract payload");
+                var data=op.payload();if(!data.getAllKeys().equals(Set.of("profession","cycle","required","pool","item"))&&!data.getAllKeys().equals(Set.of("profession","cycle","required","pool","item","questTier")))throw new IllegalArgumentException("Invalid contract payload");
+                int tier=0;if(data.contains("questTier")){require(data,"questTier",Tag.TAG_INT);tier=data.getInt("questTier");if(tier<1||tier>12)throw new IllegalArgumentException("Invalid contract objective tier");}
                 require(data,"profession",Tag.TAG_STRING);require(data,"cycle",Tag.TAG_STRING);require(data,"required",Tag.TAG_INT);require(data,"pool",Tag.TAG_LONG);require(data,"item",Tag.TAG_COMPOUND);
                 var role=Profession.byId(data.getString("profession"));String cycle=data.getString("cycle");long pool=data.getLong("pool");var item=checkedItem(data.getCompound("item"));
                 if(!Set.of("daily","weekly").contains(cycle)||!op.actor().equals(op.target())||op.reference()!=null||op.quantity()<1||op.quantity()>2304||op.quantity()!=data.getInt("required")
@@ -871,7 +886,7 @@ public final class EconomyStore {
                 var slot=new ContractState.Slot(op.target(),role.id(),cycle,op.period());var key=new ContractState.Pool(cycle,op.period());long spent=contracts.spent(cycle,op.period());
                 if(contracts.completed.contains(slot)||op.amount()>pool-spent)throw new IllegalStateException("Contract already completed or shared reward pool exhausted");
                 contracts.completed.add(slot);contracts.spent.put(key,Math.addExact(spent,op.amount()));
-                contracts.professionPeriods.add(new ContractState.QuestPeriod(op.target(),role.id(),professionRosters.get(op.target()).progressBand(role).id(),cycle,op.period()));
+                contracts.professionPeriods.add(new ContractState.QuestPeriod(op.target(),role.id(),professionRosters.get(op.target()).progressBand(role).id(),cycle,op.period(),tier));
                 mail.put(op.id(),new Mail(op.id(),op.target(),MailKind.COINS,op.amount(),"",cycle+" "+role.id()+" contract reward",false));
             }
             case PROFESSION_CHANGE->{

@@ -10,7 +10,7 @@ public final class ProfessionQuestService {
     private static final ProfessionQuestCatalog CATALOG;
     static {
         var definitions=new ArrayList<>(FarmerQuests.catalog().definitions().values());
-        definitions.addAll(CommissionQuests.catalog().definitions().values());
+        definitions.addAll(CommissionQuests.catalog().definitions().values().stream().filter(d->CommissionQuests.contains(d.id())).toList());
         definitions.addAll(InspectionQuests.catalog().definitions().values().stream().filter(d->InspectionQuests.contains(d.id())).toList());
         definitions.addAll(CraftDeliveryQuests.catalog().definitions().values());
         definitions.addAll(RetainedBuildingQuests.catalog().definitions().values());
@@ -34,7 +34,7 @@ public final class ProfessionQuestService {
         var d=CommissionQuests.get(id); var store=CommerceService.store(player.server); var roster=store.professions(player.getUUID());
         if(roster.track(d.profession()).completedQuestIds().contains(id)) return "Complete. Your profession XP is recorded.";
         if(!roster.isActive(d.profession())) return "Activate "+ProfessionService.name(d.profession())+" at its completed premises.";
-        long count=store.professionContractPeriods(player.getUUID(),d.profession(),d.rank(),d.cycle());
+        long count=store.commissionContractPeriods(player.getUUID(),id);
         return count+" / "+CommissionQuestRules.get(player.server).goal(id)+" distinct "+d.cycle()+" contracts completed during this objective band. Deliver at the assigned profession resident; payment claims do not create extra progress.";
     }
     public static boolean ready(ServerPlayer player,String id) {
@@ -46,7 +46,7 @@ public final class ProfessionQuestService {
         return com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(player.server).attainedTier()>=ApprovedProfessionContent.get(id).minimumTier() && roster.isActive(d.profession()) && !roster.track(d.profession()).completedQuestIds().contains(id)
             && CATALOG.mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             && ProfessionService.available(player,d.profession())
-            && store.professionContractPeriods(player.getUUID(),d.profession(),d.rank(),d.cycle()) >= CommissionQuestRules.get(player.server).goal(id);
+            && store.commissionContractPeriods(player.getUUID(),id) >= CommissionQuestRules.get(player.server).goal(id);
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
         if(TreeQuestService.contains(id)){TreeQuestService.complete(player,operation,id);return;}

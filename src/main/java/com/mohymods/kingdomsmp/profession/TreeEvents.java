@@ -69,7 +69,7 @@ public final class TreeEvents {
                 if(!level.hasChunkAt(pos)||!level.getBlockState(pos).equals(after))return;
                 TreeLifecycle.drain(level.getServer(),128);TreeLifecycle.used(level.getServer());var data=TreeSavedData.get(level.getServer());
                 if(data.evidence().transform(level.dimension().location().toString(),pos,before.toString(),after.toString()))data.setDirty();
-                if(eligible&&TreeQuestService.real(player)&&TreeLifecycle.consent(level,player,pos)&&TreeLifecycle.species(before)!=null&&Objects.equals(TreeLifecycle.species(before),TreeLifecycle.species(after))){
+                if(eligible&&"stripped_logs".equals(CraftDeliveryQuests.metrics(Profession.LUMBERJACK).get(BuiltInRegistries.BLOCK.getKey(after.getBlock()).toString()))&&TreeQuestService.real(player)&&TreeLifecycle.consent(level,player,pos)&&TreeLifecycle.species(before)!=null&&Objects.equals(TreeLifecycle.species(before),TreeLifecycle.species(after))){
                     var craft=ProfessionEvidenceSavedData.get(player.server);if(craft.evidence(Profession.LUMBERJACK).record(player.getUUID(),band,"stripped_logs",1,null))craft.setDirty();
                 }
             });

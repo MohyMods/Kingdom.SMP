@@ -23,7 +23,7 @@ public final class CommissionQuestRules {
     public static CommissionQuestRules load(Path path) throws IOException {
         var defaults = new JsonObject(); defaults.addProperty("schema",1);
         var quantities = new JsonObject(); defaults.add("goals", quantities);
-        for (var id : CommissionQuests.catalog().definitions().keySet()) quantities.addProperty(id,CommissionQuests.get(id).goal());
+        for (var id : CommissionQuests.ids()) quantities.addProperty(id,CommissionQuests.get(id).goal());
         if (!Files.exists(path)) {
             Files.createDirectories(path.toAbsolutePath().getParent());
             Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(defaults),StandardOpenOption.CREATE_NEW);
@@ -32,10 +32,10 @@ public final class CommissionQuestRules {
             var data = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
             if (!data.keySet().equals(Set.of("schema","goals")) || number(data,"schema") != 1) throw new IllegalArgumentException("Unknown schema");
             var rows=data.getAsJsonObject("goals");
-            if (!rows.keySet().equals(quantities.keySet())) throw new IllegalArgumentException("Missing or unknown commission goal");
+            if (!quantities.keySet().containsAll(rows.keySet())||!rows.keySet().containsAll(Set.of("kingdom_smp:builder/a07","kingdom_smp:lumberjack/a07"))) throw new IllegalArgumentException("Missing or unknown commission goal");
             Map<String,Integer> result=new HashMap<>();
             for (var id : quantities.keySet()) {
-                int n=number(rows,id);
+                int n=rows.has(id)?number(rows,id):CommissionQuests.get(id).goal();
                 if(n<1||n>365) throw new IllegalArgumentException("Commission periods must be 1..365");
                 result.put(id,n);
             }
