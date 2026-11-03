@@ -55,6 +55,7 @@ public final class CommissionQuestRuntimeTests {
         CommerceService.verifyReceipt(player);var restored=EconomyStore.open(server.getWorldPath(LevelResource.ROOT).resolve("data"));
         h.assertTrue(restored.professions(player.getUUID()).track(role).xp()==100&&restored.professionContractPeriods(player.getUUID(),role,ProfessionRank.APPRENTICE,"daily")==1,"Independent canonical reopen retains XP, native receipt and one period");
         inspectProject(h,player,project,role);
+        if(role==Profession.BUILDER)craftDelivery(h,player,project);
         h.succeed();com.mojang.logging.LogUtils.getLogger().info("PROFESSION_COMMISSION_ASSERTIONS_PASSED: ordinary earned buyer, actual constructed profession premises/NPC, active enrollment, native exact-material receipt, privately accelerated1period goal, Royal review/confirm,100XPonce, no fabricated rank/coins, canonical reopen, OP2 live geometry inspection, changed-geometry refusal and audited one-time100XP");
     }
     private static void inspectProject(GameTestHelper h,ServerPlayer player,ConstructionStore.Project project,Profession role)throws Exception{
@@ -97,6 +98,54 @@ public final class CommissionQuestRuntimeTests {
         var restored=EconomyStore.open(server.getWorldPath(LevelResource.ROOT).resolve("data"));
         h.assertTrue(restored.professions(player.getUUID()).equals(store.professions(player.getUUID())),"Inspection actor/site/snapshot and roster survive independent reopen");
         server.getPlayerList().deop(admin.getGameProfile());
+    }
+
+    private static void craftDelivery(GameTestHelper h,ServerPlayer p,ConstructionStore.Project project)throws Exception{
+        var server=h.getLevel().getServer();var store=CommerceService.store(server);
+        String id=CraftDeliveryQuests.MASONRY;
+        var npc=(com.mohymods.kingdomsmp.npc.ReeveEntity)h.getLevel().getEntity(project.npc());
+        var home=project.origin().offset(BlueprintRegistry.get(project.blueprint(),project.blueprintVersion()).home());
+        p.moveTo(home.getX()+.5,home.getY(),home.getZ()-1.5);CommerceService.openResident(p,npc);
+        p.getInventory().clearContent();p.getInventory().setItem(0,new ItemStack(Items.STONE_BRICK_STAIRS,32));p.getInventory().setItem(1,new ItemStack(Items.STONE_BRICK_SLAB,32));
+        boolean denied=false;try{ProfessionService.review(p,"materials:"+id);}catch(IllegalStateException expected){denied=true;}
+        h.assertTrue(denied&&p.getInventory().getItem(0).getCount()==32&&store.professions(p.getUUID()).track(Profession.BUILDER).xp()==200,"Possessing outputs without native crafting cannot qualify or consume materials");
+        p.getInventory().clearContent();var table=project.origin().offset(9,0,-10);
+        h.getLevel().setBlock(table,net.minecraft.world.level.block.Blocks.CRAFTING_TABLE.defaultBlockState(),3);
+        p.moveTo(table.getX()+.5,table.getY(),table.getZ()+1.5);
+        var menu=new net.minecraft.world.inventory.CraftingMenu(42,p.getInventory(),net.minecraft.world.inventory.ContainerLevelAccess.create(h.getLevel(),table));p.containerMenu=menu;
+        for(int n=0;n<8;n++){
+            for(int slot:List.of(1,4,5,7,8,9))menu.getSlot(slot).set(new ItemStack(Items.STONE_BRICKS));
+            h.assertTrue(menu.getSlot(0).getItem().is(Items.STONE_BRICK_STAIRS),"Actual vanilla stone-brick stair recipe resolves");
+            h.assertTrue(menu.quickMoveStack(p,0).is(Items.STONE_BRICK_STAIRS),"Actual crafting result taken and all real ingredients consumed");
+        }
+        for(int n=0;n<6;n++){
+            for(int slot:List.of(1,2,3))menu.getSlot(slot).set(new ItemStack(Items.STONE_BRICKS));
+            h.assertTrue(menu.getSlot(0).getItem().is(Items.STONE_BRICK_SLAB),"Actual vanilla stone-brick slab recipe resolves");
+            h.assertTrue(menu.quickMoveStack(p,0).is(Items.STONE_BRICK_SLAB),"Actual slab result taken and ingredients consumed");
+        }
+        p.closeContainer();
+        h.assertTrue(CraftQuestEvidence.count(p,Profession.BUILDER,ProfessionRank.APPRENTICE,"minecraft:stone_brick_stairs")==32&&CraftQuestEvidence.count(p,Profession.BUILDER,ProfessionRank.APPRENTICE,"minecraft:stone_brick_slab")==36,"Actual native result events credit32stairs and36slabs in the current personal band");
+        h.assertTrue(CraftQuestEvidence.count(p,Profession.BUILDER,ProfessionRank.JOURNEYMAN,"minecraft:stone_brick_stairs")==0,"No future-band crafting credit");
+        p.moveTo(home.getX()+.5,home.getY(),home.getZ()-1.5);CommerceService.openResident(p,npc);
+        var stale=ProfessionService.review(p,"materials:"+id);int changed=-1;
+        for(int i=0;i<36;i++)if(p.getInventory().getItem(i).is(Items.STONE_BRICK_STAIRS)){changed=i;break;}
+        var original=p.getInventory().getItem(changed).copy();p.getInventory().getItem(changed).shrink(1);
+        denied=false;try{ProfessionService.confirm(p,stale.nonce());}catch(IllegalStateException expected){denied=true;}
+        h.assertTrue(denied&&store.professions(p.getUUID()).track(Profession.BUILDER).xp()==200,"Changed native delivery inventory consumes nothing and grants no XP");p.getInventory().setItem(changed,original);
+        var request=new com.mohymods.kingdomsmp.network.CommerceRequest(10001,1,7,"materials:"+id,1,com.mohymods.kingdomsmp.network.CommerceRequest.NONE);
+        var view=CommerceService.handle(p,request);h.assertTrue(view.reviewing(),"Normal Royal profession packet route reviews crafted material consumption");
+        CommerceService.handle(p,new com.mohymods.kingdomsmp.network.CommerceRequest(10002,2,7,"materials:"+id,1,view.review()));
+        int stairs=0,slabs=0;for(int i=0;i<36;i++){var item=p.getInventory().getItem(i);if(item.is(Items.STONE_BRICK_STAIRS))stairs+=item.getCount();if(item.is(Items.STONE_BRICK_SLAB))slabs+=item.getCount();}
+        h.assertTrue(stairs==0&&slabs==4&&store.professions(p.getUUID()).track(Profession.BUILDER).xp()==300,"Exactly32stairs and32slabs permanently consumed;4extra actual crafted slabs preserved; exactly100newXP");
+        denied=false;try{ProfessionService.review(p,"materials:"+id);}catch(IllegalStateException expected){denied=true;}h.assertTrue(denied,"Completed craft/delivery cannot redeem again");
+        CommerceService.verifyReceipt(p);
+        var evidence=ProfessionEvidenceSavedData.get(server);evidence.setDirty();server.overworld().getDataStorage().save();
+        net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
+        var stored=AtomicNbt.read(server.getWorldPath(LevelResource.ROOT).resolve("data/kingdomsmp_profession_evidence_v1.dat"));
+        h.assertTrue(ProfessionEvidenceSavedData.load(stored.getCompound("data"),server.registryAccess()).evidence(Profession.BUILDER).count(p.getUUID(),ProfessionRank.APPRENTICE,"stone_stairs")==32,"Actual native SavedData persists original personal crafting evidence");
+        var reopened=EconomyStore.open(server.getWorldPath(LevelResource.ROOT).resolve("data"));
+        h.assertTrue(reopened.professions(p.getUUID()).track(Profession.BUILDER).xp()==300&&reopened.expectedReceipt(p.getUUID())==store.expectedReceipt(p.getUUID()),"Canonical native receipt and crafted objective survive independent reopen");
+        com.mojang.logging.LogUtils.getLogger().info("CRAFTED_DELIVERY_ASSERTIONS_PASSED: native vanilla14recipes,32stairs36slabs personally crafted, possession-only and stale refusal, normal Royal packet dispatch,32plus32permanently consumed,4slabs preserved,100XPonce, native evidence and canonical receipt reopen");
     }
 
 }

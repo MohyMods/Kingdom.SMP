@@ -12,17 +12,19 @@ public final class ProfessionQuestService {
         var definitions=new ArrayList<>(FarmerQuests.catalog().definitions().values());
         definitions.addAll(CommissionQuests.catalog().definitions().values());
         definitions.addAll(InspectionQuests.catalog().definitions().values());
+        definitions.addAll(CraftDeliveryQuests.catalog().definitions().values());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
-    public static String title(String id) { return InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
-    public static long xp(String id) { return InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
+    public static String title(String id) { return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
+    public static long xp(String id) { return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
     public static String status(ServerPlayer player,String id) {
+        if(CraftDeliveryQuests.contains(id))return CraftDeliveryService.status(player,id);
         if(InspectionQuests.contains(id)){
             var d=InspectionQuests.get(id);var roster=CommerceService.store(player.server).professions(player.getUUID());
             if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Your inspected project and earned XP are recorded.";
-            return "Requires an administrator's on-site inspection and explicit confirmation: "+d.objective()+". "+d.quantity()+". Player authorship, working access and claim consent must be attested; inspection changes no blocks.";
+            return "Administrator inspection: "+d.objective()+". "+d.quantity()+". Confirm authorship, working access and claim consent on site.";
         }
         if (!CommissionQuests.contains(id)) return FarmerQuestService.status(player,id);
         var d=CommissionQuests.get(id); var store=CommerceService.store(player.server); var roster=store.professions(player.getUUID());
@@ -32,7 +34,7 @@ public final class ProfessionQuestService {
         return count+" / "+CommissionQuestRules.get(player.server).goal(id)+" distinct "+d.cycle()+" contracts completed during this objective band. Deliver at the assigned profession resident; payment claims do not create extra progress.";
     }
     public static boolean ready(ServerPlayer player,String id) {
-        if(InspectionQuests.contains(id))return false;
+        if(InspectionQuests.contains(id)||CraftDeliveryQuests.contains(id))return false;
         if (!CommissionQuests.contains(id)) return FarmerQuestService.ready(player,id);
         var d=CommissionQuests.get(id);var store=CommerceService.store(player.server);var roster=store.professions(player.getUUID());
         return com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(player.server).attainedTier()>=ApprovedProfessionContent.get(id).minimumTier() && roster.isActive(d.profession()) && !roster.track(d.profession()).completedQuestIds().contains(id)
@@ -41,6 +43,7 @@ public final class ProfessionQuestService {
             && store.professionContractPeriods(player.getUUID(),d.profession(),d.rank(),d.cycle()) >= CommissionQuestRules.get(player.server).goal(id);
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
+        if(CraftDeliveryQuests.contains(id))throw new IllegalStateException("Use the reviewed crafted-material delivery; an event completion cannot consume materials");
         if(InspectionQuests.contains(id))throw new IllegalStateException("An authenticated administrator must inspect and confirm this site");
         if (!CommissionQuests.contains(id)) { FarmerQuestService.complete(player,operation,id); return; }
         var d=CommissionQuests.get(id);
