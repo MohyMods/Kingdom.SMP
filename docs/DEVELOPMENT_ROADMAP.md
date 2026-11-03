@@ -1,3 +1,5 @@
+> D067: Builder j02native64masonry/16glass and1000XP survive3dedicated boots; unknown-log strip provenance loophole closed. Master structural/decorative adapters share native retained framework behind earlier-band gates; full Master earning remains open.47/288runtime adapters. Continue remaining Builder inspected bands, sustainable Lumberjack species/cycles and nine profession premises.
+
 > D066: Later Builder/Lumberjack commissions now use native tier-pinned canonical receipts and complete-band gates.44/288runtime adapters; real earned Tier3/Lumberjack weekly reward and unchanged Farmer24native regression pass. Continue remaining Builder/Lumberjack objective bands and other nine premises/approved quests; all full-release acceptance gaps remain.
 
 > D065: Lumberjack Apprentice8/8 now earned natively to Journeyman; runtime40/288. Native tree lifecycle, offline growth/claims, exact mixed timber consumption and inspection integrate with existing professions. Continue remaining Builder/Lumberjack bands, nine premises and all approved quests before the tier/campaign/full-pack backlog. See PROFESSIONS.md. No intermediate binary release.

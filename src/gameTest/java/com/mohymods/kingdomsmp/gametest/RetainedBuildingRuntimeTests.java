@@ -21,7 +21,7 @@ import net.neoforged.neoforge.gametest.*;
 public final class RetainedBuildingRuntimeTests {
     @GameTest(template="empty",timeoutTicks=6000)
     public static void actualPlayerPlacementsEarnTheWholeBuilderApprenticeBand(GameTestHelper h)throws Exception{
-        var server=h.getLevel().getServer();var store=CommerceService.store(server);
+        var server=h.getLevel().getServer();server.tickRateManager().setTickRate(200);var store=CommerceService.store(server);
         var old=ConstructionService.store(server).projects().stream().filter(v->v.blueprint().toString().equals(Profession.BUILDER.buildingId())).findFirst().orElse(null);
         if(old!=null&&store.professions(old.owner()).track(Profession.BUILDER).completedQuestIds().contains("kingdom_smp:builder/a08")){resume(h,old);return;}
         CommerceRuntimeTests.completePurchasedProfessionLoop(h,Profession.BUILDER.buildingId(),()->{
@@ -38,15 +38,15 @@ public final class RetainedBuildingRuntimeTests {
             var pos=site.from().offset(1,1,1);p.moveTo(pos.getX()+2.5,pos.getY()+2,pos.getZ()+2.5);var held=p.getMainHandItem().copy();p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.COBBLESTONE));
             p.gameMode.useItemOn(p,level,p.getMainHandItem(),InteractionHand.MAIN_HAND,new BlockHitResult(Vec3.atCenterOf(pos.below()).add(0,.5,0),Direction.UP,pos.below(),false));
             h.assertTrue(level.getBlockState(pos).is(Blocks.COBBLESTONE)&&p.getMainHandItem().isEmpty(),"Malformed saved evidence cannot throw through the native item transaction or duplicate a placed block item");p.setItemInHand(InteractionHand.MAIN_HAND,held);
-            h.assertTrue(store.professions(p.getUUID()).track(Profession.BUILDER).xp()==800,"Malformed event evidence awards no extra progression");
+            h.assertTrue(store.professions(p.getUUID()).track(Profession.BUILDER).xp()==(store.professions(p.getUUID()).track(Profession.BUILDER).completedQuestIds().contains("kingdom_smp:builder/j02")?1000:800),"Malformed event evidence awards no extra progression");
             boolean refused=false;try{RetainedBuildingService.inspectCompletedProject(p,"kingdom_smp:builder/a01");}catch(RuntimeException expected){refused=true;}h.assertTrue(refused,"Malformed existing evidence refuses inspection and never silently resets");
             CommerceService.verifyReceipt(p);h.succeed();com.mojang.logging.LogUtils.getLogger().info("RETAINED_CORRUPT_EVENT_ASSERTIONS_PASSED: second real JVM, intentionally corrupt private saved evidence, actual native block placed/item consumed once, no duplicate or XP, inspection refuses reset, canonical receipt preserved");return;
         }
         h.runAfterDelay(20,()->{try{
-            h.assertTrue(store.professions(p.getUUID()).track(Profession.BUILDER).xp()==800&&store.professions(p.getUUID()).rank(Profession.BUILDER,ProfessionService.quests())==ProfessionRank.JOURNEYMAN,"Third real JVM retains original eight proofs and earned rank");
-            for(var id:RetainedBuildingQuests.catalog().definitions().keySet())h.assertTrue(RetainedBuildingService.inspectCompletedProject(p,id).count()==RetainedBuildingQuests.goal(id),"Matching restored evidence and native retained geometry survive restart: "+id);
+            h.assertTrue(store.professions(p.getUUID()).track(Profession.BUILDER).xp()==(store.professions(p.getUUID()).track(Profession.BUILDER).completedQuestIds().contains("kingdom_smp:builder/j02")?1000:800)&&store.professions(p.getUUID()).rank(Profession.BUILDER,ProfessionService.quests())==ProfessionRank.JOURNEYMAN,"Third real JVM retains original eight proofs and earned rank");
+            for(var id:RetainedBuildingQuests.ids().stream().filter(q->store.professions(p.getUUID()).track(Profession.BUILDER).completedQuestIds().contains(q)).toList())h.assertTrue(RetainedBuildingService.inspectCompletedProject(p,id).count()==RetainedBuildingQuests.goal(id),"Matching restored evidence and native retained geometry survive restart: "+id);
             h.assertTrue(ConstructionService.structureIntact(level,building)&&level.getEntity(building.npc()) instanceof com.mohymods.kingdomsmp.npc.ReeveEntity,"Original intact workshop and registered permanent NPC identity survived restart");
-            CommerceService.verifyReceipt(p);h.succeed();com.mojang.logging.LogUtils.getLogger().info("RETAINED_RESTART_ASSERTIONS_PASSED: third clean JVM, matching private evidence restored, unchanged eight proofs800XP/Journeyman, all304retained native positions, same workshop/NPC, canonical receipt and no automatic reward duplication");
+            CommerceService.verifyReceipt(p);h.succeed();com.mojang.logging.LogUtils.getLogger().info("RETAINED_RESTART_ASSERTIONS_PASSED: third clean JVM, matching private evidence restored, unchanged Apprentice and facade proofs1000XP/Journeyman, all384retained native positions, same workshop/NPC, canonical receipt and no automatic reward duplication");
         }catch(Exception failure){h.fail(failure.toString());}});
     }
     static final class Walk {
@@ -83,6 +83,11 @@ public final class RetainedBuildingRuntimeTests {
             level.setBlock(base,Blocks.COBBLESTONE.defaultBlockState(),3);
             h.assertTrue(RetainedBuildingService.scan(p,"kingdom_smp:builder/a01").count()==0,"Administrative/native automatic world writes cannot fabricate player provenance");
             level.setBlock(base,Blocks.AIR.defaultBlockState(),3);
+            var untracked=base.above();level.setBlock(untracked,Blocks.OAK_LOG.defaultBlockState(),3);p.moveTo(untracked.getX()+2.5,untracked.getY()+1,untracked.getZ()+2.5);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.IRON_AXE));p.gameMode.useItemOn(p,level,p.getMainHandItem(),InteractionHand.MAIN_HAND,new BlockHitResult(Vec3.atCenterOf(untracked),Direction.SOUTH,untracked,false));
+            h.assertTrue(level.getBlockState(untracked).is(Blocks.STRIPPED_OAK_LOG),"Native axe really transforms an untracked pre-existing log");
+            h.runAfterDelay(3,()->guard(()->{h.assertTrue(RetainedBuildingService.scan(p,"kingdom_smp:builder/a02").count()==0,"Stripping an untracked/admin/natural log cannot fabricate supplied-placement evidence");level.setBlock(untracked,Blocks.AIR.defaultBlockState(),3);placeApprentice();}));
+        }
+        void placeApprentice(){
             for(int x=0;x<16;x++)for(int z=0;z<8;z++)place(base.offset(x,0,z),Items.COBBLESTONE);
             for(int x=0;x<16;x+=4)for(int z=0;z<8;z+=2)for(int y=1;y<=4;y++)place(base.offset(x,y,z),Items.OAK_LOG);
             for(int z=0;z<8;z++)for(int x=0;x<8;x++)place(base.offset(x,5,z),Items.OAK_PLANKS);
@@ -161,11 +166,26 @@ public final class RetainedBuildingRuntimeTests {
             h.assertTrue(RetainedBuildingService.inspectCompletedProject(p,"kingdom_smp:builder/a03").count()==64,"The completed roof retains all64genuine source positions after legitimate restoration");
             UUID nonce=ProfessionInspectionService.review(admin,p,"kingdom_smp:builder/a08",center,"Personally inspected retained frame roof route and usable entry");ProfessionInspectionService.confirm(admin,nonce);
             h.assertTrue(store.professions(p.getUUID()).track(Profession.BUILDER).completedQuestIds().size()==8&&store.professions(p.getUUID()).track(Profession.BUILDER).xp()==800&&store.professions(p.getUUID()).rank(Profession.BUILDER,ProfessionService.quests())==ProfessionRank.JOURNEYMAN,"All eight actual approved Apprentice objectives earn exactly800XP and Journeyman once");
-            level.getServer().getPlayerList().deop(admin.getGameProfile());data.setDirty();level.getDataStorage().save();net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
+            level.getServer().getPlayerList().deop(admin.getGameProfile());advancedFacade();
+        }
+        void advancedFacade()throws Exception{
+            var hall=ConstructionService.lodge(level.getServer());var home=hall.origin().offset(BlueprintRegistry.get(hall.blueprint(),hall.blueprintVersion()).home());p.moveTo(home.getX()+.5,home.getY(),home.getZ()-1.5);CommerceService.openResident(p,(com.mohymods.kingdomsmp.npc.ReeveEntity)level.getEntity(hall.npc()));
+            for(var resource:com.mohymods.kingdomsmp.progression.TierTwoService.Resource.values()){int remaining=com.mohymods.kingdomsmp.progression.TierTwoService.ledger(level.getServer()).requirements().get(resource.id);while(remaining>0){int batch=Math.min(2304,remaining);p.getInventory().clearContent();for(int slot=0,left=batch;left>0;slot++){int n=Math.min(64,left);p.getInventory().setItem(slot,new ItemStack(resource.item==null?Items.OAK_LOG:resource.item,n));left-=n;}var nonce=com.mohymods.kingdomsmp.progression.TierTwoService.handleReview(p,resource.id,batch);com.mohymods.kingdomsmp.progression.TierTwoService.confirm(p,nonce);remaining-=batch;}}
+            level.getServer().getCommands().getDispatcher().execute("kingdom admin milestone road confirm Isolated supplied inspected settlement road fixture",level.getServer().createCommandSourceStack());
+            final String id="kingdom_smp:builder/j02";var from=base.offset(24,0,0);var to=from.offset(15,4,0);
+            for(int x=0;x<16;x++)level.setBlock(from.offset(x,-1,0),Blocks.STONE.defaultBlockState(),3);
+            for(int cx=from.getX()>>4;cx<=to.getX()>>4;cx++)for(int cz=(from.getZ()-1)>>4;cz<=(to.getZ()+1)>>4;cz++){var point=new BlockPos(cx*16,from.getY(),cz*16);ClaimRuntimeTests.ftbUnclaim(level,point);ClaimRuntimeTests.ftbClaim(p,point);ClaimRuntimeTests.opacUnclaim(level,point);ClaimRuntimeTests.opacClaim(level,p.getUUID(),point);}
+            admin.moveTo(from.getX()+7.5,from.getY()+1,from.getZ()+4.5);p.moveTo(from.getX()+8.5,from.getY()+1,from.getZ()+4.5);level.getServer().getPlayerList().op(admin.getGameProfile());var nonce=RetainedBuildingService.reviewSite(admin,p,id,from,to,"Consented personally supplied masonry and glass facade");RetainedBuildingService.confirmSite(admin,nonce);level.getServer().getPlayerList().deop(admin.getGameProfile());sites.put(id,store.builderWorksite(p.getUUID(),id).orElseThrow());
+            for(int y=0;y<5;y++)for(int x=0;x<16;x++)place(from.offset(x,y,0),Items.STONE_BRICKS);
+            h.runAfterDelay(3,()->guard(()->{near();h.assertTrue(RetainedBuildingService.scan(p,id).count()==64,"Eighty native masonry blocks cannot replace the required sixteen glass blocks");for(int x=0;x<16;x++){var pos=from.offset(x,4,0);p.moveTo(pos.getX()+2.5,pos.getY()+1,pos.getZ()+2.5);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.IRON_PICKAXE));h.assertTrue(p.gameMode.destroyBlock(pos),"Actual native removal replaces only supplied private facade stock");place(pos,Items.GLASS);}h.runAfterDelay(3,()->guard(this::finishFacade));}));
+        }
+        void finishFacade()throws Exception{
+            final String id="kingdom_smp:builder/j02";near();h.assertTrue(RetainedBuildingService.scan(p,id).count()==80,"Exactly64supported native masonry plus16actual glass positions complete the facade");var view=CommerceService.handle(p,new CommerceRequest(95001,1,7,"quest:"+id,1,CommerceRequest.NONE));h.assertTrue(view.reviewing(),"Normal Royal interface reviews earned facade");CommerceService.handle(p,new CommerceRequest(95002,2,7,"quest:"+id,1,view.review()));h.assertTrue(store.professions(p.getUUID()).track(Profession.BUILDER).xp()==1000,"Actual full facade awards200XPonce after earned Apprentice and real Tier3");
+            var data=RetainedBuildingSavedData.get(level.getServer());data.setDirty();level.getDataStorage().save();net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
             var file=level.getServer().getWorldPath(LevelResource.ROOT).resolve("data/kingdomsmp_retained_buildings_v1.dat");var persisted=RetainedBuildingSavedData.load(AtomicNbt.read(file).getCompound("data"),level.registryAccess());
             h.assertTrue(persisted.evidence().positions(sites.get("kingdom_smp:builder/a01").id()).size()==128,"Actual native SavedData retains distinct placement provenance");
             var reopened=EconomyStore.open(level.getServer().getWorldPath(LevelResource.ROOT).resolve("data"));h.assertTrue(reopened.builderWorksites().equals(store.builderWorksites())&&reopened.professions(p.getUUID()).equals(store.professions(p.getUUID())),"Canonical operator authorizations, current sites, awards and rank independently reopen");CommerceService.verifyReceipt(p);
-            h.succeed();com.mojang.logging.LogUtils.getLogger().info("RETAINED_BUILDING_ASSERTIONS_PASSED: actual304native supplied placements plus native stripping/shovel use,128foundation64logs64roof48route, actor authorization, reservation denial, automatic-write refusal, break/replace distinct proof, FTB/OPACrevocation, Royal packet completion, native craft/consumed contract and on-site inspections, all8earnedBuilderApprentice800XP/Journeyman, final retained-roof invalidation, native/canonical saved reopen; supplies explicit, only daily-period goal privately accelerated");
+            h.succeed();com.mojang.logging.LogUtils.getLogger().info("RETAINED_BUILDING_ASSERTIONS_PASSED: actual304native supplied placements plus native stripping/shovel use,128foundation64logs64roof48route, actor authorization, reservation denial, automatic-write refusal, break/replace distinct proof, FTB/OPACrevocation, Royal packet completion, native craft/consumed contract and on-site inspections, all8earnedBuilderApprentice800XP/Journeyman plus actual Tier3/64masonry16glass200XPfacade, unknown-log strip refusal, final retained-roof invalidation, native/canonical saved reopen; supplies explicit, private clock200TPS and daily-period goal accelerated");
         }
         void guard(Checked action){try{action.run();}catch(Exception e){h.fail(e.toString());}}
         interface Checked{void run()throws Exception;}

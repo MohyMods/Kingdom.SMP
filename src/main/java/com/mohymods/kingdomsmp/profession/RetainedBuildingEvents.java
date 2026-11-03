@@ -42,13 +42,18 @@ public final class RetainedBuildingEvents {
     private static void safely(ServerLevel level,Runnable action){try{action.run();}catch(RuntimeException failure){failure(level.getServer(),failure);}}
     private static void place(BlockEvent.EntityPlaceEvent event){
         if(!(event.getLevel() instanceof ServerLevel level))return;
-        safely(level,()->{var pos=event.getPos().immutable();invalidate(level,pos);if(event.getEntity() instanceof ServerPlayer p)capture(p,level,pos,event.getPlacedBlock(),null);});
+        safely(level,()->{var pos=event.getPos().immutable();var before=event.getBlockSnapshot().getState();var after=event.getPlacedBlock();
+            if(before.is(net.minecraft.tags.BlockTags.LOGS)&&after.is(net.minecraft.tags.BlockTags.LOGS)&&!before.equals(after)){
+                if(event.getEntity() instanceof ServerPlayer p)capture(p,level,pos,after,before.toString());return;
+            }
+            invalidate(level,pos);if(event.getEntity() instanceof ServerPlayer p)capture(p,level,pos,after,null);
+        });
     }
     private static void path(BlockEvent.BlockToolModificationEvent event){
         if(event.isSimulated()||!(event.getPlayer() instanceof ServerPlayer p)||!(event.getLevel() instanceof ServerLevel level))return;
         safely(level,()->{
             if(event.getItemAbility()==ItemAbilities.SHOVEL_FLATTEN&&!event.getState().is(Blocks.DIRT_PATH))capture(p,level,event.getPos().immutable(),Blocks.DIRT_PATH.defaultBlockState(),null);
-            else if(event.getItemAbility()==ItemAbilities.AXE_STRIP&&event.getFinalState()!=null&&!event.getFinalState().equals(event.getState()))capture(p,level,event.getPos().immutable(),event.getFinalState(),event.getState().toString());
+            else if(event.getItemAbility()==ItemAbilities.AXE_STRIP&&event.getFinalState()!=null){var after=event.getFinalState().equals(event.getState())?net.minecraft.world.item.AxeItem.getAxeStrippingState(event.getState()):event.getFinalState();if(after!=null&&!after.equals(event.getState()))capture(p,level,event.getPos().immutable(),after,event.getState().toString());}
         });
     }
     private static void capture(ServerPlayer player,ServerLevel level,BlockPos pos,BlockState expected,String originalProof){
@@ -58,12 +63,12 @@ public final class RetainedBuildingEvents {
         var authorizations=sites(level,pos).stream().filter(s->s.player().equals(player.getUUID())&&roster.progressBand(Profession.BUILDER)==RetainedBuildingQuests.get(s.quest()).rank()&&RetainedBuildingService.candidate(s,pos,expected)).filter(s->originalProof==null||originalProof.equals(RetainedBuildingSavedData.get(player.server).evidence().positions(s.id()).get(pos.asLong()))).sorted(Comparator.comparing(BuilderWorksite::quest)).limit(1).toList();
         if(authorizations.isEmpty())return;
         later(player.server,()->{
-            if(!RetainedBuildingService.real(player)||player.serverLevel()!=level||!level.hasChunkAt(pos)||!level.getBlockState(pos).equals(expected)||PlacementProtection.check(level,player,pos,pos)!=null)return;
+            if(!RetainedBuildingService.real(player)||player.serverLevel()!=level||!level.hasChunkAt(pos)||!RetainedBuildingService.sameProof(level.getBlockState(pos),expected.toString())||PlacementProtection.check(level,player,pos,pos)!=null)return;
             var current=store.professions(player.getUUID());if(!current.isActive(Profession.BUILDER))return;
             var data=RetainedBuildingSavedData.get(player.server);
             for(var site:authorizations){
                 if(current.progressBand(Profession.BUILDER)!=RetainedBuildingQuests.get(site.quest()).rank()||!store.builderWorksite(player.getUUID(),site.quest()).map(s->s.id().equals(site.id())).orElse(false))continue;
-                if(data.evidence().record(site.id(),pos,expected.toString())){data.setDirty();RetainedBuildingService.changed(player.getUUID());}
+                if(data.evidence().record(site.id(),pos,level.getBlockState(pos).toString())){data.setDirty();RetainedBuildingService.changed(player.getUUID());}
             }
         });
     }

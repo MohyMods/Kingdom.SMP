@@ -34,7 +34,7 @@ class BuilderWorksiteStoreTest {
     @Test void coordinateWrappingUnknownObjectivesAndInactiveRolesFailBeforeWriting()throws Exception{
         var inactive=EconomyStore.open(directory);assertThrows(IllegalStateException.class,()->site(inactive));
         var s=open();var store=s;long revision=s.revision();
-        assertThrows(IllegalArgumentException.class,()->store.authorizeBuilderWorksite(UUID.randomUUID(),admin,player,"kingdom_smp:builder/m01","minecraft:overworld",BlockPos.ZERO,new BlockPos(1,1,1),"No validated Master site"));
+        assertThrows(IllegalArgumentException.class,()->store.authorizeBuilderWorksite(UUID.randomUUID(),admin,player,"kingdom_smp:builder/m03","minecraft:overworld",BlockPos.ZERO,new BlockPos(1,1,1),"No validated Master site"));
         assertThrows(IllegalArgumentException.class,()->new BuilderWorksite(UUID.randomUUID(),admin,player,quest,"minecraft:overworld",new BlockPos(0,2048,0),new BlockPos(1,2049,1),"No packed Y coordinate wrapping"));
         assertThrows(IllegalArgumentException.class,()->new BuilderWorksite(UUID.randomUUID(),admin,player,quest,"minecraft:overworld",BlockPos.ZERO,new BlockPos(64,8,64),"No excessive region dimensions"));
         assertEquals(revision,s.revision());
@@ -54,6 +54,10 @@ class BuilderWorksiteStoreTest {
         var s=open();site(s);
         assertThrows(IllegalStateException.class,()->s.approveProfessionInspection(UUID.randomUUID(),admin,player,"kingdom_smp:builder/a08","Actual inspection without required earlier earned proofs"));
         assertEquals(0,s.professions(player).track(Profession.BUILDER).xp());assertEquals(ProfessionRank.APPRENTICE,s.professions(player).rank(Profession.BUILDER,ProfessionService.quests()));
+    }
+
+    @Test void laterRetainedSitesCannotBeAuthorizedBeforeTheirCompleteEarlierBands()throws Exception{
+        var s=open();long revision=s.revision();for(var id:List.of("kingdom_smp:builder/j02","kingdom_smp:builder/m01","kingdom_smp:builder/m02"))assertThrows(IllegalStateException.class,()->s.authorizeBuilderWorksite(UUID.randomUUID(),admin,player,id,"minecraft:overworld",new BlockPos(0,64,0),new BlockPos(15,69,7),"Real future site must retain complete prior band requirements"));assertEquals(revision,s.revision());assertTrue(s.builderWorksites().isEmpty());assertEquals(0,s.professions(player).track(Profession.BUILDER).xp());
     }
 
 }

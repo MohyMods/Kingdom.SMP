@@ -50,6 +50,21 @@ public final class RetainedBuildingService {
         if(hut!=null){var b=BuilderHutBlueprint.create();var origin=hut.origin();var bounds=new AABB(origin.getX(),origin.getY()-4,origin.getZ(),origin.getX()+b.width(hut.rotation()),origin.getY()+BuilderHutBlueprint.HEIGHT,origin.getZ()+b.depth(hut.rotation()));if(site.bounds().intersects(bounds))throw new IllegalStateException("Manual worksite cannot count the starting Builder's Hut");}
     }
     static boolean foundation(BlockState state){return state.is(BlockTags.BASE_STONE_OVERWORLD)||state.is(Blocks.COBBLESTONE)||state.is(Blocks.STONE_BRICKS)||state.is(Blocks.POLISHED_ANDESITE)||state.is(Blocks.POLISHED_DIORITE)||state.is(Blocks.POLISHED_GRANITE);}
+    /** Only vanilla neighbour-derived wall/stair properties may vary; identity/orientation/water remain strict. */
+    static boolean sameProof(BlockState state,String proof){return normalizedProof(state,state.toString()).equals(normalizedProof(state,proof));}
+    private static String normalizedProof(BlockState state,String proof){
+        if(state.getBlock() instanceof WallBlock)return proof.replaceAll("(north|south|east|west)=(none|low|tall)","$1=none").replace("up=false","up=true");
+        if(state.getBlock() instanceof StairBlock)return proof.replaceAll("shape=(straight|inner_left|inner_right|outer_left|outer_right)","shape=straight");return proof;
+    }
+    static boolean masonry(BlockState state){return foundation(state)||state.is(Blocks.BRICKS)||state.is(BlockTags.WALLS);}
+    static boolean glass(BlockState state){String id=net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();return id.equals("minecraft:glass")||id.equals("minecraft:tinted_glass")||id.matches("minecraft:(white|orange|magenta|light_blue|yellow|lime|pink|gray|light_gray|cyan|purple|blue|brown|green|red|black)_stained_glass");}
+    static boolean structural(BlockState state){return masonry(state)||state.is(BlockTags.LOGS)||state.is(BlockTags.PLANKS);}
+    /** Capping each facade category prevents bulk stone from substituting for supplied glass. */
+    static int progress(String id,int goal,int walls,int glass,int stairs,int slabs,int decorativeWalls,int structural){
+        if(id.endsWith("j02")){int glassGoal=Math.max(1,goal/5);return Math.min(walls,goal-glassGoal)+Math.min(glass,glassGoal);}
+        if(id.endsWith("m02")){int total=stairs+slabs+decorativeWalls;return stairs>0&&slabs>0&&decorativeWalls>0?total:Math.min(total,goal-1);}
+        return structural;
+    }
     public static boolean candidate(BuilderWorksite site,BlockPos pos,BlockState state){
         if(!site.contains(pos))return false;
         return switch(site.quest()){
@@ -57,10 +72,13 @@ public final class RetainedBuildingService {
             case "kingdom_smp:builder/a02"->pos.getY()>site.from().getY()&&state.is(BlockTags.LOGS);
             case "kingdom_smp:builder/a03"->pos.getY()>=site.from().getY()+3&&(state.is(BlockTags.PLANKS)||state.is(BlockTags.WOODEN_STAIRS)||state.is(BlockTags.WOODEN_SLABS));
             case "kingdom_smp:builder/a06"->state.is(Blocks.DIRT_PATH)||foundation(state)||state.is(BlockTags.PLANKS)||state.getBlock() instanceof StairBlock||state.getBlock() instanceof SlabBlock;
+            case "kingdom_smp:builder/j02"->masonry(state)||glass(state);
+            case "kingdom_smp:builder/m01"->structural(state);
+            case "kingdom_smp:builder/m02"->state.getBlock() instanceof StairBlock||state.getBlock() instanceof SlabBlock||state.is(BlockTags.WALLS);
             default->false;
         };
     }
-    private static boolean loadBearing(ServerLevel level,BlockPos pos){var state=level.getBlockState(pos);return state.isCollisionShapeFullBlock(level,pos)||state.is(BlockTags.LOGS)||state.getBlock() instanceof StairBlock||state.getBlock() instanceof SlabBlock;}
+    private static boolean loadBearing(ServerLevel level,BlockPos pos){var state=level.getBlockState(pos);return state.isCollisionShapeFullBlock(level,pos)||state.is(BlockTags.WALLS)||state.is(BlockTags.LOGS)||state.getBlock() instanceof StairBlock||state.getBlock() instanceof SlabBlock;}
     private static Set<BlockPos> supported(ServerLevel level,BuilderWorksite site){
         Set<BlockPos> result=new HashSet<>();var queue=new ArrayDeque<BlockPos>();
         for(int x=site.from().getX();x<=site.to().getX();x++)for(int z=site.from().getZ();z<=site.to().getZ();z++){
@@ -80,14 +98,14 @@ public final class RetainedBuildingService {
     public static Snapshot inspectCompletedProject(ServerPlayer p,String id){return scan(p,id,true);}
     private static Snapshot scan(ServerPlayer p,String id,boolean completedAllowed){
         eligible(p,id,completedAllowed);var site=CommerceService.store(p.server).builderWorksite(p.getUUID(),id).orElseThrow(()->new IllegalStateException("Ask an administrator to authorize your personal worksite before placing materials"));siteSafe(p,site);
-        var level=p.serverLevel();Set<BlockPos> supported=id.endsWith("a02")||id.endsWith("a03")?supported(level,site):Set.of();
+        var level=p.serverLevel();Set<BlockPos> supported=!id.endsWith("a01")&&!id.endsWith("a06")?supported(level,site):Set.of();
         Set<BlockPos> retained=new HashSet<>();var states=new TreeMap<Long,String>();
         for(var e:RetainedBuildingSavedData.get(p.server).evidence().positions(site.id()).entrySet()){
             var pos=BlockPos.of(e.getKey());if(!site.contains(pos))continue;var state=level.getBlockState(pos);
-            if(!state.toString().equals(e.getValue())||!candidate(site,pos,state))continue;
+            if(!sameProof(state,e.getValue())||!candidate(site,pos,state))continue;
             boolean safe=switch(id){
                 case "kingdom_smp:builder/a01"->level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP);
-                case "kingdom_smp:builder/a02","kingdom_smp:builder/a03"->supported.contains(pos);
+                case "kingdom_smp:builder/a02","kingdom_smp:builder/a03","kingdom_smp:builder/j02","kingdom_smp:builder/m01","kingdom_smp:builder/m02"->supported.contains(pos);
                 case "kingdom_smp:builder/a06"->level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)&&level.getBlockState(pos.above()).getCollisionShape(level,pos.above()).isEmpty()&&level.getBlockState(pos.above(2)).getCollisionShape(level,pos.above(2)).isEmpty();
                 default->false;
             };
@@ -95,6 +113,11 @@ public final class RetainedBuildingService {
         }
         int count=retained.size();
         if(id.endsWith("a06"))count=connectedRoute(level,retained);
+        if(id.endsWith("j02")||id.endsWith("m02")){
+            int walls=0,glass=0,stairs=0,slabs=0,decorativeWalls=0;
+            for(var pos:retained){var state=level.getBlockState(pos);if(masonry(state))walls++;if(glass(state))glass++;if(state.getBlock() instanceof StairBlock)stairs++;if(state.getBlock() instanceof SlabBlock)slabs++;if(state.is(BlockTags.WALLS))decorativeWalls++;}
+            count=progress(id,RetainedBuildingRules.get(p.server).goal(id),walls,glass,stairs,slabs,decorativeWalls,count);
+        }
         StringBuilder text=new StringBuilder(site.id().toString()).append('|').append(site.dimension()).append('|').append(count);
         states.forEach((pos,state)->text.append('|').append(pos).append('=').append(state));
         try{return new Snapshot(count,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.toString().getBytes(StandardCharsets.UTF_8))));}
@@ -137,6 +160,9 @@ public final class RetainedBuildingService {
             case "kingdom_smp:builder/a01"->"Masonry at the site's lowest layer.";
             case "kingdom_smp:builder/a02"->"Logs/wood above the foundation, linked to supported framing.";
             case "kingdom_smp:builder/a03"->"Wooden roof at least3blocks above the foundation, linked to its frame.";
+            case "kingdom_smp:builder/j02"->"Supported facade: four parts masonry to one part full glass; excess masonry cannot replace glass.";
+            case "kingdom_smp:builder/m01"->"Supported structural timber and masonry in an authorized larger project.";
+            case "kingdom_smp:builder/m02"->"Supported decorative stairs, slabs and walls; retain all three categories.";
             default->"Clear connected road reaching an actual service doorway.";
         };
         return view.snapshot().count()+" / "+RetainedBuildingRules.get(p.server).goal(id)+". "+hint+" Only native placements after approval and supported final positions count.";
@@ -175,7 +201,7 @@ public final class RetainedBuildingService {
                     String line=site.quest()+" | site "+site.id()+" | operator "+site.admin()+" | "+site.dimension()+" "+site.from().toShortString()+" .. "+site.to().toShortString()+" | "+evidence+" | "+site.reason();c.getSource().sendSuccess(()->Component.literal(line),false);
                 }return 1;
             })))
-            .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).then(Commands.argument("quest",ResourceLocationArgument.id()).suggests((c,b)->{RetainedBuildingQuests.catalog().definitions().keySet().stream().sorted().forEach(b::suggest);return b.buildFuture();})
+            .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).then(Commands.argument("quest",ResourceLocationArgument.id()).suggests((c,b)->{RetainedBuildingQuests.ids().stream().sorted().forEach(b::suggest);return b.buildFuture();})
                 .then(Commands.argument("from",BlockPosArgument.blockPos()).then(Commands.argument("to",BlockPosArgument.blockPos()).then(Commands.argument("reason",StringArgumentType.greedyString()).executes(c->{try{
                     var admin=c.getSource().getPlayerOrException();var nonce=reviewSite(admin,EntityArgument.getPlayer(c,"player"),ResourceLocationArgument.getId(c,"quest").toString(),BlockPosArgument.getLoadedBlockPos(c,"from"),BlockPosArgument.getLoadedBlockPos(c,"to"),StringArgumentType.getString(c,"reason"));
                     c.getSource().sendSuccess(()->Component.literal("Authorize only future personal native placements. Existing structures and earlier/replaced-site evidence are not transferred; no blocks/items change. ").append(Component.literal("[Confirm worksite]").withStyle(s->s.withColor(0xE8C66A).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/kingdom admin worksite confirm "+nonce)))),false);return 1;

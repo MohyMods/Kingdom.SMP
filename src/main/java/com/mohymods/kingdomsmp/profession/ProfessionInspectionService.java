@@ -59,7 +59,7 @@ public final class ProfessionInspectionService {
         String proof="doors="+doors+",stairs="+stairs+",route="+route+",lights="+markers+",saplings="+saplings+",logs="+logs+",snapshot="+Long.toUnsignedString(snapshot,16);
         if(id.equals("kingdom_smp:builder/a08")){
             var retained=new StringBuilder(proof);
-            for(var prior:RetainedBuildingQuests.catalog().definitions().keySet().stream().sorted().toList()){
+            for(var prior:RetainedBuildingQuests.ids().stream().filter(q->RetainedBuildingQuests.get(q).rank()==ProfessionRank.APPRENTICE).sorted().toList()){
                 var actual=RetainedBuildingService.inspectCompletedProject(player,prior);int goal=RetainedBuildingRules.get(admin.server).goal(prior);
                 if(actual.count()<goal)throw new IllegalStateException("Retain and maintain the approved earlier project: "+prior+" "+actual.count()+"/"+goal);
                 retained.append('|').append(prior).append('=').append(actual.count()).append(':').append(actual.hash());

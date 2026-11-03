@@ -13,7 +13,7 @@ public final class ProfessionQuestService {
         definitions.addAll(CommissionQuests.catalog().definitions().values().stream().filter(d->CommissionQuests.contains(d.id())).toList());
         definitions.addAll(InspectionQuests.catalog().definitions().values().stream().filter(d->InspectionQuests.contains(d.id())).toList());
         definitions.addAll(CraftDeliveryQuests.catalog().definitions().values());
-        definitions.addAll(RetainedBuildingQuests.catalog().definitions().values());
+        definitions.addAll(RetainedBuildingQuests.catalog().definitions().values().stream().filter(d->RetainedBuildingQuests.contains(d.id())).toList());
         definitions.addAll(TreeQuestService.catalog().definitions().values());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
