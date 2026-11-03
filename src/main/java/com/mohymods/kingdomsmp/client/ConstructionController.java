@@ -14,12 +14,14 @@ public final class ConstructionController {
     private static String status="";
     private ConstructionController(){ }
     public static void open(){request(0,BlockPos.ZERO,0,ConstructionRequest.NONE);}
-    public static void request(int action,BlockPos origin,int rotation,UUID review){
+    public static void request(int action,BlockPos origin,int rotation,UUID review){request(action,origin,rotation,review,"");}
+    public static void nameResident(String name){String normalized=com.mohymods.kingdomsmp.progression.WorldProgression.normalizeResidentName(name);request(13,BlockPos.ZERO,0,ConstructionRequest.NONE,normalized);}
+    private static void request(int action,BlockPos origin,int rotation,UUID review,String name){
         tick();var client=Minecraft.getInstance();
         if(client.player==null||client.getConnection()==null||refreshRequired&&action!=0)return;
         long id=REQUESTS.begin(System.nanoTime(),client.getConnection(),client.screen);if(id==0)return;
         status=action==0?"Reading the construction record…":"Waiting for the kingdom…";
-        PacketDistributor.sendToServer(new ConstructionRequest(id,action,origin,rotation,review));
+        PacketDistributor.sendToServer(new ConstructionRequest(id,action,origin,rotation,review,name));
     }
     public static void receive(ConstructionView view){
         tick();var client=Minecraft.getInstance();if(client.player==null||client.getConnection()==null)return;

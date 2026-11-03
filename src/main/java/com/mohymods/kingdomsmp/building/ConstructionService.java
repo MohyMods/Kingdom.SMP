@@ -44,6 +44,8 @@ public final class ConstructionService {
     private static final UUID NONE=ConstructionRequest.NONE;
     private static final Map<MinecraftServer,ConstructionStore> STORES=new WeakHashMap<>();
     private static final Map<ServerPlayer,Review> REVIEWS=new WeakHashMap<>();
+    private record NameDraft(Project snapshot,String before,String after){}
+    private static final Map<ServerPlayer,NameDraft> NAME_DRAFTS=new WeakHashMap<>();
     private static final Map<ServerPlayer,Preview> PREVIEWS=new WeakHashMap<>();
     private static final Map<UUID,String> ACTIVITY=new HashMap<>();
     private static final Map<UUID,Integer> VERIFIED=new HashMap<>();
@@ -53,7 +55,7 @@ public final class ConstructionService {
     private ConstructionService() { }
 
     public static void initialize(MinecraftServer server) {
-        STORES.remove(server);SELECTION.clear();REVIEWS.clear();PREVIEWS.clear();ACTIVITY.clear();VERIFIED.clear();store(server);
+        STORES.remove(server);SELECTION.clear();REVIEWS.clear();NAME_DRAFTS.clear();PREVIEWS.clear();ACTIVITY.clear();VERIFIED.clear();store(server);
     }
     public static ConstructionStore store(MinecraftServer server) {
         var store=STORES.get(server);
@@ -115,15 +117,20 @@ public final class ConstructionService {
         throw new IllegalStateException("Hold your authenticated physical blueprint.");
     }
     public static Project selectHeld(ServerPlayer player){var p=heldProject(player);if(!p.id().equals(SELECTION.get(player)))select(player,p.id());return p;}
-    public static void select(ServerPlayer player,UUID id){store(player.server).get(id);SELECTION.put(player,id);REVIEWS.remove(player);PREVIEWS.remove(player);}
-    public static void closeReview(ServerPlayer player){REVIEWS.remove(player);PREVIEWS.remove(player);SELECTION.remove(player);}
+    public static void select(ServerPlayer player,UUID id){store(player.server).get(id);SELECTION.put(player,id);REVIEWS.remove(player);NAME_DRAFTS.remove(player);PREVIEWS.remove(player);}
+    public static void closeReview(ServerPlayer player){NAME_DRAFTS.remove(player);REVIEWS.remove(player);PREVIEWS.remove(player);SELECTION.remove(player);}
 
     public static String request(ServerPlayer player,ConstructionRequest request){
         int action=request.action();
-        if(action==0){REVIEWS.remove(player);return "";}
+        if(action==0){NAME_DRAFTS.remove(player);REVIEWS.remove(player);return "";}
         if(store(player.server).quarantined())throw new IllegalStateException("Construction storage is quarantined. Administrator recovery is required.");
         if(action%2==0)return confirm(player,request.review(),action);
         if(action==3){var preview=preview(player,request.origin(),Rotation.values()[request.rotation()]);return preview.denial().isBlank()?"Review the outlined footprint and exterior work post, then submit for administrator approval.":preview.denial();}
+        if(action==13){
+            String name=WorldProgression.normalizeResidentName(request.residentName());
+            review(player,action);var project=owned(player);NAME_DRAFTS.put(player,new NameDraft(project,resident(player.server,project),name));
+            return "New resident display name: "+name+". Confirm before construction begins; the permanent identity and occupation are unchanged.";
+        }
         review(player,action);return switch(action){
             case 1->"Recovering a plan invalidates all old copies and cancels any previous site approval. Materials are included in construction.";
             case 5->"Review this exact footprint. No terrain changes are authorized. Confirm only after inspecting the site.";
@@ -140,6 +147,7 @@ public final class ConstructionService {
         }catch(IllegalArgumentException|IllegalStateException e){player.sendSystemMessage(Component.literal(e.getMessage()));}
     }
     public static Review review(ServerPlayer player,int action){
+        NAME_DRAFTS.remove(player);
         if(store(player.server).quarantined())throw new IllegalStateException("Construction storage is quarantined. Administrator recovery is required.");
         Project p=current(player);if(p==null)throw new IllegalStateException("Complete the First Hearth first, or have the server owner initialize the starter entitlement.");
         requireTier(player.server,p);
@@ -155,6 +163,8 @@ public final class ConstructionService {
             if(!hut(p))requireBuilder(player.server);
             nearby(player,p.origin());String denied=validateSite(player.serverLevel(),p,false);if(denied!=null)throw new IllegalStateException(denied);
             if(store(player.server).projects().stream().anyMatch(q->q.phase()==Phase.BUILDING))throw new IllegalStateException("Aldric already has a reserved construction project.");
+        }else if(action==13){
+            requireNameable(player,p);
         }else if(action==9){
             administrator(player);if(p.phase()!=Phase.BUILDING)throw new IllegalStateException("There is no paused construction to resume.");
             nearby(player,p.origin());String denied=validateSite(player.serverLevel(),p,true);if(denied==null)denied=verifyPrefix(player.serverLevel(),p);
@@ -183,11 +193,16 @@ public final class ConstructionService {
         var store=store(player.server);
         if(store.quarantined())throw new IllegalStateException("Construction storage is quarantined. Administrator recovery is required.");
         if(review==null||review.action()!=action||!review.nonce().equals(nonce)||System.nanoTime()-review.issued()>=REVIEW_NANOS
-                ||review.revision()!=store.revision())throw new IllegalStateException("Review expired or state changed. Review the exact action again.");
+                ||action!=14&&review.revision()!=store.revision())throw new IllegalStateException("Review expired or state changed. Review the exact action again.");
         Project p=store.get(review.project());requireTier(player.server,p);
         if(!Objects.equals(review.proposal(),p.proposal()))throw new IllegalStateException("The proposal changed; review again.");
         try{
             switch(action){
+                case 14->{
+                    var draft=NAME_DRAFTS.remove(player);requireNameable(player,p);
+                    if(draft==null||!draft.snapshot().equals(p)||!owned(player).id().equals(p.id())||!resident(player.server,p).equals(draft.before()))throw new IllegalStateException("The resident name or selected plan changed; review again.");
+                    saveResidentName(player,p,draft.after());return "New resident display name saved: "+draft.after()+". The same permanent resident will arrive after construction.";
+                }
                 case 2->{
                     ownerAlive(player,p);if(p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Entitlement already redeemed.");
                     int slot=claimSlot(player,p);if(slot<0)throw new IllegalStateException("Make a free main-inventory slot first.");
@@ -269,6 +284,15 @@ public final class ConstructionService {
     private static Project owned(ServerPlayer player){
         Project p=current(player);if(p==null)throw new IllegalStateException("Complete the First Hearth to earn this reward, or initialize the owner Hut plan.");
         if(!p.owner().equals(player.getUUID()))throw new IllegalStateException("Only this registered blueprint holder can claim or place the plan.");return p;
+    }
+    private static void requireNameable(ServerPlayer player,Project p){
+        ownerAlive(player,p);
+        if((!hall(p)&&!purchased(p))||p.phase().ordinal()>=Phase.BUILDING.ordinal()||p.npcIssued())throw new IllegalStateException("Only the unused building-plan holder can name its new resident before construction.");
+    }
+    private static void saveResidentName(ServerPlayer player,Project p,String value)throws IOException{
+        requireNameable(player,p);String name=WorldProgression.normalizeResidentName(value);String before=resident(player.server,p);
+        WorldProgression.get(player.server).name(p.id(),name);
+        audit(player,p,"NAME_NEW_RESIDENT");LogUtils.getLogger().info("New resident name actor={} project={} npc={} before={} after={}",player.getUUID(),p.id(),p.npc(),before,name);
     }
     private static void ownerAlive(ServerPlayer player,Project p){
         GameType type=player.gameMode.getGameModeForPlayer();
@@ -553,7 +577,9 @@ public final class ConstructionService {
     public static ConstructionView view(ServerPlayer player,long requestId,boolean open,String notice){
         var store=store(player.server);Project p=current(player);var b=p==null?BlueprintRegistry.get(royal(player.server)?TownHallBlueprint.ID:FoundersLodgeBlueprint.ID,1):BlueprintRegistry.get(p.blueprint(),p.blueprintVersion());Preview preview=PREVIEWS.get(player);Review review=REVIEWS.get(player);
         if(preview!=null&&System.nanoTime()-preview.issued()>=REVIEW_NANOS){PREVIEWS.remove(player);preview=null;}
-        if(review!=null&&(System.nanoTime()-review.issued()>=REVIEW_NANOS||review.revision()!=store.revision())){REVIEWS.remove(player);review=null;}
+        if(review!=null&&(System.nanoTime()-review.issued()>=REVIEW_NANOS||review.action()!=14&&review.revision()!=store.revision())){REVIEWS.remove(player);review=null;}
+        if(review==null)NAME_DRAFTS.remove(player);
+        String visibleResident=p==null?"Elara Vale":resident(player.server,p);var draft=NAME_DRAFTS.get(player);if(review!=null&&review.action()==14&&draft!=null&&p!=null&&draft.snapshot().equals(p))visibleResident=draft.after();
         BlockPos origin=preview!=null?preview.origin():p!=null&&p.origin()!=null?p.origin():BlockPos.ZERO;
         Rotation rotation=preview!=null?preview.rotation():p!=null?p.rotation():Rotation.NONE;
         String status=p==null?"Finish all four First Hearth resource targets to earn the Lodge.":switch(p.phase()){
@@ -584,7 +610,7 @@ public final class ConstructionService {
         return new ConstructionView(requestId,store.revision(),open,p==null?NONE:p.id(),p==null?NONE:p.npc(),p==null?"Unawarded":p.ownerName(),p==null?"LOCKED":p.phase().name(),
                 origin,rotation.ordinal(),preview!=null||p!=null&&p.origin()!=null,preview==null||preview.denial().isBlank(),b.width(rotation),b.depth(rotation),b.height(),p==null?0:p.placed(),b.blocks().size()+(p==null?0:p.foundations().size()),
                 p!=null&&p.owner().equals(player.getUUID()),admin,p!=null&&hasPlan(player,p),review==null?0:review.action(),review==null?NONE:review.nonce(),
-                limit(status,512),limit(notice,512),limit(audit.toString(),2048),b.id(),p==null?"Elara Vale":resident(player.server,p));
+                limit(status,512),limit(notice,512),limit(audit.toString(),2048),b.id(),visibleResident);
     }
     private static String limit(String s,int n){return s==null?"":s.substring(0,Math.min(n,s.length()));}
     public static LiteralArgumentBuilder<CommandSourceStack> commands(){
@@ -592,10 +618,8 @@ public final class ConstructionService {
                 .then(Commands.literal("name").then(Commands.argument("name",StringArgumentType.greedyString()).executes(c->{
                     var player=c.getSource().getPlayerOrException();
                     try{
-                        var p=owned(player);ownerAlive(player,p);
-                        if((!hall(p)&&!purchased(p))||p.phase().ordinal()>=Phase.BUILDING.ordinal())throw new IllegalStateException("Only the unused building-plan holder can name its new resident before construction.");
-                        String name=StringArgumentType.getString(c,"name").trim();WorldProgression.get(player.server).name(p.id(),name);
-                        audit(player,p,"NAME_NEW_RESIDENT");c.getSource().sendSuccess(()->Component.literal("New resident display name: "+name+". Persistent identity unchanged."),false);return 1;
+                        var p=owned(player);String name=WorldProgression.normalizeResidentName(StringArgumentType.getString(c,"name"));saveResidentName(player,p,name);
+                        c.getSource().sendSuccess(()->Component.literal("New resident display name: "+name+". Persistent identity unchanged."),false);return 1;
                     }catch(IOException|IllegalArgumentException|IllegalStateException error){c.getSource().sendFailure(Component.literal(error.getMessage()));return 0;}
                 })))
                 .then(Commands.literal("open").executes(c->{ConstructionNetworking.open(c.getSource().getPlayerOrException(),"");return 1;}))

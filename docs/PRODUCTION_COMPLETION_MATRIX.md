@@ -101,3 +101,6 @@ D058: actual shared reconnaissance is functional through Corin, genuine register
 
 
 D059: founder/profession title selection is functional: canonical first-buyer labels, genuinely earned ranks including inactive history, private self-only reviewed preference, clear, ordinary chat/tab display, real post-login restoration and OP2 inspection.477JUnit/full build, two actual native JVMs, aircraft-absent legacy claims and real Royal client/chat/player-list/restart pass; EARNED_TITLES_RUNTIME.md. This does not complete achievement titles, all profession content, FTB Ranks integration or the1.0full-pack criteria.
+
+
+D060: existing pre-construction naming now has a reviewed Royal Resident tab; full480tests, final targeted15integrity/payload tests and three native JVMs verify real purchased workshop/name/restart/progressive spawn/unique identity and unchanged finance/Steward. Graphical text-entry acceptance remains open; optional extended QA stopped per new risk-based priorities. RESIDENT_NAMING_RUNTIME.md.

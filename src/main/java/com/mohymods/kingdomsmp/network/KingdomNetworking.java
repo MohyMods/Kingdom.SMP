@@ -35,7 +35,7 @@ public final class KingdomNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("14");
+        var registrar = event.registrar("15");
         com.mohymods.kingdomsmp.placement.PlacementNetworking.register(registrar);
         ConstructionNetworking.register(registrar);
         CommerceNetworking.register(registrar);

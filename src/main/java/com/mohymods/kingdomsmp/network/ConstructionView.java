@@ -18,7 +18,7 @@ public record ConstructionView(long requestId,long revision,boolean open,UUID pr
     public ConstructionView {
         if(blueprint==null||resident==null||resident.length()>48||requestId<0||revision<0||project==null||npc==null||winner==null||winner.length()>48||phase==null||phase.length()>32
                 ||origin==null||rotation<0||rotation>3||width<1||width>64||depth<1||depth>64||height<1||height>64
-                ||placed<0||total<1||total>32768||placed>total||reviewAction<0||reviewAction>10||review==null
+                ||placed<0||total<1||total>32768||placed>total||reviewAction<0||reviewAction>14||review==null
                 ||activity==null||activity.length()>512||notice==null||notice.length()>512||audit==null||audit.length()>2048)
             throw new IllegalArgumentException("Invalid construction view");
         origin=origin.immutable();

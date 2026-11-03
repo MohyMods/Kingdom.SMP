@@ -296,3 +296,8 @@ Implements approved Aerodrome scouting through real server-observed powered flig
 ## D059 — selectable earned founder and profession titles
 
 Implements the approved self-only cosmetic selector using existing canonical first-buyer catalogue labels and actual earned profession ranks, including retained inactive recognition. Normal Royal review/clear/select, /kingdom title, real chat/tab names and post-login cache refresh grant no money, permissions, property access, profession activation or new achievements. Strict world/economy-bound preferences fail locally; other services remain usable. Network14 requires matching client/server for tab9, with no gameplay save-schema conversion. EARNED_TITLES_RUNTIME.md records477JUnit, two native restart JVMs, ordinary client clear/reselect/chat/list and actual client/server restart. Broader achievement titles and full-modpack acceptance remain open.
+
+
+## D060 — reviewed interface for existing new-resident naming
+
+Expose the existing unused Hall/purchased-holder naming policy in the Royal Construction Resident tab. Server-owned exact project/name review, identity preservation and unchanged placement protections; protocol15, no gameplay-save migration. Backend/storage/native issuance verified; graphical text-entry acceptance remains open. See RESIDENT_NAMING_RUNTIME.md. Latest user priorities now put shared profession/content completion ahead of secondary polish and broad repeat QA.

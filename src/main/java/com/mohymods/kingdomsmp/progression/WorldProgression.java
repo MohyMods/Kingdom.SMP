@@ -56,6 +56,7 @@ public final class WorldProgression {
     public String resident(UUID project){return resident(project,"Elara Vale");}
     public String resident(UUID project,String fallback){healthy();return names.getOrDefault(project,fallback);}
     public void name(UUID project,String value)throws IOException{healthy();validateName(value);String previous=names.put(project,value);try{save();}catch(IOException e){if(previous==null)names.remove(project);else names.put(project,previous);throw e;}}
+    public static String normalizeResidentName(String value){Objects.requireNonNull(value);String normalized=value.trim();validateName(normalized);return normalized;}
     private static void validateName(String value){if(value.isBlank()||value.length()>48||value.codePoints().anyMatch(c->Character.isISOControl(c)||c==167))throw new IllegalArgumentException("Use a readable resident name of 1–48 characters without formatting codes.");}
     private void save()throws IOException{
         var tag=new CompoundTag();tag.putInt("schema",1);tag.putUUID("identity",identity);tag.putString("mode",mode.name());if(owner!=null)tag.putUUID("owner",owner);
