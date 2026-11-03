@@ -149,3 +149,6 @@ D056 implements the approved native-aircraft cargo delivery slice with live tran
 
 
 D057 supplies actual native-compatible refueling coal through Corin, canonical finite shop/private mail and normal native boiler slots. Physical player inventory recovery and existing ownership/claims are preserved; no remote engine-value edits. AIRCRAFT_FUEL_RUNTIME.md distinguishes458unit/native restart and actual client purchase acceptance from still-open scouting/full-pack scope.
+
+
+D058 implementation evidence: approved Aerodrome reconnaissance now records actual powered Overworld flight and new-to-kingdom regions, with reviewed Steward report and private finite rewards. Implementation defaults are configurable and do not approve future tier costs or new profession quests. Shared canonical recognition, buyer/shared crew/current native generation, both claim policies and saved observation recovery remain authoritative. AIR_SCOUT_RUNTIME.md documents verified native/client scope and open natural/full-pack acceptance.

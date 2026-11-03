@@ -95,3 +95,6 @@ D056: real transported native cargo, exact partial goods consumption and durable
 
 
 D057: Corin’s finite physical refueling coal supply is functional and tested through real purchase/private claim/native boiler burn/restart.458JUnit/fullbuild and actual Royal screen/client transaction evidence in AIRCRAFT_FUEL_RUNTIME.md. This does not certify remote convenience fills, scouting or the entire Aerodrome/full-pack/1.0scope; coarse counts stay unchanged.
+
+
+D058: actual shared reconnaissance is functional through Corin, genuine registered powered flight, saved biome-tagged regions, profile Steward report and canonical once-only Mailbox reward.469JUnit, three final native JVMs and two further report-stage JVMs pass; actual ordinary Survival Royal review/claim AND client/server restart retain38300purse/six recognized regions/300paid/original frames/no bypass grants. See AIR_SCOUT_RUNTIME.md for exact scope and retained failed tests. Scouting closes this service slice; full Aerodrome, natural multiplayer and277-entry compatibility acceptance and Monument remain open. Coarse release totals stay unchanged.

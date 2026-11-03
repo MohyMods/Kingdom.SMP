@@ -284,7 +284,7 @@ public final class CargoService {
   }
 
   public static void review(ServerPlayer p, String action) {
-    close(p);
+    close(p);ScoutService.close(p);
     FlightService.close(p);
     com.mohymods.kingdomsmp.profession.ContractService.close(p);
     com.mohymods.kingdomsmp.fishing.FishingContractService.close(p);

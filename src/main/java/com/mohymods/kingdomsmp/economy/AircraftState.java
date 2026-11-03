@@ -184,6 +184,7 @@ public final class AircraftState {
           "immersive_aircraft:bamboo_hopper",
           "immersive_aircraft:warship");
   CargoState cargo = new CargoState();
+  ScoutState scouts = new ScoutState();
 
   private final Map<UUID, Registration> records = new LinkedHashMap<>();
 
@@ -191,6 +192,7 @@ public final class AircraftState {
     var next = new AircraftState();
     next.records.putAll(records);
     next.cargo=cargo.copy();
+    next.scouts=scouts.copy();
     next.repairs.putAll(repairs);
     next.deliveredRepairs.putAll(deliveredRepairs);
     next.flightAwards.putAll(flightAwards);

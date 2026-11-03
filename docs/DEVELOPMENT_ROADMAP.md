@@ -74,3 +74,6 @@ Visual baseline checkpoint: 0.5.0-dev/protocol6, **142 JUnit tests, one substant
 0.5.1 adds the verified optional claim adapters on top of that 0.5 preview baseline. See CLAIM_COMPATIBILITY_AUDIT and current delivery evidence; do not deploy the historical 0.5.0 binary expecting these adapters.
 
 Latest source c0889d3 / 0.5.1-dev passed full142JUnit, core native lifecycle and separate actual two-claim normal-dedicated lifecycle. Real legacy construction with both mods survived in-progress process restart and completed782/782 with Mira. [Latest download, screenshots and evidence](checkpoints/c0889d3/CHECKPOINT.md). Historical next dependency has now been implemented in 0.6.0; see TOWN_HALL_CHECKPOINT. The complete mod is still unfinished.
+
+
+D058: shared reconnaissance joins the existing flight dispatch, cargo, refueling, repair, upgrade and registered purchase slices. Current server-position/biome evidence, global unique-region recognition, finite once-only rewards, present FTB/OPAC and genuine restart/client flows are tested (AIR_SCOUT_RUNTIME.md). Continue selectable earned founder/profession titles, then remaining public building/tier/integration/campaign and full release acceptance in RELEASE_EXECUTION_PLAN. No intermediate binary release or1.0claim.

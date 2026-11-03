@@ -14,6 +14,8 @@ abstract class FlightPlayerTeleportMixin {
     FlightService.interruptTeleport((Entity) (Object) this);
     com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
         (Entity) (Object) this);
+    com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
+        (Entity) (Object) this);
   }
 
   @Inject(
@@ -24,6 +26,8 @@ abstract class FlightPlayerTeleportMixin {
       FlightService.interruptTeleport((Entity) (Object) this);
       com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
           (Entity) (Object) this);
+      com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
+          (Entity) (Object) this);
     }
   }
 
@@ -33,6 +37,8 @@ abstract class FlightPlayerTeleportMixin {
       FlightService.interruptTeleport((Entity) (Object) this);
       com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
           (Entity) (Object) this);
+      com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
+          (Entity) (Object) this);
     }
   }
 
@@ -40,6 +46,8 @@ abstract class FlightPlayerTeleportMixin {
   private void kingdom$directTransfer(CallbackInfo ci) {
     FlightService.interruptTeleport((Entity) (Object) this);
     com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
+        (Entity) (Object) this);
+    com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
         (Entity) (Object) this);
   }
 }

@@ -14,6 +14,8 @@ abstract class FlightEntityTeleportMixin {
     FlightService.interruptTeleport((Entity) (Object) this);
     com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
         (Entity) (Object) this);
+    com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
+        (Entity) (Object) this);
   }
 
   @Inject(
@@ -24,6 +26,8 @@ abstract class FlightEntityTeleportMixin {
       FlightService.interruptTeleport((Entity) (Object) this);
       com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
           (Entity) (Object) this);
+      com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
+          (Entity) (Object) this);
     }
   }
 
@@ -32,6 +36,8 @@ abstract class FlightEntityTeleportMixin {
     if (ci.getReturnValue() != null) {
       FlightService.interruptTeleport((Entity) (Object) this);
       com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
+          (Entity) (Object) this);
+      com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
           (Entity) (Object) this);
     }
   }

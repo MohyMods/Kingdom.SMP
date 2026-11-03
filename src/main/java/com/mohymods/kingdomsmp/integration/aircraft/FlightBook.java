@@ -186,6 +186,8 @@ public final class FlightBook {
     return missionId(economy, pilot, day, "air_cargo");
   }
 
+  public static UUID scoutMissionId(UUID economy,UUID pilot,long day){return missionId(economy,pilot,day,"air_scout");}
+
   private static UUID missionId(UUID economy, UUID pilot, long day, String purpose) {
     if (day < 0) throw new IllegalArgumentException("Invalid UTC day");
     return UUID.nameUUIDFromBytes(
@@ -283,7 +285,7 @@ public final class FlightBook {
     dirty = false;
   }
 
-  private static CompoundTag encode(Mission m) {
+  static CompoundTag encode(Mission m) {
     var t = new CompoundTag();
     t.putUUID("id", m.id());
     t.putUUID("pilot", m.pilot());
@@ -306,7 +308,7 @@ public final class FlightBook {
     return t;
   }
 
-  private static Mission decode(CompoundTag t) {
+  static Mission decode(CompoundTag t) {
     var fields =
         new HashSet<>(
             Set.of(
