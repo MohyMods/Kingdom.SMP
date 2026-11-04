@@ -1,0 +1,68 @@
+## Shared quest guide inspection
+
+Permission2 `/kingdom admin integrations ftbquests` now includes actual per-team settlement0–9progress, next stable objective and lock state, bounded to10records with the total shown. It still reports exact IDs/bindings and canonical predicates. Historical personal teams can remain after party formation; records are not an online-player count. This is read-only. [Executed guide behavior](FTB_SETTLEMENT_GUIDE.md).
+
+## Realm diagnostics
+
+`/kingdom admin travel inspect` requires permission2 and reports actual attained tier, each approved destination key/gate, locked/unlocked status and whether its dimension is actually registered. It grants no tier, permission bypass or travel. Aether4, Nether5, Twilight6, Otherside8 and End12 are checked at the native server transition. The same command reports the actual optional Waystones21.1.46/Balm21.0.66 adapter; its native use/travel gate enforces Tier9 while retaining destination restrictions. Planetary split, aircraft and full-pack alternate routes remain separate unfinished work.
+
+## Durable journal maintenance
+
+Permission4: `/kingdom admin economy archive inspect`, `review <reason>`, and the resulting clickable `confirm <nonce>`. Reviews expire60seconds and bind the actor and unchanged journal. Pending native inventory work refuses; balances/revision/IDs never reset. Back up the complete world including closed segments and matching player saves. [Format, bounds and recovery](ECONOMY_ARCHIVES.md).
+
+## 0.11 actual NPC market inspection
+
+`/kingdom admin market inspect` reports canonical daily purchased/sold quantities, buying-budget usage, configured buying/selling bounds, finite stock and cumulative NPC purchase coin sink. It uses the existing administrator permission. Daily restocking is derived automatically from UTC day; no new manual restock or economic repair command is claimed in this slice.
+
+## 0.10 funded buy-order inspection and isolated QA
+
+`/kingdom admin orders inspect` uses the existing administrator permission and reports the canonical journal, order counts, remaining demand, held funds and pending item work.
+
+Level 4 `/kingdom admin orders expire-test <UUID>` explains the exact operation; `confirm <reason>` requires a manually created world `serverconfig/kingdomsmp-sandbox.enabled` marker. It closes only that active order at its saved deadline and records actor/reason canonically. Missing marker, ordinary player and already closed orders refuse. No global clock or unrelated order changes. This is for an isolated copied QA world; remove the marker afterward. Normal players use Buy orders → review → confirm, without UUID commands.
+
+Current0.9: `/kingdom admin auctions inspect` reports real mode, funded lead and saved deadline. Isolated-world test only: manual `serverconfig/kingdomsmp-sandbox.enabled`, then level4 `/kingdom admin auctions settle-test <listing-UUID>` and `confirm <reason>` to settle that exact funded listing with a canonical audit reason. No marker is created in normal gameplay. [Timed scope and QA](TIMED_AUCTION_CHECKPOINT.md).
+
+Current 0.8 auction command: `/kingdom admin auctions inspect` (operator-only) inspects actual active escrow, journal, tax reserve and recovery state. Player auction actions are reviewed through the Bank's Auctions/Mailbox screens; `/kingdom commerce open` is a view, never a remote transaction authorization. [Auction scope](AUCTION_CHECKPOINT.md) · [public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md).
+
+## Commerce and Tier 3 testing (0.7.0)
+
+Real commands: `/kingdom commerce balance`, `/kingdom commerce open`; `/kingdom admin economy inspect <online-player>`; permission4 `/kingdom admin economy set <player> <coins>` then append `confirm <reason>`; `/kingdom admin milestone inspect`; permission4 `/kingdom admin milestone road` then append `confirm <reason>` after inspecting the actual connection. These mutate real journals, not simulated status. Normal trading/coin conversion requires Survival/Adventure, empty cursor, native inventory, proximity and the registered completed service building. Admin adjustments are audited. Do not use live-world resets to test exclusivity; use the isolated native fixtures.
+
+Native commands: `JAVA_HOME=/jdk21 python3 scripts/test-claims.py --namespace kingdom_smp_bank_tests` runs the full Hut/Hall/earning/Farmer/Tier3/Bank loop with two embedded test peers, actual claim mods and controlled construction acceleration. It is not two real graphical clients. `scripts/test-runtime.sh -PkingdomTestNamespace=kingdom_smp_geometry_tests` validates the remaining workshop geometries in all rotations.
+
+## Fresh-world owner and Hall diagnostics (0.6.0)
+
+`/kingdom admin owner <online-player>` reviews the permanent free-Hut owner assignment; repeat with `confirm` to pin it. Permission level 4 is required. Integrated fresh worlds infer their actual owner. Legacy worlds reject reassignment and never receive this additional entitlement.
+
+`/kingdom admin inspect` now reports the pinned progression profile/owner along with the actual journals. `/kingdom admin construction inspect <project-UUID>` handles Hut, Hall and preserved Lodge projects, including the loaded required-block prefix and resident identity. `/kingdom admin validate` invokes real catalogue validation. Normal holders use K → Construction and physical plans; coordinate commands remain operator recovery/debugging tools.
+
+# Current administrator and testing command reference — partial
+
+The complete administrative suite and sandbox remain unfinished. The D-024 `/kingdom admin` namespace now provides actual operator diagnostics; it does not provide tier/economy/profession overrides. This file documents actual existing commands only; listing a desired command would not implement it. Existing worlds/history must not be reset to accelerate testing.
+
+| Registered path | Purpose | Access / safety |
+| --- | --- | --- |
+| `/kingdom status` | Read attained tier/revision | Read-only |
+| `/kingdom milestones inspect <1..12>` | Inspect actual loaded resource proposal | Read-only; future costs disabled |
+| `/kingdom milestones validate` | Report catalogue/prerequisite blockers | Permission level 2; does not activate costs or give tiers |
+| `/kingdom hut preview <x> <y> <z> <rotation> <reason>` | Existing bootstrap site review | Permission level 2, loaded/clear/supported/protection checks; clickable confirmation expires in 5 minutes |
+| `/kingdom hut confirm <token>` | Confirm the current exact Hut review | Player-bound, permission/site/token checks; ordinary future workflow will use the owner plan |
+| `/kingdom hut status` | Inspect current Hut | Existing command; see hut design |
+| `/kingdom hut name <name>` | Rename existing Aldric display | Existing admin check, identity preserved |
+| `/kingdom hut resume <id> <reason>` | Inspect/resume original reservation | No blind replacement or second NPC |
+| `/kingdom lodge open` | Open existing plan/project interface | Server gates each mutation by actual owner/permissions/state |
+| `/kingdom lodge preview <x> <y> <z> <rotation>` | Coordinate site debugging/review | Now permission level 2; ordinary held-plan use pre-fills the same server review without typing coordinates |
+
+No balance/tier/rank grants, auction tests, shop restock, aircraft/Waystone overrides, FTB quest reset or test blueprint minting are registered in this slice. Implement these in a durable explicitly isolated test mode alongside their services. Existing native GameTest fixtures are isolated server worlds, not a player-facing admin sandbox.
+
+0.5.1 optional claims: site checks now query exact FTB Chunks2101.1.22 and OPAC0.33.0 APIs together. Under claims the actual authorizing owner must be alive, non-spectator and online in the building dimension; other versions, unready/failed APIs and denied locations refuse. This adds no bypass/reset/claim-ownership command. See CLAIM_COMPATIBILITY_AUDIT for test scope.
+
+## D-024 operator diagnostics
+
+Permission level2 or server console: `/kingdom admin inspect` reports actual tier/revision, Hut/NPC identity, journal revision/quarantine, up to10project IDs/states and installed FTB/OPAC/Quests versions. Installation is not an integration claim. `/kingdom admin construction inspect <project UUID>` reports authoritative identity/placement/NPC state and checks the saved block prefix only if chunks are already loaded. Unknown IDs produce a readable refusal. `/kingdom admin validate` runs the existing catalogue validator without enabling costs. These inspection commands require no destructive-action confirmation because they do not perform repairs or grants. Examples: run inspect, copy a project ID, then run construction inspect with that ID. All other documented Hut/recovery paths remain available.
+
+Wharf fishing inspection: `/kingdom admin fishing inspect <online player>` requires the existing administrator permission. It reports exact Aquaculture availability, UTC week, funded weekly payments, real order state, personal collection and current diversity standings. It grants no catches, coins or blueprint. Existing construction inspection covers the Wharf's saved geometry, resident and progress. Existing audited economy controls remain the only balance repair path; do not edit financial authority files independently.
+
+Aerodrome diagnostics use `/kingdom admin inspect` to obtain the existing project ID, `/kingdom admin construction inspect <project>` for its saved prefix/entitlement/resident, and `/kingdom admin travel inspect` for the actual optional Aircraft adapter and current Tier6 AND completed/intact Aerodrome condition. These are permission2, read-only commands; they grant no tier, aircraft, claims or price bypass. Native tick sprint appears only in explicitly accelerated private QA evidence, not as a normal construction requirement. See AERODROME_RUNTIME.md.
+
+Saved-aircraft login/refusal now preserves the original native vehicle. A locked/revoked rider lands on verified clear supported ground; without any safe landing, the connection closes with an explicit recovery message and retains native RootVehicle/recovery state. Restore legitimate progression/claims or a safe landing area, then reconnect. Do not `/summon` a replacement or roll back one player file against newer economy/world files. No global allow-flight setting or player flight ability is required/granted by this recovery. Full consistent backups remain essential.

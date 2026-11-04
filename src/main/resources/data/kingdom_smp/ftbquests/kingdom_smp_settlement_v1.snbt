@@ -1,0 +1,277 @@
+{
+  "id": "4B534D5000000001",
+  "filename": "kingdom_smp_settlement_v1",
+  "title": "Kingdom SMP — Living Settlement",
+  "icon": {
+    "id": "kingdom_smp:gold_coin"
+  },
+  "group": "",
+  "order_index": -10,
+  "default_hide_dependency_lines": false,
+  "default_quest_shape": "square",
+  "quests": [
+    {
+      "id": "4B534D5000000101",
+      "title": "A Hearth for the Kingdom",
+      "icon": {
+        "id": "kingdom_smp:builders_hut_blueprint"
+      },
+      "x": -6.0,
+      "y": 0.0,
+      "dependencies": [],
+      "description": [
+        "The world owner claims the free Builder’s Hut plan through K → Construction. Hold it, aim at supported terrain, rotate with R and review placement before establishing the Hut.",
+        "The furnished Hut introduces Aldric Stonehand. This shared objective reflects the committed building record; it grants no second plan or resident.",
+        "This chapter is a read-only community guide. Kingdom SMP remains authoritative; quest resets and team changes never award coins, items or profession ranks."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001101",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/hut"
+          ],
+          "icon": {
+            "id": "kingdom_smp:builders_hut_blueprint"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000102",
+      "title": "Every Gift Has a Name",
+      "icon": {
+        "id": "minecraft:wheat"
+      },
+      "x": -4.0,
+      "y": 0.0,
+      "dependencies": [
+        "4B534D5000000101"
+      ],
+      "description": [
+        "Make the first real First Hearth contribution through the Royal Gilded contribution interface. Accepted resources are permanently consumed after the server validates your inventory.",
+        "Tier 1 needs 1,024 logs, 2,048 cobblestone, 512 wheat and 128 iron ingots. Partial donations are welcome. The in-game counter, history and normalized leaderboard show the authoritative totals."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001102",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/contribution"
+          ],
+          "icon": {
+            "id": "minecraft:wheat"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000103",
+      "title": "The First Hearth",
+      "icon": {
+        "id": "minecraft:campfire"
+      },
+      "x": -2.0,
+      "y": 0.0,
+      "dependencies": [
+        "4B534D5000000102"
+      ],
+      "description": [
+        "Complete all four First Hearth resource targets to reach Tier 2. The shared ledger permanently records the highest normalized contributor with deterministic tie handling.",
+        "That winner receives the unique Town Hall construction entitlement through Kingdom SMP. This quest only reflects advancement and grants no duplicate reward."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001103",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/tier_two"
+          ],
+          "icon": {
+            "id": "minecraft:campfire"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000104",
+      "title": "A Promise Kept Together",
+      "icon": {
+        "id": "kingdom_smp:town_hall_blueprint"
+      },
+      "x": 0.0,
+      "y": 0.0,
+      "dependencies": [
+        "4B534D5000000103"
+      ],
+      "description": [
+        "The winning contributor claims the Hall plan, positions its full hologram, rotates it and reviews the supported site. Review construction in Project, then let Aldric build the furnished headquarters.",
+        "Keep its chunks loaded, Aldric’s route clear and the relevant claim permissions valid. Progress survives restart. Verified completion introduces the registered Royal Steward.",
+        "Grandfathered worlds retain their completed Founders’ Lodge and Mira Ashford; this shared headquarters objective recognizes that preserved history without converting a building."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001104",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/headquarters"
+          ],
+          "icon": {
+            "id": "kingdom_smp:town_hall_blueprint"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000105",
+      "title": "The Royal Architect",
+      "icon": {
+        "id": "kingdom_smp:gold_coin"
+      },
+      "x": 2.0,
+      "y": -1.5,
+      "dependencies": [
+        "4B534D5000000104"
+      ],
+      "description": [
+        "At the completed headquarters, open the Royal Architect marketplace through the registered resident. Earn early coins by selling eligible resources at the exchange within its budgets and quotas.",
+        "Review the exact blueprint price and unlock before buying. Only the first successful buyer obtains a primary entitlement; sold-out listings stay sold out. No money is spent on a rejected purchase.",
+        "The durable mailbox preserves the purchased building right. Claim or recover the authenticated physical plan from Construction; copied item data cannot create another right."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001105",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/purchase"
+          ],
+          "icon": {
+            "id": "kingdom_smp:gold_coin"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000106",
+      "title": "A Founder’s Contribution",
+      "icon": {
+        "id": "kingdom_smp:builder_blueprint"
+      },
+      "x": 4.0,
+      "y": -1.5,
+      "dependencies": [
+        "4B534D5000000105"
+      ],
+      "description": [
+        "Construct a purchased Farmer’s House, Builder’s Workshop, Lumberjack’s Lodge or Royal Bank through the normal authenticated hologram and Aldric construction system.",
+        "The building becomes public kingdom property after verified completion. The first buyer’s founder recognition remains in the durable purchase record. Services obey their own implemented unlock rules."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001106",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/public_building"
+          ],
+          "icon": {
+            "id": "kingdom_smp:builder_blueprint"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000107",
+      "title": "Roads of Commerce",
+      "icon": {
+        "id": "minecraft:brick"
+      },
+      "x": 2.0,
+      "y": 1.5,
+      "dependencies": [
+        "4B534D5000000104"
+      ],
+      "description": [
+        "Use K → Progression and the live Tier 2 counter to inspect the next community requirements. Donate its eight defined Overworld resource categories and complete the headquarters connection road objective.",
+        "An administrator inspects and approves the actual road through the documented command path. Completing the real requirements advances the kingdom to Tier 3; this quest never sets the tier."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001107",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/tier_three"
+          ],
+          "icon": {
+            "id": "minecraft:brick"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000108",
+      "title": "The Royal Bank",
+      "icon": {
+        "id": "kingdom_smp:royal_bank_blueprint"
+      },
+      "x": 4.0,
+      "y": 1.5,
+      "dependencies": [
+        "4B534D5000000107"
+      ],
+      "description": [
+        "At Tier 3, buy the unique Royal Bank plan if it remains available, choose a supported site and have Aldric complete the furnished Bank.",
+        "Visit the registered Banker for reviewed physical coin deposits, withdrawals and in-person financial services. Copper=1, Silver=10, Gold=100 and Platinum=1,000. Remote balance inspection does not authorize a remote transaction."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001108",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/bank"
+          ],
+          "icon": {
+            "id": "kingdom_smp:royal_bank_blueprint"
+          }
+        }
+      ],
+      "rewards": []
+    },
+    {
+      "id": "4B534D5000000109",
+      "title": "A Fair Exchange",
+      "icon": {
+        "id": "minecraft:chest"
+      },
+      "x": 6.0,
+      "y": 1.5,
+      "dependencies": [
+        "4B534D5000000108"
+      ],
+      "description": [
+        "Complete a real taxed public market sale after the Bank and Tier 3 are established: a fixed-price sale, settled timed auction or filled buy order.",
+        "Items are held in server escrow and delivered through the durable mailbox. Normal sales tax is 5%; Master equipment tax is 10%. Timed bidding uses a 5% minimum increase and two-minute anti-sniping extensions.",
+        "This shared objective reflects committed trade/tax records. It does not create listings, bids, orders, money or deliveries."
+      ],
+      "tasks": [
+        {
+          "id": "4B534D5000001109",
+          "type": "custom",
+          "tags": [
+            "kingdom_smp:projection/v1/public_trade"
+          ],
+          "icon": {
+            "id": "minecraft:chest"
+          }
+        }
+      ],
+      "rewards": []
+    }
+  ]
+}

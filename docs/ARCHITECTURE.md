@@ -1,5 +1,14 @@
 # Architecture proposal
 
+> **D-023 — current implementation authority:** The [master directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) authorizes incremental coding and supersedes the D-021/D-022 review-only hold. New-world Town Hall / existing-world Lodge profiles, owner Hut bootstrap, blueprint-market acquisition, automatic server-valid placement, supports up to four blocks, Tier 3 Bank (no new-world Storehouse), updated profession/economy/quest/admin scope apply. End remains Tier 12. The [full replacement mod snapshot](sources/MOD_SNAPSHOT_2026-10-31.txt) now reports FTB Quests installed. See [supersession and actual status](MASTER_SUPERSESSION_MATRIX.md); old descriptions below are historical where they conflict.
+
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
+> **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
+
+The earlier sections below describe historical design or the existing runtime where they conflict with D-021.
+
+
 Status: rebuild architecture under S2 implementation authorization. The following boundaries guide incremental code; absent modules are not claimed implemented. One deployable NeoForge mod is recommended initially. Logical modules/packages keep responsibilities separate without premature multi-project Gradle complexity. Use Java 21 and Minecraft 1.21.1; exact dependencies require later verification.
 
 ## Proposed layout
@@ -106,3 +115,7 @@ Native SavedData is used for this bounded kingdom/contribution state only. The i
 Exact source and runtime evidence is in [validation](VALIDATION.md). The candidate toolchain has not completed Minecraft artifact resolution; source APIs, real side isolation, and persistent world lifecycle still need executable validation.
 
 Before enabling mutation, unify aggregate/view and contribution revision semantics (the initial snapshot currently exposes the kingdom revision while contribution accounting has its own revision). CAS/transaction checks must use the actual authoritative revision; the read-only checkpoint cannot be used as a donation authorization mechanism.
+
+## Current donation persistence boundary
+
+The old read-only kingdom adapter remains a preserved migration seed. Live accepted contributions, revision, history and first winner come from the canonical ContributionLedger; tier derives as at least 2 when First Hearth completes. Inventory baseline, durable preparation, native removal receipt, and final ledger commit follow CONTRIBUTION_RECOVERY.md. Overview, status, dialogue and the new contribution projection read the same authoritative progress. This resolves the earlier revision mismatch for the enabled donation path. It does not implement money or public construction transactions.

@@ -1,0 +1,37 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mohymods.kingdomsmp.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "PlayerListAircraftMixin",
+    "FlightEntityTeleportMixin",
+    "FlightPlayerTeleportMixin",
+    "AircraftVehicleMovementMixin",
+    "AircraftControlMessageMixin",
+    "AircraftRegisteredItemMixin",
+    "AircraftRegistrationMixin",
+    "RegisteredAircraftIngredientMixin",
+    "AircraftDismountMomentumMixin",
+    "AircraftInventoryMenuMixin",
+    "AircraftInventoryOpenMixin",
+    "AircraftInventorySyncMixin",
+    "SpaceLaunchMixin",
+    "SpaceLandingMixin",
+    "SpaceFuelCommitMixin",
+    "SpacePlanetMenuMixin",
+    "TreeFeatureMixin",
+    "NativeFurnaceRecipesAccessor",
+    "NativeItemIdentityAccessor",
+    "FurnaceProductionMixin",
+    "NativeCombinerAccess",
+    "NativeWearMixin",
+    "NativeAnvilRepairMixin",
+    "NativeSmithingQuestMixin",
+    "NativeEnchantingAccess",
+    "NativeLibraryEnchantMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
