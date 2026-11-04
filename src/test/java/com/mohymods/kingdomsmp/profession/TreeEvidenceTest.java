@@ -31,4 +31,20 @@ class TreeEvidenceTest {
         var d=new TreeEvidence();d.register(UUID.randomUUID(),dim,root,logs(),null,false);var saved=d.save();var rows=saved.getList("trees",Tag.TAG_COMPOUND);rows.add(rows.getCompound(0).copy());assertThrows(IllegalArgumentException.class,()->TreeEvidence.load(saved));
         var unknown=d.save();unknown.putInt("clientCount",999);assertThrows(IllegalArgumentException.class,()->TreeEvidence.load(unknown));assertThrows(IllegalArgumentException.class,()->new TreeEvidence.Log("oak","unverified_mod_wood"));
     }
+    Map<Long,TreeEvidence.Log> cherry(){return Map.of(root.asLong(),new TreeEvidence.Log("cherry","cherry"),root.above().asLong(),new TreeEvidence.Log("cherry","cherry"),root.above(2).asLong(),new TreeEvidence.Log("cherry","cherry"));}
+    TreeEvidence cultivated(){var d=new TreeEvidence();d.plant(player,ProfessionRank.JOURNEYMAN,dim,root,"minecraft:cherry_sapling",3);d.register(UUID.randomUUID(),dim,root,cherry(),d.plantAt(dim,root).orElseThrow(),true);return d;}
+    @Test void onlyOriginalPlanterEarnsOneSpeciesCycleAcrossNativeHarvestsAndSaveReload(){
+        var d=cultivated();var other=UUID.randomUUID();assertTrue(d.harvest(other,ProfessionRank.JOURNEYMAN,dim,root,"cherry"));assertEquals(0,d.evidence().count(other,ProfessionRank.JOURNEYMAN,"mature_cherry"));assertEquals(0,d.evidence().count(player,ProfessionRank.JOURNEYMAN,"mature_cherry"));
+        assertTrue(d.harvest(player,ProfessionRank.JOURNEYMAN,dim,root.above(),"cherry"));assertEquals(1,d.evidence().count(player,ProfessionRank.JOURNEYMAN,"mature_cherry"));var restored=TreeEvidence.load(d.save());assertEquals(d.save(),restored.save());assertFalse(restored.cultivated(player,true,128).isEmpty());assertTrue(restored.harvest(player,ProfessionRank.JOURNEYMAN,dim,root.above(2),"cherry"));assertEquals(1,restored.evidence().count(player,ProfessionRank.JOURNEYMAN,"mature_cherry"));
+    }
+    @Test void legacyPlantedTreesAndUntieredSaplingsNeverInventNewCycleEntitlements(){
+        var saved=cultivated().save();saved.getList("trees",Tag.TAG_COMPOUND).getCompound(0).remove("cultivation");var old=TreeEvidence.load(saved);old.harvest(player,ProfessionRank.JOURNEYMAN,dim,root,"cherry");assertEquals(0,old.evidence().count(player,ProfessionRank.JOURNEYMAN,"mature_cherry"));
+        var d=new TreeEvidence();d.plant(player,ProfessionRank.JOURNEYMAN,dim,root,"minecraft:cherry_sapling");var restored=TreeEvidence.load(d.save());assertEquals(0,restored.plantAt(dim,root).orElseThrow().tier());restored.register(UUID.randomUUID(),dim,root,cherry(),restored.plantAt(dim,root).orElseThrow(),true);restored.harvest(player,ProfessionRank.JOURNEYMAN,dim,root,"cherry");assertEquals(0,restored.evidence().count(player,ProfessionRank.JOURNEYMAN,"mature_cherry"));
+    }
+    @Test void wrongBandCannotReceiveTheOriginalMaturityAndMalformedNewProofNeverResets(){
+        var d=cultivated();d.harvest(player,ProfessionRank.MASTER,dim,root,"cherry");assertEquals(0,d.evidence().count(player,ProfessionRank.MASTER,"mature_cherry"));d.harvest(player,ProfessionRank.JOURNEYMAN,dim,root.above(),"cherry");assertEquals(1,d.evidence().count(player,ProfessionRank.JOURNEYMAN,"mature_cherry"));
+        var bad=cultivated().save();bad.getList("trees",Tag.TAG_COMPOUND).getCompound(0).getCompound("cultivation").putString("species","mangrove");assertThrows(IllegalArgumentException.class,()->TreeEvidence.load(bad));
+        var plant=new TreeEvidence();plant.plant(player,ProfessionRank.JOURNEYMAN,dim,root,"minecraft:cherry_sapling",3);var tag=plant.save();tag.getList("plants",Tag.TAG_COMPOUND).getCompound(0).putInt("tier",0);assertThrows(IllegalArgumentException.class,()->TreeEvidence.load(tag));
+    }
+
 }

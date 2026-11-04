@@ -16,11 +16,13 @@ public final class TreeQuestService {
         "kingdom_smp:lumberjack/a03",new Definition("kingdom_smp:lumberjack/a03","spruce",64),
         "kingdom_smp:lumberjack/a04",new Definition("kingdom_smp:lumberjack/a04","grown",24),
         "kingdom_smp:lumberjack/j01",new Definition("kingdom_smp:lumberjack/j01","hardwood",128),
-        "kingdom_smp:lumberjack/j02",new Definition("kingdom_smp:lumberjack/j02","jungle",96));
+        "kingdom_smp:lumberjack/j02",new Definition("kingdom_smp:lumberjack/j02","jungle",96),
+        "kingdom_smp:lumberjack/j03",new Definition("kingdom_smp:lumberjack/j03","mature_cherry",16),
+        "kingdom_smp:lumberjack/j04",new Definition("kingdom_smp:lumberjack/j04","mature_mangrove",12));
     private static final ProfessionQuestCatalog CATALOG;
     static {
         Set<String> closure=new HashSet<>(DEFINITIONS.keySet());
-        for(var id:DEFINITIONS.keySet()){var d=ApprovedProfessionContent.get(id);if(d.minimumTier()!=(d.rank()==ProfessionRank.APPRENTICE?2:3)||!d.validation().equals(Set.of(id.endsWith("a04")?ApprovedProfessionContent.Validation.GROW:ApprovedProfessionContent.Validation.TREE)))throw new IllegalStateException("Unvalidated native tree content");for(var rank:ProfessionRank.values())if(rank.ordinal()<d.rank().ordinal())for(int n=1;n<=8;n++)closure.add(d.profession().questId(rank,n));}
+        for(var id:DEFINITIONS.keySet()){var d=ApprovedProfessionContent.get(id);if(d.minimumTier()!=(d.rank()==ProfessionRank.APPRENTICE?2:3)||!d.validation().equals(id.endsWith("j03")||id.endsWith("j04")?Set.of(ApprovedProfessionContent.Validation.GROW,ApprovedProfessionContent.Validation.TREE):Set.of(id.endsWith("a04")?ApprovedProfessionContent.Validation.GROW:ApprovedProfessionContent.Validation.TREE)))throw new IllegalStateException("Unvalidated native tree content");for(var rank:ProfessionRank.values())if(rank.ordinal()<d.rank().ordinal())for(int n=1;n<=8;n++)closure.add(d.profession().questId(rank,n));}
         var queue=new ArrayDeque<>(closure);while(!queue.isEmpty())for(var prior:ApprovedProfessionContent.get(queue.removeFirst()).prerequisites())if(closure.add(prior))queue.addLast(prior);
         CATALOG=ProfessionQuestCatalog.approved(closure.stream().map(id->ApprovedProfessionContent.get(id).slot()).toList());
     }
@@ -36,7 +38,7 @@ public final class TreeQuestService {
     public static String status(ServerPlayer p,String id){
         var roster=CommerceService.store(p.server).professions(p.getUUID());if(roster.track(Profession.LUMBERJACK).completedQuestIds().contains(id))return "Complete. Personal native tree proof and XP recorded.";
         if(!roster.isActive(Profession.LUMBERJACK))return "Activate Lumberjack at its completed premises before earning personal tree progress.";
-        var d=get(id);String hint=d.metric().equals("grown")?"Grow recorded replacements near your tracked clearings. Offline growth is retained; visit loaded plots to verify consent.":"Harvest native tracked trees or trees grown from real planted saplings. Untracked old trees still drop items; placed logs grant no credit.";
+        var d=get(id);String hint=d.metric().startsWith("mature_")?"Grow a native tree from your eligible planted sapling, then personally harvest it once. Unknown legacy ownership cannot provide this proof.":d.metric().equals("grown")?"Grow recorded replacements near your tracked clearings. Offline growth is retained; visit loaded plots to verify consent.":"Harvest native tracked trees or trees grown from real planted saplings. Untracked old trees still drop items; placed logs grant no credit.";
         try{if(d.metric().equals("hardwood")){int goal=TreeQuestRules.get(p.server).goal(id);var evidence=TreeSavedData.get(p.server).evidence().evidence();return evidence.count(p.getUUID(),ProfessionRank.JOURNEYMAN,"acacia")+" / "+goal/2+" native acacia; "+evidence.count(p.getUUID(),ProfessionRank.JOURNEYMAN,"dark_oak")+" / "+(goal-goal/2)+" native dark oak. Each species is required; excess timber never substitutes.";}return count(p,id)+" / "+TreeQuestRules.get(p.server).goal(id)+". "+hint;}catch(IllegalStateException unavailable){return "Tree evidence unavailable; an operator must restore the matching checkpoint. Existing progress is not reset.";}
     }
     public static void complete(ServerPlayer p,UUID operation,String id)throws IOException{

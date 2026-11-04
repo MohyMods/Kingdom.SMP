@@ -149,6 +149,8 @@ if args.verify_wharf_restart:
     if args.namespace != 'kingdom_smp_wharf_tests':
         raise SystemExit('--verify-wharf-restart requires kingdom_smp_wharf_tests')
     markers = [marker, 'WHARF_RESTART_VERIFIED:']
+if args.namespace == 'kingdom_smp_tree_tests':
+    markers = ['NATIVE_TREE_PREPARED:', 'NATIVE_TREE_RESTART_ASSERTIONS_PASSED:']
 if args.namespace == 'kingdom_smp_retained_tests':
     markers = [marker, 'RETAINED_CORRUPT_EVENT_ASSERTIONS_PASSED:', 'RETAINED_RESTART_ASSERTIONS_PASSED:']
     import shutil

@@ -1,3 +1,5 @@
+> D071: Native original-planter cherry16/mangrove12cycles and actual restart no-double-count pass;559JUnit/full build. Old unowned/untiered records stay usable without retrospective maturity.57/288runtime adapters. Continue Lumberjack charcoal/woodwork/final forestry assessment, remaining Master/mod validation and all approved backlog.
+
 > D070: Lumberjack hardwood64acacia/64darkoak and96jungle are natively earned;556JUnit/full build pass. Actual native4sapling growth, category-substitution refusal and early-tier planting gate verified.55/288runtime adapters. Next owned cherry/mangrove grow-and-harvest lifecycle, remaining Builder Master/mod validation and full approved backlog.
 
 > D069: All16Builder Apprentice/Journeyman objectives natively earn2400XP and open Master trials;554JUnit and3JVM corruption/restoration pass. J05is the approved48cell graded route/drainage inspection.53/288runtime adapters. Continue remaining Builder Master native/mod validation, Lumberjack further species/cycles and nine premises/all approved quests; no intermediate binary release.
