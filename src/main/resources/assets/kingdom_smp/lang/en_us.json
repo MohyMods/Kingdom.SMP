@@ -65,5 +65,14 @@
   "kingdomsmp.screen.gate.aether": "The Aether opens at kingdom Tier 4 when installed. Entry is enforced by the server; later milestone costs remain separate.",
   "kingdomsmp.screen.gate.twilight": "Twilight Forest opens at kingdom Tier 6 when installed. Its own boss progression still applies. Aircraft deployment and boarding also require a completed Royal Aerodrome. Aircraft sales and flight contracts remain unfinished.",
   "kingdomsmp.screen.gate.otherside": "The Otherside opens at kingdom Tier 8 when Deeper and Darker is installed. Existing portal and dimension requirements still apply.",
-  "item.kingdom_smp.royal_aerodrome_blueprint": "Royal Aerodrome Blueprint"
+  "item.kingdom_smp.royal_aerodrome_blueprint": "Royal Aerodrome Blueprint",
+  "item.kingdom_smp.blacksmith_blueprint": "Blacksmith's Forge Blueprint",
+  "item.kingdom_smp.miner_blueprint": "Miners' Guildhouse Blueprint",
+  "item.kingdom_smp.merchant_blueprint": "Merchant's Counting House Blueprint",
+  "item.kingdom_smp.adventurer_blueprint": "Adventurers' Guildhouse Blueprint",
+  "item.kingdom_smp.engineer_blueprint": "Engineer's Workshop Blueprint",
+  "item.kingdom_smp.mage_blueprint": "Mage's Sanctum Blueprint",
+  "item.kingdom_smp.librarian_blueprint": "Kingdom Library Blueprint",
+  "item.kingdom_smp.alchemist_blueprint": "Alchemist's Laboratory Blueprint",
+  "item.kingdom_smp.mechanic_blueprint": "Mechanic's Workshop Blueprint"
 }

@@ -15,12 +15,14 @@ public final class BlueprintRegistry {
             if(key.equals(FishermansWharfBlueprint.ID))return FishermansWharfBlueprint.create();
             if(key.equals(RoyalBankBlueprint.ID))return RoyalBankBlueprint.create();
             if(key.equals(ProfessionBlueprints.FARMER)||key.equals(ProfessionBlueprints.BUILDER)||key.equals(ProfessionBlueprints.LUMBERJACK))return ProfessionBlueprints.create(key);
+            if(ProfessionPremises.contains(key))return ProfessionPremises.create(key);
             if(key.equals(HUT)){var h=BuilderHutBlueprint.create();return new ConstructionBlueprint(HUT,1,h.width(net.minecraft.world.level.block.Rotation.NONE),h.depth(net.minecraft.world.level.block.Rotation.NONE),BuilderHutBlueprint.HEIGHT,h.placements(),new net.minecraft.core.BlockPos(5,1,5),new net.minecraft.core.BlockPos(5,1,5),new net.minecraft.core.BlockPos(5,1,3));}
             throw new IllegalArgumentException("Unsupported blueprint definition");
         });
     }
     public static ConstructionBlueprint lodge(){return get(FoundersLodgeBlueprint.ID,1);}
     public static String title(ResourceLocation id){
+        if(ProfessionPremises.contains(id))return ProfessionPremises.get(id).title();
         if(id.equals(HUT))return "Builder's Hut";
         if(id.equals(RoyalAerodromeBlueprint.ID))return "Royal Aerodrome";
         if(id.equals(FishermansWharfBlueprint.ID))return "Fisherman's Wharf";
@@ -34,6 +36,7 @@ public final class BlueprintRegistry {
         throw new IllegalArgumentException("Unsupported blueprint title");
     }
     public static int requiredTier(ResourceLocation id){
+        if(ProfessionPremises.contains(id))return ProfessionPremises.get(id).tier();
         if(id.equals(HUT))return 1;
         if(id.equals(RoyalAerodromeBlueprint.ID))return 6;
         if(id.equals(RoyalBountyHallBlueprint.ID)||id.equals(RoyalBankBlueprint.ID)||id.equals(FishermansWharfBlueprint.ID))return 3;
@@ -41,6 +44,7 @@ public final class BlueprintRegistry {
         throw new IllegalArgumentException("Unsupported blueprint tier");
     }
     public static String defaultResident(ResourceLocation id){
+        if(ProfessionPremises.contains(id))return ProfessionPremises.get(id).resident();
         if(id.equals(ProfessionBlueprints.FARMER))return "Rowan Fenwick";
         if(id.equals(ProfessionBlueprints.BUILDER))return "Cedric Ashlar";
         if(id.equals(ProfessionBlueprints.LUMBERJACK))return "Brenna Oakfall";
@@ -52,6 +56,7 @@ public final class BlueprintRegistry {
         return id.equals(TownHallBlueprint.ID)?"Elara Vale":"Mira Ashford";
     }
     public static String occupation(ResourceLocation id){
+        if(ProfessionPremises.contains(id))return ProfessionPremises.get(id).occupation();
         if(id.equals(ProfessionBlueprints.FARMER))return "Farmer";
         if(id.equals(ProfessionBlueprints.BUILDER))return "Master Mason";
         if(id.equals(ProfessionBlueprints.LUMBERJACK))return "Forester";
@@ -62,6 +67,7 @@ public final class BlueprintRegistry {
         return id.equals(TownHallBlueprint.ID)?"Royal Steward":"Reeve";
     }
     public static String greeting(ResourceLocation id){
+        if(ProfessionPremises.contains(id))return ProfessionPremises.get(id).greeting();
         if(id.equals(ProfessionBlueprints.FARMER))return "No kingdom grows on promises alone. Bring sound harvests, and leave the fields ready for tomorrow.";
         if(id.equals(ProfessionBlueprints.BUILDER))return "A straight wall begins with a measured stone. I keep tools ready and accounts square.";
         if(id.equals(ProfessionBlueprints.LUMBERJACK))return "Plant for the next generation before you fell the last tree. Strong timber builds a strong kingdom.";

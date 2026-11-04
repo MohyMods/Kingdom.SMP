@@ -15,6 +15,7 @@ public enum KingdomQuestGoal {
     public static final long CHAPTER_ID = 0x4B534D5000000001L;
     private static final Map<String,Integer> PAID_BUILDINGS = Map.of("kingdom_smp:farmers_house",2,
             "kingdom_smp:builders_workshop",2,"kingdom_smp:lumberjacks_lodge",2,"kingdom_smp:royal_bank",3,"kingdom_smp:royal_bounty_hall",3,"kingdom_smp:fishermans_wharf",3,"kingdom_smp:royal_aerodrome",6);
+    private static int paidTier(String id){try{var key=net.minecraft.resources.ResourceLocation.parse(id);return com.mohymods.kingdomsmp.building.ProfessionPremises.contains(key)?com.mohymods.kingdomsmp.building.ProfessionPremises.get(key).tier():PAID_BUILDINGS.getOrDefault(id,13);}catch(IllegalArgumentException invalid){return 13;}}
     private final String key;
     private final int sequence;
 
@@ -47,9 +48,9 @@ public enum KingdomQuestGoal {
             case TIER_TWO -> snapshot.tier() >= 2;
             case HEADQUARTERS -> snapshot.tier() >= 2 && (snapshot.completedBuildingIds().contains("kingdom_smp:royal_town_hall")
                     || snapshot.completedBuildingIds().contains("kingdom_smp:founders_lodge"));
-            case PURCHASE -> snapshot.tier() >= 2 && snapshot.purchasedBuildingIds().stream().anyMatch(id -> snapshot.tier() >= PAID_BUILDINGS.getOrDefault(id,13));
+            case PURCHASE -> snapshot.tier() >= 2 && snapshot.purchasedBuildingIds().stream().anyMatch(id -> snapshot.tier() >= paidTier(id));
             case PUBLIC_BUILDING -> snapshot.tier() >= 2 && snapshot.purchasedBuildingIds().stream()
-                    .anyMatch(id -> snapshot.tier() >= PAID_BUILDINGS.getOrDefault(id,13) && snapshot.completedBuildingIds().contains(id));
+                    .anyMatch(id -> snapshot.tier() >= paidTier(id) && snapshot.completedBuildingIds().contains(id));
             case TIER_THREE -> snapshot.tier() >= 3;
             case BANK -> snapshot.tier() >= 3 && snapshot.completedBuildingIds().contains("kingdom_smp:royal_bank");
             case PUBLIC_TRADE -> snapshot.tier() >= 3 && snapshot.publicTradeCompleted();

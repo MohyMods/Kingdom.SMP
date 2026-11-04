@@ -38,12 +38,18 @@ public record ConstructionBlueprint(ResourceLocation id, int version, int width,
         return origin.offset(rotate(new BlockPos(width/2,0,-1),r));
     }
     public static boolean matches(BlockState current, BlockState expected) {
+        // Native workstation use changes these vanilla blocks, without damaging the building.
+        if(vanillaAnvil(current)&&vanillaAnvil(expected))current=expected.getBlock().withPropertiesOf(current);
+        if(expected.is(net.minecraft.world.level.block.Blocks.CAULDRON)&&java.util.Set.of(net.minecraft.world.level.block.Blocks.WATER_CAULDRON,net.minecraft.world.level.block.Blocks.LAVA_CAULDRON,net.minecraft.world.level.block.Blocks.POWDER_SNOW_CAULDRON).contains(current.getBlock()))current=expected;
         if(current.getBlock()!=expected.getBlock())return false;
         // Derived connections, crop growth, farmland hydration and furnace operation
         // change during ordinary use; never permit replacement by another block type.
         for(var property:expected.getProperties()){
             String name=property.getName();var block=expected.getBlock();
-            if(block instanceof net.minecraft.world.level.block.CropBlock&&name.equals("age")
+            if(block instanceof net.minecraft.world.level.block.BrewingStandBlock&&java.util.Set.of("has_bottle_0","has_bottle_1","has_bottle_2").contains(name)
+                ||block instanceof net.minecraft.world.level.block.LecternBlock&&name.equals("has_book")
+                ||block instanceof net.minecraft.world.level.block.ComposterBlock&&name.equals("level")
+                ||block instanceof net.minecraft.world.level.block.CropBlock&&name.equals("age")
                 ||block instanceof net.minecraft.world.level.block.FarmBlock&&name.equals("moisture")
                 ||block instanceof net.minecraft.world.level.block.AbstractFurnaceBlock&&name.equals("lit")
                 ||(block instanceof net.minecraft.world.level.block.FenceBlock||block instanceof net.minecraft.world.level.block.IronBarsBlock)&&java.util.Set.of("north","south","east","west").contains(name)
@@ -52,5 +58,6 @@ public record ConstructionBlueprint(ResourceLocation id, int version, int width,
         }
         return BuilderHutService.matchesRequired(current, expected);
     }
+    private static boolean vanillaAnvil(BlockState state){return java.util.Set.of(net.minecraft.world.level.block.Blocks.ANVIL,net.minecraft.world.level.block.Blocks.CHIPPED_ANVIL,net.minecraft.world.level.block.Blocks.DAMAGED_ANVIL).contains(state.getBlock());}
     private static <T extends Comparable<T>> BlockState normalize(BlockState current,BlockState expected,net.minecraft.world.level.block.state.properties.Property<T> property){return current.setValue(property,expected.getValue(property));}
 }

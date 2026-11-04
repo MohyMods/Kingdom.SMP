@@ -112,7 +112,7 @@ public final class ProfessionBlueprints {
     }
 
     /** The farmhouse has a narrower house than its garden-inclusive footprint. */
-    private static Map<BlockPos, BlockState> shell(int footprintWidth, int houseWidth, int depth,
+    static Map<BlockPos, BlockState> shell(int footprintWidth, int houseWidth, int depth,
             BlockState wall, BlockState frame, BlockState roof, BlockState roofStair) {
         Map<BlockPos, BlockState> blocks = new LinkedHashMap<>();
         for (int x = 0; x < footprintWidth; x++) for (int z = 0; z < depth; z++)
@@ -136,12 +136,12 @@ public final class ProfessionBlueprints {
         return blocks;
     }
 
-    private static void entrance(Map<BlockPos, BlockState> blocks, int x) {
+    static void entrance(Map<BlockPos, BlockState> blocks, int x) {
         var door = Blocks.SPRUCE_DOOR.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH);
         put(blocks, x, 1, 0, door.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
         put(blocks, x, 2, 0, door.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
     }
-    private static void lantern(Map<BlockPos, BlockState> blocks, int x, int y, int z) {
+    static void lantern(Map<BlockPos, BlockState> blocks, int x, int y, int z) {
         put(blocks, x, y, z, Blocks.LANTERN.defaultBlockState().setValue(BlockStateProperties.HANGING, true));
     }
     private static ConstructionBlueprint finish(ResourceLocation id, int width, Map<BlockPos, BlockState> blocks,

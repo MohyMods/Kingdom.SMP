@@ -46,4 +46,7 @@ class ApprovedProfessionContentTest {
         var json=JsonParser.parseString(original).getAsJsonObject();json.getAsJsonArray("quests").set(1,json.getAsJsonArray("quests").get(0).deepCopy());
         assertThrows(IllegalArgumentException.class,()->ApprovedProfessionContent.parse(json.toString()));
     }
+ @org.junit.jupiter.api.Test void unavailableProfessionPacketsNeverFallThroughIntoFarmerAuthority(){
+  for(String id:java.util.List.of("kingdom_smp:blacksmith/a01","kingdom_smp:librarian/m08","client:invented")){org.junit.jupiter.api.Assertions.assertFalse(ProfessionQuestService.ready(null,id));org.junit.jupiter.api.Assertions.assertTrue(ProfessionQuestService.status(null,id).contains("no validated runtime"));org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->ProfessionQuestService.complete(null,java.util.UUID.randomUUID(),id));}
+ }
 }

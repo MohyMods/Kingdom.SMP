@@ -22,6 +22,8 @@ public final class KingdomBlueprints {
     public static final DeferredItem<Item> AERODROME=register("royal_aerodrome_blueprint");
     public static final DeferredItem<Item> WHARF=register("fishermans_wharf_blueprint");
     public static final DeferredItem<Item> BANK=register("royal_bank_blueprint");
+    private static final java.util.Map<net.minecraft.resources.ResourceLocation,DeferredItem<Item>> PROFESSION_ITEMS=professionItems();
+    private static java.util.Map<net.minecraft.resources.ResourceLocation,DeferredItem<Item>> professionItems(){var rows=new java.util.LinkedHashMap<net.minecraft.resources.ResourceLocation,DeferredItem<Item>>();for(var d:ProfessionPremises.definitions())rows.put(d.id(),register(d.profession().id()+"_blueprint"));return java.util.Map.copyOf(rows);}
     private static DeferredItem<Item> register(String id){return ITEMS.register(id,()->new Item(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)){
         @Override public InteractionResultHolder<ItemStack> use(Level level,net.minecraft.world.entity.player.Player player,InteractionHand hand){
             if(player instanceof ServerPlayer p)ConstructionService.openPlan(p,null);
@@ -33,6 +35,7 @@ public final class KingdomBlueprints {
         }
     });}
     public static Item item(net.minecraft.resources.ResourceLocation id){
+        if(PROFESSION_ITEMS.containsKey(id))return PROFESSION_ITEMS.get(id).get();
         if(id.equals(BlueprintRegistry.HUT))return HUT.get();
         if(id.equals(TownHallBlueprint.ID))return HALL.get();
         if(id.equals(FoundersLodgeBlueprint.ID))return LODGE.get();
@@ -46,6 +49,7 @@ public final class KingdomBlueprints {
         throw new IllegalArgumentException("Unsupported blueprint item");
     }
     public static net.minecraft.resources.ResourceLocation definition(ItemStack stack){
+        for(var entry:PROFESSION_ITEMS.entrySet())if(stack.is(entry.getValue().get()))return entry.getKey();
         if(stack.is(HUT.get()))return BlueprintRegistry.HUT;
         if(stack.is(HALL.get()))return TownHallBlueprint.ID;
         if(stack.is(LODGE.get()))return FoundersLodgeBlueprint.ID;

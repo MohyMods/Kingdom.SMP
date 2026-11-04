@@ -74,4 +74,10 @@ class KingdomQuestGoalTest {
         assertFalse(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,wharf,Set.of(),true,false)));
         assertTrue(KingdomQuestGoal.PUBLIC_BUILDING.complete(snapshot(3,wharf,wharf,true,false)));
     }
+    @org.junit.jupiter.api.Test void approvedProfessionPremisesProjectOnlyAtTheirOwnRealTier(){
+        for(var d:com.mohymods.kingdomsmp.building.ProfessionPremises.definitions()){
+            var ids=java.util.Set.of(d.id().toString());var before=new KingdomQuestSnapshot(d.tier()-1,ids,ids,true,false);var at=new KingdomQuestSnapshot(d.tier(),ids,ids,true,false);
+            org.junit.jupiter.api.Assertions.assertFalse(KingdomQuestGoal.PURCHASE.complete(before));org.junit.jupiter.api.Assertions.assertFalse(KingdomQuestGoal.PUBLIC_BUILDING.complete(before));org.junit.jupiter.api.Assertions.assertTrue(KingdomQuestGoal.PURCHASE.complete(at));org.junit.jupiter.api.Assertions.assertTrue(KingdomQuestGoal.PUBLIC_BUILDING.complete(at));
+        }
+    }
 }
