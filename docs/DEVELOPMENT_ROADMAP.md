@@ -1,3 +1,5 @@
+> D075: Blacksmith all8Apprentice natively earn800XP/Journeyman;580JUnit,3JVM worn-item/repair/corruption/restart/claim audit and unchanged Farmer24native regression pass.68/288adapters,220remain. Continue Smith Journeyman shared production and all approved backlog.
+
 > D074: Five Blacksmith native production/delivery objectives now earn500XP/Apprentice through the shared framework;573JUnit, actual raw-iron blasting/crafting and full Lumberjack16regression pass.65/288runtime adapters,223remain. Next distinct genuine repair jobs, Blacksmith daily commissions and final forge inspection; continue the full approved backlog.
 
 > D073: All12profession premises now have physical authenticated plans/buildings/NPCs and normal enrollment; nine new approved-gate premises pass2JVM/571JUnit and unchanged Farmer24native regression. This is not completed quest content or earned higher-tier progression. Next shared Blacksmith production/repair/contracts/inspection; continue all approved backlog.

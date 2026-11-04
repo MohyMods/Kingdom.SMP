@@ -16,7 +16,7 @@ public final class ProfessionService {
     private static final ProfessionQuestCatalog QUESTS=ProfessionQuestService.catalog();
     private ProfessionService(){ }
     public static void close(ServerPlayer p){QUOTES.remove(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
-    public static void initialize(MinecraftServer server){ProfessionRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
+    public static void initialize(MinecraftServer server){ProfessionRules.clear(server);RepairQuestRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
     public static ProfessionQuestCatalog quests(){return QUESTS;}
     public static Optional<Quote> quote(ServerPlayer p){var q=QUOTES.get(p);if(q!=null&&(q.revision()!=CommerceService.store(p.server).revision()||System.nanoTime()-q.issued()>30_000_000_000L)){close(p);q=null;}return Optional.ofNullable(q);}
     public static String rankName(ProfessionRank rank){return rank.id().substring(0,1).toUpperCase(Locale.ROOT)+rank.id().substring(1);}

@@ -23,7 +23,10 @@
     "TreeFeatureMixin",
     "NativeFurnaceRecipesAccessor",
     "NativeItemIdentityAccessor",
-    "FurnaceProductionMixin"
+    "FurnaceProductionMixin",
+    "NativeCombinerAccess",
+    "NativeWearMixin",
+    "NativeAnvilRepairMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -6,4 +6,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value=ItemStack.class,remap=false)
 public interface NativeItemIdentityAccessor {
     @Accessor("item") Item kingdom$nativeItem();
+    @Accessor("components") net.minecraft.core.component.PatchedDataComponentMap kingdom$nativeComponents();
 }

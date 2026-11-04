@@ -157,7 +157,7 @@ if args.verify_wharf_restart:
 if args.namespace == 'kingdom_smp_tree_tests':
     markers = ['NATIVE_TREE_PREPARED:', 'NATIVE_TREE_RESTART_ASSERTIONS_PASSED:']
 if args.namespace == 'kingdom_smp_premises_tests':
-    markers = ['PROFESSION_PREMISES_PREPARED:', 'NATIVE_SMITH_PRODUCTION_PASSED:' if args.smith_production else 'PROFESSION_PREMISES_RESTART_PASSED:']
+    markers = ['PROFESSION_PREMISES_PREPARED:', 'SMITH_REPAIR_PREPARED:', 'SMITH_APPRENTICE_RESTART_PASSED:'] if args.smith_production else ['PROFESSION_PREMISES_PREPARED:', 'PROFESSION_PREMISES_RESTART_PASSED:']
 if args.namespace == 'kingdom_smp_retained_tests':
     markers = [marker, 'RETAINED_CORRUPT_EVENT_ASSERTIONS_PASSED:', 'RETAINED_RESTART_ASSERTIONS_PASSED:']
     import shutil

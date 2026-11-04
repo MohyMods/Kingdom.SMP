@@ -43,7 +43,8 @@ public final class ProfessionInspectionService {
                 var facing=state.getValue(DoorBlock.FACING);boolean clear=true;
                 for(var side:List.of(facing,facing.getOpposite())){
                     var step=pos.relative(side);
-                    if(!level.getBlockState(step).getCollisionShape(level,step).isEmpty()||!level.getBlockState(step.above()).getCollisionShape(level,step.above()).isEmpty()||!level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP))clear=false;
+                    boolean support=level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP)||d.profession()==Profession.BLACKSMITH&&level.getBlockState(step.below()).isAir()&&level.getBlockState(step.below(2)).isFaceSturdy(level,step.below(2),Direction.UP);
+                    if(!level.getBlockState(step).getCollisionShape(level,step).isEmpty()||!level.getBlockState(step.above()).getCollisionShape(level,step.above()).isEmpty()||!support)clear=false;
                 }
                 if(clear)doors++;
             }
@@ -80,6 +81,14 @@ public final class ProfessionInspectionService {
             boolean nativeTree=data.plantedNear(level.dimension().location().toString(),center).entrySet().stream().anyMatch(e->{var pos=BlockPos.of(e.getKey().position());return level.hasChunkAt(pos)&&level.getBlockState(pos).toString().equals(e.getValue().state());});if(!nativeTree)throw new IllegalStateException("Maintain a genuine native-grown tree in the inspected managed woodland");
             Set<net.minecraft.world.level.block.Block> varieties=new HashSet<>();for(var pos:BlockPos.betweenClosed(from,to))if(level.getBlockState(pos).is(BlockTags.SAPLINGS))varieties.add(level.getBlockState(pos).getBlock());if(varieties.size()<3)throw new IllegalStateException("Maintain at least3actual nursery sapling species and accessible marked replanting areas; administrator must inspect the forestry plan");
         }
+        if(id.equals("kingdom_smp:blacksmith/a08")){
+            int anvils=0,furnaces=0,storage=0,fuel=0;
+            for(var pos:BlockPos.betweenClosed(from,to)){var state=level.getBlockState(pos);boolean accessible=false;for(var face:Direction.Plane.HORIZONTAL){var step=pos.relative(face);if(level.getBlockState(step).getCollisionShape(level,step).isEmpty()&&level.getBlockState(step.above()).getCollisionShape(level,step.above()).isEmpty()&&level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP))accessible=true;}
+                if(!accessible)continue;if(state.getBlock() instanceof AnvilBlock)anvils++;if(state.getBlock() instanceof AbstractFurnaceBlock)furnaces++;if(level.getBlockEntity(pos) instanceof net.minecraft.world.Container container){storage++;for(int slot=0;slot<Math.min(128,container.getContainerSize());slot++){var stack=container.getItem(slot);if(stack.is(net.minecraft.world.item.Items.COAL)||stack.is(net.minecraft.world.item.Items.CHARCOAL))fuel=Math.addExact(fuel,stack.getCount());}}
+            }
+            if(doors<1||anvils<1||furnaces<1||storage<1||fuel<1)throw new IllegalStateException("Working smithy needs safe access/anvil/furnace/storage/fuel: doors="+doors+",anvils="+anvils+",furnaces="+furnaces+",storage="+storage+",fuel="+fuel+". Administrator must attest workflow and consent");
+            proof="forge=working,fuel="+fuel+",snapshot="+Long.toUnsignedString(snapshot,16);
+        }
         return proof;
     }
     static int largestConnected(Set<BlockPos> positions){
@@ -114,6 +123,7 @@ public final class ProfessionInspectionService {
     }
     public static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> commands(){
         return Commands.literal("profession").requires(s->s.hasPermission(2))
+            .then(Commands.literal("repairs").then(Commands.argument("player",EntityArgument.player()).executes(c->{try{var player=EntityArgument.getPlayer(c,"player");var data=RepairSavedData.get(c.getSource().getServer()).evidence();c.getSource().sendSuccess(()->Component.literal("Native repair evidence for "+player.getGameProfile().getName()+": "+data.count(player.getUUID(),ProfessionRank.APPRENTICE)+" distinct Apprentice jobs. Bounded native lineages: "+data.history(player.getUUID(),16)),false);return 1;}catch(Exception failure){c.getSource().sendFailure(Component.literal(Objects.toString(failure.getMessage(),"Matching repair evidence recovery required")));return 0;}})))
             .then(Commands.literal("inspect").then(Commands.argument("player",EntityArgument.player()).then(Commands.argument("quest",ResourceLocationArgument.id())
                 .suggests((c,b)->{InspectionQuests.ids().stream().sorted().forEach(b::suggest);return b.buildFuture();})
                 .then(Commands.argument("center",BlockPosArgument.blockPos()).then(Commands.argument("reason",StringArgumentType.greedyString()).executes(c->{try{

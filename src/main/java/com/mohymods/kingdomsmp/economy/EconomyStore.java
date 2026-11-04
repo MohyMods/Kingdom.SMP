@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -277,7 +277,7 @@ public final class EconomyStore {
     }
     private static long commissionPeriods(ContractState contracts,UUID player,String quest){
         Objects.requireNonNull(player);var d=CommissionQuests.get(quest);int minimum=ApprovedProfessionContent.get(quest).minimumTier();
-        return contracts.professionPeriods.stream().filter(p->p.player().equals(player)&&p.profession().equals(d.profession().id())&&p.band().equals(d.rank().id())&&p.cycle().equals(d.cycle())&&(p.tier()>=minimum||p.tier()==0&&d.rank()==ProfessionRank.APPRENTICE)).count();
+        return contracts.professionPeriods.stream().filter(p->p.player().equals(player)&&p.profession().equals(d.profession().id())&&p.band().equals(d.rank().id())&&p.cycle().equals(d.cycle())&&(p.tier()>=minimum||p.tier()==0&&d.rank()==ProfessionRank.APPRENTICE&&(d.profession()==Profession.BUILDER||d.profession()==Profession.LUMBERJACK))).count();
     }
     public synchronized long farmerContractPeriods(UUID player,ProfessionRank band,String cycle){return professionContractPeriods(player,Profession.FARMER,band,cycle);}
     public synchronized long contractPoolSpent(String cycle,long period){return contracts.spent(cycle,period);}
@@ -341,6 +341,9 @@ public final class EconomyStore {
         var definition=TreeQuestService.get(quest);var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_TREE,player,player,ApprovedProfessionContent.get(quest).xp(),quest,"Native tree objective",null,0,actual,data);
         if(!replayed(op))append(op);return professions(player);
+    }
+    public synchronized ProfessionRoster completeRepairQuest(UUID operation,UUID player,int required,int actual)throws IOException{
+        var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_REPAIR,player,player,100,RepairService.QUEST,"Native item repairs",null,0,actual,data);if(!replayed(op))append(op);return professions(player);
     }
     /** Verified native crafting plus permanently consumed outputs share one native receipt boundary. */
     public synchronized PendingItem prepareProfessionDelivery(UUID operation,UUID player,String quest,String evidence,Map<String,Integer> inputs)throws IOException{
@@ -814,6 +817,10 @@ public final class EconomyStore {
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
                 if(roster.track(Profession.FARMER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Farmer objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
+            }
+            case PROFESSION_REPAIR->{
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!op.key().equals(RepairService.QUEST)||!op.detail().equals("Native item repairs")||op.amount()!=100||!data.getAllKeys().equals(Set.of("contentVersion","required"))||!data.contains("contentVersion",Tag.TAG_INT)||data.getInt("contentVersion")!=1||!data.contains("required",Tag.TAG_INT)||data.getInt("required")<1||data.getInt("required")>128||op.quantity()<data.getInt("required")||op.quantity()>RepairEvidence.LIMIT)throw new IllegalArgumentException("Invalid native repair authority or proof count");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.BLACKSMITH).completedQuestIds().contains(op.key()))throw new IllegalStateException("Repair objective already completed");professionRosters.put(op.target(),roster.completeQuest(Profession.BLACKSMITH,op.key(),op.amount(),RepairService.catalog()));
             }
             case PROFESSION_TREE->{
                 var d=TreeQuestService.get(op.key());var approved=ApprovedProfessionContent.get(op.key());var data=op.payload();
