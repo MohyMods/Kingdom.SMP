@@ -1,3 +1,5 @@
+> D070: Lumberjack hardwood64acacia/64darkoak and96jungle are natively earned;556JUnit/full build pass. Actual native4sapling growth, category-substitution refusal and early-tier planting gate verified.55/288runtime adapters. Next owned cherry/mangrove grow-and-harvest lifecycle, remaining Builder Master/mod validation and full approved backlog.
+
 > D069: All16Builder Apprentice/Journeyman objectives natively earn2400XP and open Master trials;554JUnit and3JVM corruption/restoration pass. J05is the approved48cell graded route/drainage inspection.53/288runtime adapters. Continue remaining Builder Master native/mod validation, Lumberjack further species/cycles and nine premises/all approved quests; no intermediate binary release.
 
 > D068: Builder j01–j04and j07 now natively earned after real Tier3;549JUnit and3JVM persistence/corruption suite pass.50/288runtime adapters. Continue j05grading/drainage, j06three construction commissions and j08handover, then remaining Master/Lumberjack and nine premises. No intermediate binary release.

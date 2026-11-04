@@ -128,6 +128,10 @@ public final class TreeQuestRuntimeTests {
             advancedCommission();
         }
         void advancedCommission()throws Exception{
+            clearTropical();var pos=tropicalPlot();move(pos);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.ACACIA_SAPLING));use(pos.below(),Direction.UP);
+            h.runAfterDelay(2,()->guard(()->{h.assertTrue(TreeSavedData.get(level.getServer()).evidence().plantAt(level.dimension().location().toString(),pos).orElseThrow().band()==null,"Journeyman planting before approved Tier3 cannot pre-earn future growth evidence");tierThreeCommission();}));
+        }
+        void tierThreeCommission()throws Exception{
             final String advanced="kingdom_smp:lumberjack/j07";
             h.assertTrue(!ProfessionQuestService.ready(p,advanced),"Earned Journeyman rank at Tier2 cannot bypass approved Tier3 advanced objectives");
             var hall=ConstructionService.lodge(level.getServer());var home=hall.origin().offset(BlueprintRegistry.get(hall.blueprint(),hall.blueprintVersion()).home());p.moveTo(home.getX()+.5,home.getY(),home.getZ()-1.5);CommerceService.openResident(p,(com.mohymods.kingdomsmp.npc.ReeveEntity)level.getEntity(hall.npc()));
@@ -141,12 +145,35 @@ public final class TreeQuestRuntimeTests {
             near();p.getInventory().clearContent();for(int slot=0;slot<4;slot++)p.getInventory().setItem(slot,new ItemStack(Items.OAK_LOG,64));
             var contract=ContractService.review(p,"lumberjack/weekly");ContractService.confirm(p,contract.nonce());h.assertTrue(store.commissionContractPeriods(p.getUUID(),advanced)==1,"Actual native weekly receipt pins real Tier3, current Journeyman band and one unique period");
             var review=ProfessionService.review(p,"quest:"+advanced);ProfessionService.confirm(p,review.nonce());h.assertTrue(store.professions(p.getUUID()).track(Profession.LUMBERJACK).xp()==1000,"Real advanced commission awards200XP once after earned Apprentice band and actual Tier3");
-            boolean denied=false;try{ProfessionService.review(p,"quest:"+advanced);}catch(IllegalStateException expected){denied=true;}h.assertTrue(denied,"Advanced native commission cannot pay twice");saved();
+            boolean denied=false;try{ProfessionService.review(p,"quest:"+advanced);}catch(IllegalStateException expected){denied=true;}h.assertTrue(denied,"Advanced native commission cannot pay twice");tropicalPlant();
+        }
+        int tropical,attempts;final String[] tropicalSpecies={"acacia","dark_oak","jungle"};final Item[] tropicalSaplings={Items.ACACIA_SAPLING,Items.DARK_OAK_SAPLING,Items.JUNGLE_SAPLING};final int[] tropicalGoals={128,64,96};
+        BlockPos tropicalPlot(){return plot.north(24);}
+        int tropicalCount(String metric){return TreeSavedData.get(level.getServer()).evidence().evidence().count(p.getUUID(),ProfessionRank.JOURNEYMAN,metric);}
+        void clearTropical(){var root=tropicalPlot();for(var pos:BlockPos.betweenClosed(root.offset(-12,0,-12),root.offset(12,40,12)))level.setBlock(pos,Blocks.AIR.defaultBlockState(),18);for(var pos:BlockPos.betweenClosed(root.offset(-12,-1,-12),root.offset(12,-1,12)))level.setBlock(pos,Blocks.GRASS_BLOCK.defaultBlockState(),3);}
+        void tropicalPlant(){
+            if(++attempts>100)throw new IllegalStateException("Bounded real tropical tree fixture attempts exhausted");clearTropical();var root=tropicalPlot();int side=tropical==1?2:1;
+            for(int x=0;x<side;x++)for(int z=0;z<side;z++){var pos=root.offset(x,0,z);move(pos);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(tropicalSaplings[tropical]));use(pos.below(),Direction.UP);h.assertTrue(p.getMainHandItem().isEmpty(),"Each genuine tropical sapling consumes its actual item; dark oak requires4");}
+            h.runAfterDelay(2,()->guard(this::tropicalGrow));
+        }
+        void tropicalGrow(){
+            var root=tropicalPlot();move(root);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BONE_MEAL,64));for(int n=0;n<64&&level.getBlockState(root).getBlock() instanceof SaplingBlock;n++)use(root,Direction.UP);
+            h.assertTrue(TreeLifecycle.species(level.getBlockState(root))!=null,"Actual native"+tropicalSpecies[tropical]+"growth produces its mature trunk");h.runAfterDelay(3,()->guard(this::tropicalHarvest));
+        }
+        void tropicalHarvest(){
+            var root=tropicalPlot();var source=TreeSavedData.get(level.getServer()).evidence();int before=tropicalCount(tropicalSpecies[tropical]),logs=0;
+            for(var pos:BlockPos.betweenClosed(root.offset(-12,0,-12),root.offset(12,40,12)))if(TreeLifecycle.species(level.getBlockState(pos))!=null){h.assertTrue(source.logAt(level.dimension().location().toString(),pos).isPresent(),"Tropical trunks are actual successful native feature output, never leaf inference");move(pos);h.assertTrue(p.gameMode.destroyBlock(pos),"Actual native player harvest removes tropical timber");logs++;}
+            h.assertTrue(logs>0&&tropicalCount(tropicalSpecies[tropical])==before+logs,"Real current-band species count matches actual harvested trunk positions");
+            if(tropicalCount(tropicalSpecies[tropical])>=tropicalGoals[tropical]){if(tropical==0)h.assertTrue(!TreeQuestService.ready(p,"kingdom_smp:lumberjack/j01"),"128actual acacia cannot substitute for the missing64dark oak");tropical++;}
+            if(tropical<3){tropicalPlant();return;}
+            near();int sequence=51000;for(String id:List.of("kingdom_smp:lumberjack/j01","kingdom_smp:lumberjack/j02")){var view=CommerceService.handle(p,new CommerceRequest(++sequence,1,7,"quest:"+id,1,CommerceRequest.NONE));h.assertTrue(view.reviewing(),"Normal Royal UI reviews actual full hardwood and jungle harvest goals");CommerceService.handle(p,new CommerceRequest(++sequence,2,7,"quest:"+id,1,view.review()));}
+            h.assertTrue(store.professions(p.getUUID()).track(Profession.LUMBERJACK).xp()==1400,"Actual64each hardwood/96jungle goals award200XP each once after earned Apprentice and Tier3");saved();
         }
         void saved(){
             try{CommerceService.verifyReceipt(p);var data=TreeSavedData.get(level.getServer());data.setDirty();level.getDataStorage().save();net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();var saved=TreeSavedData.load(AtomicNbt.read(level.getServer().getWorldPath(LevelResource.ROOT).resolve("data/kingdomsmp_tree_evidence_v1.dat")).getCompound("data"),level.registryAccess());h.assertTrue(saved.evidence().evidence().count(p.getUUID(),ProfessionRank.APPRENTICE,"grown")>=24,"Actual saved growth receipts/counters survive native file reload");var reopened=EconomyStore.open(level.getServer().getWorldPath(LevelResource.ROOT).resolve("data"));h.assertTrue(reopened.professions(p.getUUID()).equals(store.professions(p.getUUID())),"Canonical forestry awards reopen exactly");}catch(Exception failure){h.fail(failure.toString());}
-            h.succeed();com.mojang.logging.LogUtils.getLogger().info("NATIVE_TREE_ASSERTIONS_PASSED: actual forest worldgen, real player planted-to-mature trees, canceled bonemeal transaction refusal, placed-log and native piston denial, full128oak64birch64spruce24replacement goals, real item use/harvest/consent, normal Royal packet, mixed128planks/32strippedlogs permanently consumed, real32strip/32craft actions, reviewed forest services, all8earned800XP/Journeyman, offline actual growth/logout/reconnect and revoked plot consent, native saved-file/canonical reopen; supplies explicit, actual earned Tier3/256logweekly and1000totalXP, private clock and daily/weekly period goals accelerated; no tree/craft quantities or XP/rank injected");
+            h.succeed();com.mojang.logging.LogUtils.getLogger().info("NATIVE_TREE_ASSERTIONS_PASSED: actual forest worldgen, real player planted-to-mature trees, canceled bonemeal transaction refusal, placed-log and native piston denial, full128oak64birch64spruce24replacement goals, real item use/harvest/consent, normal Royal packet, mixed128planks/32strippedlogs permanently consumed, real32strip/32craft actions, reviewed forest services, all8earned800XP/Journeyman, offline actual growth/logout/reconnect and revoked plot consent, native saved-file/canonical reopen; supplies explicit, actual earned Tier3/256logweekly plus128acacia overage/64darkoak/native4saplings/96jungle and1400totalXP, private clock and daily/weekly period goals accelerated; no tree/craft quantities or XP/rank injected");
         }
-        void guard(Runnable action){try{action.run();}catch(Exception failure){h.fail(failure.toString());}}
+        interface Checked{void run()throws Exception;}
+        void guard(Checked action){try{action.run();}catch(Exception failure){h.fail(failure.toString());}}
     }
 }
