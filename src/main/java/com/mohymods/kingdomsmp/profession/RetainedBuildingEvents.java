@@ -31,7 +31,7 @@ public final class RetainedBuildingEvents {
         return store.builderWorksites().stream().filter(s->s.dimension().equals(level.dimension().location().toString())&&s.contains(pos)).toList();
     }
     private static void invalidate(ServerLevel level,BlockPos pos){
-        var sites=sites(level,pos);if(sites.isEmpty())return;var data=RetainedBuildingSavedData.get(level.getServer());
+        var store=CommerceService.initializedStore(level.getServer()).orElse(null);if(store==null||store.quarantined())return;var sites=store.builderAuthorizationHistory().stream().filter(s->s.dimension().equals(level.dimension().location().toString())&&s.contains(pos)).toList();if(sites.isEmpty())return;var data=RetainedBuildingSavedData.get(level.getServer());
         for(var site:sites)if(data.evidence().invalidate(site.id(),pos)){data.setDirty();RetainedBuildingService.changed(site.player());}
     }
     private static void later(MinecraftServer server,Runnable action){var q=PENDING.computeIfAbsent(server,s->new ArrayDeque<>());if(q.size()<8192)q.addLast(action);}

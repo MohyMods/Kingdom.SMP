@@ -7,7 +7,7 @@ final class ContractState {
     record Pool(String cycle,long period) { }
     record QuestPeriod(UUID player,String profession,String band,String cycle,long period,int tier) { }
     record WorksiteSlot(UUID player,String quest) { }
-    final Map<UUID,BuilderWorksite> workSites=new HashMap<>();
+    final Map<UUID,BuilderWorksite> workSites=new LinkedHashMap<>();
     final Map<WorksiteSlot,UUID> currentSites=new HashMap<>();
     final Map<UUID,HuntState> hunts=new HashMap<>();
     final Map<Long,Long> huntBudgets=new HashMap<>();

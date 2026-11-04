@@ -30,9 +30,9 @@ public final class ProfessionInspectionService {
         if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(id)||!InspectionQuests.catalog().mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             ||ContributionService.kingdom(admin.server).attainedTier()<d.minimumTier()||!ProfessionService.available(player,d.profession()))throw new IllegalStateException("Profession, premises, tier or objective prerequisites are unavailable");
         if(player.serverLevel()!=admin.serverLevel()||admin.distanceToSqr(center.getX()+.5,center.getY()+.5,center.getZ()+.5)>256||player.distanceToSqr(center.getX()+.5,center.getY()+.5,center.getZ()+.5)>1024)throw new IllegalStateException("Administrator must be within16blocks and player within32blocks in the inspected dimension");
-        var level=admin.serverLevel();var from=center.offset(-8,-3,-8);var to=center.offset(8,3,8);
-        for(var pos:BlockPos.betweenClosed(center.offset(-9,-4,-9),center.offset(9,5,9)))if(!level.hasChunkAt(pos))throw new IllegalStateException("Inspection never loads chunks; visit the full site first");
-        String denial=PlacementProtection.check(level,player,center.offset(-9,-4,-9),center.offset(9,5,9));
+        var level=admin.serverLevel();int radius=id.equals("kingdom_smp:builder/j05")||id.equals("kingdom_smp:builder/j08")?25:8;var from=center.offset(-radius,-3,-radius);var to=center.offset(radius,3,radius);
+        for(var pos:BlockPos.betweenClosed(center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,5,radius+1)))if(!level.hasChunkAt(pos))throw new IllegalStateException("Inspection never loads chunks; visit the full site first at "+pos.toShortString());
+        String denial=PlacementProtection.check(level,player,center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,5,radius+1));
         if(denial!=null)throw new IllegalStateException("Inspected player's site permission: "+denial);
         int doors=0,stairs=0,markers=0,saplings=0,logs=0;Set<BlockPos> routes=new HashSet<>();
         long snapshot=0xcbf29ce484222325L;
@@ -57,7 +57,7 @@ public final class ProfessionInspectionService {
         if(d.profession()==Profession.BUILDER&&d.rank()==ProfessionRank.APPRENTICE){if(doors<1||stairs<1)throw new IllegalStateException("Working entrance needs a supported clear two-sided doorway, stairs and usable navigation; administrator must attest actual project authorship and consent");}
         else if(d.profession()==Profession.LUMBERJACK&&(route<8||markers<2||saplings<1||logs<1))throw new IllegalStateException("Forest route needs8connected clear path cells,2light markers, replacement saplings and a timber work area; administrator must inspect safe felling and consent");
         String proof="doors="+doors+",stairs="+stairs+",route="+route+",lights="+markers+",saplings="+saplings+",logs="+logs+",snapshot="+Long.toUnsignedString(snapshot,16);
-        if(d.profession()==Profession.BUILDER&&d.rank()==ProfessionRank.JOURNEYMAN)proof=BuilderInspectionGeometry.validate(level,id,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
+        if(d.profession()==Profession.BUILDER&&d.rank()==ProfessionRank.JOURNEYMAN)proof=BuilderInspectionGeometry.validate(player,id,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
         if(id.equals("kingdom_smp:builder/a08")){
             var retained=new StringBuilder(proof);
             for(var prior:RetainedBuildingQuests.ids().stream().filter(q->RetainedBuildingQuests.get(q).rank()==ProfessionRank.APPRENTICE).sorted().toList()){

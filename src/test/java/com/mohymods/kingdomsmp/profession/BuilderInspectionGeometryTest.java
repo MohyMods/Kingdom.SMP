@@ -13,4 +13,8 @@ class BuilderInspectionGeometryTest {
         assertTrue(BuilderInspectionGeometry.zones(groups,0,new ArrayList<>(),new int[]{4096}));assertFalse(BuilderInspectionGeometry.zones(groups,0,new ArrayList<>(),new int[]{0}));
         groups.replaceAll(row->List.of(new BlockPos(0,64,0)));assertFalse(BuilderInspectionGeometry.zones(groups,0,new ArrayList<>(),new int[]{4096}));
     }
+    @Test void threeCommissionSitesNeedDistinctIdentitiesAndNonOverlappingBounds(){
+        var player=UUID.randomUUID();var admin=UUID.randomUUID();var a=new BuilderWorksite(UUID.randomUUID(),admin,player,"kingdom_smp:builder/j06","minecraft:overworld",new BlockPos(0,64,0),new BlockPos(3,67,3),"Authorized native timber construction");var b=new BuilderWorksite(UUID.randomUUID(),admin,player,a.quest(),a.dimension(),new BlockPos(5,64,0),new BlockPos(8,67,3),"Authorized native masonry construction");var c=new BuilderWorksite(UUID.randomUUID(),admin,player,a.quest(),a.dimension(),new BlockPos(10,64,0),new BlockPos(13,67,3),"Authorized native glass construction");assertTrue(BuilderInspectionGeometry.separate(a,b,c));assertFalse(BuilderInspectionGeometry.separate(a,a,c));var overlap=new BuilderWorksite(UUID.randomUUID(),admin,player,a.quest(),a.dimension(),new BlockPos(2,64,0),new BlockPos(6,67,3),"Overlapping project cannot count twice");assertFalse(BuilderInspectionGeometry.separate(a,overlap,c));
+    }
+
 }

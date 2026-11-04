@@ -4,13 +4,13 @@ import java.util.*;
 
 /** Only inspection families with implemented live geometry checks may be activated. */
 public final class InspectionQuests {
-    private static final Set<String> IDS=Set.of("kingdom_smp:builder/a04","kingdom_smp:builder/a08","kingdom_smp:lumberjack/a06","kingdom_smp:lumberjack/a08","kingdom_smp:builder/j01","kingdom_smp:builder/j03","kingdom_smp:builder/j04");
+    private static final Set<String> IDS=Set.of("kingdom_smp:builder/a04","kingdom_smp:builder/a08","kingdom_smp:lumberjack/a06","kingdom_smp:lumberjack/a08","kingdom_smp:builder/j01","kingdom_smp:builder/j03","kingdom_smp:builder/j04","kingdom_smp:builder/j05","kingdom_smp:builder/j06","kingdom_smp:builder/j08");
     private static final ProfessionQuestCatalog CATALOG;
     static {
         Set<String> closure=new HashSet<>(IDS);for(var id:IDS){var d=ApprovedProfessionContent.get(id);for(var rank:ProfessionRank.values())if(rank.ordinal()<d.rank().ordinal())for(int n=1;n<=8;n++)closure.add(d.profession().questId(rank,n));}var queue=new ArrayDeque<>(closure);
         while(!queue.isEmpty())for(var prior:ApprovedProfessionContent.get(queue.removeFirst()).prerequisites())if(closure.add(prior))queue.addLast(prior);
         CATALOG=ProfessionQuestCatalog.approved(closure.stream().map(id->ApprovedProfessionContent.get(id).slot()).toList());
-        for(var id:IDS){var d=ApprovedProfessionContent.get(id);if(!d.validation().equals(Set.of(ApprovedProfessionContent.Validation.INSPECT))||d.minimumTier()!=(d.rank()==ProfessionRank.APPRENTICE?2:3))throw new IllegalStateException("Unvalidated inspection content");}
+        for(var id:IDS){var d=ApprovedProfessionContent.get(id);if((!d.validation().equals(Set.of(ApprovedProfessionContent.Validation.INSPECT))&&!d.validation().equals(Set.of(ApprovedProfessionContent.Validation.BUILD,ApprovedProfessionContent.Validation.INSPECT)))||d.minimumTier()!=(d.rank()==ProfessionRank.APPRENTICE?2:3))throw new IllegalStateException("Unvalidated inspection content");}
     }
     private InspectionQuests() { }
     public static Set<String> ids(){return IDS;}

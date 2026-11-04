@@ -60,4 +60,11 @@ class BuilderWorksiteStoreTest {
         var s=open();long revision=s.revision();for(var id:List.of("kingdom_smp:builder/j02","kingdom_smp:builder/m01","kingdom_smp:builder/m02"))assertThrows(IllegalStateException.class,()->s.authorizeBuilderWorksite(UUID.randomUUID(),admin,player,id,"minecraft:overworld",new BlockPos(0,64,0),new BlockPos(15,69,7),"Real future site must retain complete prior band requirements"));assertEquals(revision,s.revision());assertTrue(s.builderWorksites().isEmpty());assertEquals(0,s.professions(player).track(Profession.BUILDER).xp());
     }
 
+    @Test void inspectedBuildingObjectivesCannotUseAutomaticRetainedAwards()throws Exception{
+        var s=open();long revision=s.revision();for(var id:List.of("kingdom_smp:builder/j06")){assertTrue(RetainedBuildingQuests.tracked(id));assertFalse(RetainedBuildingQuests.contains(id));assertTrue(InspectionQuests.contains(id));assertThrows(IllegalArgumentException.class,()->s.completeRetainedBuilding(UUID.randomUUID(),player,id,UUID.randomUUID(),16,16,"a".repeat(64)));}assertEquals(revision,s.revision());assertEquals(0,s.professions(player).track(Profession.BUILDER).xp());
+    }
+    @Test void authorizationHistoryKeepsOriginalScopedRecordsWithoutChangingCurrentSite()throws Exception{
+        var s=open();var a=site(s);var b=site(s);assertEquals(List.of(b,a),s.builderAuthorizationHistory());assertEquals(List.of(b),s.builderWorksites());s.archive(admin,"Read only immutable authorization history");var restored=EconomyStore.open(directory);assertEquals(List.of(b,a),restored.builderAuthorizationHistory());assertEquals(b,restored.builderWorksite(player,quest).orElseThrow());
+    }
+
 }

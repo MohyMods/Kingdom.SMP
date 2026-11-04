@@ -322,6 +322,7 @@ public final class EconomyStore {
         if(!replayed(op))append(op);return professions(player);
     }
     public synchronized List<BuilderWorksite> builderWorksites(){healthy();return contracts.currentSites.values().stream().map(contracts.workSites::get).sorted(Comparator.comparing(BuilderWorksite::id)).toList();}
+    public synchronized List<BuilderWorksite> builderAuthorizationHistory(){healthy();return List.copyOf(contracts.workSites.values()).reversed();}
     public synchronized Optional<BuilderWorksite> builderWorksite(UUID player,String quest){healthy();return Optional.ofNullable(contracts.workSites.get(contracts.currentSites.get(new ContractState.WorksiteSlot(player,quest))));}
     /** Operator permission, live claims/reservations and bounded local review are verified by the root. */
     public synchronized BuilderWorksite authorizeBuilderWorksite(UUID operation,UUID admin,UUID player,String quest,String dimension,net.minecraft.core.BlockPos from,net.minecraft.core.BlockPos to,String reason)throws IOException{
@@ -331,7 +332,7 @@ public final class EconomyStore {
     }
     /** Root verifies actual retained native placements and support; a packet never supplies these facts. */
     public synchronized ProfessionRoster completeRetainedBuilding(UUID operation,UUID player,String quest,UUID site,int required,int retained,String snapshot)throws IOException{
-        var d=RetainedBuildingQuests.get(quest);var data=new CompoundTag();data.putInt("contentVersion",1);data.putUUID("site",site);data.putInt("required",required);data.putString("snapshot",snapshot);
+        if(!RetainedBuildingQuests.contains(quest))throw new IllegalArgumentException("This building objective requires administrator inspection");var d=RetainedBuildingQuests.get(quest);var data=new CompoundTag();data.putInt("contentVersion",1);data.putUUID("site",site);data.putInt("required",required);data.putString("snapshot",snapshot);
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_RETAINED,player,player,d.xp(),quest,"Retained player construction",null,0,retained,data);
         if(!replayed(op))append(op);return professions(player);
     }
@@ -833,6 +834,7 @@ public final class EconomyStore {
                 contracts.workSites.put(site.id(),site);contracts.currentSites.put(new ContractState.WorksiteSlot(site.player(),site.quest()),site.id());
             }
             case PROFESSION_RETAINED->{
+                if(!RetainedBuildingQuests.contains(op.key()))throw new IllegalArgumentException("Inspection objectives cannot use automatic retained awards");
                 var d=RetainedBuildingQuests.get(op.key());var data=op.payload();
                 if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!op.detail().equals("Retained player construction")||!data.getAllKeys().equals(Set.of("contentVersion","site","required","snapshot")))throw new IllegalArgumentException("Invalid retained construction completion");
                 require(data,"contentVersion",Tag.TAG_INT);require(data,"required",Tag.TAG_INT);require(data,"snapshot",Tag.TAG_STRING);

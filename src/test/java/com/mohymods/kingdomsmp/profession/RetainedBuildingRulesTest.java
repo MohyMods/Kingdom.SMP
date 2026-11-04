@@ -23,7 +23,7 @@ class RetainedBuildingRulesTest {
         String facade="kingdom_smp:builder/j02",decor="kingdom_smp:builder/m02";
         assertEquals(64,RetainedBuildingService.progress(facade,80,1000,0,0,0,0,1000));assertEquals(16,RetainedBuildingService.progress(facade,80,0,1000,0,0,0,1000));assertEquals(80,RetainedBuildingService.progress(facade,80,64,16,0,0,0,80));assertEquals(79,RetainedBuildingService.progress(facade,80,63,1000,0,0,0,1000));
         assertEquals(95,RetainedBuildingService.progress(decor,96,0,0,100,100,0,200));assertEquals(96,RetainedBuildingService.progress(decor,96,0,0,32,32,32,96));
-        assertFalse(ProfessionQuestService.catalog().definition("kingdom_smp:builder/j08").isPresent());
+        assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/j08").isPresent());
     }
 
     @Test void neighbourGeometryIsAllowedWithoutAcceptingReplacementRotationOrWaterChanges(){

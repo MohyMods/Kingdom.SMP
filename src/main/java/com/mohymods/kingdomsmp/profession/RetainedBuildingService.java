@@ -24,7 +24,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 
 /** Loaded-world stability checks over native provenance; cached UI facts are never completion authority. */
 public final class RetainedBuildingService {
-    public record Snapshot(int count,String hash) { }
+    public record Snapshot(int count,String hash,Map<String,Integer> categories) { public Snapshot{categories=Map.copyOf(categories);} }
     private record Review(UUID nonce,UUID admin,UUID player,String quest,String dimension,BlockPos from,BlockPos to,String reason,long revision,long issued) { }
     private record Display(long tick,long revision,Snapshot snapshot,String denial) { }
     private static final Map<ServerPlayer,Review> REVIEWS=new WeakHashMap<>();
@@ -74,6 +74,7 @@ public final class RetainedBuildingService {
             case "kingdom_smp:builder/a06"->state.is(Blocks.DIRT_PATH)||foundation(state)||state.is(BlockTags.PLANKS)||state.getBlock() instanceof StairBlock||state.getBlock() instanceof SlabBlock;
             case "kingdom_smp:builder/j02"->masonry(state)||glass(state);
             case "kingdom_smp:builder/m01"->structural(state);
+            case "kingdom_smp:builder/j06"->structural(state)||glass(state);
             case "kingdom_smp:builder/m02"->state.getBlock() instanceof StairBlock||state.getBlock() instanceof SlabBlock||state.is(BlockTags.WALLS);
             default->false;
         };
@@ -98,6 +99,10 @@ public final class RetainedBuildingService {
     public static Snapshot inspectCompletedProject(ServerPlayer p,String id){return scan(p,id,true);}
     private static Snapshot scan(ServerPlayer p,String id,boolean completedAllowed){
         eligible(p,id,completedAllowed);var site=CommerceService.store(p.server).builderWorksite(p.getUUID(),id).orElseThrow(()->new IllegalStateException("Ask an administrator to authorize your personal worksite before placing materials"));siteSafe(p,site);
+        return scanSite(p,id,site);
+    }
+    static Snapshot historical(ServerPlayer p,BuilderWorksite site){eligible(p,site.quest(),true);siteSafe(p,site);return scanSite(p,site.quest(),site);}
+    private static Snapshot scanSite(ServerPlayer p,String id,BuilderWorksite site){
         var level=p.serverLevel();Set<BlockPos> supported=!id.endsWith("a01")&&!id.endsWith("a06")?supported(level,site):Set.of();
         Set<BlockPos> retained=new HashSet<>();var states=new TreeMap<Long,String>();
         for(var e:RetainedBuildingSavedData.get(p.server).evidence().positions(site.id()).entrySet()){
@@ -105,12 +110,14 @@ public final class RetainedBuildingService {
             if(!sameProof(state,e.getValue())||!candidate(site,pos,state))continue;
             boolean safe=switch(id){
                 case "kingdom_smp:builder/a01"->level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP);
-                case "kingdom_smp:builder/a02","kingdom_smp:builder/a03","kingdom_smp:builder/j02","kingdom_smp:builder/m01","kingdom_smp:builder/m02"->supported.contains(pos);
+                case "kingdom_smp:builder/a02","kingdom_smp:builder/a03","kingdom_smp:builder/j02","kingdom_smp:builder/m01","kingdom_smp:builder/m02","kingdom_smp:builder/j06"->supported.contains(pos);
                 case "kingdom_smp:builder/a06"->level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)&&level.getBlockState(pos.above()).getCollisionShape(level,pos.above()).isEmpty()&&level.getBlockState(pos.above(2)).getCollisionShape(level,pos.above(2)).isEmpty();
                 default->false;
             };
             if(safe){retained.add(pos);states.put(pos.asLong(),state.toString());}
         }
+        int timber=0,stone=0,glassMaterial=0;for(var pos:retained){var state=level.getBlockState(pos);if(state.is(BlockTags.LOGS)||state.is(BlockTags.PLANKS))timber++;if(masonry(state))stone++;if(glass(state))glassMaterial++;}
+        var categories=Map.of("timber",timber,"stone",stone,"glass",glassMaterial);
         int count=retained.size();
         if(id.endsWith("a06"))count=connectedRoute(level,retained);
         if(id.endsWith("j02")||id.endsWith("m02")){
@@ -120,7 +127,7 @@ public final class RetainedBuildingService {
         }
         StringBuilder text=new StringBuilder(site.id().toString()).append('|').append(site.dimension()).append('|').append(count);
         states.forEach((pos,state)->text.append('|').append(pos).append('=').append(state));
-        try{return new Snapshot(count,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.toString().getBytes(StandardCharsets.UTF_8))));}
+        try{return new Snapshot(count,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.toString().getBytes(StandardCharsets.UTF_8))),categories);}
         catch(NoSuchAlgorithmException impossible){throw new IllegalStateException("SHA-256 unavailable",impossible);}
     }
     static int connectedRoute(ServerLevel level,Set<BlockPos> cells){return connectedRoute(level,cells,p->true);}

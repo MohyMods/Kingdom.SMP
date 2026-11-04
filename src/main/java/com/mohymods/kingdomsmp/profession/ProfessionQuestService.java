@@ -28,6 +28,8 @@ public final class ProfessionQuestService {
         if(InspectionQuests.contains(id)){
             var d=InspectionQuests.get(id);var roster=CommerceService.store(player.server).professions(player.getUUID());
             if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Your inspected project and earned XP are recorded.";
+            if(id.endsWith("builder/j05"))return "Administrator inspection: maintain"+BuilderInspectionRules.route(player.server)+"connected supported route cells, safe grading, shallow drainage and consent. Center the review on the route; no unauthorized excavation.";
+            if(id.endsWith("builder/j06"))return "Complete3separate authorized j06sites: "+RetainedBuildingRules.get(player.server).goal(id)+"native timber, stone and glass blocks in their respective projects. Each site's own saved proof and current consent are inspected; earlier evidence never transfers.";
             return "Administrator inspection: "+d.objective()+". "+d.quantity()+". Confirm authorship, working access and claim consent on site.";
         }
         if (!CommissionQuests.contains(id)) return FarmerQuestService.status(player,id);
