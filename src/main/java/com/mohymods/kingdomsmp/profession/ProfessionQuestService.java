@@ -15,16 +15,19 @@ public final class ProfessionQuestService {
         definitions.addAll(CraftDeliveryQuests.catalog().definitions().values().stream().filter(d->CraftDeliveryQuests.contains(d.id())).toList());
         definitions.addAll(RetainedBuildingQuests.catalog().definitions().values().stream().filter(d->RetainedBuildingQuests.contains(d.id())).toList());
         definitions.add(ApprovedProfessionContent.get(RepairService.QUEST).slot());
+        definitions.add(ApprovedProfessionContent.get(RepairService.JOURNEYMAN).slot());
+        definitions.add(ApprovedProfessionContent.get(EnchantedToolService.QUEST).slot());
         definitions.addAll(TreeQuestService.catalog().definitions().values().stream().filter(d->TreeQuestService.contains(d.id())).toList());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
-    public static String title(String id) { if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
-    public static long xp(String id) { if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
+    public static String title(String id) { if(EnchantedToolService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
+    public static long xp(String id) { if(EnchantedToolService.QUEST.equals(id))return 200; if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
     public static String status(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return "This objective has no validated runtime implementation yet. Existing progress is preserved.";
-        if(RepairService.contains(id))return RepairService.status(player);
+        if(EnchantedToolService.QUEST.equals(id))return EnchantedToolService.status(player);
+        if(RepairService.contains(id))return RepairService.status(player,id);
         if(TreeQuestService.contains(id))return TreeQuestService.status(player,id);
         if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.status(player,id);
         if(CraftDeliveryQuests.contains(id))return CraftDeliveryService.status(player,id);
@@ -44,7 +47,8 @@ public final class ProfessionQuestService {
     }
     public static boolean ready(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return false;
-        if(RepairService.contains(id))return RepairService.ready(player);
+        if(EnchantedToolService.QUEST.equals(id))return false;
+        if(RepairService.contains(id))return RepairService.ready(player,id);
         if(TreeQuestService.contains(id))return TreeQuestService.ready(player,id);
         if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.ready(player,id);
         if(InspectionQuests.contains(id)||CraftDeliveryQuests.contains(id))return false;
@@ -57,7 +61,8 @@ public final class ProfessionQuestService {
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
         if(id==null||!CATALOG.definitions().containsKey(id))throw new IllegalArgumentException("No validated runtime objective");
-        if(RepairService.contains(id)){RepairService.complete(player,operation);return;}
+        if(EnchantedToolService.QUEST.equals(id))throw new IllegalStateException("Use the authenticated enchanted-tool delivery");
+        if(RepairService.contains(id)){RepairService.complete(player,operation,id);return;}
         if(TreeQuestService.contains(id)){TreeQuestService.complete(player,operation,id);return;}
         if(RetainedBuildingQuests.contains(id)){RetainedBuildingService.complete(player,operation,id);return;}
         if(CraftDeliveryQuests.contains(id))throw new IllegalStateException("Use the reviewed crafted-material delivery; an event completion cannot consume materials");

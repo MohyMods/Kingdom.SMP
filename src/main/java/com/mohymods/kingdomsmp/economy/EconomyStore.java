@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -72,7 +72,7 @@ public final class EconomyStore {
         public ItemMail {Objects.requireNonNull(id);Objects.requireNonNull(owner);text(description,128);item=checkedItem(item);}
         @Override public CompoundTag item(){return item.copy();}
     }
-    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY, FARMER_DELIVERY, COMMUNITY_DELIVERY, AIRCRAFT_DEPLOY, PROFESSION_DELIVERY }
+    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY, FARMER_DELIVERY, COMMUNITY_DELIVERY, AIRCRAFT_DEPLOY, PROFESSION_DELIVERY, PROFESSION_ENCHANT_DELIVERY }
     /** Payload is the bounded encoded canonical operation; never client authority. */
     public record PendingItem(long sequence,UUID operation,UUID player,ItemAction action,CompoundTag payload,long previousReceipt) {
         public PendingItem {
@@ -137,6 +137,7 @@ public final class EconomyStore {
     private ContractState contracts=new ContractState();
     private CommunityContractState community=new CommunityContractState();
     private EquipmentState equipment=new EquipmentState();
+    private EnchantedOutputState enchantedOutputs=new EnchantedOutputState();
     private AircraftState aircraft=new AircraftState();
     // Rebuilt only from the canonical ordered journal. Never persisted as a second money authority.
     private record PlayerDay(long day,UUID player) { }
@@ -155,7 +156,7 @@ public final class EconomyStore {
         Set<UUID> seen=new HashSet<>();
         for(int i=0;i<history.size();i++){
             var op=history.get(i);if(op.sequence()!=i+1L||!seen.add(op.id()))throw new IllegalArgumentException("Duplicate or unordered economy operation");
-            apply(op,balances,purchases,mail,listings,itemMail,orders,shopSold,professionRosters,contracts,community,equipment,aircraft);
+            apply(op,balances,purchases,mail,listings,itemMail,orders,shopSold,professionRosters,contracts,community,equipment,aircraft,enchantedOutputs);
             index(op);
         }
         this.pending=pending;this.transfer=transfer;this.pendingItem=pendingItem;
@@ -170,9 +171,9 @@ public final class EconomyStore {
             var op=decode(pendingItem.payload());
             if(op.sequence()!=history.size()+1L||seen.contains(op.id())||!op.id().equals(pendingItem.operation())||!op.actor().equals(pendingItem.player())||!op.target().equals(pendingItem.player())
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
-                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case PROFESSION_DELIVERY->Kind.PROFESSION_DELIVERY;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;case AIRCRAFT_DEPLOY->Kind.AIRCRAFT_DEPLOY;})throw new IllegalArgumentException("Invalid pending item operation");
+                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case PROFESSION_DELIVERY->Kind.PROFESSION_DELIVERY;case PROFESSION_ENCHANT_DELIVERY->Kind.PROFESSION_ENCHANT_DELIVERY;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;case AIRCRAFT_DEPLOY->Kind.AIRCRAFT_DEPLOY;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy(),aircraft.copy());var nextHistory=appended(history,op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false,aircraft.copy());
+            apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy(),aircraft.copy(),enchantedOutputs.copy());var nextHistory=appended(history,op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false,aircraft.copy());
         }
         budget(history,listings,itemMail,mail,orders,false,aircraft);
     }
@@ -342,8 +343,19 @@ public final class EconomyStore {
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_TREE,player,player,ApprovedProfessionContent.get(quest).xp(),quest,"Native tree objective",null,0,actual,data);
         if(!replayed(op))append(op);return professions(player);
     }
-    public synchronized ProfessionRoster completeRepairQuest(UUID operation,UUID player,int required,int actual)throws IOException{
-        var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_REPAIR,player,player,100,RepairService.QUEST,"Native item repairs",null,0,actual,data);if(!replayed(op))append(op);return professions(player);
+    public synchronized ProfessionRoster completeRepairQuest(UUID operation,UUID player,int required,int actual)throws IOException{return completeRepairQuest(operation,player,RepairService.QUEST,required,actual);}
+    public synchronized ProfessionRoster completeRepairQuest(UUID operation,UUID player,String quest,int required,int actual)throws IOException{
+        if(!RepairService.contains(quest))throw new IllegalArgumentException("No validated repair objective");var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_REPAIR,player,player,ApprovedProfessionContent.get(quest).xp(),quest,"Native item repairs",null,0,actual,data);if(!replayed(op))append(op);return professions(player);
+    }
+    /** Only the native successful-anvil handler issues these server-owned records. No preview or packet does. */
+    public synchronized void issueEnchantedOutput(UUID id,UUID smith,CompoundTag item)throws IOException{
+        var data=new CompoundTag();data.put("item",checkedItem(item));var op=new Operation(history.size()+1L,id,Kind.PROFESSION_ENCHANT_OUTPUT,smith,smith,0,EnchantedToolService.QUEST,"Native compatible anvil output",null,0,0,data);if(!replayed(op))append(op);
+    }
+    public synchronized String enchantedOutputAudit(UUID player){healthy();var records=enchantedOutputs.outputs;long issued=records.values().stream().filter(o->o.smith().equals(player)).count();long spent=records.values().stream().filter(o->o.smith().equals(player)&&o.spent()).count();return "Native anvil outputs: "+issued+" issued, "+spent+" consumed; bounded IDs "+records.entrySet().stream().filter(e->e.getValue().smith().equals(player)).map(e->e.getKey()+":"+(e.getValue().spent()?"spent":"available")).sorted().limit(16).toList();}
+    public synchronized boolean matchesEnchantedOutput(UUID id,UUID smith,CompoundTag item){healthy();return enchantedOutputs.matches(id,smith,item);}
+    public synchronized PendingItem prepareEnchantedDelivery(UUID operation,UUID player,Map<UUID,CompoundTag> items,int required)throws IOException{
+        var data=new CompoundTag();data.putInt("required",required);var rows=new ListTag();items.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e->{var row=new CompoundTag();row.putUUID("id",e.getKey());row.put("item",checkedItem(e.getValue()));rows.add(row);});data.put("outputs",rows);
+        return prepareItem(new Operation(history.size()+1L,operation,Kind.PROFESSION_ENCHANT_DELIVERY,player,player,200,EnchantedToolService.QUEST,"Consumed authenticated enchanted tools",null,0,0,data),ItemAction.PROFESSION_ENCHANT_DELIVERY);
     }
     /** Verified native crafting plus permanently consumed outputs share one native receipt boundary. */
     public synchronized PendingItem prepareProfessionDelivery(UUID operation,UUID player,String quest,String evidence,Map<String,Integer> inputs)throws IOException{
@@ -559,7 +571,7 @@ public final class EconomyStore {
         healthy();if(pending!=null||transfer!=null||pendingItem!=null)throw new IllegalStateException("Economy paused for inventory reconciliation");
         if(find(op.id())!=null)throw new IllegalArgumentException("Native item operation already committed");
         var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy(),aircraft.copy());var nextHistory=appended(history,op);
+        apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy(),aircraft.copy(),enchantedOutputs.copy());var nextHistory=appended(history,op);
         maybeArchive();
         budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,action==ItemAction.LIST||action==ItemAction.TIMED_LIST||action==ItemAction.ORDER_FILL||action==ItemAction.CONTRACT_DELIVERY||action==ItemAction.COMMUNITY_DELIVERY,aircraft);
         var item=new PendingItem(op.sequence(),op.id(),op.actor(),action,encodeOperation(op),expectedReceipt(op.actor()));persist(history,null,null,item);pendingItem=item;return item;
@@ -652,7 +664,7 @@ public final class EconomyStore {
     /** Publish derived lookup state only after a validated replay or successful durable append. */
     private void index(Operation op){
         operationIndex.put(op.id(),op);
-        if(switch(op.kind()){case SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,PROFESSION_DELIVERY,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
+        if(switch(op.kind()){case SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,PROFESSION_DELIVERY,PROFESSION_ENCHANT_DELIVERY,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
         if(op.kind()==Kind.SALE){latestSalePeriod=Math.max(latestSalePeriod,op.period());dailyNpcSpent.merge(op.period(),op.amount(),Math::addExact);dailyResourceSold.merge(new ShopDay(op.period(),op.key()),(long)op.quantity(),Math::addExact);dailyPlayerProceeds.merge(new PlayerDay(op.period(),op.target()),op.amount(),Math::addExact);}
         if(op.kind()==Kind.AIRCRAFT_REPAIR_APPLY)shopSpent=Math.addExact(shopSpent,find(op.reference()).amount());
         if(op.kind()==Kind.GEAR_BUY)equipmentSpent=Math.addExact(equipmentSpent,op.amount());
@@ -709,12 +721,12 @@ public final class EconomyStore {
     }
     private void appendResolved(Operation op)throws IOException{
         var nextBalances=new HashMap<>(balances);var nextPurchases=new HashMap<>(purchases);var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItemMail=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
-        var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();var nextCommunity=community.copy();var nextEquipment=equipment.copy();var nextAircraft=aircraft.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts,nextCommunity,nextEquipment,nextAircraft);var next=appended(history,op);
+        var nextStock=new HashMap<>(shopSold);var nextRosters=new HashMap<>(professionRosters);var nextContracts=contracts.copy();var nextCommunity=community.copy();var nextEquipment=equipment.copy();var nextAircraft=aircraft.copy();var nextEnchanted=enchantedOutputs.copy();apply(op,nextBalances,nextPurchases,nextMail,nextListings,nextItemMail,nextOrders,nextStock,nextRosters,nextContracts,nextCommunity,nextEquipment,nextAircraft,nextEnchanted);var next=appended(history,op);
         if(pending==null&&transfer==null&&pendingItem==null)maybeArchive();
         budget(next,nextListings,nextItemMail,nextMail,nextOrders,op.kind()==Kind.LIST_ITEM||op.kind()==Kind.LIST_TIMED_ITEM||op.kind()==Kind.CREATE_ORDER||op.kind()==Kind.FILL_ORDER||op.kind()==Kind.SHOP_BUY||op.kind()==Kind.COMPLETE_CONTRACT||op.kind()==Kind.COMMUNITY_DELIVERY||op.kind()==Kind.GEAR_BUY||op.kind()==Kind.HUNT_ACCEPT||op.kind()==Kind.AIRCRAFT_BUY||op.kind()==Kind.AIRCRAFT_REPAIR_BUY||op.kind()==Kind.AIRCRAFT_FLIGHT_REWARD||op.kind()==Kind.AIRCRAFT_CARGO_ACCEPT||op.kind()==Kind.AIRCRAFT_CARGO_RESERVE||op.kind()==Kind.AIRCRAFT_SCOUT_REWARD,nextAircraft);persist(next,null);
-        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=appended(history,op);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;community=nextCommunity;equipment=nextEquipment;aircraft=nextAircraft;pendingItem=null;index(op);
+        balances=nextBalances;purchases=nextPurchases;mail=nextMail;history=appended(history,op);pending=null;transfer=null;listings=nextListings;itemMail=nextItemMail;orders=nextOrders;shopSold=nextStock;professionRosters=nextRosters;contracts=nextContracts;community=nextCommunity;equipment=nextEquipment;aircraft=nextAircraft;enchantedOutputs=nextEnchanted;pendingItem=null;index(op);
     }
-    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold,Map<UUID,ProfessionRoster> professionRosters,ContractState contracts,CommunityContractState community,EquipmentState equipment,AircraftState aircraft){
+    private static void apply(Operation op,Map<UUID,Long> balances,Map<String,Purchase> purchases,Map<UUID,Mail> mail,Map<UUID,Listing> listings,Map<UUID,ItemMail> itemMail,Map<UUID,BuyOrder> orders,Map<ShopDay,Long> shopSold,Map<UUID,ProfessionRoster> professionRosters,ContractState contracts,CommunityContractState community,EquipmentState equipment,AircraftState aircraft,EnchantedOutputState enchantedOutputs){
         if(op.kind().ordinal()<Kind.LIST_ITEM.ordinal()&&!op.payload().isEmpty())throw new IllegalArgumentException("Unexpected economy payload");
         long balance=balances.getOrDefault(op.target(),0L);
         switch(op.kind()){
@@ -818,8 +830,18 @@ public final class EconomyStore {
                 if(roster.track(Profession.FARMER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Farmer objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
             }
+            case PROFESSION_ENCHANT_OUTPUT->{
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||op.amount()!=0||!op.key().equals(EnchantedToolService.QUEST)||!op.detail().equals("Native compatible anvil output")||!data.getAllKeys().equals(Set.of("item"))||!data.contains("item",Tag.TAG_COMPOUND))throw new IllegalArgumentException("Invalid native enchanted output authority");
+                var item=checkedItem(data.getCompound("item"));if(item.getInt("count")!=1||!EnchantedToolService.ordinary(item.getString("id")))throw new IllegalArgumentException("Ordinary single native tool required");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(!roster.isActive(Profession.BLACKSMITH)||roster.track(Profession.BLACKSMITH).completedQuestIds().contains(op.key())||!RepairService.catalog().mayAttempt(Profession.BLACKSMITH,op.key(),roster.track(Profession.BLACKSMITH).completedQuestIds()))throw new IllegalStateException("Enchanted commission unavailable");enchantedOutputs.issue(op.id(),op.actor(),item);
+            }
+            case PROFESSION_ENCHANT_DELIVERY->{
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||op.amount()!=200||!op.key().equals(EnchantedToolService.QUEST)||!op.detail().equals("Consumed authenticated enchanted tools")||!data.getAllKeys().equals(Set.of("required","outputs"))||!data.contains("required",Tag.TAG_INT)||!(data.get("outputs") instanceof ListTag rows)||rows.size()<1||rows.size()>128||rows.getElementType()!=Tag.TAG_COMPOUND)throw new IllegalArgumentException("Invalid authenticated enchanted delivery");
+                Map<UUID,CompoundTag> items=new HashMap<>();for(var value:rows){var row=(CompoundTag)value;if(!row.getAllKeys().equals(Set.of("id","item"))||!row.hasUUID("id")||!row.contains("item",Tag.TAG_COMPOUND)||items.put(row.getUUID("id"),checkedItem(row.getCompound("item")))!=null)throw new IllegalArgumentException("Duplicate or malformed enchanted output");}
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.BLACKSMITH).completedQuestIds().contains(op.key()))throw new IllegalStateException("Enchanted delivery already completed");enchantedOutputs.spend(op.actor(),items,data.getInt("required"));professionRosters.put(op.target(),roster.completeQuest(Profession.BLACKSMITH,op.key(),op.amount(),RepairService.catalog()));
+            }
             case PROFESSION_REPAIR->{
-                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!op.key().equals(RepairService.QUEST)||!op.detail().equals("Native item repairs")||op.amount()!=100||!data.getAllKeys().equals(Set.of("contentVersion","required"))||!data.contains("contentVersion",Tag.TAG_INT)||data.getInt("contentVersion")!=1||!data.contains("required",Tag.TAG_INT)||data.getInt("required")<1||data.getInt("required")>128||op.quantity()<data.getInt("required")||op.quantity()>RepairEvidence.LIMIT)throw new IllegalArgumentException("Invalid native repair authority or proof count");
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!RepairService.contains(op.key())||!op.detail().equals("Native item repairs")||op.amount()!=ApprovedProfessionContent.get(op.key()).xp()||!data.getAllKeys().equals(Set.of("contentVersion","required"))||!data.contains("contentVersion",Tag.TAG_INT)||data.getInt("contentVersion")!=1||!data.contains("required",Tag.TAG_INT)||data.getInt("required")<1||data.getInt("required")>128||op.quantity()<data.getInt("required")||op.quantity()>RepairEvidence.LIMIT)throw new IllegalArgumentException("Invalid native repair authority or proof count");
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.BLACKSMITH).completedQuestIds().contains(op.key()))throw new IllegalStateException("Repair objective already completed");professionRosters.put(op.target(),roster.completeQuest(Profession.BLACKSMITH,op.key(),op.amount(),RepairService.catalog()));
             }
             case PROFESSION_TREE->{

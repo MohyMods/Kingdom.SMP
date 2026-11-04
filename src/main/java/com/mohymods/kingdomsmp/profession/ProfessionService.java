@@ -15,7 +15,7 @@ public final class ProfessionService {
     private static final Map<ServerPlayer,Quote> QUOTES=new WeakHashMap<>();
     private static final ProfessionQuestCatalog QUESTS=ProfessionQuestService.catalog();
     private ProfessionService(){ }
-    public static void close(ServerPlayer p){QUOTES.remove(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
+    public static void close(ServerPlayer p){QUOTES.remove(p);EnchantedToolService.close(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
     public static void initialize(MinecraftServer server){ProfessionRules.clear(server);RepairQuestRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
     public static ProfessionQuestCatalog quests(){return QUESTS;}
     public static Optional<Quote> quote(ServerPlayer p){var q=QUOTES.get(p);if(q!=null&&(q.revision()!=CommerceService.store(p.server).revision()||System.nanoTime()-q.issued()>30_000_000_000L)){close(p);q=null;}return Optional.ofNullable(q);}
@@ -30,6 +30,7 @@ public final class ProfessionService {
         if(selected.startsWith("gear:")){
             var gear=com.mohymods.kingdomsmp.equipment.FarmerGearService.review(p,selected.substring(5));var q=new Quote(gear.nonce(),gear.revision(),"gear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;
         }
+        if(selected.equals("enchanted:"+EnchantedToolService.QUEST)){var delivery=EnchantedToolService.review(p);var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",EnchantedToolService.QUEST,0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.startsWith("materials:")){
             var delivery=CraftDeliveryService.review(p,selected.substring(10));var q=new Quote(delivery.nonce(),delivery.revision(),"materials","",delivery.quest(),0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;
         }
@@ -55,6 +56,7 @@ public final class ProfessionService {
         CommerceService.requireResidentCounter(p);var q=QUOTES.remove(p);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);
         if(q==null||!q.nonce().equals(nonce)||q.revision()!=s.revision()||System.nanoTime()-q.issued()>30_000_000_000L)throw new IllegalStateException("Profession review expired or wallet/roster changed. Review again.");
         if(q.action().equals("gear"))return com.mohymods.kingdomsmp.equipment.FarmerGearService.confirm(p,q.nonce());
+        if(q.action().equals("enchanted"))return EnchantedToolService.confirm(p,q.nonce());
         if(q.action().equals("materials"))return CraftDeliveryService.confirm(p,q.nonce());
         if(q.action().equals("food"))return FarmerDeliveryService.confirm(p,q.nonce());
         if(q.action().equals("quest")){ProfessionQuestService.complete(p,q.nonce(),q.to());return ProfessionQuestService.title(q.to())+" recorded once; earned XP saved.";}
@@ -70,10 +72,11 @@ public final class ProfessionService {
         for(var from:Profession.values())if(roster.isActive(from))for(var to:Profession.values())if(!roster.isActive(to)&&available(p,to))result.add(new CommerceView.Entry("switch:"+from.id()+":"+to.id(),name(from)+" → "+name(to),"Replace this active profession for 15,000 coins. Its XP and completed quests are kept, but its bonuses stop.",15000,"PROF_SWITCH"));
         for(var definition:QUESTS.visibleFor(roster.active()).stream().sorted(Comparator.comparing(ProfessionQuestCatalog.Definition::id)).toList()){
             var id=definition.id();var role=definition.profession();boolean done=roster.track(role).completedQuestIds().contains(id);
+            boolean enchanted=EnchantedToolService.QUEST.equals(id)&&EnchantedToolService.delivery(p);
             boolean materials=CraftDeliveryService.eligible(p,id);
-            boolean delivery=materials||role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
+            boolean delivery=enchanted||materials||role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
             boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());
-            result.add(new CommerceView.Entry((materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
+            result.add(new CommerceView.Entry((enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
         }
         result.addAll(com.mohymods.kingdomsmp.equipment.FarmerGearService.entries(p));
         return List.copyOf(result);
