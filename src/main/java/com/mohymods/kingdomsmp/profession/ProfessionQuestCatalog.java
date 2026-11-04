@@ -29,6 +29,8 @@ public final class ProfessionQuestCatalog {
     public static ProfessionQuestCatalog disabled() { return new ProfessionQuestCatalog(List.of(), false); }
     /** Only server code which has separately reviewed/approved real objective definitions may call this. */
     public static ProfessionQuestCatalog approved(Collection<Definition> definitions) { return new ProfessionQuestCatalog(definitions, true); }
+    /** Player menus expose at most three active professions (72objectives), while keeping every saved track. */
+    public List<Definition> visibleFor(Set<Profession> active){if(active.size()>3)throw new IllegalArgumentException("At most three active professions");return definitions.values().stream().filter(d->active.contains(d.profession())).toList();}
     public boolean enabled() { return enabled; }
     public Map<String, Definition> definitions() { return definitions; }
     public Optional<Definition> definition(String id) { return enabled ? Optional.ofNullable(definitions.get(id)) : Optional.empty(); }

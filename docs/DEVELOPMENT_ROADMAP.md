@@ -1,3 +1,5 @@
+> D077: Native authenticated same-kind trimduplication/DEL now earns13Smithproofs/1800XP;586JUnit/3JVM and profession-menu native regression pass.73/288adapters,215remain. Active-profession objective views are bounded for all288designs without losing inactive records. Next genuine enchanted repair/output lineage and final SmithJassessment, then all approved backlog.
+
 > D076: Blacksmith12native proofs/1600XP after actual production and weekly service;582JUnit/3JVM pass.72/288adapters. Continue enchanted repair/enchantment lineage/native safe trim duplication, then all approved backlog; Eye trim needs End stone and cannot qualify beforeTier12.
 
 > D075: Blacksmith all8Apprentice natively earn800XP/Journeyman;580JUnit,3JVM worn-item/repair/corruption/restart/claim audit and unchanged Farmer24native regression pass.68/288adapters,220remain. Continue Smith Journeyman shared production and all approved backlog.
