@@ -30,6 +30,7 @@ public final class ProfessionService {
         if(selected.startsWith("gear:")){
             var gear=com.mohymods.kingdomsmp.equipment.FarmerGearService.review(p,selected.substring(5));var q=new Quote(gear.nonce(),gear.revision(),"gear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;
         }
+        if(selected.equals("smithing:"+SmithingQuestService.QUEST)){var delivery=EnchantedToolService.reviewSmithRegistration(p);var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",SmithingQuestService.QUEST,0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.equals("enchanted:"+EnchantedToolService.QUEST)){var delivery=EnchantedToolService.review(p);var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",EnchantedToolService.QUEST,0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.startsWith("materials:")){
             var delivery=CraftDeliveryService.review(p,selected.substring(10));var q=new Quote(delivery.nonce(),delivery.revision(),"materials","",delivery.quest(),0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;
@@ -72,11 +73,12 @@ public final class ProfessionService {
         for(var from:Profession.values())if(roster.isActive(from))for(var to:Profession.values())if(!roster.isActive(to)&&available(p,to))result.add(new CommerceView.Entry("switch:"+from.id()+":"+to.id(),name(from)+" → "+name(to),"Replace this active profession for 15,000 coins. Its XP and completed quests are kept, but its bonuses stop.",15000,"PROF_SWITCH"));
         for(var definition:QUESTS.visibleFor(roster.active()).stream().sorted(Comparator.comparing(ProfessionQuestCatalog.Definition::id)).toList()){
             var id=definition.id();var role=definition.profession();boolean done=roster.track(role).completedQuestIds().contains(id);
+            boolean smithing=SmithingQuestService.QUEST.equals(id)&&SmithingQuestService.eligible(p);
             boolean enchanted=EnchantedToolService.QUEST.equals(id)&&EnchantedToolService.delivery(p);
             boolean materials=CraftDeliveryService.eligible(p,id);
-            boolean delivery=enchanted||materials||role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
+            boolean delivery=smithing||enchanted||materials||role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
             boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());
-            result.add(new CommerceView.Entry((enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
+            result.add(new CommerceView.Entry((smithing?"smithing:":enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":smithing?"PROF_REGISTRATION":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
         }
         result.addAll(com.mohymods.kingdomsmp.equipment.FarmerGearService.entries(p));
         return List.copyOf(result);

@@ -9,7 +9,8 @@ public final class CommissionQuests {
     private static final ProfessionQuestCatalog CATALOG;
     static {
         var definitions = new HashMap<String, Definition>();
-        for (var role : List.of(Profession.BUILDER, Profession.LUMBERJACK,Profession.BLACKSMITH)) for(var rank:ProfessionRank.values()) {
+        for (var role : Profession.values()) for(var rank:ProfessionRank.values()) {
+            if(role==Profession.FARMER)continue;
             String id=role.questId(rank,rank==ProfessionRank.MASTER?6:7);var approved=ApprovedProfessionContent.get(id);
             String cycle=rank==ProfessionRank.JOURNEYMAN?"weekly":"daily";int goal=rank==ProfessionRank.APPRENTICE?3:rank==ProfessionRank.JOURNEYMAN?2:5;
             if(!approved.validation().equals(Set.of(ApprovedProfessionContent.Validation.CONTRACT))||!approved.quantity().equals(goal+" "+cycle+" periods"))throw new IllegalStateException("Validated commission differs from approved content");

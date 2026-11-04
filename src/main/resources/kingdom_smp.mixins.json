@@ -26,7 +26,8 @@
     "FurnaceProductionMixin",
     "NativeCombinerAccess",
     "NativeWearMixin",
-    "NativeAnvilRepairMixin"
+    "NativeAnvilRepairMixin",
+    "NativeSmithingQuestMixin"
   ],
   "injectors": {
     "defaultRequire": 1
