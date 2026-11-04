@@ -1,3 +1,5 @@
+> D076: Blacksmith12native proofs/1600XP after actual production and weekly service;582JUnit/3JVM pass.72/288adapters. Continue enchanted repair/enchantment lineage/native safe trim duplication, then all approved backlog; Eye trim needs End stone and cannot qualify beforeTier12.
+
 > D075: Blacksmith all8Apprentice natively earn800XP/Journeyman;580JUnit,3JVM worn-item/repair/corruption/restart/claim audit and unchanged Farmer24native regression pass.68/288adapters,220remain. Continue Smith Journeyman shared production and all approved backlog.
 
 > D074: Five Blacksmith native production/delivery objectives now earn500XP/Apprentice through the shared framework;573JUnit, actual raw-iron blasting/crafting and full Lumberjack16regression pass.65/288runtime adapters,223remain. Next distinct genuine repair jobs, Blacksmith daily commissions and final forge inspection; continue the full approved backlog.
