@@ -15,6 +15,7 @@ parser.add_argument('--stage-scout-preview',action='store_true',help='Stop verif
 parser.add_argument('--stage-flight-preview',action='store_true',help='Stop the verified private flight route before the Steward report for ordinary client QA')
 parser.add_argument('--namespace',choices=['kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests','kingdom_smp_commission_tests','kingdom_smp_woodland_tests','kingdom_smp_retained_tests','kingdom_smp_tree_tests','kingdom_smp_premises_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
 parser.add_argument('--mods', default=None)
+parser.add_argument('--smith-production',action='store_true',help='Add actual Blacksmith native production after the premises restart fixture')
 parser.add_argument('--verify-wharf-restart', action='store_true')
 parser.add_argument('--stage-aircraft-recovery-preview', action='store_true', help='Stop the private verified aircraft fixture with a consumed pending plan outside client chunk range for actual recovery UI checks')
 parser.add_argument('--stage-space-preview', action='store_true', help='Stop the private space fixture after its verified Tier9 preparation for actual graphical checks')
@@ -73,6 +74,10 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.smith_production:
+    if args.namespace != 'kingdom_smp_premises_tests':
+        raise SystemExit('--smith-production requires the premises namespace')
+    command.append('-PkingdomSmithProduction=true')
 if args.stage_cargo_preview:
     if args.namespace != 'kingdom_smp_cargo_journey_tests':
         raise SystemExit('--stage-cargo-preview requires the private cargo journey namespace')
@@ -152,7 +157,7 @@ if args.verify_wharf_restart:
 if args.namespace == 'kingdom_smp_tree_tests':
     markers = ['NATIVE_TREE_PREPARED:', 'NATIVE_TREE_RESTART_ASSERTIONS_PASSED:']
 if args.namespace == 'kingdom_smp_premises_tests':
-    markers = ['PROFESSION_PREMISES_PREPARED:', 'PROFESSION_PREMISES_RESTART_PASSED:']
+    markers = ['PROFESSION_PREMISES_PREPARED:', 'NATIVE_SMITH_PRODUCTION_PASSED:' if args.smith_production else 'PROFESSION_PREMISES_RESTART_PASSED:']
 if args.namespace == 'kingdom_smp_retained_tests':
     markers = [marker, 'RETAINED_CORRUPT_EVENT_ASSERTIONS_PASSED:', 'RETAINED_RESTART_ASSERTIONS_PASSED:']
     import shutil

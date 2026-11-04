@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.*;
 
-/** Actual crafting evidence plus exact native output consumption, with the existing receipt protocol. */
+/** Native recipe evidence where required plus exact native material consumption, with the existing receipt protocol. */
 public final class CraftDeliveryService {
     public record Quote(UUID nonce,long revision,String quest,Map<String,Integer> inputs,List<ItemStack> before,List<ItemStack> after,long issued,String text){
         public Quote{inputs=Map.copyOf(inputs);before=before.stream().map(ItemStack::copy).toList();after=after.stream().map(ItemStack::copy).toList();}
@@ -21,23 +21,24 @@ public final class CraftDeliveryService {
     private CraftDeliveryService() { }
     public static void close(ServerPlayer p){QUOTES.remove(p);}
     public static boolean eligible(ServerPlayer p,String id){
-        if(!CraftDeliveryQuests.contains(id))return false;
+        if(!CraftDeliveryQuests.contains(id)||!TreeQuestService.real(p))return false;
         var d=CraftDeliveryQuests.get(id);var roster=CommerceService.store(p.server).professions(p.getUUID());
         if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(id)||!CraftDeliveryQuests.catalog().mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             ||ContributionService.kingdom(p.server).attainedTier()<d.minimumTier()||!ProfessionService.available(p,d.profession()))return false;
         if(id.equals(CraftDeliveryQuests.CHARCOAL)&&TreeEvidence.SPECIES.stream().mapToInt(s->TreeSavedData.get(p.server).evidence().evidence().count(p.getUUID(),d.rank(),s)).sum()<CraftDeliveryRules.get(p.server).inputs(id).get("minecraft:charcoal"))return false;
-        return CraftDeliveryRules.get(p.server).inputs(id).entrySet().stream().allMatch(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())>=e.getValue());
+        return !d.validation().contains(ApprovedProfessionContent.Validation.MAKE)||CraftDeliveryRules.get(p.server).inputs(id).entrySet().stream().allMatch(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())>=e.getValue());
     }
     public static String status(ServerPlayer p,String id){
         var d=CraftDeliveryQuests.get(id);var roster=CommerceService.store(p.server).professions(p.getUUID());
-        if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Crafted-material delivery and earned XP are saved.";
+        if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Material delivery and earned XP are saved.";
         if(!roster.isActive(d.profession()))return "Activate "+ProfessionService.name(d.profession())+" before earning crafting evidence.";
         var inputs=CraftDeliveryRules.get(p.server).inputs(id);
+        if(id.equals(CraftDeliveryQuests.FUEL))return "Permanently supply "+inputs.get("fuel")+" plain coal or charcoal at the Blacksmith resident. Variants may be mixed; review consumes nothing.";
         if(id.equals(CraftDeliveryQuests.CHARCOAL))return CraftQuestEvidence.count(p,d.profession(),d.rank(),"minecraft:charcoal")+" / "+inputs.get("minecraft:charcoal")+" native charcoal smelted. Personally harvest this amount of tracked timber in this band, then permanently deliver plain charcoal at your resident.";
         if(id.equals(CraftDeliveryQuests.FITTINGS))return inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())+"/"+e.getValue()+" "+e.getKey().replace('_',' ')).collect(java.util.stream.Collectors.joining(", "))+". Craft then permanently deliver matching plain Overworld wood variants; categories can be mixed.";
         if(id.equals(CraftDeliveryQuests.TIMBER))return CraftQuestEvidence.count(p,d.profession(),d.rank(),"planks")+"/"+inputs.get("planks")+" crafted planks; "+CraftQuestEvidence.count(p,d.profession(),d.rank(),"stripped_logs")+"/"+inputs.get("stripped_logs")+" stripped logs. Permanently deliver these amounts in any plain Overworld wood species at your resident.";
-        String counts=inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())+"/"+e.getValue()+" crafted "+new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.getKey()))).getHoverName().getString()).collect(java.util.stream.Collectors.joining(", "));
-        return counts+". Permanently deliver these quantities at your profession resident. Both native crafting and delivery are required.";
+        String counts=inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())+"/"+e.getValue()+(CraftDeliveryQuests.metrics(d.profession()).get(e.getKey()).startsWith("smelt_")?" smelted ":" crafted ")+new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.getKey()))).getHoverName().getString()).collect(java.util.stream.Collectors.joining(", "));
+        return counts+". Permanently deliver these quantities at your profession resident. Both native production and delivery are required.";
     }
     private static Map<Item,Integer> items(Map<String,Integer> counts){
         Map<Item,Integer> result=new HashMap<>();counts.forEach((id,n)->{
@@ -50,7 +51,7 @@ public final class CraftDeliveryService {
         var remaining=new HashMap<>(goals);Map<String,Integer> actual=new HashMap<>();
         for(var stack:inventory){
             if(stack.isEmpty()||!ItemStack.isSameItemSameComponents(stack,new ItemStack(stack.getItem())))continue;
-            String item=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),category=CraftDeliveryQuests.metrics(Profession.LUMBERJACK).get(item);if(category==null||!remaining.containsKey(category))continue;
+            String item=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),category=CraftDeliveryQuests.materialCategory(id,item);if(category==null||!remaining.containsKey(category))continue;
             int take=Math.min(stack.getCount(),remaining.get(category));if(take>0){actual.merge(item,take,Math::addExact);remaining.put(category,remaining.get(category)-take);}
         }
         if(remaining.values().stream().anyMatch(n->n>0))throw new IllegalStateException("Bring every required plain material category; variants can be mixed and review consumes nothing");return Map.copyOf(actual);
