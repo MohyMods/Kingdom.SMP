@@ -12,7 +12,7 @@ public final class ProfessionQuestService {
         var definitions=new ArrayList<>(FarmerQuests.catalog().definitions().values());
         definitions.addAll(CommissionQuests.catalog().definitions().values().stream().filter(d->CommissionQuests.contains(d.id())).toList());
         definitions.addAll(InspectionQuests.catalog().definitions().values().stream().filter(d->InspectionQuests.contains(d.id())).toList());
-        definitions.addAll(CraftDeliveryQuests.catalog().definitions().values());
+        definitions.addAll(CraftDeliveryQuests.catalog().definitions().values().stream().filter(d->CraftDeliveryQuests.contains(d.id())).toList());
         definitions.addAll(RetainedBuildingQuests.catalog().definitions().values().stream().filter(d->RetainedBuildingQuests.contains(d.id())).toList());
         definitions.addAll(TreeQuestService.catalog().definitions().values().stream().filter(d->TreeQuestService.contains(d.id())).toList());
         CATALOG=ProfessionQuestCatalog.approved(definitions);

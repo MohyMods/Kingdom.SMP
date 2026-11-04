@@ -25,6 +25,7 @@ public final class CraftDeliveryService {
         var d=CraftDeliveryQuests.get(id);var roster=CommerceService.store(p.server).professions(p.getUUID());
         if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(id)||!CraftDeliveryQuests.catalog().mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             ||ContributionService.kingdom(p.server).attainedTier()<d.minimumTier()||!ProfessionService.available(p,d.profession()))return false;
+        if(id.equals(CraftDeliveryQuests.CHARCOAL)&&TreeEvidence.SPECIES.stream().mapToInt(s->TreeSavedData.get(p.server).evidence().evidence().count(p.getUUID(),d.rank(),s)).sum()<CraftDeliveryRules.get(p.server).inputs(id).get("minecraft:charcoal"))return false;
         return CraftDeliveryRules.get(p.server).inputs(id).entrySet().stream().allMatch(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())>=e.getValue());
     }
     public static String status(ServerPlayer p,String id){
@@ -32,6 +33,8 @@ public final class CraftDeliveryService {
         if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Crafted-material delivery and earned XP are saved.";
         if(!roster.isActive(d.profession()))return "Activate "+ProfessionService.name(d.profession())+" before earning crafting evidence.";
         var inputs=CraftDeliveryRules.get(p.server).inputs(id);
+        if(id.equals(CraftDeliveryQuests.CHARCOAL))return CraftQuestEvidence.count(p,d.profession(),d.rank(),"minecraft:charcoal")+" / "+inputs.get("minecraft:charcoal")+" native charcoal smelted. Personally harvest this amount of tracked timber in this band, then permanently deliver plain charcoal at your resident.";
+        if(id.equals(CraftDeliveryQuests.FITTINGS))return inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())+"/"+e.getValue()+" "+e.getKey().replace('_',' ')).collect(java.util.stream.Collectors.joining(", "))+". Craft then permanently deliver matching plain Overworld wood variants; categories can be mixed.";
         if(id.equals(CraftDeliveryQuests.TIMBER))return CraftQuestEvidence.count(p,d.profession(),d.rank(),"planks")+"/"+inputs.get("planks")+" crafted planks; "+CraftQuestEvidence.count(p,d.profession(),d.rank(),"stripped_logs")+"/"+inputs.get("stripped_logs")+" stripped logs. Permanently deliver these amounts in any plain Overworld wood species at your resident.";
         String counts=inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),e.getKey())+"/"+e.getValue()+" crafted "+new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.getKey()))).getHoverName().getString()).collect(java.util.stream.Collectors.joining(", "));
         return counts+". Permanently deliver these quantities at your profession resident. Both native crafting and delivery are required.";
@@ -43,14 +46,14 @@ public final class CraftDeliveryService {
         });return Map.copyOf(result);
     }
     private static Map<String,Integer> resolve(String id,Map<String,Integer> goals,List<ItemStack> inventory){
-        if(!id.equals(CraftDeliveryQuests.TIMBER))return goals;
+        if(!CraftDeliveryQuests.grouped(id))return goals;
         var remaining=new HashMap<>(goals);Map<String,Integer> actual=new HashMap<>();
         for(var stack:inventory){
             if(stack.isEmpty()||!ItemStack.isSameItemSameComponents(stack,new ItemStack(stack.getItem())))continue;
-            String item=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),category=CraftDeliveryQuests.metrics(Profession.LUMBERJACK).get(item);if(category==null)continue;
+            String item=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(),category=CraftDeliveryQuests.metrics(Profession.LUMBERJACK).get(item);if(category==null||!remaining.containsKey(category))continue;
             int take=Math.min(stack.getCount(),remaining.get(category));if(take>0){actual.merge(item,take,Math::addExact);remaining.put(category,remaining.get(category)-take);}
         }
-        if(remaining.values().stream().anyMatch(n->n>0))throw new IllegalStateException("Bring the full plain plank/stripped-log quantities; variants can be mixed and nothing is consumed by review");return Map.copyOf(actual);
+        if(remaining.values().stream().anyMatch(n->n>0))throw new IllegalStateException("Bring every required plain material category; variants can be mixed and review consumes nothing");return Map.copyOf(actual);
     }
     public static Quote review(ServerPlayer p,String id)throws IOException{
         var d=CraftDeliveryQuests.get(id);ContractService.requireCounter(p,d.profession());
@@ -60,7 +63,7 @@ public final class CraftDeliveryService {
         // Reuse the existing tested exact-component native inventory exchange, without returned containers.
         inputs=resolve(id,inputs,before);
         var after=FarmerInventoryExchange.plan(before,items(inputs),Map.of());
-        String text="Permanently deliver "+FarmerDeliveryService.describe(inputs)+" to complete "+d.name()+" for "+d.xp()+" profession XP once. Your native crafting evidence is verified. No coin or equipment reward is minted.";
+        String text="Permanently deliver "+FarmerDeliveryService.describe(inputs)+" to complete "+d.name()+" for "+d.xp()+" profession XP once. Your native production evidence is verified. No coin or equipment reward is minted.";
         var q=new Quote(UUID.randomUUID(),store.revision(),id,inputs,before,after,System.nanoTime(),text);QUOTES.put(p,q);return q;
     }
     public static String confirm(ServerPlayer p,UUID nonce)throws IOException{
@@ -72,7 +75,7 @@ public final class CraftDeliveryService {
         var old=p.getPersistentData().copy();boolean checkpointStarted=false;
         try{
             CommerceService.checkpoint(p);
-            var pending=store.prepareProfessionDelivery(q.nonce(),p.getUUID(),q.quest(),"Actual native crafting verified; reviewed plain outputs consumed",q.inputs());
+            var pending=store.prepareProfessionDelivery(q.nonce(),p.getUUID(),q.quest(),"Actual native production verified; reviewed plain outputs consumed",q.inputs());
             var after=q.after();for(int i=0;i<36;i++)p.getInventory().setItem(i,after.get(i).copy());
             CommerceService.putReceipt(p,new EconomyStore.Receipt(store.id(),pending.sequence()));checkpointStarted=true;CommerceService.checkpoint(p);
             if(!store.recoverItem(CommerceService.receipt(AtomicNbt.read(CommerceService.playerFile(p.server,p.getUUID())))))throw new IOException("Craft delivery native receipt did not commit");

@@ -70,4 +70,32 @@ class CraftDeliveryStoreTest {
         assertEquals(revision,s.revision());assertTrue(s.pendingItem().isEmpty());
     }
 
+    @Test void mixedFittingsRequireAllRealWoodCategoriesAndRejectForeignOrClientCategoryIds(){
+        var input=Map.of("minecraft:oak_fence",18,"minecraft:birch_fence",14,"minecraft:oak_stairs",16,"minecraft:birch_trapdoor",16);
+        assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.FITTINGS),CraftDeliveryQuests.totals(CraftDeliveryQuests.FITTINGS,input));
+        for(var wrong:List.of(Map.of("minecraft:nether_brick_fence",32),Map.of("minecraft:oak_planks",64),Map.of("fences",32),Map.of("minecraft:oak_fence",2305)))assertThrows(IllegalArgumentException.class,()->CraftDeliveryQuests.totals(CraftDeliveryQuests.FITTINGS,wrong));
+        var incomplete=new net.minecraft.nbt.CompoundTag();incomplete.putInt("minecraft:oak_fence",32);assertThrows(IllegalArgumentException.class,()->CraftDeliveryQuests.validate(CraftDeliveryQuests.FITTINGS,incomplete));
+    }
+    @Test void advancedProductionCannotConsumeBeforeEarlierBandOrThroughNonProductionAuthority()throws Exception{
+        var s=EconomyStore.open(directory);s.changeProfession(UUID.randomUUID(),player,"enroll","","lumberjack");long revision=s.revision();
+        assertThrows(IllegalStateException.class,()->s.prepareProfessionDelivery(UUID.randomUUID(),player,CraftDeliveryQuests.CHARCOAL,"Native charcoal",Map.of("minecraft:charcoal",64)));
+        assertEquals(revision,s.revision());assertTrue(s.pendingItem().isEmpty());
+    }
+    void earnedApprenticeModel(EconomyStore s)throws Exception{
+        // Canonical model fixture, not a native gameplay proof. Dedicated test earns this band normally.
+        for(int n=1;n<=4;n++){String id=Profession.LUMBERJACK.questId(ProfessionRank.APPRENTICE,n);int goal=TreeQuestService.get(id).goal();s.completeTreeQuest(UUID.randomUUID(),player,id,goal,goal);}
+        var delivery=s.prepareProfessionDelivery(UUID.randomUUID(),player,CraftDeliveryQuests.TIMBER,"Model native boundary",Map.of("minecraft:oak_planks",128,"minecraft:stripped_oak_log",32));s.recoverItem(new EconomyStore.Receipt(s.id(),delivery.sequence()));
+        s.approveProfessionInspection(UUID.randomUUID(),UUID.randomUUID(),player,"kingdom_smp:lumberjack/a06","Model inspected route");
+        for(long day=10;day<13;day++){var item=new net.minecraft.nbt.CompoundTag();item.putString("id","minecraft:oak_log");item.putInt("count",1);var pending=s.prepareContract(UUID.randomUUID(),player,"lumberjack","daily",day,64,80,2000,item);s.recoverItem(new EconomyStore.Receipt(s.id(),pending.sequence()));}
+        s.completeCommissionQuest(UUID.randomUUID(),player,"kingdom_smp:lumberjack/a07",3);s.approveProfessionInspection(UUID.randomUUID(),UUID.randomUUID(),player,"kingdom_smp:lumberjack/a08","Model woodland assessment");
+    }
+    @Test void advancedMixedAndSmeltReceiptsCancelRecoverAfterRenameAndReopenWithoutDuplicateRewards()throws Exception{
+        var s=EconomyStore.open(directory);s.changeProfession(UUID.randomUUID(),player,"enroll","","lumberjack");earnedApprenticeModel(s);
+        var fittings=Map.of("minecraft:oak_fence",18,"minecraft:birch_fence",14,"minecraft:oak_stairs",16,"minecraft:birch_trapdoor",16);
+        s.prepareProfessionDelivery(UUID.randomUUID(),player,CraftDeliveryQuests.FITTINGS,"Native mixed production boundary",fittings);assertFalse(s.recoverItem(new EconomyStore.Receipt(s.id(),s.expectedReceipt(player))));assertEquals(800,s.professions(player).track(Profession.LUMBERJACK).xp());
+        var pending=s.prepareProfessionDelivery(UUID.randomUUID(),player,CraftDeliveryQuests.FITTINGS,"Native mixed production boundary",fittings);var receipt=new EconomyStore.Receipt(s.id(),pending.sequence());
+        var faulty=EconomyStore.open(directory,(p,d)->{AtomicNbt.write(p,d);throw new IOException("Advanced production after rename");});assertThrows(IOException.class,()->faulty.recoverItem(receipt));s=EconomyStore.open(directory);assertFalse(s.recoverItem(receipt));assertEquals(1000,s.professions(player).track(Profession.LUMBERJACK).xp());
+        var charcoal=s.prepareProfessionDelivery(UUID.randomUUID(),player,CraftDeliveryQuests.CHARCOAL,"Native charcoal production boundary",Map.of("minecraft:charcoal",64));var charcoalReceipt=new EconomyStore.Receipt(s.id(),charcoal.sequence());assertTrue(s.recoverItem(charcoalReceipt));assertFalse(s.recoverItem(charcoalReceipt));s.archive(player,"Advanced forestry production recovery");var restored=EconomyStore.open(directory);assertEquals(1200,restored.professions(player).track(Profession.LUMBERJACK).xp());assertEquals(charcoalReceipt.sequence(),restored.expectedReceipt(player));assertEquals(0,restored.balance(player));
+        assertThrows(IllegalStateException.class,()->restored.prepareProfessionDelivery(UUID.randomUUID(),player,CraftDeliveryQuests.CHARCOAL,"Duplicate",Map.of("minecraft:charcoal",64)));
+    }
 }

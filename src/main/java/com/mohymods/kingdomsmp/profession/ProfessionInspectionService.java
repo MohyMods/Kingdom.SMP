@@ -75,6 +75,11 @@ public final class ProfessionInspectionService {
             if(!mature)throw new IllegalStateException("Present a real native-grown replacement tree near the inspected woodland");
             try{proof="forest=maintained,history="+java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(history.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
         }
+        if(id.equals("kingdom_smp:lumberjack/j08")){
+            var data=TreeSavedData.get(admin.server).evidence();for(var metric:List.of("acacia","dark_oak","jungle","mature_cherry","mature_mangrove"))if(data.evidence().count(player.getUUID(),ProfessionRank.JOURNEYMAN,metric)<1)throw new IllegalStateException("Present actual current-band timber and owned mature-tree history");
+            boolean nativeTree=data.plantedNear(level.dimension().location().toString(),center).entrySet().stream().anyMatch(e->{var pos=BlockPos.of(e.getKey().position());return level.hasChunkAt(pos)&&level.getBlockState(pos).toString().equals(e.getValue().state());});if(!nativeTree)throw new IllegalStateException("Maintain a genuine native-grown tree in the inspected managed woodland");
+            Set<net.minecraft.world.level.block.Block> varieties=new HashSet<>();for(var pos:BlockPos.betweenClosed(from,to))if(level.getBlockState(pos).is(BlockTags.SAPLINGS))varieties.add(level.getBlockState(pos).getBlock());if(varieties.size()<3)throw new IllegalStateException("Maintain at least3actual nursery sapling species and accessible marked replanting areas; administrator must inspect the forestry plan");
+        }
         return proof;
     }
     static int largestConnected(Set<BlockPos> positions){

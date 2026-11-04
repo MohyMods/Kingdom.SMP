@@ -4,7 +4,7 @@ import java.util.*;
 
 /** Only inspection families with implemented live geometry checks may be activated. */
 public final class InspectionQuests {
-    private static final Set<String> IDS=Set.of("kingdom_smp:builder/a04","kingdom_smp:builder/a08","kingdom_smp:lumberjack/a06","kingdom_smp:lumberjack/a08","kingdom_smp:builder/j01","kingdom_smp:builder/j03","kingdom_smp:builder/j04","kingdom_smp:builder/j05","kingdom_smp:builder/j06","kingdom_smp:builder/j08");
+    private static final Set<String> IDS=Set.of("kingdom_smp:builder/a04","kingdom_smp:builder/a08","kingdom_smp:lumberjack/a06","kingdom_smp:lumberjack/a08","kingdom_smp:builder/j01","kingdom_smp:builder/j03","kingdom_smp:builder/j04","kingdom_smp:builder/j05","kingdom_smp:builder/j06","kingdom_smp:builder/j08","kingdom_smp:lumberjack/j08");
     private static final ProfessionQuestCatalog CATALOG;
     static {
         Set<String> closure=new HashSet<>(IDS);for(var id:IDS){var d=ApprovedProfessionContent.get(id);for(var rank:ProfessionRank.values())if(rank.ordinal()<d.rank().ordinal())for(int n=1;n<=8;n++)closure.add(d.profession().questId(rank,n));}var queue=new ArrayDeque<>(closure);

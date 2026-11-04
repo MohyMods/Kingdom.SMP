@@ -1,3 +1,5 @@
+> D072: Lumberjack all16A/J now natively earned to2400XP/Master trials, native furnace/crafting consumption and restart/claim denials verified.565JUnit/full build.60/288runtime adapters. Continue approved remaining premises/production families and all release backlog; no intermediate binary release.
+
 > D071: Native original-planter cherry16/mangrove12cycles and actual restart no-double-count pass;559JUnit/full build. Old unowned/untiered records stay usable without retrospective maturity.57/288runtime adapters. Continue Lumberjack charcoal/woodwork/final forestry assessment, remaining Master/mod validation and all approved backlog.
 
 > D070: Lumberjack hardwood64acacia/64darkoak and96jungle are natively earned;556JUnit/full build pass. Actual native4sapling growth, category-substitution refusal and early-tier planting gate verified.55/288runtime adapters. Next owned cherry/mangrove grow-and-harvest lifecycle, remaining Builder Master/mod validation and full approved backlog.

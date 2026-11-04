@@ -21,7 +21,7 @@ public final class CraftDeliveryRules {
     });}
     public static CraftDeliveryRules load(Path path)throws IOException{
         var defaults=new JsonObject();defaults.addProperty("schema",1);var rows=new JsonObject();defaults.add("deliveries",rows);
-        for(var id:CraftDeliveryQuests.catalog().definitions().keySet()){
+        for(var id:CraftDeliveryQuests.ids()){
             var row=new JsonObject();CraftDeliveryQuests.defaults(id).forEach(row::addProperty);rows.add(id,row);
         }
         if(!Files.exists(path)){Files.createDirectories(path.toAbsolutePath().getParent());Files.writeString(path,new GsonBuilder().setPrettyPrinting().create().toJson(defaults),StandardOpenOption.CREATE_NEW);}

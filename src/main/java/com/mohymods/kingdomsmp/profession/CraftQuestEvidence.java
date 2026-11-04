@@ -21,7 +21,7 @@ public final class CraftQuestEvidence {
         if(output.isEmpty()||output.getCount()>4096)return;
         String id=BuiltInRegistries.ITEM.getKey(output.getItem()).toString();
         for(var role:roster.active()){
-            var metric=CraftDeliveryQuests.metrics(role).get(id);if(metric==null)continue;
+            var metric=CraftDeliveryQuests.metrics(role).get(id);if(metric==null||metric.equals("smelt_charcoal"))continue;
             if(com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(p.server).attainedTier()<ApprovedProfessionContent.get(role.questId(roster.progressBand(role),1)).minimumTier())continue;
             var data=ProfessionEvidenceSavedData.get(p.server);
             if(data.evidence(role).record(p.getUUID(),roster.progressBand(role),metric,output.getCount(),null))data.setDirty();

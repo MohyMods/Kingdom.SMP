@@ -22,7 +22,7 @@ class CraftDeliveryRulesTest {
     }
     @Test void oldBuilderOnlyConfigurationRemainsByteForByteAndNewTimberDefaultsAreAdditive()throws Exception{
         var file=directory.resolve("legacy.json");String legacy="{\"schema\":1,\"deliveries\":{\"kingdom_smp:builder/a05\":{\"minecraft:stone_brick_stairs\":16,\"minecraft:stone_brick_slab\":20}}}";Files.writeString(file,legacy);
-        var rules=CraftDeliveryRules.load(file);assertEquals(16,rules.inputs(CraftDeliveryQuests.MASONRY).get("minecraft:stone_brick_stairs"));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.TIMBER),rules.inputs(CraftDeliveryQuests.TIMBER));assertEquals(legacy,Files.readString(file));
+        var rules=CraftDeliveryRules.load(file);assertEquals(16,rules.inputs(CraftDeliveryQuests.MASONRY).get("minecraft:stone_brick_stairs"));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.TIMBER),rules.inputs(CraftDeliveryQuests.TIMBER));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.CHARCOAL),rules.inputs(CraftDeliveryQuests.CHARCOAL));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.FITTINGS),rules.inputs(CraftDeliveryQuests.FITTINGS));assertEquals(legacy,Files.readString(file));
     }
 
 }

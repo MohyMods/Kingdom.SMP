@@ -20,7 +20,10 @@
     "SpaceLandingMixin",
     "SpaceFuelCommitMixin",
     "SpacePlanetMenuMixin",
-    "TreeFeatureMixin"
+    "TreeFeatureMixin",
+    "NativeFurnaceRecipesAccessor",
+    "NativeItemIdentityAccessor",
+    "FurnaceProductionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
