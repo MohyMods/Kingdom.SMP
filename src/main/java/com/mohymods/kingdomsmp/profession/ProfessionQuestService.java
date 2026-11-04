@@ -18,15 +18,19 @@ public final class ProfessionQuestService {
         definitions.add(ApprovedProfessionContent.get(RepairService.JOURNEYMAN).slot());
         definitions.add(ApprovedProfessionContent.get(EnchantedToolService.QUEST).slot());
         definitions.add(ApprovedProfessionContent.get(SmithingQuestService.QUEST).slot());
+        definitions.add(ApprovedProfessionContent.get(NativeOutputQuests.LIBRARY_ENCHANT).slot());
+        definitions.add(ApprovedProfessionContent.get(NativeOutputQuests.LIBRARY_BOOKS).slot());
         definitions.addAll(TreeQuestService.catalog().definitions().values().stream().filter(d->TreeQuestService.contains(d.id())).toList());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
-    public static String title(String id) { if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
-    public static long xp(String id) { if(SmithingQuestService.QUEST.equals(id))return 300; if(EnchantedToolService.QUEST.equals(id))return 200; if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
+    public static String title(String id) { if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).name(); if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
+    public static long xp(String id) { if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).xp(); if(SmithingQuestService.QUEST.equals(id))return 300; if(EnchantedToolService.QUEST.equals(id))return 200; if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
     public static String status(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return "This objective has no validated runtime implementation yet. Existing progress is preserved.";
+        if(NativeOutputQuests.LIBRARY_BOOKS.equals(id))return "Combine and deliver "+LibraryQuestRules.get(player.server).enchantedBooks()+" distinct ordinary enchanted books through a permitted native anvil. Preserve compatible enchantments and pay actual books/XP; copied, stripped or recycled outputs do not count.";
+        if(NativeOutputQuests.LIBRARY_ENCHANT.equals(id))return LibraryEnchantService.status(player);
         if(SmithingQuestService.QUEST.equals(id))return SmithingQuestService.status(player);
         if(EnchantedToolService.QUEST.equals(id))return EnchantedToolService.status(player);
         if(RepairService.contains(id))return RepairService.status(player,id);
@@ -34,6 +38,7 @@ public final class ProfessionQuestService {
         if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.status(player,id);
         if(CraftDeliveryQuests.contains(id))return CraftDeliveryService.status(player,id);
         if(InspectionQuests.contains(id)){
+            if(id.equals("kingdom_smp:librarian/a06"))return "Place a written catalogue on your lectern: "+LibraryQuestRules.get(player.server).catalogueEntries()+" native declarations 'minecraft:id max=N'. List every incompatible pair as 'minecraft:a ! minecraft:b'; an administrator confirms knowledge and authorship.";
             var d=InspectionQuests.get(id);var roster=CommerceService.store(player.server).professions(player.getUUID());
             if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Your inspected project and earned XP are recorded.";
             if(id.endsWith("builder/j05"))return "Administrator inspection: maintain"+BuilderInspectionRules.route(player.server)+"connected supported route cells, safe grading, shallow drainage and consent. Center the review on the route; no unauthorized excavation.";
@@ -49,7 +54,7 @@ public final class ProfessionQuestService {
     }
     public static boolean ready(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return false;
-        if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return false;
+        if(NativeOutputQuests.contains(id))return false;
         if(RepairService.contains(id))return RepairService.ready(player,id);
         if(TreeQuestService.contains(id))return TreeQuestService.ready(player,id);
         if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.ready(player,id);
@@ -63,7 +68,7 @@ public final class ProfessionQuestService {
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
         if(id==null||!CATALOG.definitions().containsKey(id))throw new IllegalArgumentException("No validated runtime objective");
-        if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))throw new IllegalStateException("Use the authenticated enchanted-tool delivery");
+        if(NativeOutputQuests.contains(id))throw new IllegalStateException("Use the authenticated enchanted-tool delivery");
         if(RepairService.contains(id)){RepairService.complete(player,operation,id);return;}
         if(TreeQuestService.contains(id)){TreeQuestService.complete(player,operation,id);return;}
         if(RetainedBuildingQuests.contains(id)){RetainedBuildingService.complete(player,operation,id);return;}

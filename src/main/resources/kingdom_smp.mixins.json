@@ -27,7 +27,9 @@
     "NativeCombinerAccess",
     "NativeWearMixin",
     "NativeAnvilRepairMixin",
-    "NativeSmithingQuestMixin"
+    "NativeSmithingQuestMixin",
+    "NativeEnchantingAccess",
+    "NativeLibraryEnchantMixin"
   ],
   "injectors": {
     "defaultRequire": 1

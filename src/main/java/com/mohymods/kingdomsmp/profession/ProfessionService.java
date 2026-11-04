@@ -16,7 +16,7 @@ public final class ProfessionService {
     private static final ProfessionQuestCatalog QUESTS=ProfessionQuestService.catalog();
     private ProfessionService(){ }
     public static void close(ServerPlayer p){QUOTES.remove(p);EnchantedToolService.close(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
-    public static void initialize(MinecraftServer server){ProfessionRules.clear(server);RepairQuestRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
+    public static void initialize(MinecraftServer server){ProfessionRules.clear(server);LibraryQuestRules.clear(server);RepairQuestRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
     public static ProfessionQuestCatalog quests(){return QUESTS;}
     public static Optional<Quote> quote(ServerPlayer p){var q=QUOTES.get(p);if(q!=null&&(q.revision()!=CommerceService.store(p.server).revision()||System.nanoTime()-q.issued()>30_000_000_000L)){close(p);q=null;}return Optional.ofNullable(q);}
     public static String rankName(ProfessionRank rank){return rank.id().substring(0,1).toUpperCase(Locale.ROOT)+rank.id().substring(1);}
@@ -30,6 +30,7 @@ public final class ProfessionService {
         if(selected.startsWith("gear:")){
             var gear=com.mohymods.kingdomsmp.equipment.FarmerGearService.review(p,selected.substring(5));var q=new Quote(gear.nonce(),gear.revision(),"gear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;
         }
+        if(selected.equals("enchanted:"+NativeOutputQuests.LIBRARY_ENCHANT)||selected.equals("enchanted:"+NativeOutputQuests.LIBRARY_BOOKS)){var delivery=EnchantedToolService.reviewLibrary(p,selected.substring(10));var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",delivery.quest(),0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.equals("smithing:"+SmithingQuestService.QUEST)){var delivery=EnchantedToolService.reviewSmithRegistration(p);var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",SmithingQuestService.QUEST,0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.equals("enchanted:"+EnchantedToolService.QUEST)){var delivery=EnchantedToolService.review(p);var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",EnchantedToolService.QUEST,0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.startsWith("materials:")){
@@ -74,7 +75,7 @@ public final class ProfessionService {
         for(var definition:QUESTS.visibleFor(roster.active()).stream().sorted(Comparator.comparing(ProfessionQuestCatalog.Definition::id)).toList()){
             var id=definition.id();var role=definition.profession();boolean done=roster.track(role).completedQuestIds().contains(id);
             boolean smithing=SmithingQuestService.QUEST.equals(id)&&SmithingQuestService.eligible(p);
-            boolean enchanted=EnchantedToolService.QUEST.equals(id)&&EnchantedToolService.delivery(p);
+            boolean enchanted=(NativeOutputQuests.contains(id)&&NativeOutputQuests.consume(id))&&NativeOutputQuests.eligible(p,id,true);
             boolean materials=CraftDeliveryService.eligible(p,id);
             boolean delivery=smithing||enchanted||materials||role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
             boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());

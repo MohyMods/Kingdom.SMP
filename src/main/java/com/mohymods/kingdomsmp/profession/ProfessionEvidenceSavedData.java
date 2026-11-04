@@ -14,8 +14,9 @@ import net.minecraft.world.level.storage.LevelResource;
 public final class ProfessionEvidenceSavedData extends SavedData {
     private static final String NAME="kingdomsmp_profession_evidence_v1";
     private final Map<Profession,ProfessionEvidence> evidence=new EnumMap<>(Profession.class);
+    private static Set<String> metrics(Profession role){var metrics=new HashSet<>(CraftDeliveryQuests.metrics(role).values());if(role==Profession.LIBRARIAN)metrics.add(LibraryEnchantService.METRIC);return metrics;}
     public ProfessionEvidence evidence(Profession role){
-        var metrics=new HashSet<>(CraftDeliveryQuests.metrics(role).values());
+        var metrics=metrics(role);
         if(metrics.isEmpty())throw new IllegalArgumentException("No implemented evidence producer for profession");
         return evidence.computeIfAbsent(role,p->new ProfessionEvidence(role,metrics));
     }
@@ -34,7 +35,7 @@ public final class ProfessionEvidenceSavedData extends SavedData {
         var result=new ProfessionEvidenceSavedData();var rows=tag.getCompound("professions");
         if(rows.size()>11)throw new IllegalArgumentException("Too many profession evidence scopes");
         for(var id:rows.getAllKeys()){
-            var role=Profession.byId(id);var metrics=new HashSet<>(CraftDeliveryQuests.metrics(role).values());
+            var role=Profession.byId(id);var metrics=metrics(role);
             if(metrics.isEmpty()||!rows.contains(id,Tag.TAG_COMPOUND))throw new IllegalArgumentException("Unknown producer or malformed evidence scope");
             result.evidence.put(role,ProfessionEvidence.load(rows.getCompound(id),role,metrics));
         }

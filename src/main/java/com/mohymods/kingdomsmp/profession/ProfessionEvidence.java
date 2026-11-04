@@ -17,6 +17,7 @@ public final class ProfessionEvidence {
         final Set<String> unique=new HashSet<>();
     }
     public int count(UUID player,ProfessionRank band,String metric){checkMetric(metric);var p=players.get(player);return p==null?0:p.counters.getOrDefault(key(band,metric),0);}
+    public boolean seen(UUID player,String metric,String identity){checkMetric(metric);if(identity==null||identity.isBlank()||identity.length()>160)throw new IllegalArgumentException("Invalid native evidence identity");var p=players.get(player);return p!=null&&p.unique.contains(metric+":"+identity);}
     /** Distinct identities are capped and never evicted into countable state. */
     public boolean record(UUID player,ProfessionRank band,String metric,int amount,String identity){
         Objects.requireNonNull(player);Objects.requireNonNull(band);checkMetric(metric);
