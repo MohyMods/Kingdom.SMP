@@ -48,6 +48,24 @@ jobs:
           }
           grep -F 'kingdom_smp_townhall_tests SUITE_PASSED:' alpha-native.log
           tail -n 45 alpha-native.log
+      - name: Real Tier 3 Bank native smoke (claims and persistence)
+        shell: bash
+        run: |
+          timeout 1200s python3 scripts/test-claims.py --namespace kingdom_smp_bank_tests > alpha-bank-native.log 2>&1 || {
+            tail -n 180 alpha-bank-native.log
+            exit 1
+          }
+          grep -F 'kingdom_smp_bank_tests SUITE_PASSED:' alpha-bank-native.log
+          tail -n 35 alpha-bank-native.log
+      - name: Real NPC market native smoke (claims and transactions)
+        shell: bash
+        run: |
+          timeout 1200s python3 scripts/test-claims.py --namespace kingdom_smp_market_tests > alpha-market-native.log 2>&1 || {
+            tail -n 180 alpha-market-native.log
+            exit 1
+          }
+          grep -F 'kingdom_smp_market_tests SUITE_PASSED:' alpha-market-native.log
+          tail -n 35 alpha-market-native.log
       - name: Package alpha with SHA-256
         shell: bash
         run: |
@@ -71,6 +89,8 @@ jobs:
           path: |
             alpha-build.log
             alpha-native.log
+            alpha-bank-native.log
+            alpha-market-native.log
             build/test-results/test/
           if-no-files-found: warn
           retention-days: 30
