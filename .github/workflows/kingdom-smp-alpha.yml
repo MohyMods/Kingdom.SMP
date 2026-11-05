@@ -1,0 +1,73 @@
+name: Kingdom SMP alpha build and native smoke
+on:
+  push:
+    branches:
+      - alpha/0.12.0-alpha.1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  alpha:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out isolated alpha source
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Configure Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Compile, run JUnit and produce the mod JAR
+        shell: bash
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon --console=plain > alpha-build.log 2>&1 || {
+            tail -n 160 alpha-build.log
+            exit 1
+          }
+          tail -n 35 alpha-build.log
+          test -s build/libs/kingdom-smp-core-0.12.0-alpha.1.jar
+      - name: Real NeoForge GameTest dedicated-server smoke (early settlement)
+        shell: bash
+        run: |
+          mkdir -p work
+          timeout 1200s ./gradlew runGameTestServer \
+            -PkingdomTestRunDir=work/alpha-dedicated \
+            -PkingdomTestNamespace=kingdom_smp_townhall_tests \
+            --no-daemon --console=plain > alpha-native.log 2>&1 || {
+              tail -n 180 alpha-native.log
+              exit 1
+            }
+          tail -n 45 alpha-native.log
+      - name: Package alpha with SHA-256
+        shell: bash
+        run: |
+          bash scripts/package-alpha.sh
+          ls -lh build/alpha/
+          cat build/alpha/Kingdom-SMP-0.12.0-alpha.1.zip.sha256
+      - name: Publish verified build artifact (not a final full-modpack release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kingdom-SMP-0.12.0-alpha.1-early-game
+          path: |
+            build/alpha/Kingdom-SMP-0.12.0-alpha.1.zip
+            build/alpha/Kingdom-SMP-0.12.0-alpha.1.zip.sha256
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve build/test logs for audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kingdom-SMP-alpha-build-evidence
+          path: |
+            alpha-build.log
+            alpha-native.log
+            build/test-results/test/
+          if-no-files-found: warn
+          retention-days: 30
