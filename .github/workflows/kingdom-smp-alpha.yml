@@ -36,18 +36,17 @@ jobs:
       - name: Download and checksum-verify exact FTB Chunks and OPAC test dependencies
         shell: bash
         run: python3 scripts/download-claim-test-mods.py
-      - name: Real NeoForge GameTest dedicated-server smoke (early settlement)
+      - name: Real normal NeoForge dedicated-server smoke (FTB Chunks and OPAC)
         shell: bash
         run: |
-          mkdir -p work
-          timeout 1200s ./gradlew runGameTestServer \
-            -PkingdomTestRunDir=work/alpha-dedicated \
-            -PkingdomTestNamespace=kingdom_smp_townhall_tests \
-            -PkingdomClaimTestMods=work/claim-test-mods \
-            --no-daemon --console=plain > alpha-native.log 2>&1 || {
-              tail -n 180 alpha-native.log
-              exit 1
-            }
+          # OPAC uses the normal Minecraft GameProfileCache; it cannot start in
+          # NeoForge's synthetic GameTestServer. The repository's pinned native
+          # fixture creates a fresh private world and tests on a normal dedicated server.
+          timeout 1200s python3 scripts/test-claims.py --namespace kingdom_smp_townhall_tests > alpha-native.log 2>&1 || {
+            tail -n 180 alpha-native.log
+            exit 1
+          }
+          grep -F 'kingdom_smp_townhall_tests SUITE_PASSED:' alpha-native.log
           tail -n 45 alpha-native.log
       - name: Package alpha with SHA-256
         shell: bash
