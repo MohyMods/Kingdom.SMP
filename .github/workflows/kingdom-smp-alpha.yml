@@ -33,6 +33,9 @@ jobs:
           }
           tail -n 35 alpha-build.log
           test -s build/libs/kingdom-smp-core-0.12.0-alpha.1.jar
+      - name: Download and checksum-verify exact FTB Chunks and OPAC test dependencies
+        shell: bash
+        run: python3 scripts/download-claim-test-mods.py
       - name: Real NeoForge GameTest dedicated-server smoke (early settlement)
         shell: bash
         run: |
@@ -40,6 +43,7 @@ jobs:
           timeout 1200s ./gradlew runGameTestServer \
             -PkingdomTestRunDir=work/alpha-dedicated \
             -PkingdomTestNamespace=kingdom_smp_townhall_tests \
+            -PkingdomClaimTestMods=work/claim-test-mods \
             --no-daemon --console=plain > alpha-native.log 2>&1 || {
               tail -n 180 alpha-native.log
               exit 1
