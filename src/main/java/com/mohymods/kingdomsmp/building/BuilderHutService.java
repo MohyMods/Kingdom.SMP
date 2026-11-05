@@ -87,6 +87,9 @@ public final class BuilderHutService {
                                     + " / " + hut.rotation() + " / " + hut.phase() + "; NPC " + hut.npcId()
                                     + (hut.npcDead() ? " (dead; replacement requires a recovery policy)" : ""))
                             .orElse("No Builder's Hut has been installed.")), false);
+                    data.hut().ifPresent(hut -> context.getSource().sendSuccess(
+                            () -> Component.literal("Hut integrity: " + integrityReport(context.getSource().getServer().overworld(), hut)),
+                            false));
                     return 1;
                 }))
                 .then(Commands.literal("preview").then(Commands.argument("origin", BlockPosArgument.blockPos())
@@ -311,6 +314,40 @@ public final class BuilderHutService {
     public static BlockPos home(Hut hut) {
         var blueprint = BuilderHutBlueprint.create();
         return hut.origin().offset(blueprint.rotateOffset(blueprint.homeOffset(), hut.rotation()));
+    }
+
+    /** Non-mutating diagnostic for unexpectedly suspended Aldric interactions.
+     * Reports the first exact mismatch instead of silently disabling services.
+     * Does not place blocks, unlock rewards, or bypass any safety checks.
+     */
+    public static String integrityReport(ServerLevel level, Hut hut) {
+        if (hut == null) return "No saved Hut.";
+        for (var block : BuilderHutBlueprint.create().placements(hut.rotation())) {
+            BlockPos position = hut.origin().offset(block.offset());
+            if (!level.hasChunkAt(position)) return "UNLOADED chunk at " + position.toShortString() + "; load the Hut normally.";
+            BlockState current = level.getBlockState(position);
+            if (!matchesRequired(current, block.state())) {
+                return "DAMAGED at " + position.toShortString() + ": expected " + block.state()
+                        + ", found " + current + ". Do not replace blocks until you have a world backup.";
+            }
+        }
+        var project = ConstructionService.initializedStore(level.getServer()).stream()
+                .flatMap(store -> store.projects().stream())
+                .filter(p -> p.blueprint().toString().equals(BuilderHutBlueprint.ID)
+                        && p.origin() != null && p.origin().equals(hut.origin()) && p.npc().equals(hut.npcId()))
+                .findFirst().orElse(null);
+        if (project != null && !project.foundations().isEmpty()) {
+            String problem = ConstructionFoundations.validate(level, project, true);
+            if (problem != null) return "FOUNDATION VALIDATION: " + problem;
+            var definition = BlueprintRegistry.get(project.blueprint(), project.blueprintVersion());
+            for (var cell : project.foundations()) {
+                BlockPos position = project.origin().offset(definition.rotate(cell, project.rotation()));
+                if (!level.getBlockState(position).is(Blocks.COBBLESTONE))
+                    return "FOUNDATION DAMAGED at " + position.toShortString()
+                            + ": expected cobblestone, found " + level.getBlockState(position);
+            }
+        }
+        return "INTACT; if Aldric still refuses, check his identity, health, distance and line of sight.";
     }
 
     public static boolean structureIntact(ServerLevel level, Hut hut) {
