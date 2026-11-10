@@ -868,7 +868,7 @@ public final class EconomyStore {
                 var d=TreeQuestService.get(op.key());var approved=ApprovedProfessionContent.get(op.key());var data=op.payload();
                 if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!op.detail().equals("Native tree objective")||!data.getAllKeys().equals(Set.of("contentVersion","required")))throw new IllegalArgumentException("Invalid native tree completion");
                 require(data,"contentVersion",Tag.TAG_INT);require(data,"required",Tag.TAG_INT);
-                if(data.getInt("contentVersion")!=1||data.getInt("required")<1||data.getInt("required")>100000||op.quantity()<data.getInt("required")||op.quantity()>ProfessionEvidence.MAX_COUNTER||op.amount()!=approved.xp())throw new IllegalArgumentException("Invalid native tree count or XP");
+                if(data.getInt("contentVersion")!=1||data.getInt("required")<1||data.getInt("required")>100000||d.metric().equals("mosaic")&&(data.getInt("required")<6||data.getInt("required")%6!=0)||op.quantity()<data.getInt("required")||op.quantity()>ProfessionEvidence.MAX_COUNTER||op.amount()!=approved.xp())throw new IllegalArgumentException("Invalid native tree count or XP");
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.LUMBERJACK).completedQuestIds().contains(op.key()))throw new IllegalStateException("Tree objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.LUMBERJACK,op.key(),op.amount(),TreeQuestService.catalog()));
             }

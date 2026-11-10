@@ -18,6 +18,9 @@ import net.neoforged.neoforge.gametest.*;
 
 @GameTestHolder("kingdom_smp_tree_tests") @PrefixGameTestTemplate(false)
 public final class TreeQuestRuntimeTests {
+    @GameTest(template="empty",templateNamespace="kingdom_smp_master_forestry_tests",timeoutTicks=6000)
+    public static void nativeMasterForestry(GameTestHelper h)throws Exception{MasterForestryRuntimeTests.realSixSpeciesAndReplacementCycles(h);}
+
     @GameTest(template="empty",timeoutTicks=6000)
     public static void actualNativeTreesHarvestReplacementAndReviewedXp(GameTestHelper h)throws Exception{
         h.getLevel().getServer().tickRateManager().setTickRate(200); // Explicit private QA clock acceleration, no goal/rank/XP changes.
