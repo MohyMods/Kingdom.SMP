@@ -176,6 +176,9 @@ public final class CommerceService {
                 else throw new IllegalArgumentException("Unsupported auction action.");
                 return snapshot(player,request.requestId(),request.tab(),notice);
             }
+            if(request.tab()==3&&(request.selected().startsWith("exchange:")||request.action()==2&&CoinExchangeService.quote(player).filter(q->q.nonce().equals(request.review())).isPresent())){
+                QUOTES.remove(player);if(request.action()==1){BankService.close(player);notice=CoinExchangeService.review(player,request.selected(),request.quantity()).text();}else if(request.action()==2)notice=CoinExchangeService.confirm(player,request.review());else CoinExchangeService.close(player);return snapshot(player,request.requestId(),3,notice);
+            }
             if(request.tab()>=3){
                 if(request.action()==0){com.mohymods.kingdomsmp.fishing.FishingService.close(player);BankService.close(player);AuctionService.close(player);BuyOrderService.close(player);com.mohymods.kingdomsmp.profession.ProfessionService.close(player);com.mohymods.kingdomsmp.profession.ContractService.close(player);com.mohymods.kingdomsmp.progression.TierTwoService.close(player);}
                 else if(request.tab()==3&&request.action()==1)notice=BankService.review(player,request.selected(),request.quantity()).text();
@@ -258,6 +261,7 @@ public final class CommerceService {
         if(tab==7){var q=com.mohymods.kingdomsmp.profession.ProfessionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,7,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.profession.ProfessionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==6){var q=BuyOrderService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BuyOrderService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==5){var q=AuctionService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),AuctionService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
+        if(tab==3&&CoinExchangeService.quote(player).isPresent()){var q=CoinExchangeService.quote(player).orElseThrow();return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BankService.entries(player),q.nonce(),q.text(),notice);}
         if(tab==3){var q=BankService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),BankService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==4){var q=com.mohymods.kingdomsmp.progression.TierTwoService.quote(player).orElse(null);return new CommerceView(requestId,version,false,tab,tier,s.balance(player.getUUID()),com.mohymods.kingdomsmp.progression.TierTwoService.entries(player),q==null?CommerceRequest.NONE:q.nonce(),q==null?"":q.text(),notice);}
         if(tab==0)for(var b:c.buildings()){

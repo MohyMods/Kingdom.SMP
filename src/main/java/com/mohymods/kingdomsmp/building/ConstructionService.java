@@ -210,7 +210,7 @@ public final class ConstructionService {
                     // Durable generation rotation precedes delivery. Old/restored copies have no authority.
                     for(int i=0;i<player.getInventory().getContainerSize();i++)if(isProjectPlan(player.getInventory().getItem(i),p))player.getInventory().setItem(i,ItemStack.EMPTY);
                     player.getInventory().setItem(slot,plan(store,claimed));syncInventory(player);PREVIEWS.remove(player);
-                    audit(player,p,"CLAIM_OR_RECOVER");return "Current blueprint delivered. Earlier copies and site approvals are invalid.";
+                    audit(player,p,"CLAIM_OR_RECOVER");return "Blueprint delivered to "+(slot<9?"hotbar slot "+(slot+1):"inventory slot "+(slot-8))+". Hold it to place the hologram. Earlier copies and site approvals are invalid.";
                 }
                 case 4->{
                     ownerAlive(player,p);if(!hasPlan(player,p))throw new IllegalStateException("Current blueprint required.");
@@ -297,7 +297,7 @@ public final class ConstructionService {
     private static void ownerAlive(ServerPlayer player,Project p){
         GameType type=player.gameMode.getGameModeForPlayer();
         if(!p.owner().equals(player.getUUID())||!player.isAlive()||type!=GameType.SURVIVAL&&type!=GameType.ADVENTURE||player.containerMenu!=player.inventoryMenu)
-            throw new IllegalStateException("The blueprint holder must be alive in Survival/Adventure with other containers closed.");
+            throw new IllegalStateException(!p.owner().equals(player.getUUID())?"This blueprint belongs to another player.":type==GameType.CREATIVE?"Switch to Survival or Adventure before claiming or using a blueprint; Creative claims are disabled.":"Be alive in Survival/Adventure and close other inventory menus before continuing.");
     }
     private static void administrator(ServerPlayer player){if(!player.hasPermissions(2)||!player.isAlive()||player.isSpectator())throw new IllegalStateException("Administrator permission level 2 is required.");}
     private static void requireBuilder(MinecraftServer server){
@@ -418,7 +418,7 @@ public final class ConstructionService {
         if(hut(p)){bootstrap(server,p.id());return;}
         String protection=claimDenial(level,p);if(protection!=null){pause(p,protection);return;}
         var hut=BuilderHutSavedData.get(server).hut().orElse(null);
-        if(hut==null||hut.npcDead()||!BuilderHutService.structureIntact(level,hut)){pause(p,"Builder's Hut damaged/unloaded or builder unavailable.");return;}
+        if(hut==null||hut.npcDead()||!BuilderHutService.structureIntact(level,hut)){pause(p,hut==null?"Starting Hut not installed.":hut.npcDead()?"Registered Aldric has died; administrator recovery required.":"Builder paused: "+BuilderHutService.integrityReport(level,hut));return;}
         Entity entity=level.getEntity(hut.npcId());
         if(!(entity instanceof AldricEntity builder)||!builder.isAlive()||!BuilderHutService.isRegistered(builder)){pause(p,"Registered Aldric is unloaded or missing; no replacement is spawned.");return;}
         BlockPos post=blueprint.workPost(p.origin(),p.rotation());

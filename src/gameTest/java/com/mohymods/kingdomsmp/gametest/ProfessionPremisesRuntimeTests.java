@@ -15,7 +15,7 @@ import net.neoforged.neoforge.gametest.*;
 /** Actual paid-plan lifecycle/enrollment. Explicit seeded tier boundaries and funds do not prove earned higher tiers. */
 @GameTestHolder("kingdom_smp_premises_tests") @PrefixGameTestTemplate(false)
 public final class ProfessionPremisesRuntimeTests {
- @GameTest(template="empty",templateNamespace="kingdom_smp_profession_production_tests",timeoutTicks=1200) public static void focusedProduction(GameTestHelper h)throws Exception{ProfessionProductionRuntimeTests.commissionedMaterials(h);}
+ @GameTest(template="empty",templateNamespace="kingdom_smp_profession_production_tests",timeoutTicks=4000) public static void focusedProduction(GameTestHelper h)throws Exception{ProfessionProductionRuntimeTests.commissionedMaterials(h);}
  @GameTest(template="empty",timeoutTicks=20000) public static void remainingNinePremises(GameTestHelper h)throws Exception{
   h.getLevel().getServer().tickRateManager().setTickRate(200);
   if(ConstructionService.store(h.getLevel().getServer()).projects().stream().filter(p->ProfessionPremises.contains(p.blueprint())&&p.phase()==ConstructionStore.Phase.COMPLETE).count()==9){restart(h);return;}

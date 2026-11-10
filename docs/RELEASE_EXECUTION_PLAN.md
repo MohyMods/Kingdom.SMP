@@ -1,3 +1,5 @@
+> Current authority: [budget-mode completion directive](sources/FINAL_PRODUCTION_BUDGET_MODE_2026-11-11.md). Fix the demonstrated Visual Workbench/Hut/Aldric/Hall/blueprint feedback regressions first, then grouped approved profession producers, remaining natural kingdom progression/buildings, FTB campaign, critical administration/integrations and actual full-pack acceptance. The remaining264quests are APPROVED at9004b3e (D062); the old proposal/approval request below is historical. Do not publish per-feature builds or declare1.0.0 before acceptance.
+
 > D057: Corin’s physical refueling supply/private claim/native boiler burn and restart are verified in AIRCRAFT_FUEL_RUNTIME.md. Continue scouting and the complete remaining release backlog; no intermediate binary release.
 
 > D056: transported native cargo and explicit saved-receipt NPC resume are verified in AIR_CARGO_RUNTIME.md. Continue remaining Aerodrome refueling/scouting and the complete approved backlog; no intermediate binary release.

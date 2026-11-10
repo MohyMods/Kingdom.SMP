@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, MERCHANT_TRANSACTION_QUEST, COIN_EXCHANGE }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -72,7 +72,7 @@ public final class EconomyStore {
         public ItemMail {Objects.requireNonNull(id);Objects.requireNonNull(owner);text(description,128);item=checkedItem(item);}
         @Override public CompoundTag item(){return item.copy();}
     }
-    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY, FARMER_DELIVERY, COMMUNITY_DELIVERY, AIRCRAFT_DEPLOY, PROFESSION_DELIVERY, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION }
+    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY, FARMER_DELIVERY, COMMUNITY_DELIVERY, AIRCRAFT_DEPLOY, PROFESSION_DELIVERY, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, COIN_EXCHANGE }
     /** Payload is the bounded encoded canonical operation; never client authority. */
     public record PendingItem(long sequence,UUID operation,UUID player,ItemAction action,CompoundTag payload,long previousReceipt) {
         public PendingItem {
@@ -171,7 +171,7 @@ public final class EconomyStore {
             var op=decode(pendingItem.payload());
             if(op.sequence()!=history.size()+1L||seen.contains(op.id())||!op.id().equals(pendingItem.operation())||!op.actor().equals(pendingItem.player())||!op.target().equals(pendingItem.player())
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
-                    ||op.kind()!=switch(pendingItem.action()){case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case PROFESSION_DELIVERY->Kind.PROFESSION_DELIVERY;case PROFESSION_ENCHANT_DELIVERY->Kind.PROFESSION_ENCHANT_DELIVERY;case PROFESSION_SMITH_REGISTRATION->Kind.PROFESSION_SMITH_REGISTRATION;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;case AIRCRAFT_DEPLOY->Kind.AIRCRAFT_DEPLOY;})throw new IllegalArgumentException("Invalid pending item operation");
+                    ||op.kind()!=switch(pendingItem.action()){case COIN_EXCHANGE->Kind.COIN_EXCHANGE;case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case PROFESSION_DELIVERY->Kind.PROFESSION_DELIVERY;case PROFESSION_ENCHANT_DELIVERY->Kind.PROFESSION_ENCHANT_DELIVERY;case PROFESSION_SMITH_REGISTRATION->Kind.PROFESSION_SMITH_REGISTRATION;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;case AIRCRAFT_DEPLOY->Kind.AIRCRAFT_DEPLOY;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
             apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy(),aircraft.copy(),enchantedOutputs.copy());var nextHistory=appended(history,op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false,aircraft.copy());
         }
@@ -322,6 +322,19 @@ public final class EconomyStore {
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_QUEST,player,player,FarmerQuests.xp(quest),quest,"Farmer objective completed",null,0,0,data);
         if(!replayed(op))append(op);return professions(player);
     }
+    public synchronized PendingItem prepareCoinExchange(UUID operation,UUID player,CoinExchangeTerms terms)throws IOException{
+        var data=new CompoundTag();data.putString("source",terms.source());data.putString("target",terms.target());
+        return prepareItem(new Operation(history.size()+1L,operation,Kind.COIN_EXCHANGE,player,player,0,"coins","Equal-value physical coin exchange",null,0,terms.batches(),data),ItemAction.COIN_EXCHANGE);
+    }
+    public synchronized MerchantTransactionState.Proof merchantProof(UUID player){healthy();return contracts.merchant.get(player);}
+    public synchronized ProfessionRoster completeMerchantTransactionQuest(UUID operation,UUID player,String quest)throws IOException{
+        return completeMerchantTransactionQuest(operation,player,quest,MerchantTransactionQuests.goal(quest));
+    }
+    public synchronized ProfessionRoster completeMerchantTransactionQuest(UUID operation,UUID player,String quest,int required)throws IOException{
+        var d=MerchantTransactionQuests.get(quest);MerchantQuestRules.validate(quest,required);var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);
+        var op=new Operation(history.size()+1L,operation,Kind.MERCHANT_TRANSACTION_QUEST,player,player,d.xp(),quest,"Merchant settled transactions",null,0,0,data);
+        if(!replayed(op))append(op);return professions(player);
+    }
     public synchronized List<BuilderWorksite> builderWorksites(){healthy();return contracts.currentSites.values().stream().map(contracts.workSites::get).sorted(Comparator.comparing(BuilderWorksite::id)).toList();}
     public synchronized List<BuilderWorksite> builderAuthorizationHistory(){healthy();return List.copyOf(contracts.workSites.values()).reversed();}
     public synchronized Optional<BuilderWorksite> builderWorksite(UUID player,String quest){healthy();return Optional.ofNullable(contracts.workSites.get(contracts.currentSites.get(new ContractState.WorksiteSlot(player,quest))));}
@@ -349,11 +362,13 @@ public final class EconomyStore {
     }
     /** Only the native successful-anvil handler issues these server-owned records. No preview or packet does. */
     public synchronized void issueEnchantedOutput(UUID id,UUID smith,CompoundTag item)throws IOException{issueNativeOutput(id,smith,EnchantedToolService.QUEST,item);}
-    public synchronized void issueNativeOutput(UUID id,UUID smith,String quest,CompoundTag item)throws IOException{
-        var data=new CompoundTag();data.put("item",checkedItem(item));var op=new Operation(history.size()+1L,id,Kind.PROFESSION_ENCHANT_OUTPUT,smith,smith,0,quest,NativeOutputQuests.issueDetail(quest),null,0,0,data);if(!replayed(op))append(op);
+    public synchronized void issueNativeOutput(UUID id,UUID smith,String quest,CompoundTag item)throws IOException{issueNativeOutput(id,smith,quest,item,NativeBookProof.EMPTY);}
+    public synchronized void issueNativeOutput(UUID id,UUID smith,String quest,CompoundTag item,NativeBookProof attributes)throws IOException{
+        var data=new CompoundTag();data.put("item",checkedItem(item));if(!attributes.equals(NativeBookProof.EMPTY))data.put("attributes",attributes.save());var op=new Operation(history.size()+1L,id,Kind.PROFESSION_ENCHANT_OUTPUT,smith,smith,0,quest,NativeOutputQuests.issueDetail(quest),null,0,0,data);if(!replayed(op))append(op);
     }
     public synchronized String enchantedOutputAudit(UUID player){healthy();var records=enchantedOutputs.outputs;long issued=records.values().stream().filter(o->o.smith().equals(player)).count();long spent=records.values().stream().filter(o->o.smith().equals(player)&&o.spent()).count();return "Native authenticated outputs: "+issued+" issued, "+spent+" used for delivery or registration; bounded IDs "+records.entrySet().stream().filter(e->e.getValue().smith().equals(player)).map(e->e.getKey()+":"+(e.getValue().spent()?"spent":"available")).sorted().limit(16).toList();}
     public synchronized boolean matchesEnchantedOutput(UUID id,UUID smith,CompoundTag item){return matchesNativeOutput(id,smith,EnchantedToolService.QUEST,item);}
+    public synchronized Optional<NativeBookProof> nativeOutputAttributes(UUID id,UUID owner,String quest,CompoundTag item){healthy();return enchantedOutputs.matches(id,owner,quest,item)?Optional.of(enchantedOutputs.outputs.get(id).attributes()):Optional.empty();}
     public synchronized boolean matchesNativeOutput(UUID id,UUID smith,String quest,CompoundTag item){healthy();return enchantedOutputs.matches(id,smith,quest,item);}
     public synchronized PendingItem prepareEnchantedDelivery(UUID operation,UUID player,Map<UUID,CompoundTag> items,int required)throws IOException{return prepareNativeOutputReceipt(operation,player,EnchantedToolService.QUEST,items,required);}
     public synchronized PendingItem prepareNativeOutputDelivery(UUID operation,UUID player,String quest,Map<UUID,CompoundTag> items,int required)throws IOException{if(!NativeOutputQuests.consume(quest))throw new IllegalArgumentException("Use the registration receipt");return prepareNativeOutputReceipt(operation,player,quest,items,required);}
@@ -669,7 +684,7 @@ public final class EconomyStore {
     /** Publish derived lookup state only after a validated replay or successful durable append. */
     private void index(Operation op){
         operationIndex.put(op.id(),op);
-        if(switch(op.kind()){case SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,PROFESSION_DELIVERY,PROFESSION_ENCHANT_DELIVERY,PROFESSION_SMITH_REGISTRATION,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
+        if(switch(op.kind()){case COIN_EXCHANGE,SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,PROFESSION_DELIVERY,PROFESSION_ENCHANT_DELIVERY,PROFESSION_SMITH_REGISTRATION,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
         if(op.kind()==Kind.SALE){latestSalePeriod=Math.max(latestSalePeriod,op.period());dailyNpcSpent.merge(op.period(),op.amount(),Math::addExact);dailyResourceSold.merge(new ShopDay(op.period(),op.key()),(long)op.quantity(),Math::addExact);dailyPlayerProceeds.merge(new PlayerDay(op.period(),op.target()),op.amount(),Math::addExact);}
         if(op.kind()==Kind.AIRCRAFT_REPAIR_APPLY)shopSpent=Math.addExact(shopSpent,find(op.reference()).amount());
         if(op.kind()==Kind.GEAR_BUY)equipmentSpent=Math.addExact(equipmentSpent,op.amount());
@@ -836,9 +851,9 @@ public final class EconomyStore {
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
             }
             case PROFESSION_ENCHANT_OUTPUT->{
-                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||op.amount()!=0||!NativeOutputQuests.contains(op.key())||!op.detail().equals(NativeOutputQuests.issueDetail(op.key()))||!data.getAllKeys().equals(Set.of("item"))||!data.contains("item",Tag.TAG_COMPOUND))throw new IllegalArgumentException("Invalid native enchanted output authority");
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||op.amount()!=0||!NativeOutputQuests.contains(op.key())||!op.detail().equals(NativeOutputQuests.issueDetail(op.key()))||(!data.getAllKeys().equals(Set.of("item"))&&!data.getAllKeys().equals(Set.of("item","attributes")))||!data.contains("item",Tag.TAG_COMPOUND)||data.contains("attributes")&&!data.contains("attributes",Tag.TAG_COMPOUND))throw new IllegalArgumentException("Invalid native enchanted output authority");
                 var item=checkedItem(data.getCompound("item"));if(item.getInt("count")!=1||!NativeOutputQuests.output(op.key(),item.getString("id")))throw new IllegalArgumentException("Ordinary single native tool required");
-                var role=NativeOutputQuests.get(op.key()).profession();var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(!roster.isActive(role)||roster.track(role).completedQuestIds().contains(op.key())||!NativeOutputQuests.catalog().mayAttempt(role,op.key(),roster.track(role).completedQuestIds()))throw new IllegalStateException("Enchanted commission unavailable");enchantedOutputs.issue(op.id(),op.actor(),op.key(),item);
+                var role=NativeOutputQuests.get(op.key()).profession();var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(!roster.isActive(role)||roster.track(role).completedQuestIds().contains(op.key())||!NativeOutputQuests.catalog().mayAttempt(role,op.key(),roster.track(role).completedQuestIds()))throw new IllegalStateException("Enchanted commission unavailable");var attributes=data.contains("attributes")?NativeBookProof.load(data.getCompound("attributes")):NativeBookProof.EMPTY;if(op.key().equals(NativeOutputQuests.LIBRARY_FAMILIES)&&attributes.families()==0||op.key().equals(NativeOutputQuests.LIBRARY_MAXIMUM)&&!attributes.maximum())throw new IllegalArgumentException("Missing verified native book facts");enchantedOutputs.issue(op.id(),op.actor(),op.key(),item,attributes);
             }
             case PROFESSION_ENCHANT_DELIVERY,PROFESSION_SMITH_REGISTRATION->{
                 boolean smith=op.kind()==Kind.PROFESSION_SMITH_REGISTRATION;var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||!NativeOutputQuests.contains(op.key())||op.amount()!=NativeOutputQuests.get(op.key()).xp()||smith==NativeOutputQuests.consume(op.key())||!op.detail().equals(NativeOutputQuests.receiptDetail(op.key()))||!data.getAllKeys().equals(Set.of("required","outputs"))||!data.contains("required",Tag.TAG_INT)||!(data.get("outputs") instanceof ListTag rows)||rows.size()<1||rows.size()>128||rows.getElementType()!=Tag.TAG_COMPOUND)throw new IllegalArgumentException("Invalid authenticated enchanted delivery");
@@ -896,6 +911,17 @@ public final class EconomyStore {
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
                 if(roster.track(d.profession()).completedQuestIds().contains(op.key()))throw new IllegalStateException("Profession inspection already completed");
                 professionRosters.put(op.target(),roster.completeQuest(d.profession(),op.key(),op.amount(),InspectionQuests.catalog()));
+            }
+            case COIN_EXCHANGE->{
+                var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.amount()!=0||!op.key().equals("coins")||!op.detail().equals("Equal-value physical coin exchange")||!data.getAllKeys().equals(Set.of("source","target"))||!data.contains("source",Tag.TAG_STRING)||!data.contains("target",Tag.TAG_STRING))throw new IllegalArgumentException("Invalid coin exchange");
+                var terms=new CoinExchangeTerms(data.getString("source"),data.getString("target"),op.quantity());contracts.merchant.exchanged(op.target(),terms,professionRosters);
+            }
+            case MERCHANT_TRANSACTION_QUEST->{
+                var d=MerchantTransactionQuests.get(op.key());var data=op.payload();
+                if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||op.quantity()!=0||!op.detail().equals("Merchant settled transactions")||!data.getAllKeys().equals(Set.of("contentVersion","required"))||!data.contains("contentVersion",Tag.TAG_INT)||!data.contains("required",Tag.TAG_INT)||data.getInt("contentVersion")!=1||op.amount()!=d.xp())throw new IllegalArgumentException("Invalid Merchant transaction objective");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
+                if(roster.track(Profession.MERCHANT).completedQuestIds().contains(op.key())||!contracts.merchant.get(op.target()).ready(op.key(),data.getInt("required")))throw new IllegalStateException("No qualifying settled Merchant transactions");
+                professionRosters.put(op.target(),roster.completeQuest(Profession.MERCHANT,op.key(),op.amount(),MerchantTransactionQuests.catalog()));
             }
             case PROFESSION_COMMISSION->{
                 var d=CommissionQuests.get(op.key());var data=op.payload();
@@ -1062,6 +1088,7 @@ public final class EconomyStore {
                 long next=Math.addExact(balance,op.amount());money(next);balances.put(op.target(),next);
             }
         }
+        contracts.merchant.observe(op.kind(),op.actor(),op.target(),op.amount(),op.key(),op.reference(),professionRosters,orders);
     }
     private void persist(List<Operation> operations,PendingSale next)throws IOException{persist(operations,next,null);}
     private void persist(List<Operation> operations,PendingSale next,PendingTransfer transfer)throws IOException{

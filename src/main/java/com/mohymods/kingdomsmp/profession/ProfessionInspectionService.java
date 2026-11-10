@@ -43,7 +43,7 @@ public final class ProfessionInspectionService {
                 var facing=state.getValue(DoorBlock.FACING);boolean clear=true;
                 for(var side:List.of(facing,facing.getOpposite())){
                     var step=pos.relative(side);
-                    boolean support=level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP)||d.profession()==Profession.BLACKSMITH&&level.getBlockState(step.below()).isAir()&&level.getBlockState(step.below(2)).isFaceSturdy(level,step.below(2),Direction.UP);
+                    boolean support=level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP)||(d.profession()==Profession.BLACKSMITH||d.profession()==Profession.MERCHANT)&&level.getBlockState(step.below()).isAir()&&level.getBlockState(step.below(2)).isFaceSturdy(level,step.below(2),Direction.UP);
                     if(!level.getBlockState(step).getCollisionShape(level,step).isEmpty()||!level.getBlockState(step.above()).getCollisionShape(level,step.above()).isEmpty()||!support)clear=false;
                 }
                 if(clear)doors++;
@@ -80,6 +80,13 @@ public final class ProfessionInspectionService {
             var data=TreeSavedData.get(admin.server).evidence();for(var metric:List.of("acacia","dark_oak","jungle","mature_cherry","mature_mangrove"))if(data.evidence().count(player.getUUID(),ProfessionRank.JOURNEYMAN,metric)<1)throw new IllegalStateException("Present actual current-band timber and owned mature-tree history");
             boolean nativeTree=data.plantedNear(level.dimension().location().toString(),center).entrySet().stream().anyMatch(e->{var pos=BlockPos.of(e.getKey().position());return level.hasChunkAt(pos)&&level.getBlockState(pos).toString().equals(e.getValue().state());});if(!nativeTree)throw new IllegalStateException("Maintain a genuine native-grown tree in the inspected managed woodland");
             Set<net.minecraft.world.level.block.Block> varieties=new HashSet<>();for(var pos:BlockPos.betweenClosed(from,to))if(level.getBlockState(pos).is(BlockTags.SAPLINGS))varieties.add(level.getBlockState(pos).getBlock());if(varieties.size()<3)throw new IllegalStateException("Maintain at least3actual nursery sapling species and accessible marked replanting areas; administrator must inspect the forestry plan");
+        }
+        if(d.profession()==Profession.MERCHANT){
+            int tables=0,lecterns=0,storage=0;for(var pos:BlockPos.betweenClosed(from,to)){var state=level.getBlockState(pos);boolean accessible=false;for(var face:Direction.Plane.HORIZONTAL){var step=pos.relative(face);if(level.getBlockState(step).getCollisionShape(level,step).isEmpty()&&level.getBlockState(step.above()).getCollisionShape(level,step.above()).isEmpty()&&level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP))accessible=true;}if(!accessible)continue;if(state.is(Blocks.CARTOGRAPHY_TABLE))tables++;if(state.is(Blocks.LECTERN))lecterns++;if(state.is(Blocks.BARREL)||state.is(Blocks.CHEST))storage++;}
+            if(doors<1||markers<1||tables<1||lecterns<1||storage<1)throw new IllegalStateException("Maintain a lit accessible trading desk, accounts lectern and delivery storage: doors="+doors+",lights="+markers+",tables="+tables+",lecterns="+lecterns+",storage="+storage);
+            var store=CommerceService.store(admin.server);try{CommerceService.verifyReceipt(player,store);}catch(java.io.IOException failure){throw new IllegalStateException("Reconcile the original native inventory receipt before account inspection",failure);}
+            var accounts=store.merchantProof(player.getUUID());if(!accounts.exchanges().containsAll(Set.of("copper:silver","silver:gold"))||!accounts.orderFilled())throw new IllegalStateException("Inspect genuine coin conservation and settled order records");
+            proof="accounts=canonical,exchanges=2,mail="+store.itemMailbox(player.getUUID()).size()+",coins="+store.balance(player.getUUID())+",snapshot="+Long.toUnsignedString(snapshot,16);
         }
         if(d.profession()==Profession.LIBRARIAN){
             int shelves=0,lecterns=0,enchanting=0;boolean witnessed=false;String catalogue=null,catalogueError=null;var data=ProfessionEvidenceSavedData.get(admin.server).evidence(Profession.LIBRARIAN);

@@ -41,6 +41,7 @@ public record ConstructionBlueprint(ResourceLocation id, int version, int width,
         // Native workstation use changes these vanilla blocks, without damaging the building.
         if(vanillaAnvil(current)&&vanillaAnvil(expected))current=expected.getBlock().withPropertiesOf(current);
         if(expected.is(net.minecraft.world.level.block.Blocks.CAULDRON)&&java.util.Set.of(net.minecraft.world.level.block.Blocks.WATER_CAULDRON,net.minecraft.world.level.block.Blocks.LAVA_CAULDRON,net.minecraft.world.level.block.Blocks.POWDER_SNOW_CAULDRON).contains(current.getBlock()))current=expected;
+        current=WorkstationCompatibility.canonicalState(current,expected);
         if(current.getBlock()!=expected.getBlock())return false;
         // Derived connections, crop growth, farmland hydration and furnace operation
         // change during ordinary use; never permit replacement by another block type.

@@ -20,7 +20,7 @@ public final class BankService {
     public record Quote(UUID nonce,long revision,String selected,int quantity,long delta,long issued,List<ItemStack> inventory,String text) { }
     private static final Map<ServerPlayer,Quote> QUOTES=new WeakHashMap<>();
     private BankService() { }
-    public static void close(ServerPlayer player){QUOTES.remove(player);}
+    public static void close(ServerPlayer player){QUOTES.remove(player);CoinExchangeService.close(player);}
     public static Optional<Quote> quote(ServerPlayer player){
         var q=QUOTES.get(player);
         if(q!=null&&(System.nanoTime()-q.issued()>30_000_000_000L||CommerceService.store(player.server).revision()!=q.revision())){QUOTES.remove(player);q=null;}
@@ -52,6 +52,7 @@ public final class BankService {
             try{requireCounter(other);}catch(IllegalStateException unavailable){continue;}
             entries.add(new CommerceView.Entry("transfer:"+other.getUUID(),"Transfer to "+other.getGameProfile().getName(),"Send coins to this player in person at the registered Bank. Both players must remain nearby and eligible until confirmation.",1,"BANK"));
         }
+        for(var from:CurrencyItems.Denomination.values())for(var to:CurrencyItems.Denomination.values())if(Math.abs(from.ordinal()-to.ordinal())==1){var terms=new CoinExchangeTerms(from.id(),to.id(),1);entries.add(new CommerceView.Entry(terms.action(),"Exchange "+from.title()+"s → "+to.title()+"s","Convert "+terms.inputs()+" plain input coins to "+terms.outputs()+" plain output coins per batch, at equal value. Virtual balance unchanged.",terms.inputs(),state));}
         return List.copyOf(entries);
     }
     private static ServerPlayer recipient(ServerPlayer sender,String selected){
@@ -63,7 +64,7 @@ public final class BankService {
         requireCounter(other);return other;
     }
     public static Quote review(ServerPlayer player,String selected,int requested)throws IOException{
-        requireCounter(player);var store=CommerceService.store(player.server);CommerceService.verifyReceipt(player);
+        CoinExchangeService.close(player);requireCounter(player);var store=CommerceService.store(player.server);CommerceService.verifyReceipt(player);
         if(store.pendingSale().isPresent()||store.pendingTransfer().isPresent()||store.pendingItem().isPresent()||store.quarantined())throw new IllegalStateException("Bank paused for inventory reconciliation.");
         if(requested<1||requested>2304)throw new IllegalArgumentException("Invalid coin quantity.");
         long delta;int quantity;String text;

@@ -87,6 +87,7 @@ public final class BuilderHutService {
                                     + " / " + hut.rotation() + " / " + hut.phase() + "; NPC " + hut.npcId()
                                     + (hut.npcDead() ? " (dead; replacement requires a recovery policy)" : ""))
                             .orElse("No Builder's Hut has been installed.")), false);
+                    data.hut().ifPresent(hut -> context.getSource().sendSuccess(()->Component.literal("Hut integrity: "+integrityReport(context.getSource().getServer().overworld(),hut)),false));
                     return 1;
                 }))
                 .then(Commands.literal("preview").then(Commands.argument("origin", BlockPosArgument.blockPos())
@@ -313,6 +314,40 @@ public final class BuilderHutService {
         return hut.origin().offset(blueprint.rotateOffset(blueprint.homeOffset(), hut.rotation()));
     }
 
+    /** Non-mutating diagnostic for unexpectedly suspended Aldric interactions.
+     * Reports the first exact mismatch instead of silently disabling services.
+     * Does not place blocks, unlock rewards, or bypass any safety checks.
+     */
+    public static String integrityReport(ServerLevel level, Hut hut) {
+        if (hut == null) return "No saved Hut.";
+        for (var block : BuilderHutBlueprint.create().placements(hut.rotation())) {
+            BlockPos position = hut.origin().offset(block.offset());
+            if (!level.hasChunkAt(position)) return "UNLOADED chunk at " + position.toShortString() + "; load the Hut normally.";
+            BlockState current = level.getBlockState(position);
+            if (!matchesRequired(current, block.state())) {
+                return "DAMAGED at " + position.toShortString() + ": expected " + block.state()
+                        + ", found " + current + ". Do not replace blocks until you have a world backup.";
+            }
+        }
+        var project = ConstructionService.initializedStore(level.getServer()).stream()
+                .flatMap(store -> store.projects().stream())
+                .filter(p -> p.blueprint().toString().equals(BuilderHutBlueprint.ID)
+                        && p.origin() != null && p.origin().equals(hut.origin()) && p.npc().equals(hut.npcId()))
+                .findFirst().orElse(null);
+        if (project != null && !project.foundations().isEmpty()) {
+            String problem = ConstructionFoundations.validate(level, project, true);
+            if (problem != null) return "FOUNDATION VALIDATION: " + problem;
+            var definition = BlueprintRegistry.get(project.blueprint(), project.blueprintVersion());
+            for (var cell : project.foundations()) {
+                BlockPos position = project.origin().offset(definition.rotate(cell, project.rotation()));
+                if (!level.getBlockState(position).is(Blocks.COBBLESTONE))
+                    return "FOUNDATION DAMAGED at " + position.toShortString()
+                            + ": expected cobblestone, found " + level.getBlockState(position);
+            }
+        }
+        return "INTACT; if Aldric still refuses, check his identity, health, distance and line of sight.";
+    }
+
     public static boolean structureIntact(ServerLevel level, Hut hut) {
         for (var block : BuilderHutBlueprint.create().placements(hut.rotation())) {
             BlockPos position = hut.origin().offset(block.offset());
@@ -328,6 +363,7 @@ public final class BuilderHutService {
     }
 
     static boolean matchesRequired(BlockState current, BlockState required) {
+        current=WorkstationCompatibility.canonicalState(current,required);
         if (current.getBlock() != required.getBlock()) return false;
         // Normal use of furniture must not count as structural damage.
         for (var property : List.of(BlockStateProperties.OPEN, BlockStateProperties.POWERED, BlockStateProperties.OCCUPIED)) {
@@ -360,7 +396,7 @@ public final class BuilderHutService {
         if (hut == null) return "The kingdom has no Builder's Hut.";
         if (hut.npcDead()) return "The builder has died. Replacement requires an approved recovery policy.";
         if (hut.phase() != BuilderHutSavedData.Phase.ACTIVE) return "Hut installation is paused; an administrator must inspect the reservation.";
-        if (!structureIntact(player.server.overworld(), hut)) return "The hut is damaged or unloaded; interaction and routine are paused.";
+        if (!structureIntact(player.server.overworld(), hut)) return "Builder paused: "+integrityReport(player.server.overworld(),hut);
         var entity = player.server.overworld().getEntity(hut.npcId());
         return entity instanceof AldricEntity builder ? builder.routineStatus() : "The registered builder is unloaded or missing; no replacement is spawned.";
     }

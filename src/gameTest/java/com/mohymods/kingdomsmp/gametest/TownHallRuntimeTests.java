@@ -17,7 +17,12 @@ import net.neoforged.neoforge.gametest.*;
 public final class TownHallRuntimeTests {
     @GameTest(template="empty",timeoutTicks=1800)
     public static void newWorldLoop(GameTestHelper h)throws Exception{
+        if(ConstructionService.lodge(h.getLevel().getServer())!=null){restart(h);return;}
         newWorldLoop(h,()->{h.succeed();com.mojang.logging.LogUtils.getLogger().info("TOWN_HALL_TEST_ASSERTIONS_PASSED: owner Hut, real contributions, exclusive winner Hall, both claim APIs, furnished two floors, progressive handover, unique named Steward and persistent records");});
+    }
+    private static void restart(GameTestHelper h)throws Exception{
+      var server=h.getLevel().getServer();var hall=ConstructionService.lodge(server);var hut=BuilderHutSavedData.get(server).hut().orElseThrow();var owner=ClaimRuntimeTests.player(h.getLevel(),ConstructionService.store(server).reward(ConstructionService.STARTING_HUT).orElseThrow().owner(),ConstructionService.store(server).reward(ConstructionService.STARTING_HUT).orElseThrow().ownerName());owner.moveTo(hut.origin().getX()+12,hut.origin().getY()+1,hut.origin().getZ()+5);h.getLevel().getChunkSource().move(owner);for(var p:ConstructionService.store(server).projects()){var bounds=ConstructionService.bounds(p);for(int x=((int)bounds.minX)>>4;x<=((int)bounds.maxX)>>4;x++)for(int z=((int)bounds.minZ)>>4;z<=((int)bounds.maxZ)>>4;z++)h.getLevel().getChunk(x,z);}
+      h.runAfterDelay(40,()->{try{h.assertTrue(BuilderHutService.structureIntact(h.getLevel(),hut)&&ConstructionService.structureIntact(h.getLevel(),hall),"Actual server restart restores converted Hut and complete Hall blocks");h.assertTrue(h.getLevel().getEntity(hut.npcId()) instanceof com.mohymods.kingdomsmp.npc.AldricEntity&&h.getLevel().getEntity(hall.npc()) instanceof com.mohymods.kingdomsmp.npc.ReeveEntity,"Actual restart restores original Aldric and Steward UUIDs");h.assertTrue(h.getLevel().getEntities(com.mohymods.kingdomsmp.npc.KingdomNpcs.STEWARD.get(),e->true).size()==1,"No duplicate Steward on restart");HutFurnitureRegression.use(h,owner,hut);h.succeed();com.mojang.logging.LogUtils.getLogger().info("TOWN_HALL_RESTART_VERIFIED: same owner/Hut/converted table inventory/Aldric and completed Hall/Steward persisted, no project or NPC duplication");}catch(Exception e){h.fail(e.toString());}});
     }
     /** Shared real-world fixture; completion runs only after full native Hall handover checks. */
     public static void newWorldLoop(GameTestHelper h,Runnable completion)throws Exception{
@@ -35,7 +40,8 @@ public final class TownHallRuntimeTests {
         h.assertTrue(dispatcher.execute("kingdom admin owner HallOwner confirm",server.createCommandSourceStack())==1,"Owner assignment is explicit and durable");
         var store=ConstructionService.store(server);var starter=store.reward(ConstructionService.STARTING_HUT).orElseThrow();
         h.assertTrue(starter.owner().equals(owner.getUUID()),"Only actual starting owner earns free Hut");
-        var claim=ConstructionService.review(owner,1);ConstructionService.confirm(owner,claim.nonce(),2);
+        owner.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.CREATIVE);boolean creativeDenied=false;try{ConstructionService.review(owner,1);}catch(IllegalStateException expected){creativeDenied=expected.getMessage().contains("Creative");}h.assertTrue(creativeDenied,"Creative claim is denied with an explicit Survival/Adventure explanation");owner.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.SURVIVAL);
+        var claim=ConstructionService.review(owner,1);h.assertTrue(!ConstructionService.hasPlan(owner,starter),"Claim review alone does not deliver a plan; explicit confirmation is required");String claimFeedback=ConstructionService.confirm(owner,claim.nonce(),2);h.assertTrue(claimFeedback.contains("slot 1")&&ConstructionService.hasPlan(owner,store.get(starter.id())),"Confirmed free Hut plan goes to exact first hotbar slot with usable feedback");
         h.assertTrue(ConstructionService.heldPlan(owner,store.get(starter.id())),"Claim gives authenticated physical Hut item");
         ClaimRuntimeTests.ftbClaim(owner,hutOrigin);ClaimRuntimeTests.opacClaim(level,owner.getUUID(),hutOrigin);
         var hutPreview=ConstructionService.preview(owner,hutOrigin,Rotation.NONE);
@@ -46,6 +52,7 @@ public final class TownHallRuntimeTests {
         h.assertTrue(store.get(starter.id()).phase()==ConstructionStore.Phase.COMPLETE,"Free Hut bootstrap finishes through actual native installer: "+ConstructionService.activity(starter.id()));
         var hut=BuilderHutSavedData.get(server).hut().orElseThrow();
         h.assertTrue(hut.npcId().equals(starter.npc())&&BuilderHutService.structureIntact(level,hut),"One Aldric identity and complete furnished Hut");
+        HutFurnitureRegression.use(h,owner,hut);
         donate(owner,Resource.LOGS,Items.OAK_LOG,1024);
         donate(winner,Resource.COBBLESTONE,Items.COBBLESTONE,2048);
         donate(winner,Resource.WHEAT,Items.WHEAT,512);
@@ -73,6 +80,7 @@ public final class TownHallRuntimeTests {
         ConstructionService.confirm(winner,quote.review(),4);
         var begin=ConstructionService.review(winner,7);ConstructionService.confirm(winner,begin.nonce(),8);
         var builder=level.getEntity(hut.npcId());var post=b.workPost(site,Rotation.NONE);builder.moveTo(post.getX()+.5,post.getY(),post.getZ()+.5);
+        int prefix=store.get(hall.id()).placed();var wall=hut.origin().offset(new BlockPos(1,2,1));var wallState=level.getBlockState(wall);level.setBlock(wall,Blocks.AIR.defaultBlockState(),18);ConstructionService.step(server,hall.id());h.assertTrue(store.get(hall.id()).placed()==prefix&&!BuilderHutService.structureIntact(level,hut),"Real Hut wall loss pauses same Town Hall project without granting blocks");level.setBlock(wall,wallState,18);ConstructionService.step(server,hall.id());h.assertTrue(store.get(hall.id()).placed()>prefix&&store.get(hall.id()).npc().equals(hall.npc()),"Exact Hut repair resumes original Hall prefix and reserved NPC identity");
         boolean[] verifying={false};
         h.onEachTick(()->{
             if(verifying[0])return;
