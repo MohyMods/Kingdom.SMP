@@ -74,6 +74,7 @@ public final class EnchantedToolService {
  public static String status(ServerPlayer p){return "Combine compatible ordinary enchantments at a legitimate anvil, paying native XP and inputs. Deliver "+RepairQuestRules.enchantedTools(p.server)+" distinct authenticated tools at your Blacksmith. Preview, altered and recycled outputs do not count.";}
  public static boolean delivery(ServerPlayer p){return eligible(p);}
  public static Quote review(ServerPlayer p)throws IOException{return review(p,QUEST,true,RepairQuestRules.enchantedTools(p.server));}
+ public static Quote reviewBrew(ServerPlayer p,String quest)throws IOException{BrewQuests.get(quest);return review(p,quest,true,NativeOutputQuests.goal(p,quest));}
  public static Quote reviewLibrary(ServerPlayer p)throws IOException{return reviewLibrary(p,NativeOutputQuests.LIBRARY_ENCHANT);}
  public static Quote reviewLibrary(ServerPlayer p,String quest)throws IOException{if(NativeOutputQuests.get(quest).profession()!=Profession.LIBRARIAN)throw new IllegalArgumentException("Choose a native library output");return review(p,quest,true,NativeOutputQuests.goal(p,quest));}
  public static Quote reviewSmithRegistration(ServerPlayer p)throws IOException{return review(p,SmithingQuestService.QUEST,false,RepairQuestRules.upgrades(p.server));}

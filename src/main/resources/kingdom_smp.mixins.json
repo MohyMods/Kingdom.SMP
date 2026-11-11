@@ -29,7 +29,13 @@
     "NativeAnvilRepairMixin",
     "NativeSmithingQuestMixin",
     "NativeEnchantingAccess",
-    "NativeLibraryEnchantMixin"
+    "NativeLibraryEnchantMixin",
+    "NativeBrewingAccess",
+    "NativeBrewingMixin",
+    "NativeBrewMenuMixin",
+    "NativeBrewClickMixin",
+    "NativeBrewTakeMixin",
+    "NativeBrewContainerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

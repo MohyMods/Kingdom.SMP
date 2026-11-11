@@ -10,6 +10,7 @@ public final class ProfessionQuestService {
     private static final ProfessionQuestCatalog CATALOG;
     static {
         var definitions=new ArrayList<>(FarmerQuests.catalog().definitions().values());
+        BrewQuests.ids().forEach(id->definitions.add(ApprovedProfessionContent.get(id).slot()));
         MerchantTransactionQuests.ids().forEach(id->definitions.add(ApprovedProfessionContent.get(id).slot()));
         definitions.addAll(CommissionQuests.catalog().definitions().values().stream().filter(d->CommissionQuests.contains(d.id())).toList());
         definitions.addAll(InspectionQuests.catalog().definitions().values().stream().filter(d->InspectionQuests.contains(d.id())).toList());
@@ -33,6 +34,7 @@ public final class ProfessionQuestService {
     public static String status(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return "This objective has no validated runtime implementation yet. Existing progress is preserved.";
         if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.status(player,id);
+        if(BrewQuests.contains(id))return "Brew and deliver "+BrewQuestRules.goal(player.server,id)+" native "+BrewQuests.get(id).output()+" potions. Load bottles, insert reagent last into an idle permitted stand, then collect your batch. Native fuel/ingredients must be paid; keep inputs unchanged until completion.";
         if(NativeOutputQuests.journeymanBook(id))return (id.equals(NativeOutputQuests.LIBRARY_FAMILIES)?"Deliver distinct books from protection, tool, weapon and durability families; "+LibraryQuestRules.get(player.server).familyCopies()+" each.":"Deliver "+LibraryQuestRules.get(player.server).maximumBooks()+" books newly combined to a native maximum level.")+" Choose commission here before producing; existing outputs retain their purpose.";
         if(NativeOutputQuests.LIBRARY_BOOKS.equals(id))return "Combine and deliver "+LibraryQuestRules.get(player.server).enchantedBooks()+" distinct ordinary enchanted books through a permitted native anvil. Preserve compatible enchantments and pay actual books/XP; copied, stripped or recycled outputs do not count.";
         if(NativeOutputQuests.LIBRARY_ENCHANT.equals(id))return LibraryEnchantService.status(player);

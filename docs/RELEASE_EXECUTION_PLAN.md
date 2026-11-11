@@ -1,3 +1,5 @@
+> D083: Alchemist full8Apprentice and native j01/j02 implemented; authenticated native fuel/reagent batches, actual potion deliveries/current claims/restart pass. Next shared j03/j04quota/splash producers, then approved profession/mod/tier/FTB/admin backlog; no unvalidated mod activation, per-feature release or1.0claim.
+
 > Current authority: [budget-mode completion directive](sources/FINAL_PRODUCTION_BUDGET_MODE_2026-11-11.md). Fix the demonstrated Visual Workbench/Hut/Aldric/Hall/blueprint feedback regressions first, then grouped approved profession producers, remaining natural kingdom progression/buildings, FTB campaign, critical administration/integrations and actual full-pack acceptance. The remaining264quests are APPROVED at9004b3e (D062); the old proposal/approval request below is historical. Do not publish per-feature builds or declare1.0.0 before acceptance.
 
 > D057: Corin’s physical refueling supply/private claim/native boiler burn and restart are verified in AIRCRAFT_FUEL_RUNTIME.md. Continue scouting and the complete remaining release backlog; no intermediate binary release.
