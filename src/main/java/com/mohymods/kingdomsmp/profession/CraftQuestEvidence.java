@@ -22,6 +22,7 @@ public final class CraftQuestEvidence {
         String id=BuiltInRegistries.ITEM.getKey(output.getItem()).toString();
         for(var role:roster.active()){
             var metric=CraftDeliveryQuests.metrics(role).get(id);if(metric==null||metric.startsWith("smelt_"))continue;
+            if(role==Profession.ENGINEER&&!CreateCraftQuests.valid(p,event.getInventory(),output))continue;
             if(NativePrimaryRecipes.guarded(output.getItem())&&!NativePrimaryRecipes.valid(p,event.getInventory(),output))continue;
             if(TrimCopies.contains(id)&&!TrimCopies.nativeDuplication(p,id,event.getInventory(),output))continue;
             if(com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(p.server).attainedTier()<ApprovedProfessionContent.get(role.questId(roster.progressBand(role),1)).minimumTier())continue;

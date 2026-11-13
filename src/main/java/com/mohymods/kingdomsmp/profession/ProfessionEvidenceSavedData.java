@@ -14,7 +14,7 @@ import net.minecraft.world.level.storage.LevelResource;
 public final class ProfessionEvidenceSavedData extends SavedData {
     private static final String NAME="kingdomsmp_profession_evidence_v1";
     private final Map<Profession,ProfessionEvidence> evidence=new EnumMap<>(Profession.class);
-    private static Set<String> metrics(Profession role){var metrics=new HashSet<>(CraftDeliveryQuests.metrics(role).values());if(role==Profession.LIBRARIAN)metrics.add(LibraryEnchantService.METRIC);return metrics;}
+    private static Set<String> metrics(Profession role){var metrics=new HashSet<>(CraftDeliveryQuests.metrics(role).values());if(role==Profession.LIBRARIAN){metrics.add(LibraryEnchantService.METRIC);metrics.add(LibraryFieldGuide.METRIC);}return metrics;}
     public ProfessionEvidence evidence(Profession role){
         var metrics=metrics(role);
         if(metrics.isEmpty())throw new IllegalArgumentException("No implemented evidence producer for profession");
