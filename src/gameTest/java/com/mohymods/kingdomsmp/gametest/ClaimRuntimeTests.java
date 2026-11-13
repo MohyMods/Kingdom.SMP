@@ -22,6 +22,9 @@ import java.util.*;
 @GameTestHolder("kingdom_smp_claim_tests")
 @PrefixGameTestTemplate(false)
 public final class ClaimRuntimeTests {
+    @GameTest(template="empty",templateNamespace="kingdom_smp_builder_master_tests",timeoutTicks=2000)
+    public static void layeredMasterInterior(GameTestHelper h)throws Exception{BuilderMasterInteriorRuntime.run(h);}
+
     @GameTest(template="empty",templateNamespace="kingdom_smp_chunk_unload_tests",timeoutTicks=1200)
     public static void cancelledChunkUnloads(GameTestHelper h)throws Exception{ChunkUnloadRuntimeTests.cancelledAndMatchingPendingUnload(h);}
 

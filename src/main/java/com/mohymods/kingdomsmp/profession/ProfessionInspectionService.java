@@ -31,9 +31,9 @@ public final class ProfessionInspectionService {
         if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(id)||!InspectionQuests.catalog().mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             ||ContributionService.kingdom(admin.server).attainedTier()<d.minimumTier()||!ProfessionService.available(player,d.profession()))throw new IllegalStateException("Profession, premises, tier or objective prerequisites are unavailable");
         if(player.serverLevel()!=admin.serverLevel()||admin.distanceToSqr(center.getX()+.5,center.getY()+.5,center.getZ()+.5)>256||player.distanceToSqr(center.getX()+.5,center.getY()+.5,center.getZ()+.5)>1024)throw new IllegalStateException("Administrator must be within16blocks and player within32blocks in the inspected dimension");
-        var level=admin.serverLevel();int radius=id.equals("kingdom_smp:builder/j05")||id.equals("kingdom_smp:builder/j08")?25:8;var from=center.offset(-radius,-3,-radius);var to=center.offset(radius,3,radius);
-        for(var pos:BlockPos.betweenClosed(center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,5,radius+1)))if(!level.hasChunkAt(pos))throw new IllegalStateException("Inspection never loads chunks; visit the full site first at "+pos.toShortString());
-        String denial=PlacementProtection.check(level,player,center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,5,radius+1));
+        var level=admin.serverLevel();int radius=id.equals("kingdom_smp:builder/j05")||id.equals("kingdom_smp:builder/j08")?25:8;var from=center.offset(-radius,-3,-radius);var to=center.offset(radius,(id.equals(LayeredInteriorInspection.QUEST)||BuilderCivicInspection.building(id))?10:3,radius);
+        for(var pos:BlockPos.betweenClosed(center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,(id.equals(LayeredInteriorInspection.QUEST)||BuilderCivicInspection.building(id))?12:5,radius+1)))if(!level.hasChunkAt(pos))throw new IllegalStateException("Inspection never loads chunks; visit the full site first at "+pos.toShortString());
+        String denial=PlacementProtection.check(level,player,center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,(id.equals(LayeredInteriorInspection.QUEST)||BuilderCivicInspection.building(id))?12:5,radius+1));
         if(denial!=null)throw new IllegalStateException("Inspected player's site permission: "+denial);
         var controls=id.equals(CreateTransmissionInspection.QUEST)?expected==null?CreateTransmissionInspection.capture(player,center):expected:null;
         int doors=0,stairs=0,markers=0,saplings=0,logs=0;Set<BlockPos> routes=new HashSet<>();
@@ -83,6 +83,10 @@ public final class ProfessionInspectionService {
             boolean nativeTree=data.plantedNear(level.dimension().location().toString(),center).entrySet().stream().anyMatch(e->{var pos=BlockPos.of(e.getKey().position());return level.hasChunkAt(pos)&&level.getBlockState(pos).toString().equals(e.getValue().state());});if(!nativeTree)throw new IllegalStateException("Maintain a genuine native-grown tree in the inspected managed woodland");
             Set<net.minecraft.world.level.block.Block> varieties=new HashSet<>();for(var pos:BlockPos.betweenClosed(from,to))if(level.getBlockState(pos).is(BlockTags.SAPLINGS))varieties.add(level.getBlockState(pos).getBlock());if(varieties.size()<3)throw new IllegalStateException("Maintain at least3actual nursery sapling species and accessible marked replanting areas; administrator must inspect the forestry plan");
         }
+        if(id.equals(BuilderCivicInspection.ROUTES))proof=BuilderCivicInspection.routes(player,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
+        if(BuilderCivicInspection.building(id)){if(doors<1)throw new IllegalStateException("Maintain a usable public entrance to the supplied civic project");proof=BuilderCivicInspection.project(player,center)+",snapshot="+Long.toUnsignedString(snapshot,16);}
+        if(id.equals(SupplementariesInspection.QUEST))proof=SupplementariesInspection.validate(player,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
+        if(id.equals(LayeredInteriorInspection.QUEST)){if(doors<1)throw new IllegalStateException("Maintain a supported clear usable entrance to the two-floor project");proof=LayeredInteriorInspection.validate(player,center)+",snapshot="+Long.toUnsignedString(snapshot,16);}
         if(id.equals(CreateWorkshopInspection.QUEST))proof=CreateWorkshopInspection.validate(player,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
         if(id.equals(CreateDriveInspection.QUEST))proof=CreateDriveInspection.validate(player,center)+",snapshot="+Long.toUnsignedString(snapshot,16);
         if(d.profession()==Profession.ALCHEMIST){

@@ -25,7 +25,7 @@ class ProfessionInspectionStoreTest {
         var s=EconomyStore.open(directory);s.changeProfession(UUID.randomUUID(),player,"enroll","","builder");
         assertThrows(IllegalArgumentException.class,()->s.completeCommissionQuest(UUID.randomUUID(),player,QUEST,1));
         assertThrows(IllegalArgumentException.class,()->s.completeFarmerQuest(UUID.randomUUID(),player,QUEST,"forged event"));
-        assertThrows(IllegalArgumentException.class,()->s.approveProfessionInspection(UUID.randomUUID(),admin,player,"kingdom_smp:builder/m08","no validated adapter"));
+        assertThrows(IllegalArgumentException.class,()->s.approveProfessionInspection(UUID.randomUUID(),admin,player,"kingdom_smp:blacksmith/m08","no validated adapter"));
         assertThrows(IllegalArgumentException.class,()->s.approveProfessionInspection(UUID.randomUUID(),admin,player,QUEST,""));
         assertThrows(IllegalStateException.class,()->s.approveProfessionInspection(UUID.randomUUID(),admin,player,"kingdom_smp:lumberjack/a06","inactive profession"));
         assertEquals(0,s.professions(player).track(Profession.BUILDER).xp());

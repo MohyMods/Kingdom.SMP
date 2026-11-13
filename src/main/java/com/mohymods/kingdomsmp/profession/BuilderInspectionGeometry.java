@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /** Actual loaded-world functional geometry for approved vanilla Builder inspections. Never edits blocks. */
 final class BuilderInspectionGeometry {
     private BuilderInspectionGeometry() { }
-    private static boolean clear(ServerLevel level,BlockPos pos){return level.getBlockState(pos).getCollisionShape(level,pos).isEmpty()&&level.getBlockState(pos.above()).getCollisionShape(level,pos.above()).isEmpty();}
+    static boolean clear(ServerLevel level,BlockPos pos){return level.getBlockState(pos).getCollisionShape(level,pos).isEmpty()&&level.getBlockState(pos.above()).getCollisionShape(level,pos.above()).isEmpty();}
     private static boolean deck(ServerLevel level,BlockPos pos){var state=level.getBlockState(pos);return (state.isCollisionShapeFullBlock(level,pos)||state.is(Blocks.DIRT_PATH)||state.getBlock() instanceof SlabBlock||state.getBlock() instanceof StairBlock)&&clear(level,pos.above());}
     static boolean twelveSpan(boolean[] decks,boolean[] grounded,boolean[] gap){
         if(decks.length!=14||grounded.length!=14||gap.length!=14)throw new IllegalArgumentException("Fourteen inspected crossing cells required");
@@ -23,7 +23,8 @@ final class BuilderInspectionGeometry {
             if(twelveSpan(decks,ground,gap))return true;
         }return false;
     }
-    private static String station(BlockState state){
+    static String station(BlockState state){
+        state=WorkstationCompatibility.canonicalState(state,Blocks.CRAFTING_TABLE.defaultBlockState());
         if(state.is(Blocks.CRAFTING_TABLE)||state.is(Blocks.STONECUTTER))return "construction";
         if(state.getBlock() instanceof AbstractFurnaceBlock)return "cooking";
         if(state.getBlock() instanceof ChestBlock||state.is(Blocks.BARREL))return "storage";
@@ -34,7 +35,7 @@ final class BuilderInspectionGeometry {
     private static boolean access(ServerLevel level,BlockPos pos){
         for(var side:Direction.Plane.HORIZONTAL){var step=pos.relative(side);if(clear(level,step)&&level.getBlockState(step.below()).isFaceSturdy(level,step.below(),Direction.UP))return true;}return false;
     }
-    private static boolean roof(ServerLevel level,BlockPos pos){for(int y=2;y<=4;y++){var above=pos.above(y);var state=level.getBlockState(above);if(state.isCollisionShapeFullBlock(level,above)||state.getBlock() instanceof SlabBlock||state.getBlock() instanceof StairBlock)return true;}return false;}
+    static boolean roof(ServerLevel level,BlockPos pos){for(int y=2;y<=4;y++){var above=pos.above(y);var state=level.getBlockState(above);if(state.isCollisionShapeFullBlock(level,above)||state.getBlock() instanceof SlabBlock||state.getBlock() instanceof StairBlock)return true;}return false;}
     static boolean zones(List<List<BlockPos>> groups,int index,List<BlockPos> selected,int[] budget){
         if(index==groups.size())return true;
         for(var pos:groups.get(index)){if(--budget[0]<0)return false;if(selected.stream().anyMatch(old->Math.abs(old.getX()-pos.getX())<2&&Math.abs(old.getZ()-pos.getZ())<2))continue;selected.add(pos);if(zones(groups,index+1,selected,budget))return true;selected.removeLast();}return false;
