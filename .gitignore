@@ -43,3 +43,8 @@ repo/
 .cache/
 run-client/
 artifacts/
+work/
+
+# Local Python tooling caches
+__pycache__/
+*.pyc

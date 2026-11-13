@@ -1,0 +1,274 @@
+package com.mohymods.kingdomsmp.client.screen;
+
+import com.mohymods.kingdomsmp.client.CommerceController;
+import com.mohymods.kingdomsmp.client.ui.*;
+import com.mohymods.kingdomsmp.network.*;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+import org.lwjgl.glfw.GLFW;
+import java.util.*;
+import java.util.List;
+
+/** Consistent Royal Gilded navigation for actual Architect stock, essentials, private mail and auctions. */
+public final class CommerceScreen extends Screen {
+    private static final String[] TABS={"Architect","Supplies","Mailbox","Bank","Progress","Auctions","Buy orders","Professions","Contracts","Titles"};
+    private static final String[] COMPACT_TABS={"Plans","Shop","Mail","Bank","Tier","Trade","Orders","Roles","Jobs","Titles"};
+    private CommerceView view;
+    private final Screen parent;
+    private RoyalLayout box;
+    private String selected="";
+    private int quantity=64,page,rows,scroll,maxScroll;
+    private int listX,listY,listW,listH,detailX,detailY,detailW,detailH;
+    private boolean small,wide;
+    private RoyalButton action,previous,next;
+    private EditBox priceField,quantityField;
+    private String listingPrice="100",bidPrice="",bidSelection="";
+    private long bidMinimum;
+    private String orderQuantity="64",fillQuantity="64",unitPrice="10";
+    private final List<RoyalButton> busyButtons=new ArrayList<>();
+
+    public CommerceScreen(CommerceView view,Screen parent){super(text("Royal Exchange"));this.view=view;this.parent=parent;selectFirst();}
+    public void accept(CommerceView update){
+        // A permission/context failure can intentionally have no readable store revision.
+        // Correlation already rejected obsolete replies; show the denial instead of retaining a stale review.
+        if(update.revision()<view.revision()&&!(update.entries().isEmpty()&&!update.notice().isBlank()))return;
+        boolean changedTab=update.tab()!=view.tab(),changedReview=update.reviewing()!=view.reviewing();
+        view=update;
+        if(changedTab){page=0;selected="";}
+        if(changedTab||changedReview)scroll=0;
+        selectFirst();rebuild();
+    }
+    public void invalidateReview(){
+        view=new CommerceView(view.requestId(),view.revision(),view.open(),view.tab(),view.tier(),view.balance(),view.entries(),CommerceRequest.NONE,"",view.notice());
+        scroll=0;rebuild();
+    }
+    private void changePage(int requested){int size=Math.max(1,rows);page=Math.clamp(requested,0,Math.max(0,(view.entries().size()-1)/size));int index=page*size;selected=index<view.entries().size()?view.entries().get(index).id():"";scroll=0;rebuild();}
+    private void selectFirst(){if(view.entries().stream().noneMatch(e->e.id().equals(selected))){selected=view.entries().isEmpty()?"":view.entries().getFirst().id();page=0;}}
+    private CommerceView.Entry selected(){return view.entries().stream().filter(e->e.id().equals(selected)).findFirst().orElse(null);}
+    @Override protected void init(){
+        if(community())quantity=Math.min(quantity,64);
+        busyButtons.clear();action=null;previous=null;next=null;priceField=null;quantityField=null;small=width<360||height<220;
+        if(small){addRenderableWidget(button(Math.max(0,width/2-40),height-26,80,"Close",b->onClose(),"Return to the kingdom."));return;}
+        box=RoyalLayout.fit(width,height);int x=box.contentX(),w=box.contentWidth(),tw=(w-4*(TABS.length-1))/TABS.length;
+        for(int i=0;i<TABS.length;i++){
+            int tab=i;String label=font.width(TABS[i])<=tw-8?TABS[i]:COMPACT_TABS[i];
+            if(i==6&&font.width(label)>tw-8)label="Order";
+            busyButtons.add(addRenderableWidget(button(x+i*(tw+4),box.y()+48,tw,label,b->CommerceController.open(tab),"Read "+TABS[i].toLowerCase(Locale.ROOT)+" services.").selected(view.tab()==i)));
+        }
+        layoutBody();
+        if(!view.reviewing()&&orderQuantityEntry()){
+            quantityField=addRenderableWidget(new EditBox(font,x+128,box.y()+25,46,18,text(orderCreate()?"Total buy-order quantity":"Quantity to fill")));
+            quantityField.setMaxLength(4);
+            quantityField.setFilter(value->value.isEmpty()||value.chars().allMatch(c->c>='0'&&c<='9'));
+            quantityField.setValue(orderCreate()?orderQuantity:fillQuantity);
+            quantityField.setResponder(value->{if(orderCreate())orderQuantity=value;else fillQuantity=value;});
+            quantityField.setTooltip(Tooltip.create(text(orderCreate()?"Total quantity to request: 1 to 2,304. The full order value is reserved when you confirm.":"Quantity to sell to this order: 1 to 64. The server reviews the remaining demand and your matching inventory.")));
+        }
+        if(!view.reviewing()&&amountEntry()){
+            prepareBidInput();
+            // Keep amount entry out of the parchment viewport at narrow GUI scales.
+            priceField=addRenderableWidget(new EditBox(font,x+(orderCreate()?210:154),box.y()+25,orderCreate()?Math.min(100,w-210):Math.min(100,w-254),18,text(orderCreate()?"Buy-order unit price in coins":bidding()?"Bid amount in coins":"Total listing price in coins")));
+            priceField.setMaxLength(10);
+            priceField.setFilter(value->value.isEmpty()||value.chars().allMatch(c->c>='0'&&c<='9'));
+            priceField.setValue(orderCreate()?unitPrice:bidding()?bidPrice:listingPrice);
+            priceField.setResponder(value->{if(orderCreate())unitPrice=value;else if(bidding())bidPrice=value;else listingPrice=value;});
+            priceField.setTooltip(Tooltip.create(text(orderCreate()?"Price for each requested item: 1 to 1,000,000,000 coins. Review the total reserved funds before confirming.":bidding()?"Your funded bid must meet the server's current minimum. Review before any coins are reserved.":timedListing()?"Starting price for the entire reviewed stack: 1 to 1,000,000,000 coins. The timed auction lasts 24 hours.":"Total price for the reviewed stack: 1 to 1,000,000,000 coins. This is not a price per item.")));
+        }
+        if(!view.reviewing()){
+            int resizedRows=Math.max(1,(listH-24)/36);
+            if(resizedRows!=rows){int selectedIndex=0;for(int i=0;i<view.entries().size();i++)if(view.entries().get(i).id().equals(selected)){selectedIndex=i;break;}page=selectedIndex/resizedRows;}
+            rows=resizedRows;int pages=Math.max(1,(view.entries().size()+rows-1)/rows);page=Math.clamp(page,0,pages-1);
+            for(int index=page*rows;index<Math.min(view.entries().size(),(page+1)*rows);index++){
+                var entry=view.entries().get(index);int y=listY+(index-page*rows)*36;
+                busyButtons.add(addRenderableWidget(button(listX+3,y+3,listW-6,entry.title(),b->{selected=entry.id();scroll=0;rebuild();},entry.detail()).selected(entry.id().equals(selected))));
+            }
+            int navW=Math.max(32,(listW-10)/2);
+            previous=addRenderableWidget(button(listX+3,listY+listH-21,navW,"Previous",b->changePage(page-1),"Read earlier entries."));
+            next=addRenderableWidget(button(listX+listW-navW-3,listY+listH-21,navW,"Next",b->changePage(page+1),"Read more entries."));
+            if(wide&&wantsQuantity()&&selected()!=null){
+                int qw=(detailW-14)/4;int[] amounts=community()?new int[]{1,8,16,64}:new int[]{1,16,64,2304};
+                for(int i=0;i<4;i++){
+                    int amount=amounts[i];busyButtons.add(addRenderableWidget(button(detailX+4+i*(qw+2),detailY+detailH-24,qw,amount==2304?(view.tab()==3?"Max":"All"):Integer.toString(amount),b->{quantity=amount;rebuild();},"Review the accepted quantity before any items are consumed.").selected(quantity==amount)));
+                }
+            }
+        }
+        if(!wide&&!view.reviewing()&&wantsQuantity()){
+            int qw=w-266;
+            busyButtons.add(addRenderableWidget(button(x+188,box.footerY(),qw,"Qty: "+(quantity==2304?(view.tab()==3?"Max":"All"):quantity),b->{quantity=community()?switch(quantity){case 1->8;case 8->16;case 16->64;default->1;}:switch(quantity){case 1->16;case 16->64;case 64->2304;default->1;};rebuild();},"Cycle 1, 16, 64 or a bounded maximum; review before committing.")));
+        }
+        action=addRenderableWidget(button(x,box.footerY(),108,actionLabel(),b->act(),"Review the exact server-validated transaction before committing."));
+        addRenderableWidget(button(x+114,box.footerY(),68,"Refresh",b->CommerceController.open(view.tab()),"Inspect saved stock, balance and mailbox. Does not repeat a payment."));
+        addRenderableWidget(button(box.x()+box.width()-86,box.footerY(),72,view.reviewing()?"Cancel":"Back",b->{if(view.reviewing())CommerceController.open(view.tab());else onClose();},"Return without another transaction."));
+    }
+    private void layoutBody(){
+        int x=box.contentX(),y=box.bodyY(),w=box.contentWidth(),h=box.bodyHeight();wide=w>=430;
+        if(wide){listX=x;listY=y;listW=Math.clamp(w/3,132,220);listH=h;detailX=x+listW+8;detailY=y;detailW=w-listW-8;detailH=h;}
+        else{listX=x;listY=y;listW=w;listH=46;detailX=x;detailY=y+listH+6;detailW=w;detailH=Math.max(0,h-listH-6);}
+    }
+    private String actionLabel(){
+        if(view.reviewing())return "Confirm";
+        var row=selected();if(row==null)return "Review";
+        return switch(row.state()){case "TITLE_AVAILABLE","TITLE_SELECTED"->"Review title";case "AIRCRAFT_FUEL"->"Review fuel";case "SCOUT_ACCEPT"->"Review reconnaissance";case "SCOUT_FINISH"->"Review report";case "CARGO_ACCEPT"->"Review cargo";case "CARGO_FINISH"->"Review unloading";case "CARGO_RESUME"->"Review resume";case "CARGO_CANCEL"->"Review cancellation";case "FLIGHT_ACCEPT"->"Review dispatch";case "FLIGHT_FINISH"->"Review report";case "AIRCRAFT_REPAIR"->"Review repair";case "AIRCRAFT_REPAIR_CANCEL"->"Review refund";case "AIRCRAFT_UPGRADE"->"Review upgrade";case "AIRCRAFT_RECOVER"->"Review recovery";case "AIRCRAFT"->"Review aircraft";case "SHARE"->"Review sharing";case "REVOKE"->"Review revocation";case "HUNT_AVAILABLE"->"Review hunt";case "HUNT_READY"->"Review payment";case "EQUIPMENT"->"Review equipment";case "COMMUNITY"->"Review contribution";case "PROF_TARGET"->"Choose commission";case "PROF_REGISTRATION"->"Review registration";case "PROF_DELIVERY"->"Review delivery";case "PROF_QUEST"->"Review earned quest";case "CONTRACT"->"Review delivery";case "PROF_ENROLL"->"Review enrollment";case "PROF_SWITCH"->"Review switch";case "AVAILABLE","SHOP"->"Review purchase";case "SELL"->"Review sale";case "BANK"->"Review transfer";case "CONTRIBUTE"->"Review donation";case "COINS","ITEMS"->"Review claim";case "LIST"->"Review listing";case "LIST_TIMED"->"Review auction";case "BID"->"Review bid";case "BUY"->"Review purchase";case "RETURN"->"Review return";case "ORDER_CREATE"->"Review order";case "ORDER_FILL"->"Review fill";case "ORDER_CANCEL"->"Cancel order";case "BLUEPRINT"->"Manage plan";default->"Review";};
+    }
+    private void act(){
+        if(view.reviewing()){CommerceController.request(2,view.tab(),selected,rodPurchase()?1:orderQuantityEntry()?Math.max(1,requestedQuantity()):quantity,view.review());return;}
+        var row=selected();if(row!=null)CommerceController.request(row.state().equals("BLUEPRINT")?3:1,view.tab(),row.id(),rodPurchase()?1:orderQuantityEntry()?requestedQuantity():quantity,CommerceRequest.NONE,amountEntry()?price():0);
+    }
+    private boolean listing(){var row=selected();return view.tab()==5&&row!=null&&(row.state().equals("LIST")||row.state().equals("LIST_TIMED"));}
+    private boolean timedListing(){var row=selected();return view.tab()==5&&row!=null&&row.state().equals("LIST_TIMED");}
+    private boolean bidding(){var row=selected();return view.tab()==5&&row!=null&&row.state().equals("BID");}
+    private boolean orderCreate(){var row=selected();return view.tab()==6&&row!=null&&row.state().equals("ORDER_CREATE");}
+    private boolean orderFill(){var row=selected();return view.tab()==6&&row!=null&&row.state().equals("ORDER_FILL");}
+    private boolean orderQuantityEntry(){return orderCreate()||orderFill();}
+    private int requestedQuantity(){
+        try{int value=Integer.parseInt(orderCreate()?orderQuantity:fillQuantity);return value>=1&&value<=(orderCreate()?2304:64)?value:0;}
+        catch(NumberFormatException invalid){return 0;}
+    }
+    private boolean amountEntry(){return listing()||bidding()||orderCreate();}
+    private boolean community(){var row=selected();return row!=null&&row.state().equals("COMMUNITY");}
+    private boolean rodPurchase(){return selected()!=null&&selected().id().equals("fish:rod");}
+    private boolean wantsQuantity(){return !rodPurchase()&&!aircraftService()&&(view.tab()==1||view.tab()==3||view.tab()==4||selected()!=null&&selected().state().equals("COMMUNITY")||listing());}
+    private static long coins(String input){try{long value=Long.parseLong(input);return value>=1&&value<=1_000_000_000L?value:0;}catch(NumberFormatException invalid){return 0;}}
+    private long price(){return coins(orderCreate()?unitPrice:bidding()?bidPrice:listingPrice);}
+    private void prepareBidInput(){
+        if(!bidding())return;var row=selected();
+        if(!bidSelection.equals(row.id())||bidMinimum!=row.price()&&coins(bidPrice)<row.price())bidPrice=Long.toString(row.price());
+        bidSelection=row.id();bidMinimum=row.price();
+    }
+    private boolean aircraftService(){var row=selected();return row!=null&&Set.of("TITLE_AVAILABLE","TITLE_SELECTED","SCOUT_ACCEPT","SCOUT_FINISH","AIRCRAFT_FUEL","AIRCRAFT","SHARE","REVOKE","AIRCRAFT_RECORD","AIRCRAFT_RECOVER","AIRCRAFT_UPGRADE","AIRCRAFT_REPAIR","AIRCRAFT_REPAIR_CANCEL").contains(row.state());}
+    private boolean actionable(){var row=selected();return row!=null&&Set.of("TITLE_AVAILABLE","TITLE_SELECTED","SCOUT_ACCEPT","SCOUT_FINISH","AIRCRAFT_FUEL","CARGO_ACCEPT","CARGO_FINISH","CARGO_RESUME","CARGO_CANCEL","FLIGHT_ACCEPT","FLIGHT_FINISH","AIRCRAFT_REPAIR","AIRCRAFT_REPAIR_CANCEL","AIRCRAFT_UPGRADE","AIRCRAFT_RECOVER","AIRCRAFT","SHARE","REVOKE","HUNT_AVAILABLE","HUNT_READY","EQUIPMENT","COMMUNITY","PROF_TARGET","PROF_REGISTRATION","PROF_DELIVERY","PROF_QUEST","CONTRACT","PROF_ENROLL","PROF_SWITCH","AVAILABLE","SHOP","SELL","COINS","BLUEPRINT","BANK","CONTRIBUTE","LIST","LIST_TIMED","BID","BUY","RETURN","ITEMS","ORDER_CREATE","ORDER_FILL","ORDER_CANCEL").contains(row.state())&&(!amountEntry()||price()>0&&(!bidding()||price()>=row.price()))&&(!orderQuantityEntry()||requestedQuantity()>0);}
+    private void rebuild(){if(minecraft!=null){clearWidgets();init();}}
+    private RoyalButton button(int x,int y,int w,String label,net.minecraft.client.gui.components.Button.OnPress click,String hint){return new RoyalButton(x,y,w,20,text(label),click,text(hint));}
+    @Override public void renderBackground(GuiGraphics g,int x,int y,float partial){ }
+    @Override public void render(GuiGraphics g,int mouseX,int mouseY,float partial){
+        g.fill(0,0,width,height,RoyalPalette.BACKDROP);
+        if(small){g.drawCenteredString(font,"Increase the window or reduce GUI scale.",width/2,height/2,RoyalPalette.TEXT);super.render(g,mouseX,mouseY,partial);return;}
+        RoyalPanel.frame(g,box.x(),box.y(),box.width(),box.height());
+        boolean editingAmount=!view.reviewing()&&(amountEntry()||orderQuantityEntry());
+        String balance=String.format(Locale.ROOT,"%,d coins",view.balance());
+        int bw=Math.min(box.contentWidth()-(editingAmount?174:116),font.width(balance));
+        line(g,"Royal Exchange · "+TABS[view.tab()],box.contentX(),box.y()+12,editingAmount?box.contentWidth()-bw-8:box.contentWidth(),RoyalPalette.GOLD);
+        line(g,"Kingdom Tier "+view.tier(),box.contentX(),box.y()+29,!view.reviewing()&&orderQuantityEntry()?100:112,RoyalPalette.TEXT);
+        line(g,balance,box.contentX()+box.contentWidth()-bw,box.y()+(editingAmount?12:29),bw,RoyalPalette.GOLD);
+        if(editingAmount){
+            if(orderQuantityEntry()){
+                line(g,"Qty",box.contentX()+105,box.y()+29,21,requestedQuantity()>0?RoyalPalette.GOLD:RoyalPalette.MUTED);
+                if(orderCreate())line(g,"Unit",box.contentX()+182,box.y()+29,26,price()>0?RoyalPalette.GOLD:RoyalPalette.MUTED);
+            }else line(g,bidding()?"Bid":timedListing()?"Start":"Price",box.contentX()+118,box.y()+29,34,price()>0&&(!bidding()||price()>=selected().price())?RoyalPalette.GOLD:RoyalPalette.MUTED);
+        }
+        if(view.reviewing())renderReview(g);else{renderRows(g);renderDetail(g);}
+        boolean waiting=CommerceController.waiting();busyButtons.forEach(b->b.active=!waiting);
+        if(priceField!=null)priceField.setEditable(!waiting&&!CommerceController.refreshRequired());
+        if(quantityField!=null)quantityField.setEditable(!waiting&&!CommerceController.refreshRequired());
+        if(action!=null)action.active=!waiting&&!CommerceController.refreshRequired()&&(view.reviewing()||actionable());
+        if(previous!=null)previous.active=!waiting&&page>0;
+        if(next!=null)next.active=!waiting&&(page+1)*rows<view.entries().size();
+        String notice=CommerceController.status().isBlank()?view.notice():CommerceController.status();
+        if(!notice.isBlank())line(g,notice,box.contentX(),box.footerY()-11,box.contentWidth(),RoyalPalette.MUTED);
+        super.render(g,mouseX,mouseY,partial);
+    }
+    private void renderRows(GuiGraphics g){
+        g.fill(listX,listY,listX+listW,listY+listH,RoyalPalette.PANEL);
+        if(view.entries().isEmpty())line(g,view.tab()==2?"No deliveries yet.":"No entries available.",listX+6,listY+9,listW-12,RoyalPalette.MUTED);
+        for(int i=page*rows;i<Math.min(view.entries().size(),(page+1)*rows);i++){
+            var row=view.entries().get(i);int y=listY+(i-page*rows)*36;
+            String label=stateLabel(row.state())+(row.price()>0?" · "+String.format(Locale.ROOT,"%,d",row.price())+" coins":"");
+            if(wide)line(g,label,listX+7,y+25,listW-14,row.state().equals("LOCKED")?RoyalPalette.MUTED:RoyalPalette.GOLD);
+        }
+    }
+    private void renderDetail(GuiGraphics g){
+        if(detailH<=0)return;
+        RoyalPanel.parchment(g,detailX,detailY,detailW,detailH);
+        var row=selected();List<Component> text=new ArrayList<>();
+        if(row==null){
+            text.add(text(view.tab()==2?"YOUR KINGDOM MAILBOX":"ROYAL EXCHANGE"));
+            text.add(text(view.tab()==2?"Unclaimed rewards and purchased plans appear here. Only your own deliveries are shown.":"Select an entry to inspect its current price, availability and requirements."));
+        }else{
+            text.add(text(row.title()));text.add(text(stateLabel(row.state())));text.add(text(row.detail()));
+            if(row.price()>0)text.add(text((row.state().equals("COINS")?"Delivery: ":row.state().equals("HUNT_ESCROW")?"Reserved reward: ":view.tab()==8||row.state().equals("CONTRACT")||row.state().equals("CONTRACT_DONE")?"Reward: ":row.state().equals("SELL")||row.state().equals("SHOP")?"Next unit price: ":row.state().equals("BID")?"Minimum next bid: ":row.state().startsWith("ORDER_")?"Unit price: ":"Price: ")+String.format(Locale.ROOT,"%,d",row.price())+" coins"));
+            text.add(text(switch(row.state()){
+                case "TITLE_AVAILABLE","TITLE_SELECTED"->"Choose an earned title for chat and the player list, or clear it. Selection is free and cosmetic. Founder records and inactive ranks are retained; permissions and profession benefits do not change.";
+                case "SCOUT_ACCEPT"->"Fly to regions not yet recognized by the kingdom. Review the exact distance, airborne travel and reward; land near headquarters and report to its Steward. One reward per pilot and UTC day.";
+                case "SCOUT_ACTIVE"->"Only current server-observed powered flight counts. Region recognition is shared: another pilot may report first. Teleportation interrupts unfinished evidence. No profession XP is awarded.";
+                case "SCOUT_FINISH"->"Review the recorded new regions before reporting. The Steward rechecks current permissions, the original parked aircraft, shared recognition and the finite reward pool. Coins arrive in private Mailbox.";
+                case "SCOUT_DONE"->"Your report and the kingdom's recognized regions are permanent. Claim any unclaimed reward in Mailbox. Later surveys must visit different regions.";
+                case "AIRCRAFT_FUEL"->"Review this fixed refueling pack, claim the physical coal in Mailbox, then load a compatible native boiler slot. Existing engine, registration and claim rules apply.";
+                case "AIRCRAFT_REPAIR"->"Review the exact reserved coin payment. Your payment becomes a service charge only after the repair is safely saved. Interrupted work resumes without another charge. Hand repairs remain available.";
+                case "AIRCRAFT_REPAIR_CANCEL"->"Only an unfinished repair can be canceled. Corin must inspect the original aircraft before returning reserved coins. A completed repair cannot be refunded.";
+                case "AIRCRAFT_UPGRADE"->"Buy one native equipment item from today's shared stock. Review the exact price, claim through Mailbox, and fit it using a compatible native aircraft inventory. Purchase does not create ownership or bypass access gates.";
+                case "AIRCRAFT_RECOVER"->"This recovers a consumed but unfinished placement. Review cancellation before its canonical native item returns to Mailbox. Any pending body becomes obsolete; active aircraft cannot be duplicated through this service.";
+                case "AIRCRAFT"->"Review the exact one-airframe purchase. Your payment and buyer registration commit together; claim the native aircraft item from Mailbox. Existing aircraft and claim permissions are preserved.";
+                case "SHARE"->"Review shared access before granting it. Crew may deploy, board, pilot and use cargo; you retain ownership. Claim permissions and kingdom gates still apply.";
+                case "REVOKE"->"Review removing this player's aircraft access. An already-open cargo menu is invalidated and an affected rider is moved safely to ground.";
+                case "AIRCRAFT_RECORD"->"This is your permanent registration record. Share access with an online player using the entries in this list; previously shared access can also be revoked while the crew member is offline.";
+                case "AVAILABLE"->"One primary blueprint per kingdom. The first successful buyer becomes its founder. Review before purchasing.";
+                case "OUT_OF_STOCK"->"Today's shared shop stock has sold out. It restocks at UTC midnight; refresh afterward. No payment can be made while stock is empty.";
+                case "QUOTA_FULL"->"The Fishmonger has bought the full daily quota for this species. It resets at 00:00 UTC. Your remaining fish are preserved; choose another order or return after reset.";
+                case "SHOP"->rodPurchase()?"Buy one pristine iron fishing rod with empty attachment slots. The exact rod is delivered through private Mailbox; no bait or Master equipment entitlement is included.":"Choose a purchase quantity below. The server sums each unit price, reserves finite daily stock and creates recoverable private item mail. Claim at a resident counter. No item is dropped.";
+                case "SELL"->"Choose an amount below. Only the exact reviewed items are consumed; budgets and allowances are checked again when you confirm.";
+                case "COINS"->"Review the delivery to credit your available balance. A delivery can be claimed only once.";
+                case "ITEMS"->"Review the exact saved item delivery. Make enough main-inventory space; items are never dropped. A delivery can be claimed once.";
+                case "LIST"->"Hold the stack in your main hand, choose a quantity and enter its TOTAL price above. Confirm moves the exact items into escrow for a fixed-price listing. This is an immediate fixed-price purchase. Ordinary sales pay 5% tax; Master equipment pays 10%, rounded up.";
+                case "LIST_TIMED"->"Hold the stack in your main hand, choose a quantity and enter its TOTAL starting price above. The funded auction lasts 24 hours. Each new bid must increase by at least 5%; a bid near closing extends the remaining time to two minutes. Once a bid is accepted, the seller cannot cancel.";
+                case "BID"->"Enter a bid at or above the server's current minimum. Confirm reserves the exact reviewed coins. A winning bid receives the items through Mailbox; outbid funds are returned safely. Refresh to inspect changes before bidding again.";
+                case "TIMED_RECORD"->"This is your active timed auction. You cannot bid on your own items or cancel after an accepted bid. Its recorded bid and closing time appear above; settlement and item delivery are handled by the server.";
+                case "BUY"->"Review this fixed-price listing before paying. A successful purchase reserves its items in your private Mailbox. Competing buyers cannot purchase the same listing.";
+                case "RETURN"->"Review returning these escrowed items to your private Mailbox. A purchased listing cannot be reclaimed. No second item reward is created.";
+                case "ORDER_CREATE"->"Hold a plain vanilla item or pristine Farmer equipment as the template; it is not consumed. Enter the total quantity and price PER ITEM above. Confirm reserves the full order value. Partial fills deliver items to your Mailbox. You may have at most ten active orders.";
+                case "ORDER_FILL"->"Choose a quantity up to 64. Only the exact reviewed matching items are consumed from your inventory. Review the gross value, tax and proceeds before confirming. The buyer receives item mail and you receive coin proceeds.";
+                case "ORDER_CANCEL"->"Review cancellation of the remaining demand. Only its unspent reserved funds are returned; previously filled items and deliveries remain recorded. Confirm can refund this remainder only once.";
+                case "ORDER_RECORD"->"This buy-order record is read-only. Its actual remaining quantity and status appear above. Refresh for the latest server state.";
+                case "BLUEPRINT"->"Manage your authenticated plan through Construction. Recovering a lost unused plan invalidates older copies.";
+                case "LOCKED"->"This service is not available to you yet. Check its requirements above. No payment can be made.";
+                case "SOLD"->"This kingdom's primary entitlement has already been purchased. Another purchase is not available.";
+                case "CLAIMED"->"This delivery has already been claimed.";
+                case "BANK"->"Use the actual Bank counter. Account, inventory and recipient are checked again when you confirm.";
+                case "CONTRIBUTE"->"Shared Tier 2 milestone. Review before permanent resource consumption. Your contribution is recognized.";
+                case "HUNT_AVAILABLE"->"Accept this daily hunt at Garrick’s counter before defeating targets.";
+                case "HUNT_TRACKING"->"Defeat the remaining eligible natural targets, then return to Garrick before the UTC day ends.";
+                case "HUNT_READY"->"Return to Garrick and review your reserved payment. Coins unlock once, in private mail.";
+                case "HUNT_ESCROW"->"This reservation is locked until you complete the hunt and return to Garrick before 00:00 UTC.";
+                case "COMPLETE"->"This community objective is recorded as complete.";
+                default->"Inspect this saved record or refresh for the latest state.";
+            }));
+        }
+        if(!view.notice().isBlank())text.add(text(view.notice()));
+        paragraphs(g,text,detailX+8,detailY+8,detailW-16,detailH-(wide&&wantsQuantity()&&row!=null?40:16));
+    }
+    private void renderReview(GuiGraphics g){
+        int x=box.contentX(),y=box.bodyY(),w=box.contentWidth(),h=box.bodyHeight();RoyalPanel.parchment(g,x,y,w,h);
+        List<Component> lines=new ArrayList<>();lines.add(text("REVIEW YOUR TRANSACTION"));lines.add(text(view.reviewText()));
+        lines.add(text("Confirm uses this exact review. If your inventory, balance or availability changes, request a new review."));
+        if(!view.notice().isBlank())lines.add(text(view.notice()));paragraphs(g,lines,x+8,y+8,w-16,h-16);
+    }
+    private static String stateLabel(String state){return switch(state){case "TITLE_AVAILABLE"->"Earned title";case "TITLE_SELECTED"->"Selected display title";case "AIRCRAFT_FUEL"->"Native refueling supplies";case "SCOUT_ACCEPT"->"Reconnaissance available";case "SCOUT_ACTIVE"->"Survey in progress";case "SCOUT_FINISH"->"Survey report ready";case "SCOUT_DONE"->"Daily survey recognized";case "CARGO_ACCEPT"->"Air cargo available";case "CARGO_ACTIVE"->"Cargo in transit";case "CARGO_FINISH"->"Cargo unloading ready";case "CARGO_PENDING"->"Saved unloading";case "CARGO_RESUME"->"Resume existing unload";case "CARGO_CANCEL"->"Unperformed unload only";case "CARGO_DONE"->"Daily cargo delivered";case "FLIGHT_ACCEPT"->"Air dispatch available";case "FLIGHT_ACTIVE"->"Dispatch in progress";case "FLIGHT_FINISH"->"Flight report ready";case "FLIGHT_DONE"->"Daily dispatch completed";case "AIRCRAFT_REPAIR"->"Workshop repair";case "AIRCRAFT_REPAIR_CANCEL"->"Undelivered repair refund";case "AIRCRAFT_UPGRADE"->"Native aircraft upgrade";case "AIRCRAFT_RECOVER"->"Unfinished deployment recovery";case "AIRCRAFT_RECORD"->"Your registered aircraft";case "AIRCRAFT"->"Buyer-registered airframe";case "SHARE"->"Grant shared access";case "REVOKE"->"Remove shared access";case "HUNT_AVAILABLE"->"Hunt available";case "HUNT_TRACKING"->"Hunt in progress";case "HUNT_READY"->"Hunt payment ready";case "HUNT_ESCROW"->"Reserved payment · Locked";case "EQUIPMENT"->"Profession equipment";case "COMMUNITY"->"Community contract";case "PROF_TARGET"->"Select output purpose";case "PROF_REGISTRATION"->"Register and keep equipment";case "PROF_DELIVERY"->"Delivery objective";case "IN_PROGRESS"->"Objective in progress";case "PROF_QUEST"->"Ready to turn in";case "CONTRACT"->"Delivery available";case "CONTRACT_DONE"->"Contract completed";case "PROF_ENROLL"->"Profession available";case "PROF_SWITCH"->"Paid profession change";case "PROF_ACTIVE"->"Active profession";case "AVAILABLE"->"Available";case "SHOP"->"Buy from the kingdom";case "QUOTA_FULL"->"Buying quota filled";case "OUT_OF_STOCK"->"Out of stock";case "SELL"->"Sell to the kingdom";case "COINS"->"Coins to claim";case "ITEMS"->"Items to claim";case "LIST"->"List held items";case "LIST_TIMED"->"Create timed auction";case "BID"->"Timed auction · Bid";case "TIMED_RECORD"->"Timed auction";case "BUY"->"Fixed-price listing";case "RETURN"->"Return escrow";case "ORDER_CREATE"->"Create funded buy order";case "ORDER_FILL"->"Supply a buy order";case "ORDER_CANCEL"->"Your funded order";case "ORDER_RECORD"->"Buy-order record";case "BLUEPRINT"->"Your building plan";case "LOCKED"->"Locked";case "SOLD"->"Sold out";case "CLAIMED"->"Claimed";case "BANK"->"Bank service";case "CONTRIBUTE"->"Shared contribution";case "COMPLETE"->"Complete";default->state;};}
+    private void paragraphs(GuiGraphics g,List<Component> values,int x,int y,int w,int h){
+        if(w<=0||h<=0){maxScroll=0;return;}List<FormattedCharSequence> lines=new ArrayList<>();
+        for(var value:values){lines.addAll(font.split(value,w-5));lines.add(FormattedCharSequence.EMPTY);}
+        maxScroll=Math.max(0,lines.size()*12-h);scroll=Math.clamp(scroll,0,maxScroll);
+        g.enableScissor(x,y,x+w,y+h);for(int i=0;i<lines.size();i++)g.drawString(font,lines.get(i),x,y+i*12-scroll,RoyalPalette.INK,false);g.disableScissor();
+        if(maxScroll>0){int thumb=Math.max(6,h*h/(h+maxScroll)),top=y+(h-thumb)*scroll/maxScroll;g.fill(x+w-2,top,x+w,top+thumb,RoyalPalette.BRONZE);}
+    }
+    private void line(GuiGraphics g,String value,int x,int y,int w,int color){if(w<=0)return;String shown=value;if(font.width(value)>w){String marker="…";shown=font.plainSubstrByWidth(value,Math.max(0,w-font.width(marker)))+(font.width(marker)<=w?marker:"");}g.drawString(font,shown,x,y,color,false);}
+    @Override public boolean mouseScrolled(double x,double y,double horizontal,double vertical){
+        if(!view.reviewing()&&x>=listX&&x<listX+listW&&y>=listY&&y<listY+listH){
+            int pages=Math.max(1,(view.entries().size()+rows-1)/rows);page=Math.clamp(page-(int)Math.signum(vertical),0,pages-1);rebuild();return true;
+        }
+        scroll=Math.clamp(scroll-(int)(vertical*18),0,maxScroll);return true;
+    }
+    @Override public boolean keyPressed(int key,int scan,int mods){
+        if(key==GLFW.GLFW_KEY_PAGE_UP||key==GLFW.GLFW_KEY_PAGE_DOWN){scroll=Math.clamp(scroll+(key==GLFW.GLFW_KEY_PAGE_DOWN?36:-36),0,maxScroll);return true;}
+        return super.keyPressed(key,scan,mods);
+    }
+    @Override public void onClose(){
+        CommerceController.close();minecraft.setScreen(parent);
+        if(parent instanceof ConstructionScreen)com.mohymods.kingdomsmp.client.ConstructionController.open();
+        else if(parent instanceof KingdomOverviewScreen)com.mohymods.kingdomsmp.client.ClientOverviewController.request();
+    }
+    @Override public boolean isPauseScreen(){return false;}
+    private static Component text(String value){return Component.literal(value);}
+}

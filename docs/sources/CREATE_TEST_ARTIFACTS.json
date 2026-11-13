@@ -1,0 +1,16 @@
+{
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.265",
+  "artifacts": [
+    {
+      "filename": "create-1.21.1-6.0.10.jar",
+      "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
+      "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
+    }
+  ],
+  "embeddedDependencies": [
+    "Registrate MC1.21-1.3.0+67",
+    "Flywheel1.0.6",
+    "Ponder1.0.82+mc1.21.1"
+  ]
+}

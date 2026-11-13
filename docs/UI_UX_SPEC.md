@@ -1,5 +1,14 @@
 # UI/UX specification — Royal Gilded rebuild
 
+> **D-023 — current implementation authority:** The [master directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) authorizes incremental coding and supersedes the D-021/D-022 review-only hold. New-world Town Hall / existing-world Lodge profiles, owner Hut bootstrap, blueprint-market acquisition, automatic server-valid placement, supports up to four blocks, Tier 3 Bank (no new-world Storehouse), updated profession/economy/quest/admin scope apply. End remains Tier 12. The [full replacement mod snapshot](sources/MOD_SNAPSHOT_2026-10-31.txt) now reports FTB Quests installed. See [supersession and actual status](MASTER_SUPERSESSION_MATRIX.md); old descriptions below are historical where they conflict.
+
+> **D-022 — planning only, current dimension authority:** End unlocks at **Tier 12**, superseding every End-at-9 design. Target schedule: Aether 4; Nether 5; Twilight Forest 6; Otherside 8; reviewed Ad Astra stages 10–11; End 12. No mandatory prerequisite for reaching 12 may depend on End resources, including indirect recipes. Dragon/End exploration belongs after the unlock; **Royal Legacy Monument** remains the proposed final construction reward. Existing code/data/worlds are unchanged. See [dimension schedule, dependency graph and open recipe audit](DIMENSION_PROGRESSION.md). Implementation remains on hold.
+
+> **D-021 — 31 October 2026, current design authority:** Physical blueprint items and full-building crosshair-controlled holograms are approved requirements. Future Tier 1 completion awards the **19 × 15, two-floor Town Hall at Tier 2**, replacing the future Lodge reward subject to separately approved migration. The former Tier 12 Hall requirement is superseded. Existing 0.4.0-dev code, Lodge/Mira, entitlements and saves remain unchanged. **Do not implement yet.** See [construction design](CONSTRUCTION.md) and [approval/migration plan](BLUEPRINT_IMPLEMENTATION_PLAN.md). Service gates and the rest of the building roadmap are not silently changed.
+
+The earlier sections below describe historical design or the existing runtime where they conflict with D-021.
+
+
 S2 (complete rebuild brief, 2026-10-30) authorizes designing and implementing the first functional Kingdom Overview and reusable custom UI framework. The implemented read-only slice below follows a structured layout defined before its implementation. Later gameplay screens remain design drafts requiring their own review. Rendering and multiplayer behavior are not considered verified until actually tested.
 
 ## Presentation choice
@@ -32,7 +41,7 @@ Important mutations use a review step showing action, items/quantity, total debi
 
 ## First three interfaces to design
 
-Design order: Kingdom Overview → Professions and Quests → Town Hall Bank. These establish global, personal, and transaction patterns before markets and Master Shops. Market/admin screens are deferred to separate reviewed designs.
+Design order: Kingdom Overview → Professions and Quests → Bank Counter (premises pending). These establish global, personal, and transaction patterns before markets and Master Shops. Market/admin screens are deferred to separate reviewed designs.
 
 ### 1. Kingdom Overview
 
@@ -63,11 +72,11 @@ Symmetric 4-column × 3-row profession card grid, displayed left-to-right in the
 
 Switch review: old and new active sets, charge of 15,000 coins **only when the approved switch rule applies**, funding source, preserved progress, Confirm/Cancel. Do not preview invented quest names, rank thresholds, or rewards as final content. Reward claiming and Master Shop interactions require separately reviewed details.
 
-### 3. Town Hall Bank
+### 3. Bank Counter (premises pending)
 
 | Region | Content/behavior |
 | --- | --- |
-| Header | Town Hall Bank; authoritative counter access state |
+| Header | Bank Counter (premises pending); authoritative counter access state |
 | Balance summary | Virtual balance and eligible physical coins, clearly separated |
 | Main tabs | Deposit / Withdraw |
 | Deposit panel | Eligible coin counts and selected amount; never accept arbitrary renamed items |
@@ -100,7 +109,7 @@ The first screen is read-only. **S3 supersedes the original temporary Tier 0 dec
 
 At common GUI-scaled dimensions (including 320 × 240), the panel uses safe margins and body clipping. Larger screens gain whitespace and wider detail lines rather than stretched decorations. Tier detail text wraps within the body. The smallest layouts prioritize the selected tier state and gate description; extra notes can scroll within the clipped region. Components use Minecraft typography, with no unlicensed font or unreadable reduced text scale.
 
-Refresh keeps the current screen and selection visible, suppresses repeat submission, and waits for the server response. A five-second timeout restores the action and reports that no refresh response arrived; it does not claim a successful update. The screen can always close, does not pause multiplayer, and provides hover/focus tooltips on tabs and tiers. Known design labels include First Hearth’s Town Hall Blueprint reward for the highest weighted contributor after completion, Nether at Tier 5, End at Tier 9, and cube at Tier 12 **plus active Master Mechanic**. These labels describe confirmed requirements; gate enforcement is not implemented by this screen.
+Refresh keeps the current screen and selection visible, suppresses repeat submission, and waits for the server response. A five-second timeout restores the action and reports that no refresh response arrived; it does not claim a successful update. The screen can always close, does not pause multiplayer, and provides hover/focus tooltips on tabs and tiers. Known design labels include First Hearth’s Founders’ Lodge Blueprint reward for the highest weighted contributor after completion, Nether at Tier 5, End at Tier 9, and cube at Tier 12 **plus active Master Mechanic**. These labels describe confirmed requirements; gate enforcement is not implemented by this screen.
 
 No resource contribution controls, fictional milestones, profession previews, bank balances, or dormant menu buttons are presented as functioning features. Profession, quest, bank, NPC, Master, auction, milestone submission, technology, admin, profile, and transaction screens remain pending their actual services and exact rules.
 
@@ -108,11 +117,11 @@ Validation target: pure layout bounds tests across GUI dimensions; compilation a
 
 ## S3 progression and construction interface extension
 
-S3 supersedes the historical starting-tier ambiguity: **Tier 1 — First Hearth** is the initial kingdom state; there is no Tier 0. Tier 2 is **Roads of Commerce**. The approved First Hearth targets are 1,024 items matching `#minecraft:logs`, 2,048 `minecraft:cobblestone`, 512 `minecraft:wheat`, and 128 `minecraft:iron_ingot`. After completion, the highest weighted contributor receives the Town Hall Blueprint with included materials and exclusive redemption rights.
+S3 supersedes the historical starting-tier ambiguity: **Tier 1 — First Hearth** is the initial kingdom state; there is no Tier 0. Tier 2 is **Roads of Commerce**. The approved First Hearth targets are 1,024 items matching `#minecraft:logs`, 2,048 `minecraft:cobblestone`, 512 `minecraft:wheat`, and 128 `minecraft:iron_ingot`. After completion, the highest weighted contributor receives the Founders’ Lodge Blueprint with included materials and exclusive redemption rights.
 
 ### Current read-only screen boundary
 
-The snapshot now contains tier, revision, saved shared First Hearth resource counts, and the requesting player’s saved weighted score units. The Overview displays those actual server values against the approved targets, with score represented exactly as units / 2,048 (2,048 units = one weighted point). It must not fabricate leaderboard ranks, winners, blueprint ownership, or building completion; those are absent from this snapshot. Static target-only tier details remain clearly labeled as requirements. No gate enforcement is implied by informative unlock labels. Donation controls, the inventory contribution adapter, construction service, reward redemption, and richer leaderboard snapshots remain separate work.
+Historical read-only snapshot contract: the snapshot contained tier, revision, saved shared First Hearth resource counts, and the requesting player’s saved weighted score units. The Overview displays those actual server values against the approved targets, with score represented exactly as units / 2,048 (2,048 units = one weighted point). It must not fabricate leaderboard ranks, winners, blueprint ownership, or building completion; those are absent from this snapshot. Static target-only tier details remain clearly labeled as requirements. No gate enforcement is implied by informative unlock labels. The connected contribution/leaderboard/history contract below supersedes the historical donation and leaderboard limitations. Construction and reward redemption remain unfinished.
 
 ### Expanded Kingdom Overview — design proposal before service implementation
 
@@ -148,6 +157,14 @@ Proposed flow: interact with valid hut/NPC → receive server dialogue state →
 | Pending | Suppress duplicate redemption submission, allow safe cancellation only where transaction state permits it |
 | Result | Authoritative construction/project ID and status, or failure with preserved preview context; reconcile uncertain replies before retrying |
 
-Only the awarded player may redeem the Town Hall Blueprint. Reward distribution occurs after First Hearth completion; inspecting a screen does not award it. Included materials must be shown accurately without silently inventing an additional resource cost. The server must validate ownership, current redemption state, position, dimensions, and the approved placement rules at commit. Preview rendering/API selection, valid sites, orientation rules, overlap/protection behavior, and interrupted placement recovery remain implementation/design dependencies; no placement feature is claimed by this document.
+Only the awarded player may redeem the Founders’ Lodge Blueprint. Reward distribution occurs after First Hearth completion; inspecting a screen does not award it. Included materials must be shown accurately without silently inventing an additional resource cost. The server must validate ownership, current redemption state, position, dimensions, and the approved placement rules at commit. Preview rendering/API selection, valid sites, orientation rules, overlap/protection behavior, and interrupted placement recovery remain implementation/design dependencies; no placement feature is claimed by this document.
 
 Future acceptance evidence must include a real two-player ownership denial, duplicate redemption attempts, stale preview rejection, disconnect/restart at placement boundaries, responsive hut/dialogue navigation, and verified overview/leaderboard/building-state refresh. These checks are unrun.
+
+## Current implemented contribution interface
+
+Royal Gilded now has connected Contributions, Leaderboard and Your History panes reached from the Overview. Four resource selectors expose saved shared/personal quantities and eligible inventory, with 1/16/64/All quantities. Review shows the server-capped accepted amount and permanent consumption before an explicit Confirm. Failed/stale/expired quotes do not consume items. Open viewers receive server revision pushes; timeouts require refresh before another mutation. The leaderboard uses exact server ranking and four-decimal display; history is paginated in bounded eight-row pages. All score categories remain equally weighted. Completion names the permanent winner and advances to Tier 2, with Founders’ Lodge privilege; the ultimate Town Hall remains Tier 12. Screens preserve the approved slate/gold/parchment materials and normal Minecraft font, including narrow layouts and scrolling.
+
+## D-022 revised dimension and finale presentation — design only
+
+Show Aether 4, Nether 5, Twilight Forest 6, Otherside 8, separate reviewed Ad Astra stage cards at 10/11, and End 12. Tier 9 must explicitly retain the End lock. Integration cards remain planned/unverified until server support is tested; no assumed planet list or misleading travel button. Present the Tier 12 unlock separately from incomplete Dragon/expedition objectives and proposed Royal Legacy Monument award. Historical progress and the future Tier 2 Town Hall remain independent. Old End-9 screen descriptions above describe existing runtime/history only, not future authority.

@@ -1,0 +1,16 @@
+package com.mohymods.kingdomsmp.economy;
+import static org.junit.jupiter.api.Assertions.*;
+import com.mohymods.kingdomsmp.profession.*;
+import java.nio.file.Path;
+import java.util.*;
+import net.minecraft.nbt.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+/** Canonical trusted-producer boundary model; actual brewing is tested separately in normal dedicated servers. */
+class BrewOutputStoreTest {
+ @TempDir Path directory;UUID player=UUID.randomUUID();String quest="kingdom_smp:alchemist/a02";
+ static CompoundTag potion(UUID store,UUID id,String kind){var item=new CompoundTag();item.putString("id","minecraft:potion");item.putInt("count",1);var components=new CompoundTag();var contents=new CompoundTag();contents.putString("potion","minecraft:"+kind);components.put("minecraft:potion_contents",contents);var all=new CompoundTag();var marker=new CompoundTag();marker.putUUID("store",store);marker.putUUID("id",id);all.put(EnchantedToolService.KEY,marker);components.put("minecraft:custom_data",all);item.put("components",components);return item;}
+ EconomyStore setup()throws Exception{var s=EconomyStore.open(directory);s.changeProfession(UUID.randomUUID(),player,"enroll","","alchemist");s.approveProfessionInspection(UUID.randomUUID(),UUID.randomUUID(),player,"kingdom_smp:alchemist/a01","Trusted canonical native laboratory boundary model");return s;}
+ @Test void twelveDistinctAuthenticatedOutputsConsumeRightsAndXpInSameRecoverableReceipt()throws Exception{var s=setup();Map<UUID,CompoundTag> outputs=new HashMap<>();for(int n=0;n<12;n++){var id=UUID.randomUUID();var item=potion(s.id(),id,"awkward");s.issueNativeOutput(id,player,quest,item);outputs.put(id,item);}var canceled=s.prepareNativeOutputDelivery(UUID.randomUUID(),player,quest,outputs,12);assertFalse(s.recoverItem(new EconomyStore.Receipt(s.id(),canceled.previousReceipt())));assertEquals(100,s.professions(player).track(Profession.ALCHEMIST).xp());var pending=s.prepareNativeOutputDelivery(UUID.randomUUID(),player,quest,outputs,12);assertTrue(s.recoverItem(new EconomyStore.Receipt(s.id(),pending.sequence())));assertFalse(s.recoverItem(new EconomyStore.Receipt(s.id(),pending.sequence())));var reopened=EconomyStore.open(directory);assertEquals(200,reopened.professions(player).track(Profession.ALCHEMIST).xp());for(var row:outputs.entrySet())assertFalse(reopened.matchesNativeOutput(row.getKey(),player,quest,row.getValue()));assertThrows(IllegalStateException.class,()->reopened.prepareNativeOutputDelivery(UUID.randomUUID(),player,quest,outputs,12));}
+ @Test void wrongPotionMissingPrerequisitesForgedIdsAndCustomEffectsCannotCreateRights()throws Exception{var s=setup();var id=UUID.randomUUID();assertThrows(IllegalArgumentException.class,()->s.issueNativeOutput(id,player,quest,potion(s.id(),id,"healing")));assertThrows(IllegalStateException.class,()->s.issueNativeOutput(id,player,"kingdom_smp:alchemist/a03",potion(s.id(),id,"healing")));assertFalse(s.matchesNativeOutput(id,player,quest,potion(s.id(),id,"awkward")));var wrong=potion(s.id(),id,"awkward");wrong.getCompound("components").getCompound("minecraft:potion_contents").put("custom_effects",new ListTag());assertThrows(IllegalArgumentException.class,()->s.issueNativeOutput(id,player,quest,wrong));assertEquals(100,s.professions(player).track(Profession.ALCHEMIST).xp());}
+}
