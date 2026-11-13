@@ -26,6 +26,7 @@ public final class CraftDeliveryService {
         var d=CraftDeliveryQuests.get(id);var roster=CommerceService.store(p.server).professions(p.getUUID());
         if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(id)||!CraftDeliveryQuests.catalog().mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             ||ContributionService.kingdom(p.server).attainedTier()<d.minimumTier()||!ProfessionService.available(p,d.profession()))return false;
+        if(MillingService.QUEST.equals(id))return MillingService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(MillingService.OUTPUT));
         if(CreatePressService.QUEST.equals(id))return CreatePressService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get("sheets"));
         if(ReagentCropService.QUEST.equals(id))return ReagentCropService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(ReagentCropService.ESSENCE));
         if(MasterTimberDelivery.QUEST.equals(id))return MasterTimberDelivery.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get("logs"));
@@ -39,6 +40,7 @@ public final class CraftDeliveryService {
         if(!roster.isActive(d.profession()))return "Activate "+ProfessionService.name(d.profession())+" before earning crafting evidence.";
         var inputs=CraftDeliveryRules.get(p.server).inputs(id);
         if(CreateCraftQuests.contains(id)&&!CreateCraftQuests.supported())return "Requires verified Create6.0.10. Existing profession and world records remain preserved.";
+        if(MillingService.QUEST.equals(id))return MillingService.status(p,inputs.get(MillingService.OUTPUT));
         if(CreatePressService.QUEST.equals(id))return CreatePressService.status(p,inputs.get("sheets"));
         if(ReagentCropService.QUEST.equals(id))return ReagentCropService.status(p,inputs.get(ReagentCropService.ESSENCE));
         if(MasterTimberDelivery.QUEST.equals(id))return "Deliver "+inputs.get("logs")+" plain logs: at least "+inputs.get("logs")/8+" each from four native species. Each amount must be covered by your tracked Master-band personal harvest and current inventory; stripped variants share their species quota.";

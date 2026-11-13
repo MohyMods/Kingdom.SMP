@@ -22,6 +22,9 @@ import java.util.*;
 @GameTestHolder("kingdom_smp_claim_tests")
 @PrefixGameTestTemplate(false)
 public final class ClaimRuntimeTests {
+    @GameTest(template="empty",templateNamespace="kingdom_smp_chunk_unload_tests",timeoutTicks=1200)
+    public static void cancelledChunkUnloads(GameTestHelper h)throws Exception{ChunkUnloadRuntimeTests.cancelledAndMatchingPendingUnload(h);}
+
     @GameTest(template = "empty", timeoutTicks = 400)
     public static void actualClaimPermissions(GameTestHelper helper) throws Exception {
         ServerLevel level=helper.getLevel();var server=level.getServer();

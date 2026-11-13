@@ -37,7 +37,13 @@
     "NativeBrewTakeMixin",
     "NativeBrewContainerMixin",
     "NativeReagentGrowthMixin",
-    "NativeCreatePressMixin"
+    "NativeCreatePressMixin",
+    "NativeMillstoneMixin",
+    "NativeMillstoneInventoryMixin",
+    "NativeMillstoneBlockMixin",
+    "NativeProductionDropMixin",
+    "NativeProductionEntityMixin",
+    "NativeChunkUnloadMixin"
   ],
   "injectors": {
     "defaultRequire": 1
