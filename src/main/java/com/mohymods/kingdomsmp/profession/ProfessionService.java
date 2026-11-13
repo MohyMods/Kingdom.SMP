@@ -30,6 +30,7 @@ public final class ProfessionService {
         if(selected.startsWith("gear:")){
             var gear=com.mohymods.kingdomsmp.equipment.FarmerGearService.review(p,selected.substring(5));var q=new Quote(gear.nonce(),gear.revision(),"gear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;
         }
+        if(selected.startsWith("track_apiary:")){var id=selected.substring(13);if(!ApiaryJobs.eligible(p,id))throw new IllegalStateException("This native apiary job is unavailable");ContractService.requireCounter(p,ApprovedProfessionContent.get(id).profession());var q=new Quote(UUID.randomUUID(),s.revision(),"track_apiary","",id,0,System.nanoTime(),"Choose this supervised native bee job. Then crouch-right-click a permitted advanced hive with empty main hand and remain within16blocks for new production. Existing yields retain their purpose. No coins, materials or XP are consumed.");QUOTES.put(p,q);return q;}
         if(selected.startsWith("track_output:")){var id=selected.substring(13);if(!NativeOutputQuests.journeymanBook(id)||!NativeOutputQuests.eligible(p,id,true))throw new IllegalStateException("This book commission is unavailable");ContractService.requireCounter(p,Profession.LIBRARIAN);var q=new Quote(UUID.randomUUID(),s.revision(),"track_output","",id,0,System.nanoTime(),"Assign future authenticated native book combinations to "+NativeOutputQuests.get(id).name()+". Existing outputs keep their original purpose. No items, coins or XP are consumed. Both Tier6commissions can be chosen independently.");QUOTES.put(p,q);return q;}
         if(selected.startsWith("enchanted:")&&BrewQuests.contains(selected.substring(10))){var delivery=EnchantedToolService.reviewBrew(p,selected.substring(10));var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",delivery.quest(),0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
         if(selected.equals("enchanted:"+NativeOutputQuests.LIBRARY_ENCHANT)||selected.equals("enchanted:"+NativeOutputQuests.LIBRARY_BOOKS)||selected.equals("enchanted:"+NativeOutputQuests.LIBRARY_FAMILIES)||selected.equals("enchanted:"+NativeOutputQuests.LIBRARY_MAXIMUM)){var delivery=EnchantedToolService.reviewLibrary(p,selected.substring(10));var q=new Quote(delivery.nonce(),delivery.revision(),"enchanted","",delivery.quest(),0,delivery.issued(),delivery.text());QUOTES.put(p,q);return q;}
@@ -59,6 +60,7 @@ public final class ProfessionService {
     public static String confirm(ServerPlayer p,UUID nonce)throws IOException{
         CommerceService.requireResidentCounter(p);var q=QUOTES.remove(p);var s=CommerceService.store(p.server);CommerceService.verifyReceipt(p,s);
         if(q==null||!q.nonce().equals(nonce)||q.revision()!=s.revision()||System.nanoTime()-q.issued()>30_000_000_000L)throw new IllegalStateException("Profession review expired or wallet/roster changed. Review again.");
+        if(q.action().equals("track_apiary")){ApiaryJobs.choose(p,q.to());return "Apiary purpose selected. Crouch-right-click a permitted native advanced hive with empty main hand; supervise its actual production within16blocks.";}
         if(q.action().equals("track_output")){NativeOutputQuests.choose(p,q.to());return "Future native book combinations are assigned to "+NativeOutputQuests.get(q.to()).name()+".";}
         if(q.action().equals("gear"))return com.mohymods.kingdomsmp.equipment.FarmerGearService.confirm(p,q.nonce());
         if(q.action().equals("enchanted"))return EnchantedToolService.confirm(p,q.nonce());
@@ -79,11 +81,12 @@ public final class ProfessionService {
             var id=definition.id();var role=definition.profession();boolean done=roster.track(role).completedQuestIds().contains(id);
             boolean smithing=SmithingQuestService.QUEST.equals(id)&&SmithingQuestService.eligible(p);
             boolean enchanted=(NativeOutputQuests.contains(id)&&NativeOutputQuests.consume(id))&&NativeOutputQuests.eligible(p,id,true);
-            boolean choose=NativeOutputQuests.journeymanBook(id)&&enchanted&&!EnchantedToolService.readyDelivery(p,id);
+            boolean apiary=ApiaryJobs.eligible(p,id)&&!ApiaryJobs.ready(p,id);
+            boolean choose=apiary||NativeOutputQuests.journeymanBook(id)&&enchanted&&!EnchantedToolService.readyDelivery(p,id);
             boolean materials=CraftDeliveryService.eligible(p,id);
             boolean delivery=smithing||enchanted||materials||role==Profession.FARMER&&FarmerDeliveryService.eligible(p,id);
             boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());
-            result.add(new CommerceView.Entry((choose?"track_output:":smithing?"smithing:":enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":choose?"PROF_TARGET":smithing?"PROF_REGISTRATION":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
+            result.add(new CommerceView.Entry((choose?(apiary?"track_apiary:":"track_output:"):smithing?"smithing:":enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":choose?"PROF_TARGET":smithing?"PROF_REGISTRATION":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
         }
         result.addAll(com.mohymods.kingdomsmp.equipment.FarmerGearService.entries(p));
         return List.copyOf(result);

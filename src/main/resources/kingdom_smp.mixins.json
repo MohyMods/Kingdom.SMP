@@ -46,7 +46,8 @@
     "NativeChunkUnloadMixin",
     "NativeOreFeatureMixin",
     "NativeOreMutationMixin",
-    "NativeOreMiningMixin"
+    "NativeOreMiningMixin",
+    "NativeApiaryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

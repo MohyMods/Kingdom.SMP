@@ -19,7 +19,7 @@ class ProfessionInspectionStoreTest {
         assertEquals(revision,s.revision());assertEquals(100,s.professions(player).track(Profession.BUILDER).xp());
         assertThrows(IllegalStateException.class,()->s.approveProfessionInspection(UUID.randomUUID(),admin,player,QUEST,"duplicate review"));
         s.archive(admin,"Private inspection audit archive");var reopened=EconomyStore.open(directory);
-        assertEquals(100,reopened.professions(player).track(Profession.BUILDER).xp());assertEquals(0,reopened.balance(player));assertTrue(reopened.mailbox(player).isEmpty());
+        assertEquals("minecraft:overworld@12,64,20;clear entry; owner authorship and consent inspected",reopened.professionInspectionEvidence(player,QUEST).orElseThrow());assertTrue(reopened.professionInspectionEvidence(UUID.randomUUID(),QUEST).isEmpty());assertEquals(100,reopened.professions(player).track(Profession.BUILDER).xp());assertEquals(0,reopened.balance(player));assertTrue(reopened.mailbox(player).isEmpty());
     }
     @Test void unimplementedWrongAuthorityKindMissingEvidenceAndInactiveRoleCannotAdvance()throws Exception{
         var s=EconomyStore.open(directory);s.changeProfession(UUID.randomUUID(),player,"enroll","","builder");

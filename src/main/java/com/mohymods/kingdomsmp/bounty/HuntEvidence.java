@@ -30,12 +30,17 @@ public final class HuntEvidence {
     public void prune(long today) { victims.values().removeIf(day->day<today-2);progress.values().removeIf(p->p.day()<today); }
     public boolean record(HuntState hunt,UUID mob,String type,String dimension,CompoundTag proof,long today) {
         prune(today);
-        if (hunt.closed() || hunt.day()!=today || !hunt.target().equals(type) || !dimension.equals("minecraft:overworld") ||
-            !proof.getAllKeys().equals(Set.of("day","signature")) || !proof.contains("day",Tag.TAG_LONG) || !proof.contains("signature",Tag.TAG_BYTE_ARRAY)) return false;
-        long born=proof.getLong("day");
-        if (born>today || born<today-1 || !MessageDigest.isEqual(proof.getByteArray("signature"),sign(mob,type,dimension,born)) ||
+        if (hunt.closed() || hunt.day()!=today || !hunt.target().equals(type) || !authentic(mob,type,dimension,proof,today) ||
             victims.containsKey(mob) || victims.size()>=16384 || progress.size()>=1024&&!progress.containsKey(hunt.id()) || count(hunt.id())>=hunt.goal()) return false;
         victims.put(mob,today);progress.put(hunt.id(),new Progress(today,count(hunt.id())+1));return true;
+    }
+    /** Read-only native origin verification; does not spend hunt victims or grant currency. */
+    public boolean authentic(UUID mob,String type,String dimension,CompoundTag proof,long today) {return naturalOrigin(mob,type,dimension,proof,today)&&proof.getLong("day")>=today-1;}
+    /** Encounter provenance remains valid for a known long-lived natural entity; hunt payment keeps its original age limit. */
+    public boolean naturalOrigin(UUID mob,String type,String dimension,CompoundTag proof,long today) {
+        if (!HuntState.TARGETS.contains(type)||!dimension.equals("minecraft:overworld")||today<0||
+            !proof.getAllKeys().equals(Set.of("day","signature"))||!proof.contains("day",Tag.TAG_LONG)||!proof.contains("signature",Tag.TAG_BYTE_ARRAY)) return false;
+        long born=proof.getLong("day");return born>=0&&born<=today&&MessageDigest.isEqual(proof.getByteArray("signature"),sign(mob,type,dimension,born));
     }
     public CompoundTag save() {
         var tag=new CompoundTag();tag.putInt("schema",1);tag.putByteArray("secret",secret);

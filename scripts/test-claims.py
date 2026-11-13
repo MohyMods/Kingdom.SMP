@@ -7,6 +7,9 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--bee-reagents',action='store_true',help='Actual Alchemist supervised mixed resource combs/partial restart/canonical receipt')
+parser.add_argument('--bee-jobs',action='store_true',help='Actual supervised native per-species comb production, partial restart and physical receipt')
+parser.add_argument('--bee-apiary',action='store_true',help='Exact native bee AI pollination/hive production and approved woodland inspection')
 parser.add_argument('--builder-civic',action='store_true',help='Actual new civic roads/native funded Master service and all24Builder final acceptance')
 parser.add_argument('--builder-fittings',action='store_true',help='Actual exact Supplementaries native furnishing interactions after genuine Master room')
 parser.add_argument('--seed-builder-world',type=Path,help='Copy only a stopped verified earned16Builder private fixture for Master acceptance')
@@ -24,6 +27,7 @@ parser.add_argument('--alchemy-reagents',action='store_true',help='Exercise actu
 parser.add_argument('--mekanism-smelt',action='store_true',help='Actual exact Mekanism raw-osmium native primary processing/physical delivery')
 parser.add_argument('--native-copper',action='store_true',help='Actual legacy coal/iron retention and native separate-area copper extraction')
 parser.add_argument('--native-ore',action='store_true',help='Real decorated future Overworld native ore generation and successful personal extraction in a stopped private clone')
+parser.add_argument('--encounters',action='store_true',help='Actual natural-origin hostile deaths and personal once-only profession evidence')
 parser.add_argument('--expedition-supplies',action='store_true',help='Actual native food cooking/torch-compass crafting and permanent Adventurer delivery')
 parser.add_argument('--create-workshop',action='store_true',help='Actual all7prerequisites and final native functional Engineer workshop assessment')
 parser.add_argument('--create-transmission',action='store_true',help='Actual live ratio/reversal and staged native clutch output stop')
@@ -81,7 +85,12 @@ if args.seed_master_forestry_world:
     if args.seed_profession_world or args.seed_aircraft_restore_world or args.namespace!='kingdom_smp_master_forestry_tests' or source.parent!=(root/'work').resolve() or not source.name.startswith('claim-server.'):
         raise SystemExit('Master forestry requires a stopped private fixture only')
     text=(source/'logs/latest.log').read_text()
-    if not any(marker in text for marker in ['NATIVE_TREE_RESTART_ASSERTIONS_PASSED:','MASTER_FORESTRY_NATIVE_PASSED:','MASTER_FORESTRY_RESTART_PASSED:']):
+    if args.bee_jobs and (source/'claims-fixture/apiary-job-partial.txt').is_file() and (source/'execution-1.log').is_file():
+        text += (source/'execution-1.log').read_text()
+        origin=source/'apiary-job-origin-proof.log'
+        if origin.is_file():
+            text += origin.read_text()
+    if not any(marker in text for marker in (['APIARY_RESTART_PASSED:','APIARY_JOBS_PENDING_PASSED:'] if args.bee_jobs else ['NATIVE_TREE_RESTART_ASSERTIONS_PASSED:','MASTER_FORESTRY_NATIVE_PASSED:','MASTER_FORESTRY_RESTART_PASSED:'])):
         raise SystemExit('No actual completed native forestry source evidence')
     with (source/'claims-fixture/session.lock').open('r+b') as lock:
         fcntl.lockf(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -89,6 +98,10 @@ if args.seed_master_forestry_world:
         fcntl.lockf(lock,fcntl.LOCK_UN)
 elif args.namespace=='kingdom_smp_master_forestry_tests':
     raise SystemExit('A verified private forestry source is mandatory')
+if args.bee_jobs and (fixture/'claims-fixture/apiary-job-partial.txt').is_file() and (fixture/'execution-1.log').is_file() and not (fixture/'apiary-job-origin-proof.log').is_file():
+    text=(fixture/'execution-1.log').read_text()
+    if 'APIARY_JOBS_PENDING_PASSED:' in text:
+        (fixture/'apiary-job-origin-proof.log').write_text(text)
 if args.seed_profession_world:
     import fcntl, shutil
     source = args.seed_profession_world.resolve()
@@ -179,6 +192,30 @@ if args.native_ore or args.native_copper:
         raise SystemExit("Native ore requires focused namespace and a single producer")
     init=fixture/"native-ore.init.gradle"
     init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.bee_reagents:
+    if args.namespace != "kingdom_smp_alchemy_tests" or not args.seed_profession_world:
+        raise SystemExit("Bee reagents requires verified stopped original native Alchemist source")
+    init=fixture/"bee-reagents.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testBeeReagents','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.bee_jobs:
+    if args.bee_apiary or args.namespace != "kingdom_smp_master_forestry_tests" or not args.seed_master_forestry_world:
+        raise SystemExit("Bee jobs require verified stopped working native woodland apiary")
+    init=fixture/"bee-jobs.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testBeeJobs','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.bee_apiary:
+    if args.namespace != "kingdom_smp_master_forestry_tests" or not args.seed_master_forestry_world:
+        raise SystemExit("Bee apiary requires verified stopped native forestry source")
+    init=fixture/"bee-apiary.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testBeeApiary','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.encounters:
+    if args.namespace != "kingdom_smp_profession_production_tests" or any([args.native_ore,args.native_copper,args.mekanism_smelt,args.expedition_supplies,args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
+        raise SystemExit("Encounters requires focused namespace and a single producer")
+    init=fixture/"encounters.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testEncounters','true' } } }\n")
     command += ["--init-script",str(init)]
 if args.expedition_supplies:
     if args.namespace != "kingdom_smp_profession_production_tests" or any([args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
@@ -271,6 +308,8 @@ if args.stage_aircraft_recovery_preview:
     init = fixture / 'aircraft-recovery-preview.init.gradle'
     init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testAircraftRecoveryPreview', 'true' } } }\n")
     command.extend(['-I', str(init)])
+if args.bee_jobs or args.bee_reagents:
+    print('Private Productive Bees QA timing: extra native hive ticks only; actual bee AI/forage/full quantities/materials unchanged',flush=True)
 print(f'Isolated claim fixture: {fixture}', flush=True)
 restart_markers = {
     'kingdom_smp_resident_name_tests': ['RESIDENT_NAME_PREPARED:', 'RESIDENT_NAME_CONSTRUCTED:', 'RESIDENT_NAME_RESTART_VERIFIED:'],
@@ -346,6 +385,14 @@ if args.create_transmission:
     markers=["CREATE_TRANSMISSION_NATIVE_PASSED:","CREATE_TRANSMISSION_RESTART_PASSED:"]
 if args.create_workshop:
     markers=["CREATE_WORKSHOP_NATIVE_PASSED:","CREATE_WORKSHOP_RESTART_PASSED:"]
+if args.bee_reagents:
+    markers=(["APIARY_REAGENTS_NATIVE_PASSED:","APIARY_REAGENTS_RESTART_PASSED:"] if (fixture/"claims-fixture/apiary-reagents-partial.txt").is_file() else ["APIARY_REAGENTS_PENDING_PASSED:","APIARY_REAGENTS_NATIVE_PASSED:","APIARY_REAGENTS_RESTART_PASSED:"])
+if args.bee_jobs:
+    markers=(["APIARY_JOBS_NATIVE_PASSED:","APIARY_JOBS_RESTART_PASSED:"] if (fixture/"claims-fixture/apiary-job-partial.txt").is_file() else ["APIARY_JOBS_PENDING_PASSED:","APIARY_JOBS_NATIVE_PASSED:","APIARY_JOBS_RESTART_PASSED:"])
+if args.bee_apiary:
+    markers=["APIARY_NATIVE_PASSED:","APIARY_RESTART_PASSED:"]
+if args.encounters:
+    markers=["ENCOUNTER_NATIVE_PASSED:","ENCOUNTER_RESTART_PASSED:"]
 if args.expedition_supplies:
     markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
 if args.native_ore:

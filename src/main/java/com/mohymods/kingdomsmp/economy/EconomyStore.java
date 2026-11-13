@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, MERCHANT_TRANSACTION_QUEST, COIN_EXCHANGE, PROFESSION_MINING }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, MERCHANT_TRANSACTION_QUEST, COIN_EXCHANGE, PROFESSION_MINING, PROFESSION_ENCOUNTER }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -356,6 +356,11 @@ public final class EconomyStore {
         var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_TREE,player,player,ApprovedProfessionContent.get(quest).xp(),quest,"Native tree objective",null,0,actual,data);
         if(!replayed(op))append(op);return professions(player);
     }
+    /** Counts are read from authenticated successful native deaths by the server producer. */
+    public synchronized ProfessionRoster completeEncounterQuest(UUID operation,UUID player,int total,int perSpecies,Map<String,Integer> counts)throws IOException{
+        var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("total",total);data.putInt("perSpecies",perSpecies);var rows=new CompoundTag();counts.forEach(rows::putInt);data.put("counts",rows);
+        var op=new Operation(history.size()+1L,operation,Kind.PROFESSION_ENCOUNTER,player,player,100,EncounterQuests.QUEST,"Native natural encounters",null,0,0,data);if(!replayed(op))append(op);return professions(player);
+    }
     /** Successful native ore removal proof is read server-side; packets cannot provide counts or XP. */
     public synchronized ProfessionRoster completeNativeOreQuest(UUID operation,UUID player,String quest,int required,int actual)throws IOException{
         if(!NativeOreQuests.contains(quest))throw new IllegalArgumentException("Unvalidated native mining objective");var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);
@@ -388,6 +393,8 @@ public final class EconomyStore {
         var encoded=new CompoundTag();inputs.forEach(encoded::putInt);CraftDeliveryQuests.validate(quest,encoded);data.put("inputs",encoded);
         return prepareItem(new Operation(history.size()+1L,operation,Kind.PROFESSION_DELIVERY,player,player,d.xp(),quest,"Profession crafted delivery",null,0,0,data),ItemAction.PROFESSION_DELIVERY);
     }
+    /** Original canonical site audit, including immutable archived operations; never inferred from inventory data. */
+    public synchronized Optional<String> professionInspectionEvidence(UUID player,String quest){healthy();return operationIndex.values().stream().filter(op->op.kind()==Kind.PROFESSION_INSPECTION&&op.target().equals(player)&&op.key().equals(quest)).map(op->op.payload().getString("evidence")).findFirst();}
     /** OP2 site authority is checked by the root; immutable actor/site/snapshot audit is stored with XP. */
     public synchronized ProfessionRoster approveProfessionInspection(UUID operation,UUID admin,UUID player,String quest,String evidence)throws IOException{
         var d=InspectionQuests.get(quest);
@@ -868,6 +875,11 @@ public final class EconomyStore {
             case PROFESSION_REPAIR->{
                 var data=op.payload();if(!op.actor().equals(op.target())||op.reference()!=null||op.period()!=0||!RepairService.contains(op.key())||!op.detail().equals("Native item repairs")||op.amount()!=ApprovedProfessionContent.get(op.key()).xp()||!data.getAllKeys().equals(Set.of("contentVersion","required"))||!data.contains("contentVersion",Tag.TAG_INT)||data.getInt("contentVersion")!=1||!data.contains("required",Tag.TAG_INT)||data.getInt("required")<1||data.getInt("required")>128||op.quantity()<data.getInt("required")||op.quantity()>RepairEvidence.LIMIT)throw new IllegalArgumentException("Invalid native repair authority or proof count");
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.BLACKSMITH).completedQuestIds().contains(op.key()))throw new IllegalStateException("Repair objective already completed");professionRosters.put(op.target(),roster.completeQuest(Profession.BLACKSMITH,op.key(),op.amount(),RepairService.catalog()));
+            }
+            case PROFESSION_ENCOUNTER->{
+                var data=op.payload();if(!op.key().equals(EncounterQuests.QUEST)||!op.actor().equals(op.target())||op.amount()!=100||op.reference()!=null||op.period()!=0||op.quantity()!=0||!op.detail().equals("Native natural encounters")||!data.getAllKeys().equals(Set.of("contentVersion","total","perSpecies","counts")))throw new IllegalArgumentException("Invalid encounter authority");
+                for(var key:List.of("contentVersion","total","perSpecies"))require(data,key,Tag.TAG_INT);require(data,"counts",Tag.TAG_COMPOUND);if(data.getInt("contentVersion")!=1)throw new IllegalArgumentException("Invalid encounter version");var rules=new EncounterRules(data.getInt("total"),data.getInt("perSpecies"));var counts=data.getCompound("counts");if(!counts.getAllKeys().equals(Set.copyOf(HuntState.TARGETS)))throw new IllegalArgumentException("Missing encounter species");int total=0;for(var type:HuntState.TARGETS){require(counts,type,Tag.TAG_INT);int count=counts.getInt(type);if(count<rules.perSpecies()||count>EncounterEvidence.LIMIT)throw new IllegalArgumentException("Invalid encounter count");total=Math.addExact(total,count);}if(total<rules.total()||total>EncounterEvidence.LIMIT)throw new IllegalArgumentException("Incomplete encounters");
+                var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());if(roster.track(Profession.ADVENTURER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Encounter objective already completed");professionRosters.put(op.target(),roster.completeQuest(Profession.ADVENTURER,op.key(),100,EncounterQuests.catalog()));
             }
             case PROFESSION_MINING->{
                 if(!NativeOreQuests.contains(op.key()))throw new IllegalArgumentException("Unvalidated native mining objective");var approved=ApprovedProfessionContent.get(op.key());var data=op.payload();

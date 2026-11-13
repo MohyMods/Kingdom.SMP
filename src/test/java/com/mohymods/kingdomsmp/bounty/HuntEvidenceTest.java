@@ -40,4 +40,6 @@ class HuntEvidenceTest {
         var data=new HuntEvidence();var bad=data.save();bad.putByteArray("secret",new byte[0]);assertThrows(IllegalArgumentException.class,()->HuntEvidence.load(bad));
         var wrongSchema=data.save();wrongSchema.putString("schema","1");assertThrows(IllegalArgumentException.class,()->HuntEvidence.load(wrongSchema));
     }
+    @Test void longLivedKnownNaturalOriginRemainsValidWithoutChangingPaidHuntAgePolicy(){var data=new HuntEvidence();var mob=UUID.randomUUID();var proof=data.spawn(mob,type,dimension,2);assertTrue(data.naturalOrigin(mob,type,dimension,proof,10));assertFalse(data.authentic(mob,type,dimension,proof,10));assertFalse(data.record(hunt(UUID.randomUUID()),mob,type,dimension,proof,10));assertFalse(data.naturalOrigin(UUID.randomUUID(),type,dimension,proof,10));assertFalse(data.naturalOrigin(mob,type,dimension,proof,1));assertEquals(0,data.count(UUID.randomUUID()));}
+
 }

@@ -69,17 +69,23 @@ public final class HuntService {
         var mob=event.getEntity();mob.getPersistentData().remove(PROOF);
         if(event.isSpawnCancelled()||event.getSpawnType()!=MobSpawnType.NATURAL||!(mob.level() instanceof ServerLevel level)||level.dimension()!=net.minecraft.world.level.Level.OVERWORLD||CommerceService.initializedStore(level.getServer()).isEmpty())return;
         String type=BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();if(!HuntState.TARGETS.contains(type))return;
-        mob.getPersistentData().put(PROOF,HuntSavedData.get(level.getServer()).evidence().spawn(mob.getUUID(),type,level.dimension().location().toString(),today()));
+        try{mob.getPersistentData().put(PROOF,HuntSavedData.get(level.getServer()).evidence().spawn(mob.getUUID(),type,level.dimension().location().toString(),today()));}
+        catch(RuntimeException failed){com.mojang.logging.LogUtils.getLogger().error("Optional natural-spawn evidence refused; native spawning continues",failed);}
     }
     private static void death(LivingDeathEvent event) {
-        if(!(event.getSource().getEntity() instanceof ServerPlayer p)||!real(p)||!(event.getEntity().level() instanceof ServerLevel level)||p.serverLevel()!=level||p.distanceToSqr(event.getEntity())>1024)return;
+        try{collectDeath(event);}catch(RuntimeException failure){com.mojang.logging.LogUtils.getLogger().error("Optional death evidence refused; native combat continues",failure);}
+    }
+    private static void collectDeath(LivingDeathEvent event) {
+        if(!(event.getSource().getEntity() instanceof ServerPlayer p)||!real(p)||!(event.getEntity().level() instanceof ServerLevel level)||p.serverLevel()!=level||level.getEntity(event.getEntity().getUUID())!=event.getEntity()||p.distanceToSqr(event.getEntity())>1024)return;
         var direct=event.getSource().getDirectEntity();if(direct!=p&&!(direct instanceof Projectile projectile&&projectile.getOwner()==p))return;
-        var store=CommerceService.initializedStore(p.server).orElse(null);if(store==null||store.quarantined())return;var hunt=store.hunt(p.getUUID(),today()).orElse(null);if(hunt==null||hunt.closed())return;
+        var store=CommerceService.initializedStore(p.server).orElse(null);if(store==null||store.quarantined())return;var hunt=store.hunt(p.getUUID(),today()).orElse(null);if((hunt==null||hunt.closed())&&!com.mohymods.kingdomsmp.profession.EncounterQuests.eligible(p))return;
         var entity=event.getEntity();var pos=entity.blockPosition().immutable();var proof=entity.getPersistentData().getCompound(PROOF).copy();var type=BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();var id=entity.getUUID();long day=today();
         var pending=PENDING.computeIfAbsent(p.server,s->new ArrayDeque<>());if(pending.size()>=8192)return;
         pending.add(()->{
-            if(event.isCanceled()||entity.isAlive()||entity.getPose()!=net.minecraft.world.entity.Pose.DYING||!real(p)||today()!=day||p.serverLevel()!=level||!level.hasChunkAt(pos)||PlacementProtection.check(level,p,pos,pos)!=null||store.hunt(p.getUUID(),day).filter(h->h.id().equals(hunt.id())&&!h.closed()).isEmpty())return;
-            var data=HuntSavedData.get(p.server);if(data.evidence().record(hunt,id,type,level.dimension().location().toString(),proof,day)){data.setDirty();p.sendSystemMessage(Component.literal("Wilderness patrol: "+data.evidence().count(hunt.id())+" / "+hunt.goal()+". "+(data.evidence().count(hunt.id())>=hunt.goal()?"Return to Garrick before 00:00 UTC to collect payment.":"")));}
+            if(event.isCanceled()||entity.isAlive()||entity.getPose()!=net.minecraft.world.entity.Pose.DYING||level.getEntity(id)!=entity||!real(p)||today()!=day||p.serverLevel()!=level||!level.hasChunkAt(pos)||PlacementProtection.check(level,p,pos,pos)!=null)return;
+            var data=HuntSavedData.get(p.server);
+            if(data.evidence().naturalOrigin(id,type,level.dimension().location().toString(),proof,day))try{com.mohymods.kingdomsmp.profession.EncounterQuests.record(p,id,type);}catch(RuntimeException failed){com.mojang.logging.LogUtils.getLogger().error("Optional encounter evidence refused; native death and hunt remain independent",failed);}
+            if(hunt!=null&&store.hunt(p.getUUID(),day).filter(h->h.id().equals(hunt.id())&&!h.closed()).isPresent()&&data.evidence().record(hunt,id,type,level.dimension().location().toString(),proof,day)){data.setDirty();p.sendSystemMessage(Component.literal("Wilderness patrol: "+data.evidence().count(hunt.id())+" / "+hunt.goal()+". "+(data.evidence().count(hunt.id())>=hunt.goal()?"Return to Garrick before 00:00 UTC to collect payment.":"")));}
         });
     }
     private static void tick(ServerTickEvent.Post event) {

@@ -1,0 +1,17 @@
+{
+  "note": "Exact user-supplied official CurseForge file8987967 via Curse Maven. Native loader/API validation required; no alternate Bees version or patched metadata. ProductiveLib is exact author repository binary.",
+  "artifacts": [
+    {
+      "filename": "productivebees-1.21.1-13.14.0.jar",
+      "url": "https://cursemaven.com/curse/maven/productivebees-377897/8987967/productivebees-377897-8987967.jar",
+      "sha512": "5fe344537e3c145dc422ed720027c2f3e70dfcbdf2e692f739a71af712c1339912b18851a291ad0ea81b54d5749138370d855c275027ee8ee31906b1158135f3",
+      "projectId": 377897,
+      "fileId": 8987967
+    },
+    {
+      "filename": "productivelib-1.21.1-0.2.0.jar",
+      "url": "https://raw.githubusercontent.com/JDKDigital/productive-bees/656641c10/libs/productivelib-1.21.1-0.2.0.jar",
+      "sha512": "411e483abfa4102d0e1ce6c4357db4003656e63388e410923ac12544cd2f8c84c0805ba035b7fa6b94ffb77112562d70d4fd003e1e0c0e9d949cd3a5f3f17929"
+    }
+  ]
+}
