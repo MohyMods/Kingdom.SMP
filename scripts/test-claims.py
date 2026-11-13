@@ -18,6 +18,8 @@ parser.add_argument('--stage-flight-preview',action='store_true',help='Stop the 
 parser.add_argument('--namespace',choices=['kingdom_smp_chunk_unload_tests','kingdom_smp_alchemy_tests','kingdom_smp_master_forestry_tests','kingdom_smp_profession_production_tests','kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests','kingdom_smp_commission_tests','kingdom_smp_woodland_tests','kingdom_smp_retained_tests','kingdom_smp_tree_tests','kingdom_smp_premises_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
 parser.add_argument('--mods', default=None)
 parser.add_argument('--alchemy-reagents',action='store_true',help='Exercise actual Mystical Agriculture planting/growth/harvest and delivery in private copies')
+parser.add_argument('--mekanism-smelt',action='store_true',help='Actual exact Mekanism raw-osmium native primary processing/physical delivery')
+parser.add_argument('--native-copper',action='store_true',help='Actual legacy coal/iron retention and native separate-area copper extraction')
 parser.add_argument('--native-ore',action='store_true',help='Real decorated future Overworld native ore generation and successful personal extraction in a stopped private clone')
 parser.add_argument('--expedition-supplies',action='store_true',help='Actual native food cooking/torch-compass crafting and permanent Adventurer delivery')
 parser.add_argument('--create-workshop',action='store_true',help='Actual all7prerequisites and final native functional Engineer workshop assessment')
@@ -135,11 +137,19 @@ if args.alchemy_journeyman:
     init=fixture/'alchemy-journeyman.init.gradle'
     init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testAlchemyJourneyman','true' } } }\n")
     command += ['--init-script',str(init)]
-if args.native_ore:
-    if args.namespace != "kingdom_smp_profession_production_tests" or any([args.expedition_supplies,args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
+if args.mekanism_smelt:
+    if args.namespace != "kingdom_smp_profession_production_tests" or any([args.native_copper,args.native_ore,args.expedition_supplies,args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
+        raise SystemExit("Mekanism smelting requires focused namespace and a single producer")
+    init=fixture/"mekanism-smelt.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMekanismSmelt','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.native_ore or args.native_copper:
+    if args.native_ore and args.native_copper:
+        raise SystemExit("Choose original ore production or later separate copper only")
+    if args.namespace != "kingdom_smp_profession_production_tests" or any([args.mekanism_smelt,args.expedition_supplies,args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
         raise SystemExit("Native ore requires focused namespace and a single producer")
     init=fixture/"native-ore.init.gradle"
-    init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty 'kingdom.testNativeOre','true' } } }\n")
+    init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
     command += ["--init-script",str(init)]
 if args.expedition_supplies:
     if args.namespace != "kingdom_smp_profession_production_tests" or any([args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
@@ -311,6 +321,10 @@ if args.expedition_supplies:
     markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
 if args.native_ore:
     markers=["NATIVE_ORE_RESTART_PASSED:"] if (fixture/"claims-fixture/native-ore-runtime-proof.nbt").is_file() else ["NATIVE_ORE_NATIVE_PASSED:","NATIVE_ORE_RESTART_PASSED:"]
+if args.mekanism_smelt:
+    markers=["MEKANISM_SMELT_NATIVE_PASSED:","MEKANISM_SMELT_RESTART_PASSED:"]
+if args.native_copper:
+    markers=["NATIVE_COPPER_RESTART_PASSED:"] if (fixture/"claims-fixture/native-copper-runtime-proof.nbt").is_file() else ["NATIVE_COPPER_NATIVE_PASSED:","NATIVE_COPPER_RESTART_PASSED:"]
 for cycle, marker in enumerate(markers):
     started = passed = stopped = failed = False
     with (fixture / ('execution.log' if len(markers)==1 else f'execution-{cycle+1}.log')).open('w') as log:

@@ -21,6 +21,7 @@ public final class CraftDeliveryService {
     private CraftDeliveryService() { }
     public static void close(ServerPlayer p){QUOTES.remove(p);}
     public static boolean eligible(ServerPlayer p,String id){
+        if(MekanismSmelting.QUEST.equals(id)&&!MekanismSmelting.supported())return false;
         if(CreateCraftQuests.contains(id)&&!CreateCraftQuests.supported())return false;
         if(!CraftDeliveryQuests.contains(id)||!TreeQuestService.real(p))return false;
         var d=CraftDeliveryQuests.get(id);var roster=CommerceService.store(p.server).professions(p.getUUID());
@@ -40,6 +41,7 @@ public final class CraftDeliveryService {
         if(roster.track(d.profession()).completedQuestIds().contains(id))return "Complete. Material delivery and earned XP are saved.";
         if(!roster.isActive(d.profession()))return "Activate "+ProfessionService.name(d.profession())+" before earning crafting evidence.";
         var inputs=CraftDeliveryRules.get(p.server).inputs(id);
+        if(MekanismSmelting.QUEST.equals(id)&&!MekanismSmelting.supported())return "Requires verified Mekanism10.7.19. Existing profession and world records remain preserved.";
         if(CreateCraftQuests.contains(id)&&!CreateCraftQuests.supported())return "Requires verified Create6.0.10. Existing profession and world records remain preserved.";
         if(ExpeditionSupplies.QUEST.equals(id))return inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),ExpeditionSupplies.metric(e.getKey()))+"/"+e.getValue()+" "+e.getKey().replace("minecraft:","").replace('_',' ')).collect(java.util.stream.Collectors.joining(", "))+". Cook raw meat, fish or potatoes in a permitted furnace/smoker, craft torches and a compass, then permanently supply plain provisions at the guild. Cooked variants may be mixed.";
         if(MillingService.QUEST.equals(id))return MillingService.status(p,inputs.get(MillingService.OUTPUT));
