@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--forest-reserve',action='store_true',help='Actual native retained community forest/funded Master service/final all24Lumberjack assessment')
 parser.add_argument('--bee-reagents',action='store_true',help='Actual Alchemist supervised mixed resource combs/partial restart/canonical receipt')
 parser.add_argument('--bee-jobs',action='store_true',help='Actual supervised native per-species comb production, partial restart and physical receipt')
 parser.add_argument('--bee-apiary',action='store_true',help='Exact native bee AI pollination/hive production and approved woodland inspection')
@@ -90,7 +91,7 @@ if args.seed_master_forestry_world:
         origin=source/'apiary-job-origin-proof.log'
         if origin.is_file():
             text += origin.read_text()
-    if not any(marker in text for marker in (['APIARY_RESTART_PASSED:','APIARY_JOBS_PENDING_PASSED:'] if args.bee_jobs else ['NATIVE_TREE_RESTART_ASSERTIONS_PASSED:','MASTER_FORESTRY_NATIVE_PASSED:','MASTER_FORESTRY_RESTART_PASSED:'])):
+    if not any(marker in text for marker in (['APIARY_JOBS_RESTART_PASSED:','FOREST_RESERVE_RESTART_PASSED:'] if args.forest_reserve else ['APIARY_RESTART_PASSED:','APIARY_JOBS_PENDING_PASSED:'] if args.bee_jobs else ['NATIVE_TREE_RESTART_ASSERTIONS_PASSED:','MASTER_FORESTRY_NATIVE_PASSED:','MASTER_FORESTRY_RESTART_PASSED:'])):
         raise SystemExit('No actual completed native forestry source evidence')
     with (source/'claims-fixture/session.lock').open('r+b') as lock:
         fcntl.lockf(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -192,6 +193,12 @@ if args.native_ore or args.native_copper:
         raise SystemExit("Native ore requires focused namespace and a single producer")
     init=fixture/"native-ore.init.gradle"
     init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.forest_reserve:
+    if any([args.bee_jobs,args.bee_apiary,args.bee_reagents]) or args.namespace != "kingdom_smp_master_forestry_tests" or not args.seed_master_forestry_world:
+        raise SystemExit("Forest reserve requires original native21Lumberjack/source working productive apiary only")
+    init=fixture/"forest-reserve.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testForestReserve','true' } } }\n")
     command += ["--init-script",str(init)]
 if args.bee_reagents:
     if args.namespace != "kingdom_smp_alchemy_tests" or not args.seed_profession_world:
@@ -385,6 +392,8 @@ if args.create_transmission:
     markers=["CREATE_TRANSMISSION_NATIVE_PASSED:","CREATE_TRANSMISSION_RESTART_PASSED:"]
 if args.create_workshop:
     markers=["CREATE_WORKSHOP_NATIVE_PASSED:","CREATE_WORKSHOP_RESTART_PASSED:"]
+if args.forest_reserve:
+    markers=["FOREST_RESERVE_NATIVE_PASSED:","FOREST_RESERVE_RESTART_PASSED:"]
 if args.bee_reagents:
     markers=(["APIARY_REAGENTS_NATIVE_PASSED:","APIARY_REAGENTS_RESTART_PASSED:"] if (fixture/"claims-fixture/apiary-reagents-partial.txt").is_file() else ["APIARY_REAGENTS_PENDING_PASSED:","APIARY_REAGENTS_NATIVE_PASSED:","APIARY_REAGENTS_RESTART_PASSED:"])
 if args.bee_jobs:

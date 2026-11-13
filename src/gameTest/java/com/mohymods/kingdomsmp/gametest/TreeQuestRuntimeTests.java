@@ -19,7 +19,7 @@ import net.neoforged.neoforge.gametest.*;
 @GameTestHolder("kingdom_smp_tree_tests") @PrefixGameTestTemplate(false)
 public final class TreeQuestRuntimeTests {
     @GameTest(template="empty",templateNamespace="kingdom_smp_master_forestry_tests",timeoutTicks=30000)
-    public static void nativeMasterForestry(GameTestHelper h)throws Exception{if(Boolean.getBoolean("kingdom.testBeeJobs")){ApiaryJobsRuntime.run(h);return;}if(Boolean.getBoolean("kingdom.testBeeApiary")){ApiaryRuntime.run(h);return;}MasterForestryRuntimeTests.realSixSpeciesAndReplacementCycles(h);}
+    public static void nativeMasterForestry(GameTestHelper h)throws Exception{if(Boolean.getBoolean("kingdom.testForestReserve")){ForestReserveRuntime.run(h);return;}if(Boolean.getBoolean("kingdom.testBeeJobs")){ApiaryJobsRuntime.run(h);return;}if(Boolean.getBoolean("kingdom.testBeeApiary")){ApiaryRuntime.run(h);return;}MasterForestryRuntimeTests.realSixSpeciesAndReplacementCycles(h);}
 
     @GameTest(template="empty",timeoutTicks=6000)
     public static void actualNativeTreesHarvestReplacementAndReviewedXp(GameTestHelper h)throws Exception{
