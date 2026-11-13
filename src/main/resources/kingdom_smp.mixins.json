@@ -35,7 +35,8 @@
     "NativeBrewMenuMixin",
     "NativeBrewClickMixin",
     "NativeBrewTakeMixin",
-    "NativeBrewContainerMixin"
+    "NativeBrewContainerMixin",
+    "NativeReagentGrowthMixin"
   ],
   "injectors": {
     "defaultRequire": 1
