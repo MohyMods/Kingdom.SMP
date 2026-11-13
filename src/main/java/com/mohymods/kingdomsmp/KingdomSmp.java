@@ -25,6 +25,7 @@ public final class KingdomSmp {
 
     public KingdomSmp(IEventBus modBus) {
         KingdomNpcs.register(modBus);
+        com.mohymods.kingdomsmp.profession.NativeOreProvenance.register(modBus);
         com.mohymods.kingdomsmp.equipment.FarmerGearItems.register(modBus);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.equipment.FarmerHarvestService::tick);
         com.mohymods.kingdomsmp.economy.CurrencyItems.register(modBus);

@@ -25,14 +25,16 @@ public final class ProfessionQuestService {
         definitions.add(ApprovedProfessionContent.get(NativeOutputQuests.LIBRARY_FAMILIES).slot());
         definitions.add(ApprovedProfessionContent.get(NativeOutputQuests.LIBRARY_MAXIMUM).slot());
         definitions.addAll(TreeQuestService.catalog().definitions().values().stream().filter(d->TreeQuestService.contains(d.id())).toList());
+        definitions.addAll(NativeOreQuests.catalog().definitions().values());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
-    public static String title(String id) { if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).name(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).name(); if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
-    public static long xp(String id) { if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).xp(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).xp(); if(SmithingQuestService.QUEST.equals(id))return 300; if(EnchantedToolService.QUEST.equals(id))return 200; if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
+    public static String title(String id) { if(NativeOreQuests.contains(id))return ApprovedProfessionContent.get(id).name(); if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).name(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).name(); if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
+    public static long xp(String id) { if(NativeOreQuests.contains(id))return ApprovedProfessionContent.get(id).xp(); if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).xp(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).xp(); if(SmithingQuestService.QUEST.equals(id))return 300; if(EnchantedToolService.QUEST.equals(id))return 200; if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
     public static String status(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return "This objective has no validated runtime implementation yet. Existing progress is preserved.";
+        if(NativeOreQuests.contains(id))return NativeOreQuests.status(player,id);
         if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.status(player,id);
         if(BrewQuests.UNDERWATER.equals(id))return "Deliver "+BrewQuestRules.goal(player.server,id)/2+" authenticated water-breathing and "+BrewQuestRules.goal(player.server,id)/2+" night-vision potions. Personally brew both families at an idle permitted stand, pay actual reagents/fuel and collect each batch.";
         if(BrewQuests.SPLASH.equals(id))return "Deliver "+BrewQuestRules.goal(player.server,id)+" authenticated beneficial splash potions. Use native gunpowder/fuel on a supported beneficial brew and collect your own batch. Harmful, lingering and untracked potions do not count.";
@@ -66,6 +68,7 @@ public final class ProfessionQuestService {
     }
     public static boolean ready(ServerPlayer player,String id) {
         if(id==null||!CATALOG.definitions().containsKey(id))return false;
+        if(NativeOreQuests.contains(id))return NativeOreQuests.ready(player,id);
         if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.ready(player,id);
         if(NativeOutputQuests.contains(id))return false;
         if(RepairService.contains(id))return RepairService.ready(player,id);
@@ -81,6 +84,7 @@ public final class ProfessionQuestService {
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
         if(id==null||!CATALOG.definitions().containsKey(id))throw new IllegalArgumentException("No validated runtime objective");
+        if(NativeOreQuests.contains(id)){NativeOreQuests.complete(player,operation,id);return;}
         if(MerchantTransactionQuests.contains(id)){MerchantTransactionQuests.complete(player,operation,id);return;}
         if(NativeOutputQuests.contains(id))throw new IllegalStateException("Use the authenticated enchanted-tool delivery");
         if(RepairService.contains(id)){RepairService.complete(player,operation,id);return;}

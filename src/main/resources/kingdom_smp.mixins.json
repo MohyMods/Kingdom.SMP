@@ -43,7 +43,10 @@
     "NativeMillstoneBlockMixin",
     "NativeProductionDropMixin",
     "NativeProductionEntityMixin",
-    "NativeChunkUnloadMixin"
+    "NativeChunkUnloadMixin",
+    "NativeOreFeatureMixin",
+    "NativeOreMutationMixin",
+    "NativeOreMiningMixin"
   ],
   "injectors": {
     "defaultRequire": 1
