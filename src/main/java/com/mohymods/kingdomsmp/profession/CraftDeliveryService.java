@@ -26,6 +26,7 @@ public final class CraftDeliveryService {
         var d=CraftDeliveryQuests.get(id);var roster=CommerceService.store(p.server).professions(p.getUUID());
         if(!roster.isActive(d.profession())||roster.track(d.profession()).completedQuestIds().contains(id)||!CraftDeliveryQuests.catalog().mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             ||ContributionService.kingdom(p.server).attainedTier()<d.minimumTier()||!ProfessionService.available(p,d.profession()))return false;
+        if(ExpeditionSupplies.QUEST.equals(id))return CraftDeliveryRules.get(p.server).inputs(id).entrySet().stream().allMatch(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),ExpeditionSupplies.metric(e.getKey()))>=e.getValue());
         if(MillingService.QUEST.equals(id))return MillingService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(MillingService.OUTPUT));
         if(CreatePressService.QUEST.equals(id))return CreatePressService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get("sheets"));
         if(ReagentCropService.QUEST.equals(id))return ReagentCropService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(ReagentCropService.ESSENCE));
@@ -40,6 +41,7 @@ public final class CraftDeliveryService {
         if(!roster.isActive(d.profession()))return "Activate "+ProfessionService.name(d.profession())+" before earning crafting evidence.";
         var inputs=CraftDeliveryRules.get(p.server).inputs(id);
         if(CreateCraftQuests.contains(id)&&!CreateCraftQuests.supported())return "Requires verified Create6.0.10. Existing profession and world records remain preserved.";
+        if(ExpeditionSupplies.QUEST.equals(id))return inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),ExpeditionSupplies.metric(e.getKey()))+"/"+e.getValue()+" "+e.getKey().replace("minecraft:","").replace('_',' ')).collect(java.util.stream.Collectors.joining(", "))+". Cook raw meat, fish or potatoes in a permitted furnace/smoker, craft torches and a compass, then permanently supply plain provisions at the guild. Cooked variants may be mixed.";
         if(MillingService.QUEST.equals(id))return MillingService.status(p,inputs.get(MillingService.OUTPUT));
         if(CreatePressService.QUEST.equals(id))return CreatePressService.status(p,inputs.get("sheets"));
         if(ReagentCropService.QUEST.equals(id))return ReagentCropService.status(p,inputs.get(ReagentCropService.ESSENCE));

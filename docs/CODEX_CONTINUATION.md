@@ -1,3 +1,13 @@
+D089 source extends25bce6b:146/288 runtime adapters,142 remaining. Full build/game-test compile647JUnit0failures/errors/skips (work/professions146-build.log). Actual Adventurer supplies2JVM pass (work/expedition-supplies-native.log; stopped work/claim-server.x3a9t1jk). All QA servers stopped; no release/main merge.
+
+## D089 — native expedition provisions
+
+Adventurer a05 uses actual permitted native furnace/smoker raw-food recipes and successful collection, strict native primary torch/compass crafting, then permanently consumes16plain cooked food (eight verified vanilla varieties may mix),16torches and1compass through the existing canonical inventory receipt/XP transaction. Merely possessing stock cannot create MAKE evidence. Additive world config and grouped strict inputs preserve old records. Native evidence failures remain outside native transfer authority.
+
+Actual2JVM FTB/OPAC test consumes real8raw beef/8potatoes/native fuel, extracts real mixed cooked outputs, crafts4native coal/charcoal torch recipes and1compass, refuses missing evidence/changed reviewed inventory/replay, permanently delivers exact outputs→2earned200XP/original Adventurer guild-Kael. Second JVM retains original counters/roster/receipt, no rank injection. Explicit private raw supplies/terrain/tier/native processing time only; no fullpack/natural-duration claim. Reproduce: JAVA_HOME=$PWD/work/toolchains/jdk-21.0.13+9 python3 scripts/test-claims.py --namespace kingdom_smp_profession_production_tests --seed-profession-world work/claim-server.1zdoxvwp --expedition-supplies.
+
+NEXT: actual native ore-worldgen provenance for Miner a01/a02; old unknown ores remain usable but cannot supply retrospective proof. Use verified ProtoChunk callbacks/persistent bounded marks, native removal/placement invalidation, current claims/reservations, global once-per-position saved counters and successful native player removal; evidence failure must not interrupt generation/removal. Continue approved profession backlog; D088 below retains Engineer continuation and native fixtures.
+
 D088 source extends a808618:145/288 runtime adapters (143 remaining). Full build/game-test compile645JUnit, zero failures/errors/skips (work/professions145-build.log). Actual Create transmission and final workshop assessment each pass two dedicated JVMs. Fresh original Farmer24 full native regression passes. All QA servers stopped. No release/main merge; worlds/identities/claims/Farmer24 preserved.
 
 Counts: Farmer24;Builder19;Lumberjack20;Smith21;Miner4;Library13;Merchant10;Alchemist15;Engineer10(all8Apprentice plus J/M commissions);Mechanic/Mage/Adventurer3each=145. Full professions, kingdom tiers, FTB campaign, fullpack/client/natural-duration/release acceptance remain incomplete.

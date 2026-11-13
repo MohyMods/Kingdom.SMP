@@ -18,6 +18,7 @@ parser.add_argument('--stage-flight-preview',action='store_true',help='Stop the 
 parser.add_argument('--namespace',choices=['kingdom_smp_chunk_unload_tests','kingdom_smp_alchemy_tests','kingdom_smp_master_forestry_tests','kingdom_smp_profession_production_tests','kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests','kingdom_smp_commission_tests','kingdom_smp_woodland_tests','kingdom_smp_retained_tests','kingdom_smp_tree_tests','kingdom_smp_premises_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
 parser.add_argument('--mods', default=None)
 parser.add_argument('--alchemy-reagents',action='store_true',help='Exercise actual Mystical Agriculture planting/growth/harvest and delivery in private copies')
+parser.add_argument('--expedition-supplies',action='store_true',help='Actual native food cooking/torch-compass crafting and permanent Adventurer delivery')
 parser.add_argument('--create-workshop',action='store_true',help='Actual all7prerequisites and final native functional Engineer workshop assessment')
 parser.add_argument('--create-transmission',action='store_true',help='Actual live ratio/reversal and staged native clutch output stop')
 parser.add_argument('--create-milling',action='store_true',help='Native traced player wheat/millstone mutations/persistent partial production')
@@ -133,6 +134,12 @@ if args.alchemy_journeyman:
     init=fixture/'alchemy-journeyman.init.gradle'
     init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testAlchemyJourneyman','true' } } }\n")
     command += ['--init-script',str(init)]
+if args.expedition_supplies:
+    if args.namespace != "kingdom_smp_profession_production_tests" or any([args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
+        raise SystemExit("Expedition supplies requires focused namespace and a single producer")
+    init=fixture/"expedition-supplies.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testExpeditionSupplies','true' } } }\n")
+    command += ["--init-script",str(init)]
 if args.create_workshop:
     if args.namespace != "kingdom_smp_profession_production_tests" or args.create_transmission or args.create_milling or args.create_press or args.create_drive or args.create_craft or args.library_field_guide or args.merchant_production:
         raise SystemExit("Create workshop requires focused namespace and a single producer")
@@ -293,6 +300,8 @@ if args.create_transmission:
     markers=["CREATE_TRANSMISSION_NATIVE_PASSED:","CREATE_TRANSMISSION_RESTART_PASSED:"]
 if args.create_workshop:
     markers=["CREATE_WORKSHOP_NATIVE_PASSED:","CREATE_WORKSHOP_RESTART_PASSED:"]
+if args.expedition_supplies:
+    markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
 for cycle, marker in enumerate(markers):
     started = passed = stopped = failed = False
     with (fixture / ('execution.log' if len(markers)==1 else f'execution-{cycle+1}.log')).open('w') as log:
