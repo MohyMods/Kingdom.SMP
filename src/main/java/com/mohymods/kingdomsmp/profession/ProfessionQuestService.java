@@ -47,6 +47,8 @@ public final class ProfessionQuestService {
         if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.status(player,id);
         if(CraftDeliveryQuests.contains(id))return CraftDeliveryService.status(player,id);
         if(InspectionQuests.contains(id)){
+            if(id.equals(CreateWorkshopInspection.QUEST))return "After all7personal proofs, request a live workshop assessment: safe water power, transmission, press/millstone, stopped clutch output, lighting and storage. Keep your maintained premises and permitted machines loaded; inspection never loads chunks.";
+            if(id.equals(CreateTransmissionInspection.QUEST))return "Administrator reviews a working native gear ratio/reversal and live clutch output. Then turn on the reviewed adjacent lever and stop only that output; confirm within30seconds. Keep source, gearing, site geometry and permissions unchanged.";
             if(id.equals(LibraryFieldGuide.QUEST))return "Personally visit an unlocked Aether or Twilight biome during Journeyman trials. Write dimension=namespace:id biome=namespace:id in your own field guide, add readable observations, and request an on-site administrator inspection at the Library.";
             if(id.equals("kingdom_smp:librarian/a06"))return "Place a written catalogue on your lectern: "+LibraryQuestRules.get(player.server).catalogueEntries()+" native declarations 'minecraft:id max=N'. List every incompatible pair as 'minecraft:a ! minecraft:b'; an administrator confirms knowledge and authorship.";
             var d=InspectionQuests.get(id);var roster=CommerceService.store(player.server).professions(player.getUUID());
