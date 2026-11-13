@@ -18,6 +18,7 @@ parser.add_argument('--stage-flight-preview',action='store_true',help='Stop the 
 parser.add_argument('--namespace',choices=['kingdom_smp_alchemy_tests','kingdom_smp_master_forestry_tests','kingdom_smp_profession_production_tests','kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests','kingdom_smp_commission_tests','kingdom_smp_woodland_tests','kingdom_smp_retained_tests','kingdom_smp_tree_tests','kingdom_smp_premises_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
 parser.add_argument('--mods', default=None)
 parser.add_argument('--alchemy-reagents',action='store_true',help='Exercise actual Mystical Agriculture planting/growth/harvest and delivery in private copies')
+parser.add_argument('--create-press',action='store_true',help='Native powered press/input drops/partial restart/physical delivery')
 parser.add_argument('--create-drive',action='store_true',help='Native flowing waterwheel/shaft and confirmed current-claim inspection')
 parser.add_argument('--create-craft',action='store_true',help='Native Create primary recipes and saved authenticated Engineer deliveries')
 parser.add_argument('--library-field-guide',action='store_true',help='Real native dimension travel and saved personal Library field guide on a stopped completedJfixture')
@@ -129,6 +130,12 @@ if args.alchemy_journeyman:
     init=fixture/'alchemy-journeyman.init.gradle'
     init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testAlchemyJourneyman','true' } } }\n")
     command += ['--init-script',str(init)]
+if args.create_press:
+    if args.namespace != "kingdom_smp_profession_production_tests" or args.create_drive or args.create_craft or args.library_field_guide or args.merchant_production:
+        raise SystemExit("Create press requires focused namespace and a single producer")
+    init=fixture/"create-press.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testCreatePress','true' } } }\n")
+    command += ["--init-script",str(init)]
 if args.create_drive:
     if args.namespace != "kingdom_smp_profession_production_tests" or args.create_craft or args.library_field_guide or args.merchant_production:
         raise SystemExit("Create drive requires focused namespace and a single producer")
@@ -255,6 +262,8 @@ if args.create_craft:
     markers=["CREATE_CRAFT_NATIVE_PASSED:","CREATE_CRAFT_RESTART_PASSED:"]
 if args.create_drive:
     markers=["CREATE_DRIVE_NATIVE_PASSED:","CREATE_DRIVE_RESTART_PASSED:"]
+if args.create_press:
+    markers=["CREATE_PRESS_PENDING_PASSED:","CREATE_PRESS_NATIVE_PASSED:","CREATE_PRESS_RESTART_PASSED:"]
 for cycle, marker in enumerate(markers):
     started = passed = stopped = failed = False
     with (fixture / ('execution.log' if len(markers)==1 else f'execution-{cycle+1}.log')).open('w') as log:
