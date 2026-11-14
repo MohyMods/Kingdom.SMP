@@ -47,7 +47,8 @@
     "NativeOreFeatureMixin",
     "NativeOreMutationMixin",
     "NativeOreMiningMixin",
-    "NativeApiaryMixin"
+    "NativeApiaryMixin",
+    "NativeMineMovementMixin"
   ],
   "injectors": {
     "defaultRequire": 1

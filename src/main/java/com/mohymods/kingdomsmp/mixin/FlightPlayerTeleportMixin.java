@@ -12,6 +12,7 @@ abstract class FlightPlayerTeleportMixin {
   @Inject(method = "teleportTo(DDD)V", at = @At("RETURN"))
   private void kingdom$teleported(CallbackInfo ci) {
     FlightService.interruptTeleport((Entity) (Object) this);
+    com.mohymods.kingdomsmp.profession.MineAccessService.interrupt((Entity)(Object)this);
     com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
         (Entity) (Object) this);
     com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
@@ -24,6 +25,7 @@ abstract class FlightPlayerTeleportMixin {
   private void kingdom$transferred(CallbackInfoReturnable<Boolean> ci) {
     if (ci.getReturnValue()) {
       FlightService.interruptTeleport((Entity) (Object) this);
+    com.mohymods.kingdomsmp.profession.MineAccessService.interrupt((Entity)(Object)this);
       com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
           (Entity) (Object) this);
       com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
@@ -35,6 +37,7 @@ abstract class FlightPlayerTeleportMixin {
   private void kingdom$changedDimension(CallbackInfoReturnable<Entity> ci) {
     if (ci.getReturnValue() != null) {
       FlightService.interruptTeleport((Entity) (Object) this);
+    com.mohymods.kingdomsmp.profession.MineAccessService.interrupt((Entity)(Object)this);
       com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
           (Entity) (Object) this);
       com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(
@@ -45,6 +48,7 @@ abstract class FlightPlayerTeleportMixin {
   @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V", at = @At("RETURN"))
   private void kingdom$directTransfer(CallbackInfo ci) {
     FlightService.interruptTeleport((Entity) (Object) this);
+    com.mohymods.kingdomsmp.profession.MineAccessService.interrupt((Entity)(Object)this);
     com.mohymods.kingdomsmp.integration.aircraft.CargoService.interruptTeleport(
         (Entity) (Object) this);
     com.mohymods.kingdomsmp.integration.aircraft.ScoutService.interruptTeleport(

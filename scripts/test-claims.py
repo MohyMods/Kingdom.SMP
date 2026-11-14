@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--mine-access-corrupt',action='store_true',help='One extra private stopped-save fault boot verifies native item/movement safety before matching restore')
+parser.add_argument('--mine-access',action='store_true',help='Real retained mine access/native accepted descent and return/lighting/assessment')
 parser.add_argument('--forest-reserve',action='store_true',help='Actual native retained community forest/funded Master service/final all24Lumberjack assessment')
 parser.add_argument('--bee-reagents',action='store_true',help='Actual Alchemist supervised mixed resource combs/partial restart/canonical receipt')
 parser.add_argument('--bee-jobs',action='store_true',help='Actual supervised native per-species comb production, partial restart and physical receipt')
@@ -193,6 +195,14 @@ if args.native_ore or args.native_copper:
         raise SystemExit("Native ore requires focused namespace and a single producer")
     init=fixture/"native-ore.init.gradle"
     init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
+    command += ["--init-script",str(init)]
+if args.mine_access_corrupt and not args.mine_access:
+    raise SystemExit("Mine access corruption requires its guarded private fixture run")
+if args.mine_access:
+    if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
+        raise SystemExit("Mine access requires a stopped verified original native Miner fixture")
+    init=fixture/"mine-access.init.gradle"
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMineAccess','true' } } }\n")
     command += ["--init-script",str(init)]
 if args.forest_reserve:
     if any([args.bee_jobs,args.bee_apiary,args.bee_reagents]) or args.namespace != "kingdom_smp_master_forestry_tests" or not args.seed_master_forestry_world:
@@ -392,6 +402,8 @@ if args.create_transmission:
     markers=["CREATE_TRANSMISSION_NATIVE_PASSED:","CREATE_TRANSMISSION_RESTART_PASSED:"]
 if args.create_workshop:
     markers=["CREATE_WORKSHOP_NATIVE_PASSED:","CREATE_WORKSHOP_RESTART_PASSED:"]
+if args.mine_access:
+    markers=(["MINE_ACCESS_PENDING_PASSED:","MINE_ACCESS_CORRUPT_PASSED:","MINE_ACCESS_NATIVE_PASSED:","MINE_ACCESS_RESTART_PASSED:"] if args.mine_access_corrupt else ["MINE_ACCESS_PENDING_PASSED:","MINE_ACCESS_NATIVE_PASSED:","MINE_ACCESS_RESTART_PASSED:"])
 if args.forest_reserve:
     markers=["FOREST_RESERVE_NATIVE_PASSED:","FOREST_RESERVE_RESTART_PASSED:"]
 if args.bee_reagents:
@@ -441,6 +453,22 @@ for cycle, marker in enumerate(markers):
             if process.poll() is None:
                 process.stdin.write('stop\n'); process.stdin.flush()
                 process.wait(timeout=30)
+    if args.mine_access_corrupt:
+        import shutil
+        access_file=fixture/'claims-fixture/data/kingdomsmp_mine_access_v1.dat'
+        access_backup=fixture/'mine-access-source-backup.dat'
+        access_fault=fixture/'claims-fixture/mine-access-corrupt.txt'
+        if result or not passed or failed:
+            if access_backup.is_file() and access_fault.exists():
+                shutil.copy2(access_backup,access_file)
+                access_fault.unlink()
+        elif cycle==0:
+            shutil.copy2(access_file,access_backup)
+            access_file.write_text('Intentional private stopped-world malformed evidence fixture')
+            access_fault.write_text('Only generated private save; normal native item/movement transactions must remain safe')
+        elif cycle==1:
+            shutil.copy2(access_backup,access_file)
+            access_fault.unlink()
     if args.namespace == 'kingdom_smp_retained_tests':
         if result or not passed or failed:
             if retained_backup.is_file() and corrupt_marker.exists():
