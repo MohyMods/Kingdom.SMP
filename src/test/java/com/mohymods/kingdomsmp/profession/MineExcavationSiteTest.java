@@ -1,0 +1,10 @@
+package com.mohymods.kingdomsmp.profession;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.*;
+import net.minecraft.core.BlockPos;
+import org.junit.jupiter.api.Test;
+class MineExcavationSiteTest {
+ @Test void boundedPriorAuthorizationRetainsIdentityPurposeAndSnapshot(){var s=new MineExcavationSite(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"minecraft:overworld",BlockPos.ZERO,new BlockPos(3,3,3),"a".repeat(64),"Owner consent and protected surroundings reviewed");assertEquals(64,s.volume());assertEquals(s,MineExcavationSite.load(s.save()));assertTrue(s.contains(new BlockPos(2,1,3)));var bad=s.save();bad.putString("surroundings","client count");assertThrows(IllegalArgumentException.class,()->MineExcavationSite.load(bad));}
+ @Test void unboundedForeignOrMalformedSitesCannotBecomeAuthorization(){assertThrows(IllegalArgumentException.class,()->new MineExcavationSite(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"minecraft:the_nether",BlockPos.ZERO,new BlockPos(3,3,3),"a".repeat(64),"Purpose and owner consent"));assertThrows(IllegalArgumentException.class,()->new MineExcavationSite(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"minecraft:overworld",BlockPos.ZERO,new BlockPos(8,3,3),"a".repeat(64),"Purpose and owner consent"));assertThrows(IllegalArgumentException.class,()->new MineExcavationSite(UUID.randomUUID(),UUID.randomUUID(),UUID.randomUUID(),"minecraft:overworld",BlockPos.ZERO,new BlockPos(3,0,3),"a".repeat(64),"Purpose and owner consent"));}
+ @Test void configurableMinimumRejectsMalformedValuesWithoutOverwritingSource(@org.junit.jupiter.api.io.TempDir java.nio.file.Path directory)throws Exception{var file=directory.resolve("excavation.json");assertEquals(64,MineExcavation.minimum(file));java.nio.file.Files.writeString(file,"{\"schema\":1,\"minimumVolume\":128}");assertEquals(128,MineExcavation.minimum(file));String bad="{\"schema\":1,\"minimumVolume\":1.5}";java.nio.file.Files.writeString(file,bad);assertThrows(java.io.IOException.class,()->MineExcavation.minimum(file));assertEquals(bad,java.nio.file.Files.readString(file));}
+}

@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--mine-excavation-restore',action='store_true',help='One native restore/status/ordinary denial boot of genuinely earned full24Miner source')
+parser.add_argument('--mine-excavation',action='store_true',help='Actual prior canonical operator authority/native excavation/full24Miner/IO/archive/restart')
 parser.add_argument('--native-specimens',action='store_true',help='Actual natural Silk ore specimen harvest/native permanent grouped delivery')
 parser.add_argument('--master-diamonds',action='store_true',help='Actual12natural Master diamonds across3regions after genuine19Miner proofs')
 parser.add_argument('--nether-ores',action='store_true',help='Actual full100native Nether Master ore removals/restart')
@@ -203,6 +205,14 @@ if args.native_ore or args.native_copper or args.native_journey_ore or args.nati
     init=fixture/"native-ore.init.gradle"
     init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeGeology" if args.native_geology else "kingdom.testNativeJourneyOre" if args.native_journey_ore else "kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
     command += ["--init-script",str(init)]
+if args.mine_excavation_restore and not args.mine_excavation:
+    raise SystemExit("Restore requires the guarded excavation runner")
+if args.mine_excavation:
+    if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
+        raise SystemExit("Excavation requires actual22Miner private stopped source")
+    init=fixture/'mine-excavation.init.gradle'
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMineExcavation','true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.native_specimens:
     if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
         raise SystemExit("Specimens require actual20Miner private stopped source")
@@ -453,6 +463,8 @@ if args.encounters:
     markers=["ENCOUNTER_NATIVE_PASSED:","ENCOUNTER_RESTART_PASSED:"]
 if args.expedition_supplies:
     markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
+if args.mine_excavation:
+    markers=(["MINE_EXCAVATION_RESTART_PASSED:"] if args.mine_excavation_restore else ["MINE_EXCAVATION_PENDING_PASSED:","MINE_EXCAVATION_NATIVE_PASSED:","MINE_EXCAVATION_RESTART_PASSED:"])
 if args.native_specimens:
     markers=["NATIVE_SPECIMEN_NATIVE_PASSED:","NATIVE_SPECIMEN_RESTART_PASSED:"]
 if args.master_diamonds:
