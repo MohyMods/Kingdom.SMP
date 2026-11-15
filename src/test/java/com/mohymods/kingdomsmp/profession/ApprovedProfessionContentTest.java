@@ -25,9 +25,21 @@ class ApprovedProfessionContentTest {
         }
         assertEquals(304,rows.values().stream().mapToInt(d->d.prerequisites().size()).sum());
         assertEquals(24,FarmerQuests.catalog().definitions().size());
-        assertEquals(180,ProfessionQuestService.catalog().definitions().size());
+        assertEquals(181,ProfessionQuestService.catalog().definitions().size());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:mechanic/m08").isEmpty());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/a01").isPresent());
+    }
+    @Test void communityForgeIsRealInspectionOnlyWithoutActivatingConsentOrFinalAssessment() {
+        var id=SmithCommunityForge.QUEST;var definition=InspectionQuests.get(id);
+        assertEquals(Set.of(ApprovedProfessionContent.Validation.INSPECT),definition.validation());
+        assertEquals(5,definition.minimumTier());assertEquals(300,definition.xp());
+        assertEquals(Set.of("kingdom_smp:blacksmith/m01","kingdom_smp:blacksmith/m04"),definition.prerequisites());
+        assertTrue(ProfessionQuestService.implemented(id));
+        assertFalse(ProfessionQuestService.implemented("kingdom_smp:blacksmith/m05"));
+        assertFalse(ProfessionQuestService.implemented("kingdom_smp:blacksmith/m08"));
+        var prior=new HashSet<String>();for(var rank:List.of(ProfessionRank.APPRENTICE,ProfessionRank.JOURNEYMAN))for(int n=1;n<=8;n++)prior.add(Profession.BLACKSMITH.questId(rank,n));
+        assertFalse(InspectionQuests.catalog().mayAttempt(Profession.BLACKSMITH,id,prior));prior.addAll(definition.prerequisites());
+        assertTrue(InspectionQuests.catalog().mayAttempt(Profession.BLACKSMITH,id,prior));
     }
     @Test void presentationOfUnfinishedSlotsDoesNotActivateThemOrGrantRank() {
         var presentation=ProfessionQuestService.presentationCatalog();

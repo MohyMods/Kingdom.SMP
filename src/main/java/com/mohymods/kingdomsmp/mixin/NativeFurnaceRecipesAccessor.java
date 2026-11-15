@@ -7,5 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 /** Read-only exact1.21.1 native completed-recipe accounting, before vanilla clears it. */
 @Mixin(value=AbstractFurnaceBlockEntity.class,remap=false)
 public interface NativeFurnaceRecipesAccessor {
+    @Accessor("litTime") int kingdom$litTime();
     @Accessor("recipesUsed") Object2IntOpenHashMap<ResourceLocation> kingdom$recipes();
 }

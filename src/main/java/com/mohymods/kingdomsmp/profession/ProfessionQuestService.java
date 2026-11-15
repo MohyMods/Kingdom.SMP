@@ -71,6 +71,7 @@ public final class ProfessionQuestService {
         if(RetainedBuildingQuests.contains(id))return RetainedBuildingService.status(player,id);
         if(CraftDeliveryQuests.contains(id))return CraftDeliveryService.status(player,id);
         if(InspectionQuests.contains(id)){
+            if(SmithCommunityForge.QUEST.equals(id))return "Community forge: two accessible furnaces (one running), anvil, two storage containers, water, lighting and safe access outside kingdom reservations. An on-site operator confirms authorship, community use and current permissions.";
             if(id.equals(CreateWorkshopInspection.QUEST))return "After all7personal proofs, request a live workshop assessment: safe water power, transmission, press/millstone, stopped clutch output, lighting and storage. Keep your maintained premises and permitted machines loaded; inspection never loads chunks.";
             if(id.equals(CreateTransmissionInspection.QUEST))return "Administrator reviews a working native gear ratio/reversal and live clutch output. Then turn on the reviewed adjacent lever and stop only that output; confirm within30seconds. Keep source, gearing, site geometry and permissions unchanged.";
             if(id.equals(LibraryFieldGuide.QUEST))return "Personally visit an unlocked Aether or Twilight biome during Journeyman trials. Write dimension=namespace:id biome=namespace:id in your own field guide, add readable observations, and request an on-site administrator inspection at the Library.";
@@ -102,7 +103,7 @@ public final class ProfessionQuestService {
         if(InspectionQuests.contains(id)||CraftDeliveryQuests.contains(id))return false;
         if (!CommissionQuests.contains(id)) return FarmerQuestService.ready(player,id);
         var d=CommissionQuests.get(id);var store=CommerceService.store(player.server);var roster=store.professions(player.getUUID());
-        return com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(player.server).attainedTier()>=ApprovedProfessionContent.get(id).minimumTier() && roster.isActive(d.profession()) && !roster.track(d.profession()).completedQuestIds().contains(id)
+        return com.mohymods.kingdomsmp.contribution.ContributionService.kingdom(player.server).attainedTier()>=com.mohymods.kingdomsmp.kingdom.AlphaScope.questTier(id) && roster.isActive(d.profession()) && !roster.track(d.profession()).completedQuestIds().contains(id)
             && CATALOG.mayAttempt(d.profession(),id,roster.track(d.profession()).completedQuestIds())
             && ProfessionService.available(player,d.profession())
             && store.commissionContractPeriods(player.getUUID(),id) >= CommissionQuestRules.get(player.server).goal(id);

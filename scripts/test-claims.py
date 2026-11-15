@@ -9,6 +9,7 @@ import tempfile
 parser=argparse.ArgumentParser()
 parser.add_argument('--resume-alpha-aircraft',action='store_true',help='Resume a genuinely completed native partial alpha hangar phase')
 parser.add_argument('--seed-alpha-world',type=Path,help='Stopped earned Tier6 private fixture only')
+parser.add_argument('--smith-civic',action='store_true',help='Real native Master community forge inspection')
 parser.add_argument('--master-elixirs',action='store_true',help='Actual native Master24three-family potion delivery/full16source/restore')
 parser.add_argument('--alchemy-assessment',action='store_true',help='Actual weekly Alchemist service/current traced native apothecary/full Journeyman/restart')
 parser.add_argument('--mine-excavation-restore',action='store_true',help='One native restore/status/ordinary denial boot of genuinely earned full24Miner source')
@@ -185,6 +186,12 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.smith_civic:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Smith civic test requires the guarded real native Master source')
+    init=fixture/'smith-civic.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testSmithCivic', 'true' } } }\n")
+    command+=['--init-script',str(init)]
 if args.master_elixirs:
     if args.namespace != 'kingdom_smp_alchemy_tests' or not args.seed_profession_world:
         raise SystemExit('Master elixirs require genuine full16Alchemist private source and exact mods')
@@ -432,6 +439,8 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.smith_civic:
+    markers=["SMITH_CIVIC_NATIVE_PASSED:","SMITH_CIVIC_RESTART_PASSED:"]
 if args.resume_alpha_aircraft:
     if args.namespace!='kingdom_smp_alpha_aircraft_tests' or not args.seed_alpha_world:
         raise SystemExit('Resume requires the guarded native partial Aerodrome source')

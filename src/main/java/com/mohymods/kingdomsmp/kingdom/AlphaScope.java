@@ -10,7 +10,9 @@ public final class AlphaScope {
     private AlphaScope() { }
     public static boolean serviceAvailable(int requiredTier){if(requiredTier<1||requiredTier>12)throw new IllegalArgumentException("Invalid service tier");return requiredTier<=MAX_PLAYABLE_TIER;}
     public static boolean selected(Profession profession){return CORE.contains(profession);}
-    public static boolean futureQuest(String id){if(id==null)return false;var definition=ApprovedProfessionContent.definitions().get(id);return definition!=null&&definition.minimumTier()>MAX_PLAYABLE_TIER;}
+    /** Explicit alpha adaptation of an existing ordinary funded service; baseline metadata stays untouched. */
+    public static int questTier(String id){var definition=ApprovedProfessionContent.get(id);return id.equals("kingdom_smp:librarian/m06")?6:definition.minimumTier();}
+    public static boolean futureQuest(String id){if(id==null)return false;var definition=ApprovedProfessionContent.definitions().get(id);return definition!=null&&questTier(id)>MAX_PLAYABLE_TIER;}
     public static boolean destinationAvailable(int attainedTier,String destination){return KingdomTravelRules.requiredTier(destination)<=MAX_PLAYABLE_TIER&&KingdomTravelRules.allowed(attainedTier,destination);}
     public static String futureMessage(){return "COMING SOON — Future Update. Tier 7–12 content is unavailable in this alpha; historical progress is preserved.";}
 }

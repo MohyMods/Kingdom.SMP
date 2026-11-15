@@ -15,6 +15,12 @@ class AlphaScopeTest {
   assertFalse(AlphaScope.serviceAvailable(9));assertFalse(AlphaScope.serviceAvailable(10));assertTrue(AlphaScope.serviceAvailable(6));
   assertFalse(AlphaScope.destinationAvailable(12,"ad_astra:moon"));assertTrue(AlphaScope.futureMessage().contains("Future Update"));
  }
+ @Test void onlyTheValidatedOrdinaryLibraryMasterServiceMovesToAlphaSix(){
+  assertEquals(8,ApprovedProfessionContent.get("kingdom_smp:librarian/m06").minimumTier());
+  assertEquals(6,AlphaScope.questTier("kingdom_smp:librarian/m06"));assertFalse(AlphaScope.futureQuest("kingdom_smp:librarian/m06"));
+  assertEquals(5,AlphaScope.questTier("kingdom_smp:blacksmith/m06"));assertEquals(8,AlphaScope.questTier("kingdom_smp:alchemist/m06"));
+  assertTrue(AlphaScope.futureQuest("kingdom_smp:librarian/m02"));assertTrue(AlphaScope.futureQuest("kingdom_smp:librarian/m04"));
+ }
  @Test void unfinishedMasterMetadataIsNotAnAwardOrAClaimOfCompletion(){
   assertTrue(AlphaScope.futureQuest("kingdom_smp:alchemist/m01"));assertFalse(AlphaScope.futureQuest("kingdom_smp:miner/m01"));assertFalse(AlphaScope.futureQuest(null));
   assertFalse(ProfessionQuestService.ready(null,"kingdom_smp:alchemist/m01"));assertThrows(IllegalStateException.class,()->ProfessionQuestService.complete(null,UUID.randomUUID(),"kingdom_smp:alchemist/m01"));

@@ -1,0 +1,53 @@
+[
+  {
+    "filename": "ftb-chunks-neoforge-2101.1.22.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-chunks-neoforge/2101.1.22/ftb-chunks-neoforge-2101.1.22.jar",
+    "size": 655807,
+    "sha256": "4ba1b3352184fa7f6e2aa4bca76edd074867697d62344dfa50dcccdb4dab5217"
+  },
+  {
+    "filename": "ftb-library-neoforge-2101.1.39.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-library-neoforge/2101.1.39/ftb-library-neoforge-2101.1.39.jar",
+    "size": 1477833,
+    "sha256": "ca64bd1b5f335406900f74eeafacea5a3580a3933d61de6b6600a64eb12a9a95"
+  },
+  {
+    "filename": "ftb-teams-neoforge-2101.1.11.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-teams-neoforge/2101.1.11/ftb-teams-neoforge-2101.1.11.jar",
+    "size": 308236,
+    "sha256": "e6bcd670493624e6906df872a9c6af4a33fe6405cac57a32c59cd4cd5838c655"
+  },
+  {
+    "filename": "architectury-neoforge-13.0.11.jar",
+    "url": "https://maven.architectury.dev/dev/architectury/architectury-neoforge/13.0.11/architectury-neoforge-13.0.11.jar",
+    "size": 592446,
+    "sha256": "1295bfb3e23149904dd12da025319a9764fb2806dfd6f2f816753a61144cae46"
+  },
+  {
+    "filename": "open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "url": "https://cdn.modrinth.com/data/gF3BGWvG/versions/yWmXD7GW/open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "size": 1903256,
+    "sha256": "77eadbbb7cbd7298d9a99070ebde552b765dd91bdad5054c9f845a17d2931765"
+  },
+  {
+    "filename": "ars_nouveau-1.21.1-5.13.3.jar",
+    "url": "https://cdn.modrinth.com/data/TKB6INcv/versions/yWDnir1o/ars_nouveau-1.21.1-5.13.3.jar",
+    "size": 19841105,
+    "sha256": "45c1b6022d8e63464177c1f822bda22c3d6fb66970857fd7677e4e3ccffd259f",
+    "sha512": "30f188cfc932bd58c95740488732df7e92d98e7345e271b1a223e41a43fc3dd52284d0ff07fc3e8a95e914082f899394eff3a0f37c174d317e6e37fb68b083df"
+  },
+  {
+    "filename": "geckolib-neoforge-1.21.1-4.9.3.jar",
+    "url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/Grwn5rUB/geckolib-neoforge-1.21.1-4.9.3.jar",
+    "size": 634531,
+    "sha256": "20a1995e4074f387ff549e2c57ea79dd7d41ee83c6afb9dd6a6e840e592d1c47",
+    "sha512": "8dfa5f8c57224a5e34e5098367ea9819ca6dc9c11357cd3062c16da3455c8bd1a483098af7383debc4b9ce8e4d7ab3fdc799b415644eb829da83eb72a7335dfd"
+  },
+  {
+    "filename": "curios-neoforge-9.5.1+1.21.1.jar",
+    "url": "https://cdn.modrinth.com/data/vvuO3ImH/versions/yohfFbgD/curios-neoforge-9.5.1%2B1.21.1.jar",
+    "size": 410690,
+    "sha256": "a45df2125c26219974aba7507ffc9afe7b83acc941a386af3faacb1cc0056fde",
+    "sha512": "5981a267686b744e7e3c227f78cbcd5267c14ac6979a28e814695f4589273998563147207fef4a5cdb7cdbdc39797cd95d9e4abadb55869f18e02a38d0654ae5"
+  }
+]

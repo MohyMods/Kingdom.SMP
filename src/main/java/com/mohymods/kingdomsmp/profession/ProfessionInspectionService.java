@@ -37,6 +37,7 @@ public final class ProfessionInspectionService {
         for(var pos:BlockPos.betweenClosed(center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,(id.equals(LayeredInteriorInspection.QUEST)||BuilderCivicInspection.building(id)||ForestReserveInspection.contains(id))?12:5,radius+1)))if(!level.hasChunkAt(pos))throw new IllegalStateException("Inspection never loads chunks; visit the full site first at "+pos.toShortString());
         String denial=PlacementProtection.check(level,player,center.offset(-radius-1,-4,-radius-1),center.offset(radius+1,(id.equals(LayeredInteriorInspection.QUEST)||BuilderCivicInspection.building(id)||ForestReserveInspection.contains(id))?12:5,radius+1));
         if(denial!=null)throw new IllegalStateException("Inspected player's site permission: "+denial);
+        if(SmithCommunityForge.QUEST.equals(id))return new Scan(SmithCommunityForge.scan(player,center),null);
         var controls=id.equals(CreateTransmissionInspection.QUEST)?expected==null?CreateTransmissionInspection.capture(player,center):expected:null;
         int doors=0,stairs=0,markers=0,saplings=0,logs=0;Set<BlockPos> routes=new HashSet<>();
         long snapshot=0xcbf29ce484222325L;

@@ -277,7 +277,7 @@ public final class EconomyStore {
         healthy();return commissionPeriods(contracts,player,quest);
     }
     private static long commissionPeriods(ContractState contracts,UUID player,String quest){
-        Objects.requireNonNull(player);var d=CommissionQuests.get(quest);int minimum=ApprovedProfessionContent.get(quest).minimumTier();
+        Objects.requireNonNull(player);var d=CommissionQuests.get(quest);int minimum=com.mohymods.kingdomsmp.kingdom.AlphaScope.questTier(quest);
         return contracts.professionPeriods.stream().filter(p->p.player().equals(player)&&p.profession().equals(d.profession().id())&&p.band().equals(d.rank().id())&&p.cycle().equals(d.cycle())&&(p.tier()>=minimum||p.tier()==0&&d.rank()==ProfessionRank.APPRENTICE&&(d.profession()==Profession.BUILDER||d.profession()==Profession.LUMBERJACK))).count();
     }
     public synchronized long farmerContractPeriods(UUID player,ProfessionRank band,String cycle){return professionContractPeriods(player,Profession.FARMER,band,cycle);}
