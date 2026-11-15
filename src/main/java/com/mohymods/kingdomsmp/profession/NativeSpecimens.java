@@ -1,0 +1,32 @@
+package com.mohymods.kingdomsmp.profession;
+import java.util.*;
+import net.minecraft.core.*;
+import net.minecraft.core.registries.*;
+import net.minecraft.server.*;
+import net.minecraft.server.level.*;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.*;
+import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.*;
+import net.neoforged.neoforge.event.level.*;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import com.mohymods.kingdomsmp.economy.CommerceService;
+import com.mohymods.kingdomsmp.contribution.ContributionService;
+/** Real native Silk loot from marked natural sources; old mining counts and client item tags are not source proof. */
+public final class NativeSpecimens {
+ public static final String QUEST="kingdom_smp:miner/m04";
+ private static final Set<String> METRICS=Set.of("iron","gold","redstone","lapis");
+ public static final Map<String,Integer> DEFAULTS=Map.of("spec_iron",1,"spec_gold",1,"spec_redstone",1,"spec_lapis",1);
+ private record Key(ServerLevel level,long position){}
+ private record Harvest(ServerPlayer player,String metric,Item item,int tick){}
+ private static final Map<MinecraftServer,Map<Key,Harvest>> PENDING=new WeakHashMap<>();private static final Map<MinecraftServer,ArrayDeque<Runnable>> LATER=new WeakHashMap<>();
+ private NativeSpecimens(){}
+ public static String category(String item){String metric=NativeOreQuests.BLOCKS.get(item);return metric!=null&&METRICS.contains(metric)?"spec_"+metric:null;}
+ private static boolean eligible(ServerPlayer p){if(!TreeQuestService.real(p)||p.serverLevel().dimension()!=Level.OVERWORLD||ContributionService.kingdom(p.server).attainedTier()<5)return false;var store=CommerceService.initializedStore(p.server).orElse(null);if(store==null||store.quarantined())return false;var r=store.professions(p.getUUID());return r.isActive(Profession.MINER)&&r.progressBand(Profession.MINER)==ProfessionRank.MASTER&&!r.track(Profession.MINER).completedQuestIds().contains(QUEST);}
+ public static void register(IEventBus bus){bus.addListener(EventPriority.LOWEST,false,BlockEvent.BreakEvent.class,NativeSpecimens::breaking);bus.addListener(EventPriority.LOWEST,false,BlockDropsEvent.class,NativeSpecimens::drops);bus.addListener(NativeSpecimens::tick);bus.addListener((net.neoforged.neoforge.event.server.ServerStoppedEvent e)->{PENDING.remove(e.getServer());LATER.remove(e.getServer());});}
+ private static void breaking(BlockEvent.BreakEvent event){if(!(event.getPlayer() instanceof ServerPlayer p))return;String block=BuiltInRegistries.BLOCK.getKey(event.getState().getBlock()).toString(),metric=NativeOreQuests.BLOCKS.get(block);if(metric==null||!METRICS.contains(metric))return;try{if(!eligible(p)||!p.serverLevel().hasChunkAt(event.getPos())||!TreeLifecycle.consent(p.serverLevel(),p,event.getPos())||!event.getState().canHarvestBlock(p.serverLevel(),event.getPos(),p))return;var tool=p.getMainHandItem();if(!Set.of(Items.WOODEN_PICKAXE,Items.STONE_PICKAXE,Items.IRON_PICKAXE,Items.GOLDEN_PICKAXE,Items.DIAMOND_PICKAXE,Items.NETHERITE_PICKAXE).contains(tool.getItem()))return;var enchantments=p.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);if(EnchantmentHelper.getItemEnchantmentLevel(enchantments.getOrThrow(Enchantments.SILK_TOUCH),tool)!=1||EnchantmentHelper.getItemEnchantmentLevel(enchantments.getOrThrow(Enchantments.FORTUNE),tool)!=0)return;var chunk=p.serverLevel().getChunkAt(event.getPos());synchronized(chunk){if(!chunk.hasData(NativeOreProvenance.MARKS)||!block.equals(chunk.getData(NativeOreProvenance.MARKS).at(event.getPos().asLong())))return;}var pending=PENDING.computeIfAbsent(p.server,s->new HashMap<>());if(pending.size()<512)pending.put(new Key(p.serverLevel(),event.getPos().asLong()),new Harvest(p,metric,event.getState().getBlock().asItem(),p.server.getTickCount()));}catch(RuntimeException failure){TreeLifecycle.failure(p.server,failure);}}
+ private static void drops(BlockDropsEvent event){if(category(BuiltInRegistries.BLOCK.getKey(event.getState().getBlock()).toString())==null)return;var level=event.getLevel();try{var pending=PENDING.get(level.getServer());var proof=pending==null?null:pending.remove(new Key(level,event.getPos().asLong()));if(proof==null||proof.tick()!=level.getServer().getTickCount()||proof.player()!=event.getBreaker())return;var pos=event.getPos().immutable();var queue=LATER.computeIfAbsent(level.getServer(),s->new ArrayDeque<>());if(queue.size()>=512)return;queue.add(()->{var p=proof.player();if(event.isCanceled()||!eligible(p)||!level.hasChunkAt(pos)||level.getBlockState(pos).is(event.getState().getBlock())||!TreeLifecycle.consent(level,p,pos))return;boolean actual=event.getDrops().stream().anyMatch(e->e.getItem().is(proof.item())&&e.getItem().getCount()>0&&e.getItem().getComponents().equals(new ItemStack(proof.item()).getComponents()));if(!actual)return;var data=NativeOreSavedData.get(p.server);if(data.evidence().record(p.getUUID(),ProfessionRank.MASTER,proof.metric(),level.dimension().location().toString(),pos.asLong()))data.setDirty();});}catch(RuntimeException failure){TreeLifecycle.failure(level.getServer(),failure);}}
+ private static void tick(ServerTickEvent.Post event){var queue=LATER.get(event.getServer());if(queue!=null)while(!queue.isEmpty())try{queue.removeFirst().run();}catch(RuntimeException failure){TreeLifecycle.failure(event.getServer(),failure);}var pending=PENDING.get(event.getServer());if(pending!=null)pending.clear();}
+ public static boolean ready(ServerPlayer p,Map<String,Integer> goals){return eligible(p)&&goals.entrySet().stream().allMatch(e->NativeOreSavedData.get(p.server).evidence().count(p.getUUID(),ProfessionRank.MASTER,e.getKey().substring(5))>=e.getValue());}
+ public static String status(ServerPlayer p){String progress=CraftDeliveryRules.get(p.server).inputs(QUEST).entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->NativeOreSavedData.get(p.server).evidence().count(p.getUUID(),ProfessionRank.MASTER,e.getKey().substring(5))+"/"+e.getValue()+" "+e.getKey().substring(5)).collect(java.util.stream.Collectors.joining(", "));return progress+". Use ordinary eligible Silk Touch I pickaxes to personally harvest tracked native iron, gold, redstone and lapis ore during Master trials at Tier5, then permanently deliver the configured plain specimens at Doran. Regular/deepslate variants may be mixed. Placed, old unknown and stocked ores or earlier Journeyman work cannot replace native Silk-harvest proof.";}
+}
