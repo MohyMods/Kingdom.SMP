@@ -13,7 +13,8 @@ import java.util.*;
 
 /** Current functional civic installation, human-confirmed; no retrospective natural-source or placement credit. */
 public final class SmithCommunityForge {
- public static final String QUEST="kingdom_smp:blacksmith/m07";
+ public static final String QUEST="kingdom_smp:blacksmith/m07",FINAL="kingdom_smp:blacksmith/m08";
+ public static boolean contains(String id){return QUEST.equals(id)||FINAL.equals(id);}
  private SmithCommunityForge() { }
  public static String scan(ServerPlayer player,BlockPos center){
   var level=player.serverLevel();var from=center.offset(-8,-3,-8);var to=center.offset(8,3,8);

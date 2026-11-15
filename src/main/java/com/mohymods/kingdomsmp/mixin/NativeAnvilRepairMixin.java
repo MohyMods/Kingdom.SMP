@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.*;
 abstract class NativeAnvilRepairMixin {
  @Shadow private int repairItemCountCost;
  @WrapMethod(method="createResult")
- private void kingdom$preview(Operation<Void> original){original.call();var menu=(AnvilMenu)(Object)this;EnchantedToolService.preview(((NativeCombinerAccess)menu).kingdom$player(),menu);}
+ private void kingdom$preview(Operation<Void> original){original.call();var menu=(AnvilMenu)(Object)this;EnchantedToolService.preview(((NativeCombinerAccess)menu).kingdom$player(),menu);com.mohymods.kingdomsmp.profession.ServiceWorkService.preview(((NativeCombinerAccess)menu).kingdom$player(),menu);}
  @WrapMethod(method="onTake")
- private void kingdom$repair(Player player,ItemStack output,Operation<Void> original){var proof=RepairService.capture(player,(AnvilMenu)(Object)this,output,repairItemCountCost);var enchanted=EnchantedToolService.capture(player,(AnvilMenu)(Object)this,output,repairItemCountCost);original.call(player,output);RepairService.commit(proof);EnchantedToolService.commit(enchanted);}
+ private void kingdom$repair(Player player,ItemStack output,Operation<Void> original){var proof=RepairService.capture(player,(AnvilMenu)(Object)this,output,repairItemCountCost);var enchanted=EnchantedToolService.capture(player,(AnvilMenu)(Object)this,output,repairItemCountCost);var service=com.mohymods.kingdomsmp.profession.ServiceWorkService.capture(player,(AnvilMenu)(Object)this,output,repairItemCountCost);original.call(player,output);RepairService.commit(proof);EnchantedToolService.commit(enchanted);com.mohymods.kingdomsmp.profession.ServiceWorkService.commit(service);}
 }

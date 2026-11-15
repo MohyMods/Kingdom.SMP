@@ -6,7 +6,7 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | --- | --- |
 | Earned Tier1–6 transaction path | Actual full quantities/Hut/Hall/road/paid Bank/three new transitions and2JVM restore pass; resource/time/funds fixtures, not gathering-duration/full-client acceptance |
 | Aldric/workstation/Hall regression | Actual table conversion, native stair corner, original NPCs and Hall2JVM pass |
-| Six selected professions |131historical validated adapters;144complete quests/six professions not yet satisfied; Farmer24unchanged |
+| Six selected professions |134historical validated adapters; five24quest native Master loops;144complete quests/six professions not yet satisfied; Farmer24unchanged |
 | Six purchased usable Master rewards | Farmer verified; other5remain; unspecified Prospector/Librarian design question pending |
 | Economy | Existing transaction slices preserved; release-wide regression and natural balance remain |
 | Aerodrome on earned Tier6 | Actual earned-Tier6/no-hangar refusal/paid plan/partial original-Aldric construction → complete furnished hangar/native boarding/damage refusal/exact repair/final restart pass; full flight/client/modpack acceptance remains |
@@ -14,6 +14,8 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | Release package/client/required-mod acceptance | Not complete; no0.13release published |
 
 ---
+
+D106:184overall/134selected validated adapters;732JUnit/full build/gameTest compile pass. Actual full Blacksmith24/4800XP/Master via three current-owner native repairs/2customers/funded Master service/final live forge assessment and3JVM restore; Library j06actual3paid compatible enchantment jobs/2owners/permanent return/200XP/3JVM pass with exact Ars5.13.3. Old native App/J/M smith and8role services regression passes. Native Ars APIs/recipes verified, catalogue quests remain unimplemented. Existing profession menu overflow fixed within256char/128row bounds. Equipment/defaultduration/client/fullpack/release remain open. See D106 exact commands/private sources/evidence.
 
 D103:179/288 validated adapters (109remaining),711JUnit/full build pass. Alchemist all8A8J/2400XP/Master trials now require actual funded weekly service/traced consumed native potion IDs/container accounting/real native ingredient records/current working lab; fuel/OPAC/replay refusals and2JVM restore pass with exact Bees/MA dependencies. Master/full profession/fullpack/client/default-duration/release acceptance remain open.
 

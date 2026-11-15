@@ -12,7 +12,7 @@ public record CommerceView(long requestId,long revision,boolean open,int tab,int
     public record Entry(String id,String title,String detail,long price,String state) {
         public Entry {
             if(id==null||id.isBlank()||id.length()>96||title==null||title.length()>64||detail==null||detail.length()>256
-                    ||price<0||state==null||state.length()>48)throw new IllegalArgumentException("Invalid commerce entry");
+                    ||price<0||state==null||state.length()>48)throw new IllegalArgumentException("Invalid commerce entry "+id+" (title="+(title==null?-1:title.length())+", detail="+(detail==null?-1:detail.length())+", state="+(state==null?-1:state.length())+")");
         }
     }
     public CommerceView {

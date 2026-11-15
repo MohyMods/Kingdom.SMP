@@ -19,7 +19,8 @@ public final class ProfessionPremisesRuntimeTests {
 
  @GameTest(template="empty",templateNamespace="kingdom_smp_profession_production_tests",timeoutTicks=4000) public static void focusedProduction(GameTestHelper h)throws Exception{ProfessionProductionRuntimeTests.commissionedMaterials(h);}
  @GameTest(template="empty",timeoutTicks=20000) public static void remainingNinePremises(GameTestHelper h)throws Exception{
-  h.getLevel().getServer().tickRateManager().setTickRate(200);
+  // Keep native watchdog timing and durable per-block writes at the normal server rate.
+  h.getLevel().getServer().tickRateManager().setTickRate(20);
   if(ConstructionService.store(h.getLevel().getServer()).projects().stream().filter(p->ProfessionPremises.contains(p.blueprint())&&p.phase()==ConstructionStore.Phase.COMPLETE).count()==9){restart(h);return;}
   TownHallRuntimeTests.newWorldLoop(h,()->{try{new Walk(h).next();}catch(Exception failure){h.fail(failure.toString());}});
  }

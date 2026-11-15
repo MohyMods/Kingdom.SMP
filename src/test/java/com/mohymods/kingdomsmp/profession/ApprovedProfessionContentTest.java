@@ -25,18 +25,18 @@ class ApprovedProfessionContentTest {
         }
         assertEquals(304,rows.values().stream().mapToInt(d->d.prerequisites().size()).sum());
         assertEquals(24,FarmerQuests.catalog().definitions().size());
-        assertEquals(181,ProfessionQuestService.catalog().definitions().size());
+        assertEquals(184,ProfessionQuestService.catalog().definitions().size());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:mechanic/m08").isEmpty());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/a01").isPresent());
     }
-    @Test void communityForgeIsRealInspectionOnlyWithoutActivatingConsentOrFinalAssessment() {
+    @Test void communityForgeAndNativeServicesKeepDistinctAuthoritiesAndApprovedPrerequisites() {
         var id=SmithCommunityForge.QUEST;var definition=InspectionQuests.get(id);
         assertEquals(Set.of(ApprovedProfessionContent.Validation.INSPECT),definition.validation());
         assertEquals(5,definition.minimumTier());assertEquals(300,definition.xp());
         assertEquals(Set.of("kingdom_smp:blacksmith/m01","kingdom_smp:blacksmith/m04"),definition.prerequisites());
         assertTrue(ProfessionQuestService.implemented(id));
-        assertFalse(ProfessionQuestService.implemented("kingdom_smp:blacksmith/m05"));
-        assertFalse(ProfessionQuestService.implemented("kingdom_smp:blacksmith/m08"));
+        assertTrue(ProfessionQuestService.implemented("kingdom_smp:blacksmith/m05"));
+        assertTrue(ProfessionQuestService.implemented("kingdom_smp:blacksmith/m08"));
         var prior=new HashSet<String>();for(var rank:List.of(ProfessionRank.APPRENTICE,ProfessionRank.JOURNEYMAN))for(int n=1;n<=8;n++)prior.add(Profession.BLACKSMITH.questId(rank,n));
         assertFalse(InspectionQuests.catalog().mayAttempt(Profession.BLACKSMITH,id,prior));prior.addAll(definition.prerequisites());
         assertTrue(InspectionQuests.catalog().mayAttempt(Profession.BLACKSMITH,id,prior));
@@ -70,9 +70,23 @@ class ApprovedProfessionContentTest {
         assertThrows(IllegalArgumentException.class,()->ApprovedProfessionContent.parse(json.toString()));
     }
  @org.junit.jupiter.api.Test void unavailableProfessionPacketsNeverFallThroughIntoFarmerAuthority(){
-  for(String id:java.util.List.of("kingdom_smp:blacksmith/m05","kingdom_smp:librarian/m08","client:invented")){org.junit.jupiter.api.Assertions.assertFalse(ProfessionQuestService.ready(null,id));org.junit.jupiter.api.Assertions.assertTrue(ProfessionQuestService.status(null,id).contains("no validated runtime"));org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->ProfessionQuestService.complete(null,java.util.UUID.randomUUID(),id));}
+  for(String id:java.util.List.of("kingdom_smp:librarian/m08","client:invented")){org.junit.jupiter.api.Assertions.assertFalse(ProfessionQuestService.ready(null,id));org.junit.jupiter.api.Assertions.assertTrue(ProfessionQuestService.status(null,id).contains("no validated runtime"));org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->ProfessionQuestService.complete(null,java.util.UUID.randomUUID(),id));}
  }
  @org.junit.jupiter.api.Test void fullApproved288MetadataFitsPlayerMenuBudgetForEveryThreeProfessionCombination(){
-  var definitions=new java.util.ArrayList<>(FarmerQuests.catalog().definitions().values());definitions.addAll(ApprovedProfessionContent.definitions().values().stream().map(ApprovedProfessionContent.Definition::slot).toList());var all=ProfessionQuestCatalog.approved(definitions);var roles=Profession.values();for(int a=0;a<roles.length;a++)for(int b=a+1;b<roles.length;b++)for(int c=b+1;c<roles.length;c++){var active=java.util.Set.of(roles[a],roles[b],roles[c]);var visible=all.visibleFor(active);org.junit.jupiter.api.Assertions.assertEquals(72,visible.size());org.junit.jupiter.api.Assertions.assertTrue(visible.stream().allMatch(d->active.contains(d.profession())));org.junit.jupiter.api.Assertions.assertTrue(visible.size()+12+27+2<=128,"Objectives, all roster rows, every switch and current gear fit unchanged packet budget");}org.junit.jupiter.api.Assertions.assertEquals(288,all.definitions().size());org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->all.visibleFor(java.util.Set.of(roles[0],roles[1],roles[2],roles[3])));
+  var definitions=new java.util.ArrayList<>(FarmerQuests.catalog().definitions().values());definitions.addAll(ApprovedProfessionContent.definitions().values().stream().map(ApprovedProfessionContent.Definition::slot).toList());var all=ProfessionQuestCatalog.approved(definitions);var roles=Profession.values();for(int a=0;a<roles.length;a++)for(int b=a+1;b<roles.length;b++)for(int c=b+1;c<roles.length;c++){var active=java.util.Set.of(roles[a],roles[b],roles[c]);var visible=all.visibleFor(active);org.junit.jupiter.api.Assertions.assertEquals(72,visible.size());org.junit.jupiter.api.Assertions.assertTrue(visible.stream().allMatch(d->active.contains(d.profession())));org.junit.jupiter.api.Assertions.assertTrue(visible.size()+12+27+2+3+3+9<=128,"Objectives, all roster rows, every switch and current gear fit unchanged packet budget");}org.junit.jupiter.api.Assertions.assertEquals(288,all.definitions().size());org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->all.visibleFor(java.util.Set.of(roles[0],roles[1],roles[2],roles[3])));
  }
+ @org.junit.jupiter.api.Test void objectiveMenuSummariesRespectTheExistingWireLimitWithoutChangingAvailability(){
+  for(var definition:ApprovedProfessionContent.definitions().values()){
+   var title=ProfessionService.name(definition.profession())+" · "+ProfessionQuestService.title(definition.id());
+   org.junit.jupiter.api.Assertions.assertTrue(title.length()<=64,title);
+  }
+  var pending="COMING SOON — QUEST NOT YET AVAILABLE. "+"preserved progress ".repeat(30);
+  var text=ProfessionService.objectiveDetail(ProfessionRank.MASTER,8,pending);
+  org.junit.jupiter.api.Assertions.assertEquals(256,text.length());
+  org.junit.jupiter.api.Assertions.assertTrue(text.contains("COMING SOON")&&text.endsWith("…"));
+  new com.mohymods.kingdomsmp.network.CommerceView.Entry("quest:kingdom_smp:librarian/m08","Librarian · Master librarian assessment",text,0,"COMING_SOON");
+  var shortText=ProfessionService.objectiveDetail(ProfessionRank.APPRENTICE,1,"Complete.");
+  org.junit.jupiter.api.Assertions.assertEquals("Apprentice objective 1. Complete.",shortText);
+ }
+
 }

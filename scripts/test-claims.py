@@ -9,6 +9,8 @@ import tempfile
 parser=argparse.ArgumentParser()
 parser.add_argument('--resume-alpha-aircraft',action='store_true',help='Resume a genuinely completed native partial alpha hangar phase')
 parser.add_argument('--seed-alpha-world',type=Path,help='Stopped earned Tier6 private fixture only')
+parser.add_argument('--library-services',action='store_true',help='Actual consenting current-owner native library maintenance/returns')
+parser.add_argument('--owner-repairs',action='store_true',help='Actual current-owner consenting native repairs and permanent returns')
 parser.add_argument('--smith-civic',action='store_true',help='Real native Master community forge inspection')
 parser.add_argument('--master-elixirs',action='store_true',help='Actual native Master24three-family potion delivery/full16source/restore')
 parser.add_argument('--alchemy-assessment',action='store_true',help='Actual weekly Alchemist service/current traced native apothecary/full Journeyman/restart')
@@ -29,6 +31,7 @@ parser.add_argument('--builder-civic',action='store_true',help='Actual new civic
 parser.add_argument('--builder-fittings',action='store_true',help='Actual exact Supplementaries native furnishing interactions after genuine Master room')
 parser.add_argument('--seed-builder-world',type=Path,help='Copy only a stopped verified earned16Builder private fixture for Master acceptance')
 parser.add_argument('--seed-master-forestry-world',type=Path,help='Copy a stopped private verified full16native Lumberjack fixture for Master forestry acceptance')
+parser.add_argument('--seed-premises-world',type=Path,help='Resume a stopped private nine-premises native construction acceptance without rebuilding it')
 parser.add_argument('--seed-profession-world',type=Path,help='Copy a stopped verified private all-premises fixture for focused native production tests')
 parser.add_argument('--seed-aircraft-restore-world',type=Path,help='Copy a stopped verified private claim-server fixture for saved-aircraft restoration tests only')
 parser.add_argument('--stage-resident-name-preview',action='store_true',help='Stop after real purchased-plan naming for ordinary-client QA')
@@ -135,12 +138,22 @@ if args.bee_jobs and (fixture/'claims-fixture/apiary-job-partial.txt').is_file()
     text=(fixture/'execution-1.log').read_text()
     if 'APIARY_JOBS_PENDING_PASSED:' in text:
         (fixture/'apiary-job-origin-proof.log').write_text(text)
+if args.seed_premises_world:
+    import fcntl, shutil
+    source=args.seed_premises_world.resolve()
+    proof=source/'execution-1.log'
+    if args.namespace!='kingdom_smp_premises_tests' or args.seed_profession_world or source.parent!=(root/'work').resolve() or not source.name.startswith('claim-server.') or not proof.is_file() or 'PROFESSION_PREMISES_PREPARED:' not in proof.read_text():
+        raise SystemExit('Premises resume requires a stopped private completed native nine-building construction fixture')
+    with (source/'claims-fixture/session.lock').open('r+b') as lock:
+        fcntl.lockf(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        shutil.copytree(source,fixture,dirs_exist_ok=True)
+        fcntl.lockf(lock,fcntl.LOCK_UN)
 if args.seed_profession_world:
     import fcntl, shutil
     source = args.seed_profession_world.resolve()
     if args.seed_aircraft_restore_world or args.namespace not in ('kingdom_smp_profession_production_tests','kingdom_smp_alchemy_tests') or source.parent != (root / 'work').resolve() or not source.name.startswith('claim-server.') or not (source / 'claims-fixture/smith-repair-runtime-proof.nbt').is_file():
         raise SystemExit('Production tests require a stopped verified private profession fixture; refusing arbitrary user saves')
-    if not (source / 'claims-fixture/profession-production-proof.nbt').is_file() and 'ALL_PROFESSION_CONTRACTS_PASSED:' not in (source / 'logs/latest.log').read_text():
+    if not (source / 'claims-fixture/profession-production-proof.nbt').is_file() and 'ALL_PROFESSION_CONTRACTS_PASSED:' not in (source / 'logs/latest.log').read_text() and not (args.owner_repairs and (source/'claims-fixture/smith-civic-test.nbt').is_file() and 'SMITH_CIVIC_RESTART_PASSED:' in (source/'logs/latest.log').read_text()):
         raise SystemExit('Source has no successful all-profession acceptance marker')
     with (source / 'claims-fixture/session.lock').open('r+b') as lock:
         fcntl.lockf(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -186,6 +199,18 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.library_services:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Library services require a guarded stopped native Apprentice source')
+    init=fixture/'library-services.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testLibraryServices', 'true' } } }\n")
+    command += ['--init-script',str(init)]
+if args.owner_repairs:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Owner repairs require the guarded real native Master fixture')
+    init=fixture/'owner-repairs.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testOwnerRepairs', 'true' } } }\n")
+    command+=['--init-script',str(init)]
 if args.smith_civic:
     if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
         raise SystemExit('Smith civic test requires the guarded real native Master source')
@@ -439,6 +464,10 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.library_services:
+    markers=["LIBRARY_SERVICES_PARTIAL_PASSED:","LIBRARY_SERVICES_COMPLETE_PASSED:","LIBRARY_SERVICES_RESTART_PASSED:"]
+if args.owner_repairs:
+    markers=["OWNER_REPAIR_SERVICE_PARTIAL_PASSED:","OWNER_REPAIR_SERVICE_COMPLETE_PASSED:","OWNER_REPAIR_SERVICE_RESTART_PASSED:"]
 if args.smith_civic:
     markers=["SMITH_CIVIC_NATIVE_PASSED:","SMITH_CIVIC_RESTART_PASSED:"]
 if args.resume_alpha_aircraft:
@@ -543,6 +572,8 @@ if args.builder_fittings:
     markers=["SUPPLEMENTARIES_NATIVE_PASSED:","SUPPLEMENTARIES_RESTART_PASSED:"]
 if args.builder_civic:
     markers=["BUILDER_CIVIC_NATIVE_PASSED:","BUILDER_CIVIC_RESTART_PASSED:"]
+if args.seed_premises_world:
+    markers=markers[1:]
 for cycle, marker in enumerate(markers):
     started = passed = stopped = failed = False
     with (fixture / ('execution.log' if len(markers)==1 else f'execution-{cycle+1}.log')).open('w') as log:

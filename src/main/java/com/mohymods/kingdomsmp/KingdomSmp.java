@@ -29,6 +29,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.profession.NetherOres.register(modBus);
         com.mohymods.kingdomsmp.equipment.FarmerGearItems.register(modBus);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.equipment.FarmerHarvestService::tick);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.profession.ServiceWorkService::closed);
         com.mohymods.kingdomsmp.economy.CurrencyItems.register(modBus);
         com.mohymods.kingdomsmp.building.KingdomBlueprints.register(modBus);
         com.mohymods.kingdomsmp.building.ConstructionProtection.register(NeoForge.EVENT_BUS);
