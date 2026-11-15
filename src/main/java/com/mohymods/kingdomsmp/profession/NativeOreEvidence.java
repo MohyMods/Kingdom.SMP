@@ -7,6 +7,7 @@ public final class NativeOreEvidence {
  private NativeOreAreas areas=new NativeOreAreas();
  private final Set<String> spent=new HashSet<>();private ProfessionEvidence counts=new ProfessionEvidence(Profession.MINER,NativeOreQuests.METRICS);
  public int count(UUID player,ProfessionRank band,String metric){return counts.count(player,band,metric);}
+ public int regionalCount(UUID player,ProfessionRank band,String metric,int regions){return areas.regionalCount(player,band,metric,regions);}
  public List<String> areas(UUID player,int limit){return areas.history(player,limit);}
  public int copper(UUID player,ProfessionRank band,int separation){return areas.copper(player,band,separation);}
  public boolean record(UUID player,ProfessionRank band,String metric,String dimension,long position){if(!dimension.equals("minecraft:overworld")||!NativeOreQuests.METRICS.contains(metric))return false;String key=dimension+"@"+position;long chunk=net.minecraft.world.level.ChunkPos.asLong(net.minecraft.core.BlockPos.of(position).getX()>>4,net.minecraft.core.BlockPos.of(position).getZ()>>4);if(spent.size()>=LIMIT||spent.contains(key)||!areas.canRecord(player,band,chunk))return false;if(!counts.record(player,band,metric,1,null))return false;spent.add(key);areas.record(player,band,chunk,metric);return true;}

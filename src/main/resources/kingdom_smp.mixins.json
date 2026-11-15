@@ -45,6 +45,7 @@
     "NativeProductionEntityMixin",
     "NativeChunkUnloadMixin",
     "NativeOreFeatureMixin",
+    "NativeScatteredOreMixin",
     "NativeAmethystGrowthMixin",
     "NativeOreMutationMixin",
     "NativeOreMiningMixin",

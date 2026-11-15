@@ -10,5 +10,5 @@ import org.spongepowered.asm.mixin.*;
 abstract class NativeOreMiningMixin {
  @Shadow @Final protected ServerPlayer player;
  @WrapMethod(method="removeBlock")
- private boolean kingdom$mined(BlockPos pos,BlockState state,boolean harvest,Operation<Boolean> original){var proof=NativeOreProvenance.capture(player,pos,harvest);boolean success=original.call(pos,state,harvest);NativeOreProvenance.mined(proof,success);return success;}
+ private boolean kingdom$mined(BlockPos pos,BlockState state,boolean harvest,Operation<Boolean> original){var proof=NativeOreProvenance.capture(player,pos,harvest);var nether=com.mohymods.kingdomsmp.profession.NetherOres.capture(player,pos,harvest);boolean success=original.call(pos,state,harvest);NativeOreProvenance.mined(proof,success);com.mohymods.kingdomsmp.profession.NetherOres.mined(nether,success);return success;}
 }

@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--master-diamonds',action='store_true',help='Actual12natural Master diamonds across3regions after genuine19Miner proofs')
+parser.add_argument('--nether-ores',action='store_true',help='Actual full100native Nether Master ore removals/restart')
 parser.add_argument('--mine-plan',action='store_true',help='Actual funded weekly mining service and full native Journeyman plan approval')
 parser.add_argument('--amethyst',action='store_true',help='Actual native bud growth/partial restart/full32physical shard delivery')
 parser.add_argument('--mine-access-corrupt',action='store_true',help='One extra private stopped-save fault boot verifies native item/movement safety before matching restore')
@@ -200,6 +202,18 @@ if args.native_ore or args.native_copper or args.native_journey_ore or args.nati
     init=fixture/"native-ore.init.gradle"
     init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeGeology" if args.native_geology else "kingdom.testNativeJourneyOre" if args.native_journey_ore else "kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
     command += ["--init-script",str(init)]
+if args.master_diamonds:
+    if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
+        raise SystemExit("Master diamonds require actual19Miner private stopped source")
+    init=fixture/'master-diamonds.init.gradle'
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMasterDiamonds','true' } } }\n")
+    command += ['--init-script',str(init)]
+if args.nether_ores:
+    if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
+        raise SystemExit("Nether ores require genuine full16Miner private stopped source")
+    init=fixture/'nether-ores.init.gradle'
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testNetherOres','true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.mine_plan:
     if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
         raise SystemExit("Mine plan requires actual earned14Miner stopped private source")
@@ -432,6 +446,10 @@ if args.encounters:
     markers=["ENCOUNTER_NATIVE_PASSED:","ENCOUNTER_RESTART_PASSED:"]
 if args.expedition_supplies:
     markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
+if args.master_diamonds:
+    markers=["MASTER_DIAMOND_NATIVE_PASSED:","MASTER_DIAMOND_RESTART_PASSED:"]
+if args.nether_ores:
+    markers=["NETHER_ORES_NATIVE_PASSED:","NETHER_ORES_RESTART_PASSED:"]
 if args.mine_plan:
     markers=["MINE_PLAN_NATIVE_PASSED:","MINE_PLAN_RESTART_PASSED:"]
 if args.amethyst:

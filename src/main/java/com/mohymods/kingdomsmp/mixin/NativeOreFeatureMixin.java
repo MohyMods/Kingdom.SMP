@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(value=OreFeature.class,remap=false)
 abstract class NativeOreFeatureMixin {
  @WrapOperation(method="doPlace",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/chunk/LevelChunkSection;setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;"))
- private BlockState kingdom$natural(LevelChunkSection section,int x,int y,int z,BlockState state,boolean locks,Operation<BlockState> original,@Local(argsOnly=true)WorldGenLevel world,@Local BlockPos.MutableBlockPos pos){var before=original.call(section,x,y,z,state,locks);NativeOreProvenance.generated(world,pos,before,state);return before;}
+ private BlockState kingdom$natural(LevelChunkSection section,int x,int y,int z,BlockState state,boolean locks,Operation<BlockState> original,@Local(argsOnly=true)WorldGenLevel world,@Local BlockPos.MutableBlockPos pos){var before=original.call(section,x,y,z,state,locks);NativeOreProvenance.generated(world,pos,before,state);com.mohymods.kingdomsmp.profession.NetherOres.generated(world,pos,before,state);return before;}
 }

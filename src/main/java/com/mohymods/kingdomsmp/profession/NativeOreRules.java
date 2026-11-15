@@ -8,7 +8,7 @@ import net.minecraft.world.level.storage.LevelResource;
 /** Configurable approved quantities; invalid or unknown input never resets saved progression. */
 public final class NativeOreRules {
     private static final Map<MinecraftServer,NativeOreRules> CACHE=new WeakHashMap<>();private final Map<String,Integer> goals;private final int separation;
-    private NativeOreRules(Map<String,Integer> goals,int separation){this.goals=Map.copyOf(goals);this.separation=separation;}public int separation(){return separation;}public int goal(String id){if(!NativeOreQuests.contains(id))throw new IllegalArgumentException("Unvalidated mining goal");return goals.get(id);}
+    private NativeOreRules(Map<String,Integer> goals,int separation){this.goals=Map.copyOf(goals);this.separation=separation;}public int separation(){return separation;}public int goal(String id){if(!NativeOreQuests.GOALS.containsKey(id))throw new IllegalArgumentException("Unvalidated mining goal");return goals.get(id);}
     public static void clear(MinecraftServer server){CACHE.remove(server);}
     public static NativeOreRules get(MinecraftServer server){return CACHE.computeIfAbsent(server,s->{try{return load(s.getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-mining-quests.json"));}catch(IOException e){throw new IllegalStateException("Invalid native mining objective configuration",e);}});}
     public static NativeOreRules load(Path path)throws IOException{
