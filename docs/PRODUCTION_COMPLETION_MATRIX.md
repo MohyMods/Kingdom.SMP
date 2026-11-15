@@ -6,7 +6,7 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | --- | --- |
 | Earned Tier1–6 transaction path | Actual full quantities/Hut/Hall/road/paid Bank/three new transitions and2JVM restore pass; resource/time/funds fixtures, not gathering-duration/full-client acceptance |
 | Aldric/workstation/Hall regression | Actual table conversion, native stair corner, original NPCs and Hall2JVM pass |
-| Six selected professions |134historical validated adapters; five24quest native Master loops;144complete quests/six professions not yet satisfied; Farmer24unchanged |
+| Six selected professions |135historical validated adapters; five24quest native Master loops;144complete quests/six professions not yet satisfied; Farmer24unchanged |
 | Six purchased usable Master rewards | Farmer verified; other5remain; unspecified Prospector/Librarian design question pending |
 | Economy | Existing transaction slices preserved; release-wide regression and natural balance remain |
 | Aerodrome on earned Tier6 | Actual earned-Tier6/no-hangar refusal/paid plan/partial original-Aldric construction → complete furnished hangar/native boarding/damage refusal/exact repair/final restart pass; full flight/client/modpack acceptance remains |
@@ -14,6 +14,8 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | Release package/client/required-mod acceptance | Not complete; no0.13release published |
 
 ---
+
+D107:185overall/135selected adapters; Library j04 actual four different native Tier2 glyphs/secured on-site source catalogue inspection/permanent native receipt/200XP/current independent claims/refusals/restart pass2JVMs, including exact combined Ars+Irons profile.734JUnit/full build pass; Irons native RARE spell component APIs verified but j05 remains disabled. Nine Library adapters/gear/full release acceptance remain. No client/fullpack/default-duration/acquisition claim or intermediate release.
 
 D106:184overall/134selected validated adapters;732JUnit/full build/gameTest compile pass. Actual full Blacksmith24/4800XP/Master via three current-owner native repairs/2customers/funded Master service/final live forge assessment and3JVM restore; Library j06actual3paid compatible enchantment jobs/2owners/permanent return/200XP/3JVM pass with exact Ars5.13.3. Old native App/J/M smith and8role services regression passes. Native Ars APIs/recipes verified, catalogue quests remain unimplemented. Existing profession menu overflow fixed within256char/128row bounds. Equipment/defaultduration/client/fullpack/release remain open. See D106 exact commands/private sources/evidence.
 

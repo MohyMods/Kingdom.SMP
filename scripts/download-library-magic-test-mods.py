@@ -8,10 +8,11 @@ import urllib.request
 
 root = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--lock', type=Path, default=root / 'docs/sources/LIBRARY_MAGIC_TEST_ARTIFACTS.json')
 parser.add_argument('--destination', type=Path, default=root / 'work/library-magic-test-mods')
 args = parser.parse_args()
 args.destination.mkdir(parents=True, exist_ok=True)
-entries = json.loads((root / 'docs/sources/LIBRARY_MAGIC_TEST_ARTIFACTS.json').read_text())
+entries = json.loads(args.lock.read_text())
 unexpected = {p.name for p in args.destination.glob('*.jar')} - {entry['filename'] for entry in entries}
 if unexpected:
     raise SystemExit('Unexpected JARs in isolated fixture; refusing a contaminated test profile: ' + ', '.join(sorted(unexpected)))

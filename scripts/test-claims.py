@@ -9,6 +9,7 @@ import tempfile
 parser=argparse.ArgumentParser()
 parser.add_argument('--resume-alpha-aircraft',action='store_true',help='Resume a genuinely completed native partial alpha hangar phase')
 parser.add_argument('--seed-alpha-world',type=Path,help='Stopped earned Tier6 private fixture only')
+parser.add_argument('--glyph-catalogue',action='store_true',help='Actual OP2 inspected native Tier2 glyph delivery and receipt recovery')
 parser.add_argument('--library-services',action='store_true',help='Actual consenting current-owner native library maintenance/returns')
 parser.add_argument('--owner-repairs',action='store_true',help='Actual current-owner consenting native repairs and permanent returns')
 parser.add_argument('--smith-civic',action='store_true',help='Real native Master community forge inspection')
@@ -199,6 +200,12 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.glyph_catalogue:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Glyph catalogue requires a guarded stopped earned Library source with exact Ars mods')
+    init=fixture/'glyph-catalogue.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testGlyphCatalogue', 'true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.library_services:
     if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
         raise SystemExit('Library services require a guarded stopped native Apprentice source')
@@ -464,6 +471,8 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.glyph_catalogue:
+    markers=["LIBRARY_GLYPH_NATIVE_PASSED:","LIBRARY_GLYPH_RESTART_PASSED:"]
 if args.library_services:
     markers=["LIBRARY_SERVICES_PARTIAL_PASSED:","LIBRARY_SERVICES_COMPLETE_PASSED:","LIBRARY_SERVICES_RESTART_PASSED:"]
 if args.owner_repairs:

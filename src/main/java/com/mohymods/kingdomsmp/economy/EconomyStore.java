@@ -30,7 +30,7 @@ public final class EconomyStore {
     public static final long ANTI_SNIPE_WINDOW=120_000L;
     public static final int MAX_LISTING_JOURNAL_BYTES=8*1024*1024;
     public static final int MAX_JOURNAL_BYTES=12*1024*1024;
-    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, MERCHANT_TRANSACTION_QUEST, COIN_EXCHANGE, PROFESSION_MINING, PROFESSION_ENCOUNTER, PROFESSION_MINE_ACCESS, PROFESSION_EXCAVATION_SITE, SERVICE_CONSENT, SERVICE_REVOKE, SERVICE_OUTPUT, SERVICE_RETURN, SERVICE_QUEST }
+    public enum Kind { ADMIN_SET, QUEUE_COINS, CLAIM_COINS, PURCHASE, SALE, TRANSFER, COIN_TRANSFER, LIST_ITEM, BUY_ITEM, RETURN_ITEM, CLAIM_ITEM, LIST_TIMED_ITEM, BID_ITEM, SETTLE_TIMED, CREATE_ORDER, FILL_ORDER, CLOSE_ORDER, SHOP_BUY, PROFESSION_CHANGE, COMPLETE_CONTRACT, PROFESSION_QUEST, FARMER_DELIVERY, FARMER_INSPECTION, COMMUNITY_DELIVERY, GEAR_BUY, HUNT_ACCEPT, HUNT_CLOSE, AIRCRAFT_BUY, AIRCRAFT_DEPLOY, AIRCRAFT_ACTIVATE, AIRCRAFT_PACK, AIRCRAFT_SHARE, AIRCRAFT_REPAIR_BUY, AIRCRAFT_REPAIR_APPLY, AIRCRAFT_REPAIR_REFUND, AIRCRAFT_FLIGHT_REWARD, AIRCRAFT_CARGO_ACCEPT, AIRCRAFT_CARGO_RESERVE, AIRCRAFT_CARGO_DELIVER, AIRCRAFT_CARGO_CANCEL, AIRCRAFT_SCOUT_REWARD, PROFESSION_COMMISSION, PROFESSION_INSPECTION, PROFESSION_DELIVERY, PROFESSION_WORKSITE, PROFESSION_RETAINED, PROFESSION_TREE, PROFESSION_REPAIR, PROFESSION_ENCHANT_OUTPUT, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, MERCHANT_TRANSACTION_QUEST, COIN_EXCHANGE, PROFESSION_MINING, PROFESSION_ENCOUNTER, PROFESSION_MINE_ACCESS, PROFESSION_EXCAVATION_SITE, SERVICE_CONSENT, SERVICE_REVOKE, SERVICE_OUTPUT, SERVICE_RETURN, SERVICE_QUEST, PROFESSION_LIBRARY_CATALOGUE }
     public enum MailKind { COINS, BLUEPRINT, HUNT_ESCROW }
     public record Receipt(UUID store,long sequence) {
         public Receipt { if(sequence<0||store==null&&sequence!=0)throw new IllegalArgumentException("Invalid economy receipt"); }
@@ -72,7 +72,7 @@ public final class EconomyStore {
         public ItemMail {Objects.requireNonNull(id);Objects.requireNonNull(owner);text(description,128);item=checkedItem(item);}
         @Override public CompoundTag item(){return item.copy();}
     }
-    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY, FARMER_DELIVERY, COMMUNITY_DELIVERY, AIRCRAFT_DEPLOY, PROFESSION_DELIVERY, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, COIN_EXCHANGE, SERVICE_RETURN }
+    public enum ItemAction { LIST, CLAIM, TIMED_LIST, ORDER_FILL, CONTRACT_DELIVERY, FARMER_DELIVERY, COMMUNITY_DELIVERY, AIRCRAFT_DEPLOY, PROFESSION_DELIVERY, PROFESSION_ENCHANT_DELIVERY, PROFESSION_SMITH_REGISTRATION, COIN_EXCHANGE, SERVICE_RETURN, LIBRARY_CATALOGUE }
     /** Payload is the bounded encoded canonical operation; never client authority. */
     public record PendingItem(long sequence,UUID operation,UUID player,ItemAction action,CompoundTag payload,long previousReceipt) {
         public PendingItem {
@@ -171,7 +171,7 @@ public final class EconomyStore {
             var op=decode(pendingItem.payload());
             if(op.sequence()!=history.size()+1L||seen.contains(op.id())||!op.id().equals(pendingItem.operation())||!op.actor().equals(pendingItem.player())||!op.target().equals(pendingItem.player())
                     ||op.sequence()!=pendingItem.sequence()||pendingItem.previousReceipt()!=expectedReceipt(pendingItem.player())
-                    ||op.kind()!=switch(pendingItem.action()){case SERVICE_RETURN->Kind.SERVICE_RETURN;case COIN_EXCHANGE->Kind.COIN_EXCHANGE;case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case PROFESSION_DELIVERY->Kind.PROFESSION_DELIVERY;case PROFESSION_ENCHANT_DELIVERY->Kind.PROFESSION_ENCHANT_DELIVERY;case PROFESSION_SMITH_REGISTRATION->Kind.PROFESSION_SMITH_REGISTRATION;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;case AIRCRAFT_DEPLOY->Kind.AIRCRAFT_DEPLOY;})throw new IllegalArgumentException("Invalid pending item operation");
+                    ||op.kind()!=switch(pendingItem.action()){case LIBRARY_CATALOGUE->Kind.PROFESSION_LIBRARY_CATALOGUE;case SERVICE_RETURN->Kind.SERVICE_RETURN;case COIN_EXCHANGE->Kind.COIN_EXCHANGE;case LIST->Kind.LIST_ITEM;case CLAIM->Kind.CLAIM_ITEM;case TIMED_LIST->Kind.LIST_TIMED_ITEM;case ORDER_FILL->Kind.FILL_ORDER;case CONTRACT_DELIVERY->Kind.COMPLETE_CONTRACT;case FARMER_DELIVERY->Kind.FARMER_DELIVERY;case PROFESSION_DELIVERY->Kind.PROFESSION_DELIVERY;case PROFESSION_ENCHANT_DELIVERY->Kind.PROFESSION_ENCHANT_DELIVERY;case PROFESSION_SMITH_REGISTRATION->Kind.PROFESSION_SMITH_REGISTRATION;case COMMUNITY_DELIVERY->Kind.COMMUNITY_DELIVERY;case AIRCRAFT_DEPLOY->Kind.AIRCRAFT_DEPLOY;})throw new IllegalArgumentException("Invalid pending item operation");
             var nextMail=new HashMap<>(mail);var nextListings=new HashMap<>(listings);var nextItems=new HashMap<>(itemMail);var nextOrders=new HashMap<>(orders);
             apply(op,new HashMap<>(balances),new HashMap<>(purchases),nextMail,nextListings,nextItems,nextOrders,new HashMap<>(shopSold),new HashMap<>(professionRosters),contracts.copy(),community.copy(),equipment.copy(),aircraft.copy(),enchantedOutputs.copy());var nextHistory=appended(history,op);budget(nextHistory,nextListings,nextItems,nextMail,nextOrders,false,aircraft.copy());
         }
@@ -334,6 +334,10 @@ public final class EconomyStore {
         var d=MerchantTransactionQuests.get(quest);MerchantQuestRules.validate(quest,required);var data=new CompoundTag();data.putInt("contentVersion",1);data.putInt("required",required);
         var op=new Operation(history.size()+1L,operation,Kind.MERCHANT_TRANSACTION_QUEST,player,player,d.xp(),quest,"Merchant settled transactions",null,0,0,data);
         if(!replayed(op))append(op);return professions(player);
+    }
+    public synchronized PendingItem prepareLibraryCatalogue(UUID operation,UUID player,UUID admin,List<CompoundTag> items,String evidence)throws IOException{
+        var data=new CompoundTag();data.putInt("contentVersion",1);data.putString("artifact",LibraryGlyphCatalogue.ARTIFACT);data.putString("evidence",evidence);var rows=new ListTag();items.forEach(item->rows.add(checkedItem(item)));data.put("items",rows);
+        return prepareItem(new Operation(history.size()+1L,operation,Kind.PROFESSION_LIBRARY_CATALOGUE,player,player,200,LibraryGlyphCatalogue.QUEST,LibraryGlyphCatalogue.DETAIL,admin,0,4,data),ItemAction.LIBRARY_CATALOGUE);
     }
     public synchronized boolean serviceSourceSpent(UUID sourceStore,UUID sourceItem){healthy();return contracts.serviceWork.spentSource(sourceStore,sourceItem);}
     public synchronized ServiceWorkState serviceWork(){healthy();return contracts.serviceWork.copy();}
@@ -712,7 +716,7 @@ public final class EconomyStore {
     /** Publish derived lookup state only after a validated replay or successful durable append. */
     private void index(Operation op){
         operationIndex.put(op.id(),op);
-        if(switch(op.kind()){case SERVICE_RETURN,COIN_EXCHANGE,SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,PROFESSION_DELIVERY,PROFESSION_ENCHANT_DELIVERY,PROFESSION_SMITH_REGISTRATION,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
+        if(switch(op.kind()){case PROFESSION_LIBRARY_CATALOGUE,SERVICE_RETURN,COIN_EXCHANGE,SALE,TRANSFER,LIST_ITEM,CLAIM_ITEM,LIST_TIMED_ITEM,FILL_ORDER,COMPLETE_CONTRACT,FARMER_DELIVERY,PROFESSION_DELIVERY,PROFESSION_ENCHANT_DELIVERY,PROFESSION_SMITH_REGISTRATION,COMMUNITY_DELIVERY,AIRCRAFT_DEPLOY->true;default->false;})receiptIndex.put(op.target(),op.sequence());
         if(op.kind()==Kind.SALE){latestSalePeriod=Math.max(latestSalePeriod,op.period());dailyNpcSpent.merge(op.period(),op.amount(),Math::addExact);dailyResourceSold.merge(new ShopDay(op.period(),op.key()),(long)op.quantity(),Math::addExact);dailyPlayerProceeds.merge(new PlayerDay(op.period(),op.target()),op.amount(),Math::addExact);}
         if(op.kind()==Kind.AIRCRAFT_REPAIR_APPLY)shopSpent=Math.addExact(shopSpent,find(op.reference()).amount());
         if(op.kind()==Kind.GEAR_BUY)equipmentSpent=Math.addExact(equipmentSpent,op.amount());
@@ -877,6 +881,10 @@ public final class EconomyStore {
                 var roster=professionRosters.getOrDefault(op.target(),ProfessionRoster.empty());
                 if(roster.track(Profession.FARMER).completedQuestIds().contains(op.key()))throw new IllegalStateException("Farmer objective already completed");
                 professionRosters.put(op.target(),roster.completeQuest(Profession.FARMER,op.key(),op.amount(),FarmerQuests.catalog()));
+            }
+            case PROFESSION_LIBRARY_CATALOGUE->{
+                var data=op.payload();if(!op.key().equals(LibraryGlyphCatalogue.QUEST)||!op.detail().equals(LibraryGlyphCatalogue.DETAIL)||!op.actor().equals(op.target())||op.amount()!=200||op.reference()==null||op.period()!=0||op.quantity()!=4||!data.getAllKeys().equals(Set.of("contentVersion","artifact","evidence","items"))||!data.contains("contentVersion",Tag.TAG_INT)||data.getInt("contentVersion")!=1||!data.getString("artifact").equals(LibraryGlyphCatalogue.ARTIFACT)||data.getString("evidence").isBlank()||data.getString("evidence").length()>256||!(data.get("items") instanceof ListTag rows)||rows.size()!=4||rows.getElementType()!=Tag.TAG_COMPOUND)throw new IllegalArgumentException("Invalid native catalogue inspection/delivery");
+                var items=new ArrayList<CompoundTag>();for(var row:rows)items.add(checkedItem((CompoundTag)row));LibraryGlyphCatalogue.validate(items);var roster=professionRosters.getOrDefault(op.actor(),ProfessionRoster.empty());if(roster.track(Profession.LIBRARIAN).completedQuestIds().contains(op.key()))throw new IllegalStateException("Native catalogue already completed");professionRosters.put(op.actor(),roster.completeQuest(Profession.LIBRARIAN,op.key(),200,LibraryGlyphCatalogue.catalog()));
             }
             case SERVICE_CONSENT->{
                 var d=op.payload();if(!ServiceWorkState.supported(op.key())||!op.detail().equals("Current inventory owner consent")||op.actor().equals(op.target())||op.amount()!=0||op.reference()!=null||op.period()!=0||op.quantity()!=0||!d.getAllKeys().equals(Set.of("wearStore","wear","input"))||!d.hasUUID("wearStore")||!d.hasUUID("wear")||!d.contains("input",Tag.TAG_COMPOUND))throw new IllegalArgumentException("Invalid owner consent");
