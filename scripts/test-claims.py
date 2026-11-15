@@ -30,6 +30,7 @@ parser.add_argument('--mods', default=None)
 parser.add_argument('--alchemy-reagents',action='store_true',help='Exercise actual Mystical Agriculture planting/growth/harvest and delivery in private copies')
 parser.add_argument('--mekanism-smelt',action='store_true',help='Actual exact Mekanism raw-osmium native primary processing/physical delivery')
 parser.add_argument('--native-copper',action='store_true',help='Actual legacy coal/iron retention and native separate-area copper extraction')
+parser.add_argument('--native-geology',action='store_true',help='Three genuine native geological working areas on an actual earned13Miner source')
 parser.add_argument('--native-journey-ore',action='store_true',help='Full104genuine Journeyman native ores from an earned full Apprentice private world')
 parser.add_argument('--native-ore',action='store_true',help='Real decorated future Overworld native ore generation and successful personal extraction in a stopped private clone')
 parser.add_argument('--encounters',action='store_true',help='Actual natural-origin hostile deaths and personal once-only profession evidence')
@@ -190,13 +191,13 @@ if args.mekanism_smelt:
     init=fixture/"mekanism-smelt.init.gradle"
     init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMekanismSmelt','true' } } }\n")
     command += ["--init-script",str(init)]
-if args.native_ore or args.native_copper or args.native_journey_ore:
-    if sum([args.native_ore,args.native_copper,args.native_journey_ore])>1:
+if args.native_ore or args.native_copper or args.native_journey_ore or args.native_geology:
+    if sum([args.native_ore,args.native_copper,args.native_journey_ore,args.native_geology])>1:
         raise SystemExit("Choose original ore production or later separate copper only")
     if args.namespace != "kingdom_smp_profession_production_tests" or any([args.mekanism_smelt,args.expedition_supplies,args.create_workshop,args.create_transmission,args.create_milling,args.create_press,args.create_drive,args.create_craft,args.library_field_guide,args.merchant_production]):
         raise SystemExit("Native ore requires focused namespace and a single producer")
     init=fixture/"native-ore.init.gradle"
-    init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeJourneyOre" if args.native_journey_ore else "kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
+    init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeGeology" if args.native_geology else "kingdom.testNativeJourneyOre" if args.native_journey_ore else "kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
     command += ["--init-script",str(init)]
 if args.amethyst:
     if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
@@ -426,6 +427,8 @@ if args.expedition_supplies:
     markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
 if args.amethyst:
     markers=["AMETHYST_PENDING_PASSED:","AMETHYST_NATIVE_PASSED:","AMETHYST_RESTART_PASSED:"]
+if args.native_geology:
+    markers=["NATIVE_GEOLOGY_NATIVE_PASSED:","NATIVE_GEOLOGY_RESTART_PASSED:"]
 if args.native_journey_ore:
     markers=["NATIVE_JOURNEY_ORE_NATIVE_PASSED:","NATIVE_JOURNEY_ORE_RESTART_PASSED:"]
 if args.native_ore:
