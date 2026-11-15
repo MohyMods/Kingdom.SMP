@@ -1,3 +1,5 @@
+Final D099 integration regression: fresh actual Farmer24native full loop/purchased both earned tools/receipt reopen PASS work/miner171-farmer-regression.log; source b2e4d07 pushed,700JUnit/full build pass, all QA servers stopped. No1.0completion claim.
+
 D099:171/288 validated adapters (117remaining),700JUnit/full build pass. All8MinerA+all8J earn2400XP/Master trials via actual native funded weekly service/confirmed readable working-plan/current route/tool/lighting/storage; changed-plan/deep OPAC/replay refusals and second-JVM native recovered-stair repair pass. Private weekly-period2to1only, no default-duration/fullpack/client/Master-rank/release completion claim.
 
 D098:170/288 validated adapters (118remaining),699JUnit/full build pass. Miner authentic native original stone-host working areas/old unknown refusal/current claims/once-only200XP and2JVM restore earn14proofs/2000XP. Existing ore eligibility and attachment schema unchanged. Full release acceptance remains open.
