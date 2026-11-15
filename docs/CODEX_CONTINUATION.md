@@ -1,3 +1,15 @@
+D096:168/288 validated runtime adapters,120 remaining. Full Gradle build/game-test compile694JUnit0failures/errors/skips (work/miner-journey-full-build.log). Actual native104full-quantity Journeyman ore removals/awards and second dedicated JVM restore pass. No release/main merge.
+
+## D096 — Native rare Overworld mining at the approved Tier4 boundary
+
+Miner j01/j02/j03/j04 count genuine native OreFeature ProtoChunk provenance for48redstone24lapis24Overworldgold8diamond, regular/deepslate variants. Actual successful correct-tool native removal and current independent claims remain authoritative. Active Journeyman band/Tier4 are required at capture and commit; no retroactive App or low-tier stock. Catalogue includes the App prerequisite closure while published adapters filter contains(), so closure metadata cannot enable unrelated objectives. Existing schema2App counters/global spent positions/working areas load additively, unchanged existing configuration bytes receive missing in-memory defaults, and unknown historical ore remains untracked. No Nether/End objective activation.
+
+PASS work/native-journey-ore.log, stopped work/claim-server.__302iuu,2normal dedicated JVMs: copied actual all8/800XP source work/claim-server.uvx83ru_; real future native decorated seams supply all104correct-tool removals. Actual Tier3 removal earns no locked credit; replaced diamond ore loses source provenance; current FTB denied break stays intact; actual Doran review/replay checks award four genuine200XP operations→12proofs/1600XP/Journeyman. Second JVM restores exact new rare counts, untouched native rare seam attachment, global spent identity, old8proofs/actual descent/original Mine-Doran/native inventory receipt. Private fixture future terrain/raw tools/seeded Tier4 boundary only; no ore/count/quest/XP/rank proofs injected. Native period/full-tier reachability/client/fullpack acceptance remain open.
+
+Reproduce: JAVA_HOME=$PWD/work/toolchains/jdk-21.0.13+9 python3 scripts/test-claims.py --namespace kingdom_smp_profession_production_tests --seed-profession-world work/claim-server.uvx83ru_ --native-journey-ore
+
+NEXT: Miner j05actual native budding-amethyst growth→genuine mature cluster harvest32physical shards/permanent delivery, j06personally visited three distinct working geology settings and j08confirmed separate ore/access/support mine plan. Reuse native authority/saved bounds/claim gates; no naturalness inferred from neighboring terrain or historical unknown stock. Continue other approved professions/tiers/FTB/admin/integrations/fullpack acceptance automatically. Preserve Farmer24/no Librarian invention/no intermediate JAR releases.
+
 D095:164/288 runtime adapters,124 remaining. Full Gradle build/game-test compile691JUnit0failures/errors/skips (work/mine-access-full-build.log). Actual full Miner Apprentice8/800XP/Journeyman retained native route, native movement, current lights/tool/storage and confirmed inspections pass. Four-JVM corrupt evidence/native transaction/recovery regression passes. All QA servers stopped; no intermediate release/main merge.
 
 ## D095 — Native retained mine descent and working-route inspections

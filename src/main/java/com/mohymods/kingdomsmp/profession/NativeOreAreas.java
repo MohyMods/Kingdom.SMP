@@ -5,7 +5,7 @@ import net.minecraft.world.level.ChunkPos;
 /** Bounded personal excavation areas; unknown historical coordinates are never assigned to a player. */
 public final class NativeOreAreas {
  public static final int LIMIT=8192,PER_SCOPE=512;
- private static final Set<String> METRICS=Set.of("coal","iron","copper");
+ private static final Set<String> METRICS=NativeOreQuests.METRICS;
  private record Area(UUID player,ProfessionRank band,long chunk){}
  private final Map<Area,Map<String,Integer>> areas=new HashMap<>();
  public boolean canRecord(UUID player,ProfessionRank band,long chunk){return areas.containsKey(new Area(player,band,chunk))||areas.size()<LIMIT&&areas.keySet().stream().filter(a->a.player().equals(player)&&a.band()==band).count()<PER_SCOPE;}

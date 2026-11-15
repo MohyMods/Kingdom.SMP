@@ -27,7 +27,7 @@ public final class ProfessionQuestService {
         definitions.addAll(TreeQuestService.catalog().definitions().values().stream().filter(d->TreeQuestService.contains(d.id())).toList());
         definitions.addAll(EncounterQuests.catalog().definitions().values());
         definitions.addAll(MineAccessService.catalog().definitions().values());
-        definitions.addAll(NativeOreQuests.catalog().definitions().values());
+        definitions.addAll(NativeOreQuests.catalog().definitions().values().stream().filter(d->NativeOreQuests.contains(d.id())).toList());
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
