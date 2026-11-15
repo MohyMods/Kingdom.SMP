@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--mine-plan',action='store_true',help='Actual funded weekly mining service and full native Journeyman plan approval')
 parser.add_argument('--amethyst',action='store_true',help='Actual native bud growth/partial restart/full32physical shard delivery')
 parser.add_argument('--mine-access-corrupt',action='store_true',help='One extra private stopped-save fault boot verifies native item/movement safety before matching restore')
 parser.add_argument('--mine-access',action='store_true',help='Real retained mine access/native accepted descent and return/lighting/assessment')
@@ -199,6 +200,12 @@ if args.native_ore or args.native_copper or args.native_journey_ore or args.nati
     init=fixture/"native-ore.init.gradle"
     init.write_text("allprojects { afterEvaluate { def run = tasks.named('runServer', JavaExec); def prep = tasks.register('prepareNativeOreFixture',JavaExec) { dependsOn tasks.named('gameTestClasses'); classpath = files('build/moddev/artifacts/neoforge-21.1.265.jar') + files(file('build/moddev/serverLegacyClasspath.txt').readLines()) + sourceSets.gameTest.output; mainClass = 'com.mohymods.kingdomsmp.gametest.NativeOreFixturePrep'; args '"+str(fixture)+"' }; run.configure { dependsOn prep; systemProperty '"+("kingdom.testNativeGeology" if args.native_geology else "kingdom.testNativeJourneyOre" if args.native_journey_ore else "kingdom.testNativeCopper" if args.native_copper else "kingdom.testNativeOre")+"','true' } } }\n")
     command += ["--init-script",str(init)]
+if args.mine_plan:
+    if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
+        raise SystemExit("Mine plan requires actual earned14Miner stopped private source")
+    init=fixture/'mine-plan.init.gradle'
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMinePlan','true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.amethyst:
     if args.namespace != "kingdom_smp_profession_production_tests" or not args.seed_profession_world:
         raise SystemExit("Amethyst requires actual earned12Miner source/private stopped clone")
@@ -425,6 +432,8 @@ if args.encounters:
     markers=["ENCOUNTER_NATIVE_PASSED:","ENCOUNTER_RESTART_PASSED:"]
 if args.expedition_supplies:
     markers=["EXPEDITION_SUPPLIES_NATIVE_PASSED:","EXPEDITION_SUPPLIES_RESTART_PASSED:"]
+if args.mine_plan:
+    markers=["MINE_PLAN_NATIVE_PASSED:","MINE_PLAN_RESTART_PASSED:"]
 if args.amethyst:
     markers=["AMETHYST_PENDING_PASSED:","AMETHYST_NATIVE_PASSED:","AMETHYST_RESTART_PASSED:"]
 if args.native_geology:
