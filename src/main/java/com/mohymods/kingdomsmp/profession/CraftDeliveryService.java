@@ -31,6 +31,7 @@ public final class CraftDeliveryService {
         if(ExpeditionSupplies.QUEST.equals(id))return CraftDeliveryRules.get(p.server).inputs(id).entrySet().stream().allMatch(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),ExpeditionSupplies.metric(e.getKey()))>=e.getValue());
         if(MillingService.QUEST.equals(id))return MillingService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(MillingService.OUTPUT));
         if(CreatePressService.QUEST.equals(id))return CreatePressService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get("sheets"));
+        if(AmethystGrowth.QUEST.equals(id))return AmethystGrowth.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(AmethystGrowth.SHARD));
         if(ReagentCropService.QUEST.equals(id))return ReagentCropService.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get(ReagentCropService.ESSENCE));
         if(MasterTimberDelivery.QUEST.equals(id))return MasterTimberDelivery.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get("logs"));
         if(TrimCopies.QUEST.equals(id))return TrimCopies.ready(p,CraftDeliveryRules.get(p.server).inputs(id).get("copies"));
@@ -48,6 +49,7 @@ public final class CraftDeliveryService {
         if(ExpeditionSupplies.QUEST.equals(id))return inputs.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e->CraftQuestEvidence.count(p,d.profession(),d.rank(),ExpeditionSupplies.metric(e.getKey()))+"/"+e.getValue()+" "+e.getKey().replace("minecraft:","").replace('_',' ')).collect(java.util.stream.Collectors.joining(", "))+". Cook raw meat, fish or potatoes in a permitted furnace/smoker, craft torches and a compass, then permanently supply plain provisions at the guild. Cooked variants may be mixed.";
         if(MillingService.QUEST.equals(id))return MillingService.status(p,inputs.get(MillingService.OUTPUT));
         if(CreatePressService.QUEST.equals(id))return CreatePressService.status(p,inputs.get("sheets"));
+        if(AmethystGrowth.QUEST.equals(id))return AmethystGrowth.status(p,inputs.get(AmethystGrowth.SHARD));
         if(ReagentCropService.QUEST.equals(id))return ReagentCropService.status(p,inputs.get(ReagentCropService.ESSENCE));
         if(MasterTimberDelivery.QUEST.equals(id))return "Deliver "+inputs.get("logs")+" plain logs: at least "+inputs.get("logs")/8+" each from four native species. Each amount must be covered by your tracked Master-band personal harvest and current inventory; stripped variants share their species quota.";
         if(TrimCopies.QUEST.equals(id))return "Duplicate and deliver "+inputs.get("copies")+" plain matching copies. Consume the source template,7diamonds and native base. Mixed kinds fail; Eye needs Tier12. Nether/Spire/upgrade plans do not qualify.";

@@ -51,6 +51,7 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.profession.ReagentCropService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.NativeDropReceipts.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.MineAccessService.register(NeoForge.EVENT_BUS);
+        com.mohymods.kingdomsmp.profession.AmethystGrowth.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.ApiaryJobs.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.LibraryExplorationService.register(NeoForge.EVENT_BUS);
         com.mohymods.kingdomsmp.profession.CraftQuestEvidence.register(NeoForge.EVENT_BUS);
