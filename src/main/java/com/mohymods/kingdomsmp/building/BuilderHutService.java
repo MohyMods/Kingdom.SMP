@@ -363,6 +363,10 @@ public final class BuilderHutService {
     }
 
     static boolean matchesRequired(BlockState current, BlockState required) {
+        return ConstructionBlueprint.matches(current, required);
+    }
+
+    static boolean matchesFurnitureState(BlockState current, BlockState required) {
         current=WorkstationCompatibility.canonicalState(current,required);
         if (current.getBlock() != required.getBlock()) return false;
         // Normal use of furniture must not count as structural damage.

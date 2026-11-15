@@ -50,8 +50,8 @@ public final class SpaceAccess {
         if(!p.server.isSameThread())throw new IllegalStateException("Planet menu requires the server thread");
         try{
             var nativeDisabled=(Set<net.minecraft.resources.ResourceLocation>)disabledPlanets.invoke(original);var combined=new HashSet<>(nativeDisabled);int tier=ContributionService.kingdom(p.server).attainedTier();
-            for(var realm:SpaceTravelRules.realms())if(tier<realm.tier())combined.add(net.minecraft.resources.ResourceLocation.parse(realm.dimension()));
-            for(var realm:KingdomTravelRules.realms())if(tier<realm.tier())combined.add(net.minecraft.resources.ResourceLocation.parse(realm.dimension()));
+            for(var realm:SpaceTravelRules.realms())if(tier<realm.tier()||!com.mohymods.kingdomsmp.kingdom.AlphaScope.serviceAvailable(realm.tier()))combined.add(net.minecraft.resources.ResourceLocation.parse(realm.dimension()));
+            for(var realm:KingdomTravelRules.realms())if(tier<realm.tier()||!com.mohymods.kingdomsmp.kingdom.AlphaScope.serviceAvailable(realm.tier()))combined.add(net.minecraft.resources.ResourceLocation.parse(realm.dimension()));
             return combined.equals(nativeDisabled)?original:contentFactory.newInstance(Set.copyOf(combined),spaceStations.invoke(original),spawnLocations.invoke(original));
         }catch(ReflectiveOperationException failure){throw new IllegalStateException("Verified native planet menu could not preserve current locks",failure);}
     }
@@ -68,8 +68,8 @@ public final class SpaceAccess {
         // A historical already-inside player may leave space to return home. Landing
         // guards still refuse every currently locked destination; no forced relocation.
         if(SpaceTravelRules.space(rocket.level().dimension().location().toString()))return true;
-        int tier=ContributionService.kingdom(server).attainedTier();if(tier>=SpaceTravelRules.MINIMUM_TIER)return true;
-        for(var passenger:rocket.getPassengers())if(passenger instanceof ServerPlayer p)notice(p,"Space launches require at least kingdom Tier 10. Current tier: "+tier+".");
+        int tier=ContributionService.kingdom(server).attainedTier();if(tier>=SpaceTravelRules.MINIMUM_TIER&&com.mohymods.kingdomsmp.kingdom.AlphaScope.serviceAvailable(SpaceTravelRules.MINIMUM_TIER))return true;
+        for(var passenger:rocket.getPassengers())if(passenger instanceof ServerPlayer p)notice(p,com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage());
         return false;
     }
     public static boolean landing(Object packet,Player actor){
@@ -78,8 +78,8 @@ public final class SpaceAccess {
             var getter=destinations.get(packet.getClass());if(getter==null)return false;
             var target=(ResourceKey<?>)getter.invoke(packet);String id=target.location().toString();
             int tier=ContributionService.kingdom(p.server).attainedTier();
-            if(KingdomTravelRules.allowed(tier,id))return true;
-            notice(p,"Destination requires at least kingdom Tier "+KingdomTravelRules.requiredTier(id)+". Current tier: "+tier+".");return false;
+            if(com.mohymods.kingdomsmp.kingdom.AlphaScope.destinationAvailable(tier,id))return true;
+            notice(p,com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage());return false;
         }catch(ReflectiveOperationException|RuntimeException failure){return false;}
     }
     private static void notice(ServerPlayer p,String text){long now=p.server.getTickCount();Long previous=lastNotice.get(p);if(previous==null||now-previous>=20){lastNotice.put(p,now);p.displayClientMessage(Component.literal(text),true);}}

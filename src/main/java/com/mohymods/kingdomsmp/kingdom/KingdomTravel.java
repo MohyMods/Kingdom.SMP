@@ -16,14 +16,14 @@ public final class KingdomTravel {
         String destination=event.getDimension().location().toString();
         int required=KingdomTravelRules.requiredTier(destination);if(required==1)return;
         int tier=ContributionService.kingdom(server).attainedTier();
-        if(KingdomTravelRules.allowed(tier,destination))return;
+        if(AlphaScope.destinationAvailable(tier,destination))return;
         event.setCanceled(true);
         if(entity instanceof ServerPlayer player){
             long now=System.nanoTime();Long last=LAST_NOTICE.get(player);
             if(last==null||now-last>=5_000_000_000L){
                 LAST_NOTICE.put(player,now);
                 String realm=KingdomTravelRules.name(destination);
-                player.displayClientMessage(Component.literal(realm+" opens at kingdom Tier "+required+". Current tier: "+tier+"."),true);
+                player.displayClientMessage(Component.literal(required>AlphaScope.MAX_PLAYABLE_TIER?realm+": "+AlphaScope.futureMessage():realm+" opens at kingdom Tier "+required+". Current tier: "+tier+"."),true);
             }
         }
     }

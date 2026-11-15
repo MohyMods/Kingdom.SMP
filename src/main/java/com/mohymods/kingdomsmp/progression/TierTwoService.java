@@ -43,7 +43,7 @@ public final class TierTwoService {
     private static final Map<MinecraftServer,TierTwoLedger> STORES=new WeakHashMap<>();
     private static final Map<ServerPlayer,Offer> OFFERS=new WeakHashMap<>();
     private TierTwoService(){ }
-    public static void initialize(MinecraftServer server){STORES.remove(server);OFFERS.keySet().removeIf(p->p.server==server);if(royal(server))ledger(server);}
+    public static void initialize(MinecraftServer server){EarlyTierService.initialize(server);STORES.remove(server);OFFERS.keySet().removeIf(p->p.server==server);if(royal(server))ledger(server);}
     private static boolean royal(MinecraftServer server){return WorldProgression.get(server).mode()==WorldProgression.Mode.ROYAL_HALL;}
     public static TierTwoLedger ledger(MinecraftServer server){
         if(!royal(server))throw new IllegalStateException("Legacy progression remains unchanged; this new milestone is not applied to Lodge saves.");
@@ -55,7 +55,7 @@ public final class TierTwoService {
         }catch(IOException e){throw new IllegalStateException("Tier 2 costs or inventory checkpoint requires matching-backup recovery.",e);}
     }
     /** No calls to ContributionService.kingdom here: root composes this with existing attained tiers. */
-    public static int attainedTier(MinecraftServer server){return royal(server)&&ledger(server).complete()?3:1;}
+    public static int attainedTier(MinecraftServer server){return royal(server)&&ledger(server).complete()?EarlyTierService.attainedTier(server):1;}
     private static Map<String,Integer> loadRequirements(MinecraftServer server)throws IOException{
         Path file=server.getWorldPath(LevelResource.ROOT).resolve("serverconfig/kingdomsmp-tier-two.json");
         if(!Files.exists(file)){
@@ -84,6 +84,7 @@ public final class TierTwoService {
         if(!player.isAlive()||type!=GameType.SURVIVAL&&type!=GameType.ADVENTURE||player.containerMenu!=player.inventoryMenu||!player.containerMenu.getCarried().isEmpty())throw new IllegalStateException("Contribute alive in Survival/Adventure with containers closed.");
     }
     public static UUID handleReview(ServerPlayer player,String resourceID,int requested){
+        if(royal(player.server)&&ledger(player.server).complete())return EarlyTierService.review(player,resourceID,requested);
         requirePlayer(player);if(requested<1||requested>2304)throw new IllegalArgumentException("Review at most a main inventory of supplies.");
         var r=Resource.byId(resourceID);var s=ledger(player.server);
         if(s.quarantined()||s.pending().isPresent())throw new IllegalStateException("Tier 2 contributions paused for recovery.");
@@ -93,12 +94,14 @@ public final class TierTwoService {
         var offer=new Offer(UUID.randomUUID(),s.revision(),r,amount,System.nanoTime(),inventory(player));OFFERS.put(player,offer);return offer.nonce();
     }
     public static Optional<Quote> quote(ServerPlayer player){
+        if(EarlyTierService.hasOffer(player))return EarlyTierService.quote(player);
         var offer=OFFERS.get(player);if(offer==null)return Optional.empty();
         var s=ledger(player.server);if(System.nanoTime()-offer.issued()>30_000_000_000L||s.revision()!=offer.revision()){OFFERS.remove(player);return Optional.empty();}
         return Optional.of(new Quote(offer.nonce(),"Contribute exactly "+offer.amount()+" "+offer.resource().title+". Accepted items are permanently consumed. Resources are shared; each category has equal normalized score weight. Review expires after 30 seconds."));
     }
-    public static void close(ServerPlayer player){OFFERS.remove(player);}
+    public static void close(ServerPlayer player){OFFERS.remove(player);EarlyTierService.close(player);}
     public static String confirm(ServerPlayer player,UUID nonce){
+        if(EarlyTierService.hasOffer(player))return EarlyTierService.confirm(player,nonce);
         requirePlayer(player);var offer=OFFERS.remove(player);var s=ledger(player.server);
         if(offer==null||!offer.nonce().equals(nonce)||System.nanoTime()-offer.issued()>30_000_000_000L)throw new IllegalStateException("Tier 2 contribution review expired.");
         if(s.quarantined()||s.pending().isPresent()||s.revision()!=offer.revision()||!sameInventory(player,offer.inventory()))throw new IllegalStateException("Inventory or milestone changed. Review again.");
@@ -121,7 +124,7 @@ public final class TierTwoService {
     }
     public static List<CommerceView.Entry> entries(ServerPlayer player){
         if(!royal(player.server))return List.of(new CommerceView.Entry("legacy","Preserved legacy progression","This profile retains its Lodge, history and entitlements. New Tier 2 costs are not applied retroactively.",0,"LOCKED"));
-        var s=ledger(player.server);boolean ready;
+        var s=ledger(player.server);if(s.complete())return EarlyTierService.entries(player);boolean ready;
         try{requireSettlement(player.server);ready=true;}catch(IllegalStateException denied){ready=false;}
         List<CommerceView.Entry> out=new ArrayList<>();
         out.add(new CommerceView.Entry("road","Kingdom road",s.road().isPresent()?"Operator-approved connection between the Hut and Town Hall. Approval is permanent and audited.":"An operator must inspect and approve a road connecting the Hut and Town Hall with /kingdom admin milestone road confirm <reason>.",0,s.road().isPresent()?"COMPLETE":"LOCKED"));
@@ -129,11 +132,11 @@ public final class TierTwoService {
         if(s.complete()){var winner=s.winner().orElseThrow();out.add(new CommerceView.Entry("recognition","Tier 3 attained",winner.name()+" is the highest normalized Tier 2 contributor. New building plans are purchased through the Architect; no extra reward blueprint is created.",0,"COMPLETE"));}
         return List.copyOf(out);
     }
-    public static void login(PlayerEvent.PlayerLoggedInEvent event){if(!(event.getEntity() instanceof ServerPlayer player)||!royal(player.server))return;try{verifyReceipt(player,ledger(player.server));}catch(IOException|RuntimeException e){LogUtils.getLogger().error("Tier 2 loaded inventory mismatch {}",player.getUUID(),e);player.connection.disconnect(Component.literal("Tier 2 inventory receipt needs matching-backup recovery."));}}
+    public static void login(PlayerEvent.PlayerLoggedInEvent event){if(!(event.getEntity() instanceof ServerPlayer player)||!royal(player.server))return;try{EarlyTierService.verifyAll(player);}catch(IOException|RuntimeException e){LogUtils.getLogger().error("Tier 2 loaded inventory mismatch {}",player.getUUID(),e);player.connection.disconnect(Component.literal("Tier 2 inventory receipt needs matching-backup recovery."));}}
     public static void logout(PlayerEvent.PlayerLoggedOutEvent event){if(event.getEntity() instanceof ServerPlayer player)close(player);}
     private static void announce(MinecraftServer server,TierTwoLedger s){var winner=s.winner().orElseThrow();server.getPlayerList().broadcastSystemMessage(Component.literal("Roads of Commerce is complete! Kingdom Tier 3 attained. Highest contributor: "+winner.name()+". Royal Bank, Bounty Hall and Fisherman's Wharf unlock gates reached; each service still requires its implemented building."),false);}
     public static LiteralArgumentBuilder<CommandSourceStack> commands(){return Commands.literal("milestone")
-        .then(Commands.literal("inspect").executes(c->{if(!royal(c.getSource().getServer())){c.getSource().sendSuccess(()->Component.literal("Legacy progression preserved; new Tier 2 milestone inactive."),false);return 1;}var s=ledger(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal("Tier 2 journal "+s.id()+" revision "+s.revision()+" · road "+s.road().isPresent()+" · complete "+s.complete()+" · pending "+s.pending().isPresent()+" · quarantined "+s.quarantined()),false);for(var r:Resource.values())c.getSource().sendSuccess(()->Component.literal(r.title+": "+s.total(r.id)+" / "+s.requirements().get(r.id)),false);return 1;}))
+        .then(Commands.literal("inspect").executes(c->{if(!royal(c.getSource().getServer())){c.getSource().sendSuccess(()->Component.literal("Legacy progression preserved; new Tier 2 milestone inactive."),false);return 1;}var s=ledger(c.getSource().getServer());c.getSource().sendSuccess(()->Component.literal("Tier 2 journal "+s.id()+" revision "+s.revision()+" · road "+s.road().isPresent()+" · complete "+s.complete()+" · pending "+s.pending().isPresent()+" · quarantined "+s.quarantined()),false);for(var r:Resource.values())c.getSource().sendSuccess(()->Component.literal(r.title+": "+s.total(r.id)+" / "+s.requirements().get(r.id)),false);for(var line:EarlyTierService.status(c.getSource().getServer()))c.getSource().sendSuccess(()->Component.literal(line),false);return 1;}))
         .then(Commands.literal("road").requires(source->source.hasPermission(4))
             .executes(c->{c.getSource().sendSuccess(()->Component.literal("Inspect the actual road linking the completed Hut and Town Hall, then append confirm <reason>. No terrain is changed."),false);return 1;})
             .then(Commands.literal("confirm").then(Commands.argument("reason",StringArgumentType.greedyString()).executes(c->{

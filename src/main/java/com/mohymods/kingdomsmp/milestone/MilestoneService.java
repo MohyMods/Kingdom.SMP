@@ -70,6 +70,14 @@ public final class MilestoneService {
         for(int tier=1;tier<=12;tier++)result.add(limit(describe(server,s,tier),4096));return List.copyOf(result);
     }
     private static String describe(MinecraftServer server,Snapshot s,int tier){
+        if(tier>6)return "TIER "+tier+" REQUIRED — Coming Soon — Future Update. Historical records are preserved; this alpha has no new requirements or rewards for this tier.";
+        if(tier==6)return "TIER 6 · Alpha finale. Complete the Royal Aerodrome before using aircraft. Master the six selected professions. Tier 7 progression is unavailable in this alpha.";
+        if(tier>=3&&ConstructionService.royal(server)&&com.mohymods.kingdomsmp.progression.TierTwoService.ledger(server).complete()){
+            var active=com.mohymods.kingdomsmp.progression.EarlyTierService.ledger(server,tier);var text=new StringBuilder("VERSIONED ALPHA DEFAULTS · Tier "+tier+" → "+(tier+1)+"\nMaintain Town Hall, Builder's Hut/Aldric and Royal Bank. Equal normalized category scoring; physical donations are permanently consumed.\n");
+            active.requirements().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e->text.append(e.getKey()).append(": ").append(active.total(e.getKey())).append(" / ").append(e.getValue()).append('\n'));
+            return text.append("Building plans remain unique first-buyer purchases; each tier's contributor recognition is saved.").toString();
+        }
+
         if(tier==2&&ConstructionService.royal(server)){
             var active=com.mohymods.kingdomsmp.progression.TierTwoService.ledger(server);var out=new StringBuilder("VERSIONED LIVE DEFAULTS · Roads of Commerce · Tier 2 → 3\n");
             out.append("Requires completed Town Hall and inspected Hut connection. Road: ").append(active.road().isPresent()?"approved":"awaiting administrator approval").append('\n');

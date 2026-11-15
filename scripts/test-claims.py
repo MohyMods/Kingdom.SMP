@@ -7,6 +7,9 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--resume-alpha-aircraft',action='store_true',help='Resume a genuinely completed native partial alpha hangar phase')
+parser.add_argument('--seed-alpha-world',type=Path,help='Stopped earned Tier6 private fixture only')
+parser.add_argument('--master-elixirs',action='store_true',help='Actual native Master24three-family potion delivery/full16source/restore')
 parser.add_argument('--alchemy-assessment',action='store_true',help='Actual weekly Alchemist service/current traced native apothecary/full Journeyman/restart')
 parser.add_argument('--mine-excavation-restore',action='store_true',help='One native restore/status/ordinary denial boot of genuinely earned full24Miner source')
 parser.add_argument('--mine-excavation',action='store_true',help='Actual prior canonical operator authority/native excavation/full24Miner/IO/archive/restart')
@@ -32,7 +35,7 @@ parser.add_argument('--resume-resident-name-construction',action='store_true',he
 parser.add_argument('--stage-cargo-preview',action='store_true',help='Stop the verified private cargo voyage before NPC unloading for ordinary-client QA')
 parser.add_argument('--stage-scout-preview',action='store_true',help='Stop verified private reconnaissance before the Steward report for ordinary-client QA')
 parser.add_argument('--stage-flight-preview',action='store_true',help='Stop the verified private flight route before the Steward report for ordinary client QA')
-parser.add_argument('--namespace',choices=['kingdom_smp_builder_master_tests','kingdom_smp_chunk_unload_tests','kingdom_smp_alchemy_tests','kingdom_smp_master_forestry_tests','kingdom_smp_profession_production_tests','kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests','kingdom_smp_commission_tests','kingdom_smp_woodland_tests','kingdom_smp_retained_tests','kingdom_smp_tree_tests','kingdom_smp_premises_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
+parser.add_argument('--namespace',choices=['kingdom_smp_alpha_aircraft_tests','kingdom_smp_sandbox_tests','kingdom_smp_early_tier_tests','kingdom_smp_builder_master_tests','kingdom_smp_chunk_unload_tests','kingdom_smp_alchemy_tests','kingdom_smp_master_forestry_tests','kingdom_smp_profession_production_tests','kingdom_smp_claim_tests','kingdom_smp_townhall_tests','kingdom_smp_commerce_tests','kingdom_smp_bank_tests','kingdom_smp_auction_tests','kingdom_smp_market_tests','kingdom_smp_crop_tests','kingdom_smp_profession_tests','kingdom_smp_commission_tests','kingdom_smp_woodland_tests','kingdom_smp_retained_tests','kingdom_smp_tree_tests','kingdom_smp_premises_tests', 'kingdom_smp_farmer_tests','kingdom_smp_farmer_events_tests','kingdom_smp_bounty_tests','kingdom_smp_farmer_gear_tests','kingdom_smp_gear_shop_tests','kingdom_smp_farmer_loop_tests','kingdom_smp_hunt_tests','kingdom_smp_foundation_tests','kingdom_smp_foundation_resume_tests','kingdom_smp_hut_foundation_tests','kingdom_smp_wharf_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_tests','kingdom_smp_waystone_tests','kingdom_smp_quest_tests','kingdom_smp_space_tests','kingdom_smp_travel_tests','kingdom_smp_archive_tests'],default='kingdom_smp_claim_tests')
 parser.add_argument('--mods', default=None)
 parser.add_argument('--alchemy-reagents',action='store_true',help='Exercise actual Mystical Agriculture planting/growth/harvest and delivery in private copies')
 parser.add_argument('--mekanism-smelt',action='store_true',help='Actual exact Mekanism raw-osmium native primary processing/physical delivery')
@@ -64,7 +67,7 @@ if (args.alchemy_restore or args.alchemy_journeyman or args.alchemy_mixed or arg
     parser.error("Alchemist flags require their private Alchemist namespace")
 if args.mods is None:
     args.mods = 'work/mystical-test-mods' if args.alchemy_reagents else 'work/aircraft-test-mods' if args.namespace in ('kingdom_smp_aircraft_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests') else 'work/claim-test-mods'
-marker={'kingdom_smp_builder_master_tests':'BUILDER_MASTER_INTERIOR_NATIVE_PASSED:','kingdom_smp_chunk_unload_tests':'CHUNK_UNLOAD_NATIVE_PASSED:','kingdom_smp_alchemy_tests':'ALCHEMY_PENDING_PREPARED:','kingdom_smp_master_forestry_tests':'MASTER_FORESTRY_NATIVE_PASSED:','kingdom_smp_profession_production_tests':'PROFESSION_PRODUCTION_PASSED:','kingdom_smp_premises_tests':'PROFESSION_PREMISES_PREPARED:','kingdom_smp_resident_name_tests':'RESIDENT_NAME_PREPARED:','kingdom_smp_title_tests':'TITLE_SELECTION_PREPARED:','kingdom_smp_scout_tests':'SCOUT_PARTIAL_PREPARED:','kingdom_smp_aircraft_fuel_tests':'AIRCRAFT_FUEL_PREPARED:','kingdom_smp_cargo_journey_tests':'CARGO_JOURNEY_PARTIAL_PREPARED:','kingdom_smp_cargo_receipt_tests':'CARGO_RESERVATION_PREPARED:','kingdom_smp_flight_tests':'FLIGHT_PARTIAL_PREPARED:','kingdom_smp_aircraft_repair_tests':'AIRCRAFT_REPAIR_PENDING_PREPARED:','kingdom_smp_aircraft_sales_tests':'AIRCRAFT_SALES_PREPARED:','kingdom_smp_space_tests':'SPACE_FLOOR_PREPARED:','kingdom_smp_aircraft_packet_tests':'AIRCRAFT_PACKETS_PREPARED:','kingdom_smp_aircraft_restore_tests':'AIRCRAFT_RESTORE_PREPARED:','kingdom_smp_aircraft_tests':'AIRCRAFT_PREPARED:','kingdom_smp_waystone_tests':'WAYSTONE_PREPARED:','kingdom_smp_quest_tests':'FTB_SETTLEMENT_PREPARED:','kingdom_smp_travel_tests':'TRAVEL_PREPARED:','kingdom_smp_archive_tests':'ARCHIVE_PREPARED:','kingdom_smp_wharf_tests':'WHARF_ASSERTIONS_PASSED:','kingdom_smp_hut_foundation_tests':'HUT_FOUNDATION_PREPARED:','kingdom_smp_foundation_resume_tests':'FOUNDATION_RESTART_PREPARED:','kingdom_smp_foundation_tests':'FOUNDATION_ASSERTIONS_PASSED:','kingdom_smp_hunt_tests':'HUNT_ASSERTIONS_PASSED:','kingdom_smp_farmer_loop_tests':'FARMER_FULL_LOOP_ASSERTIONS_PASSED:','kingdom_smp_gear_shop_tests':'FARMER_GEAR_SHOP_ASSERTIONS_PASSED:','kingdom_smp_farmer_gear_tests':'FARMER_GEAR_ASSERTIONS_PASSED:','kingdom_smp_bounty_tests':'BOUNTY_ASSERTIONS_PASSED:','kingdom_smp_farmer_events_tests':'FARMER_EVENTS_ASSERTIONS_PASSED:','kingdom_smp_farmer_tests':'FARMER_QUEST_ASSERTIONS_PASSED:','kingdom_smp_tree_tests':'NATIVE_TREE_ASSERTIONS_PASSED:','kingdom_smp_retained_tests':'RETAINED_BUILDING_ASSERTIONS_PASSED:','kingdom_smp_woodland_tests':'PROFESSION_COMMISSION_ASSERTIONS_PASSED:','kingdom_smp_commission_tests':'PROFESSION_COMMISSION_ASSERTIONS_PASSED:','kingdom_smp_profession_tests':'PROFESSION_CONTRACT_ASSERTIONS_PASSED:','kingdom_smp_crop_tests':'CROP_RECOVERY_ASSERTIONS_PASSED:','kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
+marker={'kingdom_smp_alpha_aircraft_tests':'ALPHA_AERODROME_PARTIAL_PASSED:','kingdom_smp_sandbox_tests':'SANDBOX_NATIVE_PASSED:','kingdom_smp_early_tier_tests':'EARLY_TIERS_NATIVE_PASSED:','kingdom_smp_builder_master_tests':'BUILDER_MASTER_INTERIOR_NATIVE_PASSED:','kingdom_smp_chunk_unload_tests':'CHUNK_UNLOAD_NATIVE_PASSED:','kingdom_smp_alchemy_tests':'ALCHEMY_PENDING_PREPARED:','kingdom_smp_master_forestry_tests':'MASTER_FORESTRY_NATIVE_PASSED:','kingdom_smp_profession_production_tests':'PROFESSION_PRODUCTION_PASSED:','kingdom_smp_premises_tests':'PROFESSION_PREMISES_PREPARED:','kingdom_smp_resident_name_tests':'RESIDENT_NAME_PREPARED:','kingdom_smp_title_tests':'TITLE_SELECTION_PREPARED:','kingdom_smp_scout_tests':'SCOUT_PARTIAL_PREPARED:','kingdom_smp_aircraft_fuel_tests':'AIRCRAFT_FUEL_PREPARED:','kingdom_smp_cargo_journey_tests':'CARGO_JOURNEY_PARTIAL_PREPARED:','kingdom_smp_cargo_receipt_tests':'CARGO_RESERVATION_PREPARED:','kingdom_smp_flight_tests':'FLIGHT_PARTIAL_PREPARED:','kingdom_smp_aircraft_repair_tests':'AIRCRAFT_REPAIR_PENDING_PREPARED:','kingdom_smp_aircraft_sales_tests':'AIRCRAFT_SALES_PREPARED:','kingdom_smp_space_tests':'SPACE_FLOOR_PREPARED:','kingdom_smp_aircraft_packet_tests':'AIRCRAFT_PACKETS_PREPARED:','kingdom_smp_aircraft_restore_tests':'AIRCRAFT_RESTORE_PREPARED:','kingdom_smp_aircraft_tests':'AIRCRAFT_PREPARED:','kingdom_smp_waystone_tests':'WAYSTONE_PREPARED:','kingdom_smp_quest_tests':'FTB_SETTLEMENT_PREPARED:','kingdom_smp_travel_tests':'TRAVEL_PREPARED:','kingdom_smp_archive_tests':'ARCHIVE_PREPARED:','kingdom_smp_wharf_tests':'WHARF_ASSERTIONS_PASSED:','kingdom_smp_hut_foundation_tests':'HUT_FOUNDATION_PREPARED:','kingdom_smp_foundation_resume_tests':'FOUNDATION_RESTART_PREPARED:','kingdom_smp_foundation_tests':'FOUNDATION_ASSERTIONS_PASSED:','kingdom_smp_hunt_tests':'HUNT_ASSERTIONS_PASSED:','kingdom_smp_farmer_loop_tests':'FARMER_FULL_LOOP_ASSERTIONS_PASSED:','kingdom_smp_gear_shop_tests':'FARMER_GEAR_SHOP_ASSERTIONS_PASSED:','kingdom_smp_farmer_gear_tests':'FARMER_GEAR_ASSERTIONS_PASSED:','kingdom_smp_bounty_tests':'BOUNTY_ASSERTIONS_PASSED:','kingdom_smp_farmer_events_tests':'FARMER_EVENTS_ASSERTIONS_PASSED:','kingdom_smp_farmer_tests':'FARMER_QUEST_ASSERTIONS_PASSED:','kingdom_smp_tree_tests':'NATIVE_TREE_ASSERTIONS_PASSED:','kingdom_smp_retained_tests':'RETAINED_BUILDING_ASSERTIONS_PASSED:','kingdom_smp_woodland_tests':'PROFESSION_COMMISSION_ASSERTIONS_PASSED:','kingdom_smp_commission_tests':'PROFESSION_COMMISSION_ASSERTIONS_PASSED:','kingdom_smp_profession_tests':'PROFESSION_CONTRACT_ASSERTIONS_PASSED:','kingdom_smp_crop_tests':'CROP_RECOVERY_ASSERTIONS_PASSED:','kingdom_smp_townhall_tests':'TOWN_HALL_TEST_ASSERTIONS_PASSED:','kingdom_smp_commerce_tests':'COMMERCE_TEST_ASSERTIONS_PASSED:','kingdom_smp_claim_tests':'CLAIM_TEST_ASSERTIONS_PASSED:','kingdom_smp_bank_tests':'BANK_TEST_ASSERTIONS_PASSED:','kingdom_smp_market_tests':'MARKET_TEST_ASSERTIONS_PASSED:','kingdom_smp_auction_tests':'AUCTION_TEST_ASSERTIONS_PASSED:'}[args.namespace]
 root = Path(__file__).resolve().parent.parent
 subprocess.run(['python3', str(root / 'scripts/download-claim-test-mods.py')], check=True)
 if args.namespace in ('kingdom_smp_aircraft_tests','kingdom_smp_aircraft_restore_tests','kingdom_smp_aircraft_packet_tests','kingdom_smp_aircraft_sales_tests','kingdom_smp_resident_name_tests','kingdom_smp_title_tests','kingdom_smp_scout_tests','kingdom_smp_aircraft_fuel_tests','kingdom_smp_cargo_journey_tests','kingdom_smp_cargo_receipt_tests','kingdom_smp_flight_tests','kingdom_smp_aircraft_repair_tests'):
@@ -78,6 +81,22 @@ if args.namespace == 'kingdom_smp_quest_tests':
 if args.namespace == 'kingdom_smp_travel_tests':
     subprocess.run(['python3', str(root / 'scripts/download-dimension-test-mods.py'), '--destination', args.mods], check=True)
 fixture = Path(tempfile.mkdtemp(prefix='claim-server.', dir=root / 'work'))
+if args.seed_alpha_world:
+    import fcntl, shutil
+    source=args.seed_alpha_world.resolve()
+    if args.namespace!='kingdom_smp_alpha_aircraft_tests' or args.seed_profession_world or args.seed_builder_world or args.seed_master_forestry_world or args.seed_aircraft_restore_world or source.parent!=(root/'work').resolve() or not source.name.startswith('claim-server.'):
+        raise SystemExit('Only a stopped private earned Tier6 fixture may seed this acceptance test')
+    accepted = 'EARLY_TIERS_RESTART_PASSED:' in (source/'logs/latest.log').read_text()
+    if args.resume_alpha_aircraft:
+        accepted = (source/'claims-fixture/alpha-aerodrome-test.nbt').is_file() and (source/'execution-1.log').is_file() and 'ALPHA_AERODROME_PARTIAL_PASSED:' in (source/'execution-1.log').read_text()
+    if not accepted or not (source/'claims-fixture/data/kingdomsmp_early_tiers/tier_5/kingdomsmp_tier_two.dat').is_file():
+        raise SystemExit('Source lacks actual earned Tier6 restart evidence')
+    with (source/'claims-fixture/session.lock').open('r+b') as lock:
+        fcntl.lockf(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        shutil.copytree(source,fixture,dirs_exist_ok=True)
+        fcntl.lockf(lock,fcntl.LOCK_UN)
+elif args.namespace=='kingdom_smp_alpha_aircraft_tests':
+    raise SystemExit('Pass --seed-alpha-world with a verified earned Tier6 source')
 if args.seed_builder_world:
     import fcntl, shutil
     source=args.seed_builder_world.resolve()
@@ -166,6 +185,12 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.master_elixirs:
+    if args.namespace != 'kingdom_smp_alchemy_tests' or not args.seed_profession_world:
+        raise SystemExit('Master elixirs require genuine full16Alchemist private source and exact mods')
+    init=fixture/'master-elixirs.init.gradle'
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testMasterElixirs','true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.alchemy_assessment:
     if args.namespace != 'kingdom_smp_alchemy_tests' or not args.seed_profession_world:
         raise SystemExit('Alchemy assessment requires actual14proof Alchemist private stopped source and exact required mods')
@@ -383,6 +408,9 @@ if args.bee_jobs or args.bee_reagents:
     print('Private Productive Bees QA timing: extra native hive ticks only; actual bee AI/forage/full quantities/materials unchanged',flush=True)
 print(f'Isolated claim fixture: {fixture}', flush=True)
 restart_markers = {
+    'kingdom_smp_alpha_aircraft_tests': ['ALPHA_AERODROME_PARTIAL_PASSED:', 'ALPHA_AERODROME_COMPLETE_PASSED:', 'ALPHA_AERODROME_RESTART_PASSED:'],
+    'kingdom_smp_sandbox_tests': ['SANDBOX_NATIVE_PASSED:', 'SANDBOX_RESTART_PASSED:'],
+    'kingdom_smp_early_tier_tests': ['EARLY_TIERS_NATIVE_PASSED:', 'EARLY_TIERS_RESTART_PASSED:'],
     'kingdom_smp_resident_name_tests': ['RESIDENT_NAME_PREPARED:', 'RESIDENT_NAME_CONSTRUCTED:', 'RESIDENT_NAME_RESTART_VERIFIED:'],
     'kingdom_smp_title_tests': ['TITLE_SELECTION_PREPARED:', 'TITLE_RESTART_VERIFIED:'],
     'kingdom_smp_scout_tests': ['SCOUT_PARTIAL_PREPARED:', 'SCOUT_REWARD_PREPARED:', 'SCOUT_RESTART_VERIFIED:'],
@@ -404,6 +432,10 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.resume_alpha_aircraft:
+    if args.namespace!='kingdom_smp_alpha_aircraft_tests' or not args.seed_alpha_world:
+        raise SystemExit('Resume requires the guarded native partial Aerodrome source')
+    markers=markers[1:]
 if args.namespace=="kingdom_smp_chunk_unload_tests":
     markers=["CHUNK_UNLOAD_NATIVE_PASSED:","CHUNK_UNLOAD_RESTART_PASSED:"]
 if args.stage_resident_name_preview:
@@ -430,7 +462,9 @@ if args.namespace == 'kingdom_smp_master_forestry_tests':
     markers = ['MASTER_FORESTRY_RESTART_PASSED:'] if args.seed_master_forestry_world and 'original19earned3300XP' in (args.seed_master_forestry_world.resolve()/'logs/latest.log').read_text() else [marker,'MASTER_FORESTRY_RESTART_PASSED:']
 if args.alchemy_assessment:
     markers=['ALCHEMY_ASSESSMENT_NATIVE_PASSED:','ALCHEMY_ASSESSMENT_RESTART_PASSED:']
-if args.namespace == 'kingdom_smp_alchemy_tests' and not args.alchemy_assessment:
+if args.master_elixirs:
+    markers=['MASTER_ELIXIRS_NATIVE_PASSED:','MASTER_ELIXIRS_RESTART_PASSED:']
+if args.namespace == 'kingdom_smp_alchemy_tests' and not args.alchemy_assessment and not args.master_elixirs:
     markers = ['REAGENT_CROP_PENDING_PASSED:','REAGENT_CROP_NATIVE_PASSED:','REAGENT_CROP_RESTART_PASSED:'] if args.alchemy_reagents else ['ALCHEMY_MIXED_NATIVE_PASSED:','ALCHEMY_MIXED_RESTART_PASSED:'] if args.alchemy_mixed else ['ALCHEMY_RESTART_PASSED:'] if args.alchemy_restore else ['ALCHEMY_JOURNEYMAN_NATIVE_PASSED:','ALCHEMY_JOURNEYMAN_RESTART_PASSED:'] if args.alchemy_journeyman else [marker,'ALCHEMY_APPRENTICE_NATIVE_PASSED:','ALCHEMY_RESTART_PASSED:']
 if args.namespace == 'kingdom_smp_townhall_tests':
     markers = [marker, 'TOWN_HALL_RESTART_VERIFIED:']
@@ -511,7 +545,7 @@ for cycle, marker in enumerate(markers):
                 log.write(line); log.flush()
                 if 'Done (' in line and not started:
                     started = True
-                    test_origin = '-128 80 -128' if args.seed_builder_world or args.seed_aircraft_restore_world or args.seed_profession_world or args.seed_master_forestry_world or len(markers)>1 and cycle>0 else '0 80 0'
+                    test_origin = '-128 80 -128' if args.seed_alpha_world or args.seed_builder_world or args.seed_aircraft_restore_world or args.seed_profession_world or args.seed_master_forestry_world or len(markers)>1 and cycle>0 else '0 80 0'
                     process.stdin.write(f'execute positioned {test_origin} run test runall\n'); process.stdin.flush()
                 if marker in line:
                     passed = True

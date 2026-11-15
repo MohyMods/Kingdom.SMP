@@ -86,6 +86,7 @@ public final class ConstructionService {
         return hall(p)||purchased(p)?WorldProgression.get(server).resident(p.id(),BlueprintRegistry.defaultResident(p.blueprint())):hut(p)?"Aldric Stonehand":"Mira Ashford";
     }
     private static void requireTier(MinecraftServer server,Project p){
+        if(purchased(p)&&BlueprintRegistry.requiredTier(p.blueprint())>6)throw new IllegalStateException(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage());
         if(purchased(p)&&ContributionService.kingdom(server).attainedTier()<BlueprintRegistry.requiredTier(p.blueprint()))
             throw new IllegalStateException(BlueprintRegistry.title(p.blueprint())+" requires Kingdom Tier "+BlueprintRegistry.requiredTier(p.blueprint())+".");
     }

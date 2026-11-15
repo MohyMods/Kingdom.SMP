@@ -29,6 +29,21 @@ class BuilderHutBlueprintTest {
     }
 
     @Test
+    void hutUsesSameSafeFurnitureAndDerivedStateRulesAsConstruction() {
+        var chair=Blocks.SPRUCE_STAIRS.defaultBlockState();
+        assertTrue(BuilderHutService.matchesRequired(chair.setValue(BlockStateProperties.STAIRS_SHAPE,
+            net.minecraft.world.level.block.state.properties.StairsShape.INNER_LEFT),chair));
+        assertFalse(BuilderHutService.matchesRequired(chair.setValue(BlockStateProperties.HORIZONTAL_FACING,Direction.SOUTH),chair));
+        assertFalse(BuilderHutService.matchesRequired(Blocks.AIR.defaultBlockState(),chair));
+        assertFalse(BuilderHutService.matchesRequired(Blocks.OAK_STAIRS.defaultBlockState(),chair));
+        var barrel=Blocks.BARREL.defaultBlockState();
+        assertTrue(BuilderHutService.matchesRequired(barrel.setValue(BlockStateProperties.OPEN,true),barrel));
+        var furnace=Blocks.FURNACE.defaultBlockState();
+        assertTrue(BuilderHutService.matchesRequired(furnace.setValue(BlockStateProperties.LIT,true),furnace));
+        assertFalse(BuilderHutService.matchesRequired(Blocks.BLAST_FURNACE.defaultBlockState(),furnace));
+    }
+
+    @Test
     void structureHasUniqueBoundedPlacementsAndFullSolidFoundationInEveryRotation() {
         BuilderHutBlueprint blueprint = BuilderHutBlueprint.create();
         for (Rotation rotation : Rotation.values()) {

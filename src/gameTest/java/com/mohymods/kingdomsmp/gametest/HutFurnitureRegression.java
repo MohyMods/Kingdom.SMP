@@ -16,6 +16,14 @@ final class HutFurnitureRegression {
   h.assertTrue(owner.containerMenu!=owner.inventoryMenu,"Native Hut crafting table opens a usable crafting menu");owner.containerMenu.getSlot(1).set(new ItemStack(Items.DIAMOND,3));owner.closeContainer();
   if(net.neoforged.fml.ModList.get().isLoaded("visualworkbench")){h.assertTrue(!level.getBlockState(table).is(Blocks.CRAFTING_TABLE),"Actual Visual Workbench use converts the vanilla table identity");h.assertTrue(level.getBlockEntity(table)!=null,"Converted table retains its own native inventory entity");}
   h.assertTrue(BuilderHutService.structureIntact(level,hut),"Normal native table use preserves Hut integrity: "+BuilderHutService.integrityReport(level,hut));
+  // Real native neighbour updates can turn the seat into a corner without removing it.
+  var chair=hut.origin().offset(b.rotateOffset(new BlockPos(3,1,3),hut.rotation()));
+  var adjacent=hut.origin().offset(b.rotateOffset(new BlockPos(3,1,4),hut.rotation()));
+  h.assertTrue(level.getBlockState(adjacent).isAir(),"Fixture only uses empty space beside the original seat");
+  level.setBlock(adjacent,Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING,hut.rotation().rotate(Direction.WEST)),3);
+  h.assertTrue(level.getBlockState(chair).getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.STAIRS_SHAPE)!=net.minecraft.world.level.block.state.properties.StairsShape.STRAIGHT,"Actual neighbour update produces native corner shape");
+  h.assertTrue(BuilderHutService.structureIntact(level,hut),"Derived seat shape cannot suspend Aldric or Town Hall construction");
+  level.removeBlock(adjacent,false);
   var npc=(com.mohymods.kingdomsmp.npc.AldricEntity)level.getEntity(hut.npcId());owner.moveTo(npc.getX()+1,npc.getY(),npc.getZ());h.assertTrue(BuilderHutService.canInteract(owner,npc),"Original registered Aldric remains available after actual table use");
   if(net.neoforged.fml.ModList.get().isLoaded("visualworkbench")){owner.moveTo(table.getX()-1.5,table.getY(),table.getZ()+.5);owner.gameMode.useItemOn(owner,level,ItemStack.EMPTY,InteractionHand.MAIN_HAND,new BlockHitResult(Vec3.atCenterOf(table),Direction.UP,table,false));h.assertTrue(owner.containerMenu.getSlot(1).getItem().is(Items.DIAMOND)&&owner.containerMenu.getSlot(1).getItem().getCount()==3,"Integrity comparison does not replace converted table or lose retained grid items");owner.closeContainer();}
  }

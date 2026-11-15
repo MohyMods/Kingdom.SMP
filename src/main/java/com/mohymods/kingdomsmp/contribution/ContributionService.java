@@ -48,7 +48,7 @@ public final class ContributionService {
     public static KingdomState kingdom(MinecraftServer server) {
         KingdomState baseline = KingdomSavedData.get(server).snapshot();
         var progress = ledger(server).progress();
-        return new KingdomState(baseline.schemaVersion(), Math.addExact(progress.revision(),com.mohymods.kingdomsmp.building.ConstructionService.royal(server)?com.mohymods.kingdomsmp.progression.TierTwoService.ledger(server).revision():0), Math.max(Math.max(baseline.attainedTier(), progress.complete() ? 2 : 1),com.mohymods.kingdomsmp.progression.TierTwoService.attainedTier(server)));
+        return new KingdomState(baseline.schemaVersion(), Math.addExact(progress.revision(),com.mohymods.kingdomsmp.building.ConstructionService.royal(server)?Math.addExact(com.mohymods.kingdomsmp.progression.TierTwoService.ledger(server).revision(),com.mohymods.kingdomsmp.progression.EarlyTierService.revision(server)):0), Math.max(Math.max(baseline.attainedTier(), progress.complete() ? 2 : 1),com.mohymods.kingdomsmp.progression.TierTwoService.attainedTier(server)));
     }
     public static int eligible(ServerPlayer player, Resource resource) {
         int amount = 0;

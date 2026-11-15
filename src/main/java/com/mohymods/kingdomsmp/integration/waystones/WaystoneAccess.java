@@ -65,7 +65,7 @@ public final class WaystoneAccess {
             if(tier<WaystoneRules.UNLOCK_TIER){((ICancellableEvent)event).setCanceled(true);notice(entity,locked(WaystoneRules.UNLOCK_TIER,tier));return;}
             var target=targetOf.invoke(context);if(target==null)throw new IllegalStateException("Missing Waystone destination");
             var dimension=(ResourceKey<?>)dimensionOf.invoke(target);String id=dimension.location().toString();
-            if(!WaystoneRules.allowed(tier,id)){((ICancellableEvent)event).setCanceled(true);notice(entity,KingdomTravelRules.name(id)+" opens at kingdom Tier "+WaystoneRules.requiredTier(id)+". Current tier: "+tier+".");}
+            if(!(com.mohymods.kingdomsmp.kingdom.AlphaScope.serviceAvailable(WaystoneRules.UNLOCK_TIER)&&WaystoneRules.allowed(tier,id)&&com.mohymods.kingdomsmp.kingdom.AlphaScope.destinationAvailable(tier,id))){((ICancellableEvent)event).setCanceled(true);notice(entity,KingdomTravelRules.name(id)+" opens at kingdom Tier "+WaystoneRules.requiredTier(id)+". Current tier: "+tier+".");}
         }catch(ReflectiveOperationException|RuntimeException error){((ICancellableEvent)event).setCanceled(true);LogUtils.getLogger().error("Waystone travel refused because authoritative validation failed",error);}
     }
     private static void commit(Event event){
@@ -73,7 +73,7 @@ public final class WaystoneAccess {
             var entity=(Entity)commitEntity.invoke(event);var server=entity.getServer();if(server==null)return;
             var target=(net.minecraft.server.level.ServerLevel)commitLevel.invoke(event);
             int tier=server.isSameThread()?ContributionService.kingdom(server).attainedTier():1;
-            String id=target.dimension().location().toString();if(WaystoneRules.allowed(tier,id))return;
+            String id=target.dimension().location().toString();if((com.mohymods.kingdomsmp.kingdom.AlphaScope.serviceAvailable(WaystoneRules.UNLOCK_TIER)&&WaystoneRules.allowed(tier,id)&&com.mohymods.kingdomsmp.kingdom.AlphaScope.destinationAvailable(tier,id)))return;
             ((ICancellableEvent)event).setCanceled(true);
             overrideResult.invoke(event,failedResult.invoke(null,entity,commitOriginal.invoke(event),cancelledError.newInstance()));
             if(server.isSameThread())notice(entity,WaystoneRules.requiredTier(id)==9?locked(9,tier):KingdomTravelRules.name(id)+" opens at kingdom Tier "+WaystoneRules.requiredTier(id)+". Current tier: "+tier+".");
@@ -90,9 +90,9 @@ public final class WaystoneAccess {
     }
     private static void denyEarlyUse(PlayerInteractEvent event){
         var server=event.getEntity().getServer();if(server==null)return;
-        int tier=ContributionService.kingdom(server).attainedTier();if(tier>=WaystoneRules.UNLOCK_TIER)return;
+        int tier=ContributionService.kingdom(server).attainedTier();if(tier>=WaystoneRules.UNLOCK_TIER&&com.mohymods.kingdomsmp.kingdom.AlphaScope.serviceAvailable(WaystoneRules.UNLOCK_TIER))return;
         ((ICancellableEvent)event).setCanceled(true);notice(event.getEntity(),locked(WaystoneRules.UNLOCK_TIER,tier));
     }
-    private static String locked(int required,int current){return "Waystones open at kingdom Tier "+required+". Current tier: "+current+".";}
+    private static String locked(int required,int current){return required>6?com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage():"Waystones open at kingdom Tier "+required+". Current tier: "+current+".";}
     private static void notice(Entity entity,String message){if(entity instanceof ServerPlayer player&&player.server.getPlayerList().getPlayer(player.getUUID())==player)player.displayClientMessage(Component.literal(message),true);}
 }

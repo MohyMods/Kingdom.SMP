@@ -176,12 +176,12 @@ public final class BuilderDialogueScreen extends Screen {
 
     private List<Component> paragraphs() {
         return switch (snapshot.topic()) {
-            case 1 -> List.of(text("FOUNDERS’ LODGE · TIER 2"),
+            case 1 -> List.of(text(snapshot.royalHall()?"TOWN HALL · TIER 2":"FOUNDERS’ LODGE · LEGACY KINGDOM"),
                     text(snapshot.hearthComplete() ? "First Hearth milestone complete." : "Locked reward • Complete The First Hearth."),
-                    text("The highest contributor earns the exclusive Founders’ Lodge construction privilege. Materials are included; the completed hall belongs to the kingdom."),
+                    text("The highest contributor earns the exclusive "+(snapshot.royalHall()?"Town Hall":"Founders’ Lodge")+" construction privilege. Materials are included; the completed building belongs to the kingdom."),
                     text("Shared milestone: 1,024 logs • 2,048 cobblestone • 512 wheat • 128 iron ingots."),
                     text("Each category has equal weight. Ties go to the first player to reach the tied score."),
-                    text("Open Construction below to claim or recover the winning plan, propose a site and follow Aldric's work. Administrator site approval is required. Town Hall remains Tier 12."));
+                    text("Open Construction below to claim or recover the winning plan, propose a site and follow Aldric's work. The complete site must pass server validation and the applicable approval policy. Existing buildings and records are preserved."));
             case 2 -> List.of(text("CURRENT WORK"), text(snapshot.status()),
                     text("The hut is my home and workshop. Construction shows the actual project and any pause reason."));
             case 3 -> List.of(text("BUILD TIME"), text(snapshot.status()),

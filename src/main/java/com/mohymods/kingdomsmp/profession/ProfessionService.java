@@ -14,6 +14,7 @@ public final class ProfessionService {
     public record Quote(UUID nonce,long revision,String action,String from,String to,long fee,long issued,String text){ }
     private static final Map<ServerPlayer,Quote> QUOTES=new WeakHashMap<>();
     private static final ProfessionQuestCatalog QUESTS=ProfessionQuestService.catalog();
+    private static final ProfessionQuestCatalog PRESENTATION=ProfessionQuestService.presentationCatalog();
     private ProfessionService(){ }
     public static void close(ServerPlayer p){QUOTES.remove(p);EnchantedToolService.close(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
     public static void initialize(MinecraftServer server){ProfessionRules.clear(server);LibraryQuestRules.clear(server);RepairQuestRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
@@ -26,6 +27,8 @@ public final class ProfessionService {
     }
     private static void requireBuilding(ServerPlayer p,Profession profession){if(!available(p,profession))throw new IllegalStateException("Complete and maintain the "+name(profession)+" profession building first.");}
     public static Quote review(ServerPlayer p,String selected)throws IOException{
+        int separator=selected.indexOf(':');
+        if(separator>=0&&com.mohymods.kingdomsmp.kingdom.AlphaScope.futureQuest(selected.substring(separator+1)))throw new IllegalStateException(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage());
         CommerceService.requireResidentCounter(p);var s=CommerceService.store(p.server);
         if(selected.startsWith("gear:")){
             var gear=com.mohymods.kingdomsmp.equipment.FarmerGearService.review(p,selected.substring(5));var q=new Quote(gear.nonce(),gear.revision(),"gear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;
@@ -77,8 +80,15 @@ public final class ProfessionService {
             result.add(new CommerceView.Entry("learn:"+profession.id(),name(profession),active?"Active "+rankName(roster.rank(profession,QUESTS))+". XP "+String.format(Locale.ROOT,"%,d",roster.track(profession).xp())+"; quests "+roster.track(profession).completedQuestIds().size()+"/24. Only active professions grant bonuses. "+(QUESTS.definitions().values().stream().anyMatch(d->d.profession()==profession)?"Select an objective below to see your progress.":"Quest progression for this profession is not yet available."):!eligible?"Requires its completed, intact profession building.":roster.active().size()>=3?"Three professions are active. Select a replacement below for 15,000 coins. Inactive progress is kept.":"The first three professions you learn are free. Switching or reactivating costs 15,000 coins. You may have up to three active professions.",fee,active?"PROF_ACTIVE":eligible&&roster.active().size()<3?"PROF_ENROLL":"LOCKED"));
         }
         for(var from:Profession.values())if(roster.isActive(from))for(var to:Profession.values())if(!roster.isActive(to)&&available(p,to))result.add(new CommerceView.Entry("switch:"+from.id()+":"+to.id(),name(from)+" → "+name(to),"Replace this active profession for 15,000 coins. Its XP and completed quests are kept, but its bonuses stop.",15000,"PROF_SWITCH"));
-        for(var definition:QUESTS.visibleFor(roster.active()).stream().sorted(Comparator.comparing(ProfessionQuestCatalog.Definition::id)).toList()){
+        for(var role:roster.active())if(!com.mohymods.kingdomsmp.kingdom.AlphaScope.selected(role))result.add(new CommerceView.Entry(
+            "future_ranks:"+role.id(),name(role)+" · Future ranks",
+            "COMING SOON — Unfinished ranks, abilities and equipment are deferred. Existing working early content and all saved progress remain usable.",0,"COMING_SOON"));
+        for(var definition:PRESENTATION.visibleFor(roster.active()).stream().sorted(Comparator.comparing(ProfessionQuestCatalog.Definition::id)).toList()){
             var id=definition.id();var role=definition.profession();boolean done=roster.track(role).completedQuestIds().contains(id);
+            if(!ProfessionQuestService.implemented(id)||com.mohymods.kingdomsmp.kingdom.AlphaScope.futureQuest(id)) {
+                result.add(new CommerceView.Entry("quest:"+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":"COMING_SOON"));
+                continue;
+            }
             boolean smithing=SmithingQuestService.QUEST.equals(id)&&SmithingQuestService.eligible(p);
             boolean enchanted=(NativeOutputQuests.contains(id)&&NativeOutputQuests.consume(id))&&NativeOutputQuests.eligible(p,id,true);
             boolean apiary=ApiaryJobs.eligible(p,id)&&!ApiaryJobs.ready(p,id);
@@ -88,6 +98,9 @@ public final class ProfessionService {
             boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());
             result.add(new CommerceView.Entry((choose?(apiary?"track_apiary:":"track_output:"):smithing?"smithing:":enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),rankName(definition.rank())+" objective "+definition.ordinal()+". "+ProfessionQuestService.status(p,id),0,done?"COMPLETE":choose?"PROF_TARGET":smithing?"PROF_REGISTRATION":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
         }
+        for(var role:roster.active())if(role!=Profession.FARMER)result.add(new CommerceView.Entry(
+            "equipment_future:"+role.id(),name(role)+" Master equipment",
+            "MASTER EQUIPMENT — Coming Soon. Purchase and use are not implemented; no coins are accepted. Existing profession progress is retained.",0,"COMING_SOON"));
         result.addAll(com.mohymods.kingdomsmp.equipment.FarmerGearService.entries(p));
         return List.copyOf(result);
     }

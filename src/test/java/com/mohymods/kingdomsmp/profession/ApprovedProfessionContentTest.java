@@ -25,9 +25,20 @@ class ApprovedProfessionContentTest {
         }
         assertEquals(304,rows.values().stream().mapToInt(d->d.prerequisites().size()).sum());
         assertEquals(24,FarmerQuests.catalog().definitions().size());
-        assertEquals(179,ProfessionQuestService.catalog().definitions().size());
+        assertEquals(180,ProfessionQuestService.catalog().definitions().size());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:mechanic/m08").isEmpty());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/a01").isPresent());
+    }
+    @Test void presentationOfUnfinishedSlotsDoesNotActivateThemOrGrantRank() {
+        var presentation=ProfessionQuestService.presentationCatalog();
+        assertEquals(288,presentation.definitions().size());
+        var id="kingdom_smp:librarian/m08";
+        assertTrue(presentation.definition(id).isPresent());
+        assertFalse(ProfessionQuestService.implemented(id));
+        assertTrue(ProfessionQuestService.status(null,id).contains("COMING SOON"));
+        assertEquals("Master librarian assessment",ProfessionQuestService.title(id));
+        assertFalse(ProfessionQuestService.ready(null,id));
+        assertEquals(ProfessionRank.APPRENTICE,ProfessionQuestService.catalog().rank(Profession.LIBRARIAN,Set.of()));
     }
     @Test void changedBaselineMissingSlotAndUnknownValidatorFailClosed()throws Exception{
         String original=bundled();

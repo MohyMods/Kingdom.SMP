@@ -9,7 +9,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 public record BuilderDialoguePayload(UUID npcId, String name, String status, int topic,
-                                     boolean hearthComplete, long requestId) implements CustomPacketPayload {
+                                     boolean hearthComplete, long requestId, boolean royalHall) implements CustomPacketPayload {
+    public BuilderDialoguePayload(UUID npcId,String name,String status,int topic,boolean hearthComplete,long requestId) {
+        this(npcId,name,status,topic,hearthComplete,requestId,false);
+    }
     public BuilderDialoguePayload {
         Objects.requireNonNull(npcId);
         Objects.requireNonNull(name);
@@ -29,7 +32,8 @@ public record BuilderDialoguePayload(UUID npcId, String name, String status, int
                 buffer.writeVarInt(payload.topic());
                 buffer.writeBoolean(payload.hearthComplete());
                 buffer.writeVarLong(payload.requestId());
+                buffer.writeBoolean(payload.royalHall());
             }, buffer -> new BuilderDialoguePayload(buffer.readUUID(), buffer.readUtf(48), buffer.readUtf(256),
-                    buffer.readVarInt(), buffer.readBoolean(), buffer.readVarLong()));
+                    buffer.readVarInt(), buffer.readBoolean(), buffer.readVarLong(), buffer.readBoolean()));
     @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

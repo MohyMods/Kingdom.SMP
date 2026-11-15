@@ -57,7 +57,7 @@ public record ConstructionBlueprint(ResourceLocation id, int version, int width,
                 ||block instanceof net.minecraft.world.level.block.WallBlock&&java.util.Set.of("north","south","east","west","up").contains(name)
                 ||block instanceof net.minecraft.world.level.block.StairBlock&&name.equals("shape"))current=normalize(current,expected,property);
         }
-        return BuilderHutService.matchesRequired(current, expected);
+        return BuilderHutService.matchesFurnitureState(current, expected);
     }
     private static boolean vanillaAnvil(BlockState state){return java.util.Set.of(net.minecraft.world.level.block.Blocks.ANVIL,net.minecraft.world.level.block.Blocks.CHIPPED_ANVIL,net.minecraft.world.level.block.Blocks.DAMAGED_ANVIL).contains(state.getBlock());}
     private static <T extends Comparable<T>> BlockState normalize(BlockState current,BlockState expected,net.minecraft.world.level.block.state.properties.Property<T> property){return current.setValue(property,expected.getValue(property));}

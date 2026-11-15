@@ -18,6 +18,10 @@ class BuilderDialoguePayloadTest {
             var response = new BuilderDialoguePayload(NPC, "Aldric Stonehand", "Routine paused: path blocked.", 4, false, Long.MAX_VALUE);
             BuilderDialoguePayload.STREAM_CODEC.encode(buffer, response);
             assertEquals(response, BuilderDialoguePayload.STREAM_CODEC.decode(buffer));
+            var fresh=new BuilderDialoguePayload(NPC,"Aldric Stonehand","Town Hall progression",1,true,42,true);
+            BuilderDialoguePayload.STREAM_CODEC.encode(buffer,fresh);
+            var decoded=BuilderDialoguePayload.STREAM_CODEC.decode(buffer);
+            assertEquals(fresh,decoded);assertTrue(decoded.royalHall());assertFalse(response.royalHall());
             assertEquals(0, buffer.readableBytes());
         } finally { buffer.release(); }
     }

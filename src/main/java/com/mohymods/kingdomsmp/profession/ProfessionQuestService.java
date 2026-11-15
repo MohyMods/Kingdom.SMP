@@ -31,11 +31,20 @@ public final class ProfessionQuestService {
         CATALOG=ProfessionQuestCatalog.approved(definitions);
     }
     private ProfessionQuestService() { }
+    /** Presentation only. These slots must never become the rank or evidence catalogue. */
+    public static ProfessionQuestCatalog presentationCatalog() {
+        var rows=new ArrayList<>(FarmerQuests.catalog().definitions().values());
+        rows.addAll(ApprovedProfessionContent.definitions().values().stream().map(ApprovedProfessionContent.Definition::slot).toList());
+        return ProfessionQuestCatalog.approved(rows);
+    }
+    public static boolean implemented(String id) { return CATALOG.definitions().containsKey(id); }
+
     public static ProfessionQuestCatalog catalog() { return CATALOG; }
-    public static String title(String id) { if(MineAccessService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(EncounterQuests.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(NativeOreQuests.contains(id))return ApprovedProfessionContent.get(id).name(); if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).name(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).name(); if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
+    public static String title(String id) { if(!implemented(id)&&ApprovedProfessionContent.definitions().containsKey(id))return ApprovedProfessionContent.get(id).name(); if(MineAccessService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(EncounterQuests.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(NativeOreQuests.contains(id))return ApprovedProfessionContent.get(id).name(); if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).name(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).name(); if(EnchantedToolService.QUEST.equals(id)||SmithingQuestService.QUEST.equals(id))return ApprovedProfessionContent.get(id).name(); if(RepairService.contains(id))return ApprovedProfessionContent.get(id).name(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).name(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).name(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).name():InspectionQuests.contains(id)?InspectionQuests.get(id).name():CommissionQuests.contains(id)?CommissionQuests.get(id).title():FarmerQuests.title(id); }
     public static long xp(String id) { if(MineAccessService.QUEST.equals(id))return 100; if(EncounterQuests.QUEST.equals(id))return 100; if(NativeOreQuests.contains(id))return ApprovedProfessionContent.get(id).xp(); if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.get(id).xp(); if(NativeOutputQuests.contains(id))return NativeOutputQuests.get(id).xp(); if(SmithingQuestService.QUEST.equals(id))return 300; if(EnchantedToolService.QUEST.equals(id))return 200; if(RepairService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(TreeQuestService.contains(id))return ApprovedProfessionContent.get(id).xp(); if(RetainedBuildingQuests.contains(id))return RetainedBuildingQuests.get(id).xp(); return CraftDeliveryQuests.contains(id)?CraftDeliveryQuests.get(id).xp():InspectionQuests.contains(id)?InspectionQuests.get(id).xp():CommissionQuests.contains(id)?CommissionQuests.xp(id):FarmerQuests.xp(id); }
     public static String status(ServerPlayer player,String id) {
-        if(id==null||!CATALOG.definitions().containsKey(id))return "This objective has no validated runtime implementation yet. Existing progress is preserved.";
+        if(id==null||!CATALOG.definitions().containsKey(id))return "COMING SOON — QUEST NOT YET AVAILABLE. This objective has no validated runtime implementation yet. Existing progress is preserved.";
+        if(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureQuest(id))return com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage();
         if(ForestReserveInspection.contains(id))return "Operator inspection of an authorized accessible community forest reserve: two maintained genuine native-planted species, current working two-species productive apiary, safe paths/lighting/replacement saplings, and your recorded six-species maturity/renewal history. Earlier earned supply and service proofs remain canonical prerequisites; placed logs and old unknown trees never substitute.";
         if(id.equals(ApiaryInspection.QUEST))return "Operator inspection: functioning flowering woodland apiary, accessible occupied native advanced hives, iron/copper forage and genuine recent production by both permitted pre-End species. Previously stocked combs never prove operation.";
         if(MineExcavation.contains(id))return "Request OP2 on-site excavation authorization before digging. Select uncleared stone/dirt away from structures and storage, retain the protected surrounding margin, then request a confirmed inspection at the original tracked mine entrance. Keep the route/lights/tool/sorting/plan and current claims intact. Final assessment also verifies your saved geology, specimens and Nether expeditions. No blocks are removed automatically.";
@@ -48,6 +57,7 @@ public final class ProfessionQuestService {
         if(MineAccessService.QUEST.equals(id))return MineAccessService.status(player);
         if(NativeOreQuests.contains(id))return NativeOreQuests.status(player,id);
         if(MerchantTransactionQuests.contains(id))return MerchantTransactionQuests.status(player,id);
+        if(BrewQuests.EXPEDITION.equals(id))return "Personally brew and permanently deliver "+BrewQuestRules.goal(player.server,id)/3+" each of healing II, swiftness II and fire resistance. Actual native reagent/fuel costs and distinct authenticated outputs required; one family cannot replace another.";
         if(BrewQuests.UNDERWATER.equals(id))return "Deliver "+BrewQuestRules.goal(player.server,id)/2+" authenticated water-breathing and "+BrewQuestRules.goal(player.server,id)/2+" night-vision potions. Personally brew both families at an idle permitted stand, pay actual reagents/fuel and collect each batch.";
         if(BrewQuests.SPLASH.equals(id))return "Deliver "+BrewQuestRules.goal(player.server,id)+" authenticated beneficial splash potions. Use native gunpowder/fuel on a supported beneficial brew and collect your own batch. Harmful, lingering and untracked potions do not count.";
         if(BrewQuests.contains(id))return "Brew and deliver "+BrewQuestRules.goal(player.server,id)+" native "+BrewQuests.get(id).output()+" potions. Load bottles, insert reagent last into an idle permitted stand, then collect your batch. Native fuel/ingredients must be paid; keep inputs unchanged until completion.";
@@ -79,6 +89,7 @@ public final class ProfessionQuestService {
         return count+" / "+CommissionQuestRules.get(player.server).goal(id)+" distinct "+d.cycle()+" contracts completed during this objective band. Deliver at the assigned profession resident; payment claims do not create extra progress.";
     }
     public static boolean ready(ServerPlayer player,String id) {
+        if(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureQuest(id))return false;
         if(id==null||!CATALOG.definitions().containsKey(id))return false;
         if(EncounterQuests.QUEST.equals(id))return EncounterQuests.ready(player);
         if(MineAccessService.QUEST.equals(id))return MineAccessService.ready(player);
@@ -98,6 +109,7 @@ public final class ProfessionQuestService {
     }
     public static void complete(ServerPlayer player,UUID operation,String id) throws IOException {
         if(id==null||!CATALOG.definitions().containsKey(id))throw new IllegalArgumentException("No validated runtime objective");
+        if(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureQuest(id))throw new IllegalStateException(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage());
         if(EncounterQuests.QUEST.equals(id)){EncounterQuests.complete(player,operation);return;}
         if(MineAccessService.QUEST.equals(id)){MineAccessService.complete(player,operation);return;}
         if(NativeOreQuests.contains(id)){NativeOreQuests.complete(player,operation,id);return;}

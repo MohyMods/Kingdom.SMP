@@ -35,7 +35,7 @@ public final class KingdomNetworking {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("15");
+        var registrar = event.registrar("16");
         com.mohymods.kingdomsmp.placement.PlacementNetworking.register(registrar);
         ConstructionNetworking.register(registrar);
         CommerceNetworking.register(registrar);
@@ -75,7 +75,7 @@ public final class KingdomNetworking {
         LAST_DIALOGUE.put(player, now);
         PacketDistributor.sendToPlayer(player, new BuilderDialoguePayload(builder.getUUID(), builder.getName().getString(),
                 BuilderHutService.statusText(player), topic,
-                ContributionService.ledger(player.server).progress().winner().isPresent(), requestId));
+                ContributionService.ledger(player.server).progress().winner().isPresent(), requestId, com.mohymods.kingdomsmp.building.ConstructionService.royal(player.server)));
     }
 
     private static void request(RequestKingdomPayload payload, IPayloadContext context) {

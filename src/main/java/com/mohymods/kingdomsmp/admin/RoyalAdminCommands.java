@@ -17,6 +17,7 @@ public final class RoyalAdminCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> commands() {
         return Commands.literal("admin").requires(source -> source.hasPermission(2))
                 .executes(context -> overview(context.getSource()))
+                .then(SandboxCommands.commands())
                 .then(Commands.literal("aircraft").then(Commands.literal("inspect").executes(c->{
                     var store=com.mohymods.kingdomsmp.economy.CommerceService.store(c.getSource().getServer());
                     line(c.getSource(),"Registered aircraft: "+store.aircraft().size()+"; buyer-owned/shared access. Inspection never grants frames or alters legacy aircraft.");
@@ -58,7 +59,8 @@ public final class RoyalAdminCommands {
                     line(c.getSource(),com.mohymods.kingdomsmp.integration.space.SpaceAccess.status());return 1;
                 })))
                 .then(Commands.literal("integrations").then(Commands.literal("ftbquests").executes(c->{for(var line:com.mohymods.kingdomsmp.integration.ftbquests.FtbQuestsIntegration.inspect(c.getSource().getServer()))c.getSource().sendSuccess(()->net.minecraft.network.chat.Component.literal(line),false);return 1;})))
-                .then(Commands.literal("inspect").executes(context -> overview(context.getSource())))
+                .then(Commands.literal("inspect").executes(context -> overview(context.getSource()))
+                .then(SandboxCommands.commands()))
                 .then(Commands.literal("construction")
                         .then(Commands.literal("inspect")
                                 .then(Commands.argument("project", UuidArgument.uuid()).executes(context -> {

@@ -22,6 +22,15 @@ import java.util.*;
 @GameTestHolder("kingdom_smp_claim_tests")
 @PrefixGameTestTemplate(false)
 public final class ClaimRuntimeTests {
+    @GameTest(template="empty",templateNamespace="kingdom_smp_alpha_aircraft_tests",timeoutTicks=10000)
+    public static void earnedAlphaAerodrome(GameTestHelper h)throws Exception{AlphaAerodromeRuntime.run(h);}
+
+    @GameTest(template="empty",templateNamespace="kingdom_smp_sandbox_tests",timeoutTicks=400)
+    public static void restrictedSandbox(GameTestHelper h)throws Exception{SandboxRuntime.run(h);}
+
+    @GameTest(template="empty",templateNamespace="kingdom_smp_early_tier_tests",timeoutTicks=10000)
+    public static void earlyKingdomMilestones(GameTestHelper h)throws Exception{EarlyTierRuntimeTests.naturalMilestones(h);}
+
     @GameTest(template="empty",templateNamespace="kingdom_smp_builder_master_tests",timeoutTicks=2000)
     public static void layeredMasterInterior(GameTestHelper h)throws Exception{BuilderMasterInteriorRuntime.run(h);}
 
