@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--alchemy-assessment',action='store_true',help='Actual weekly Alchemist service/current traced native apothecary/full Journeyman/restart')
 parser.add_argument('--mine-excavation-restore',action='store_true',help='One native restore/status/ordinary denial boot of genuinely earned full24Miner source')
 parser.add_argument('--mine-excavation',action='store_true',help='Actual prior canonical operator authority/native excavation/full24Miner/IO/archive/restart')
 parser.add_argument('--native-specimens',action='store_true',help='Actual natural Silk ore specimen harvest/native permanent grouped delivery')
@@ -165,6 +166,12 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.alchemy_assessment:
+    if args.namespace != 'kingdom_smp_alchemy_tests' or not args.seed_profession_world:
+        raise SystemExit('Alchemy assessment requires actual14proof Alchemist private stopped source and exact required mods')
+    init=fixture/'alchemy-assessment.init.gradle'
+    init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testAlchemyAssessment','true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.alchemy_reagents:
     init=fixture/'alchemy-reagents.init.gradle'
     init.write_text("allprojects { afterEvaluate { tasks.named('runServer', JavaExec).configure { systemProperty 'kingdom.testAlchemyReagents','true' } } }\n")
@@ -421,7 +428,9 @@ if args.verify_wharf_restart:
     markers = [marker, 'WHARF_RESTART_VERIFIED:']
 if args.namespace == 'kingdom_smp_master_forestry_tests':
     markers = ['MASTER_FORESTRY_RESTART_PASSED:'] if args.seed_master_forestry_world and 'original19earned3300XP' in (args.seed_master_forestry_world.resolve()/'logs/latest.log').read_text() else [marker,'MASTER_FORESTRY_RESTART_PASSED:']
-if args.namespace == 'kingdom_smp_alchemy_tests':
+if args.alchemy_assessment:
+    markers=['ALCHEMY_ASSESSMENT_NATIVE_PASSED:','ALCHEMY_ASSESSMENT_RESTART_PASSED:']
+if args.namespace == 'kingdom_smp_alchemy_tests' and not args.alchemy_assessment:
     markers = ['REAGENT_CROP_PENDING_PASSED:','REAGENT_CROP_NATIVE_PASSED:','REAGENT_CROP_RESTART_PASSED:'] if args.alchemy_reagents else ['ALCHEMY_MIXED_NATIVE_PASSED:','ALCHEMY_MIXED_RESTART_PASSED:'] if args.alchemy_mixed else ['ALCHEMY_RESTART_PASSED:'] if args.alchemy_restore else ['ALCHEMY_JOURNEYMAN_NATIVE_PASSED:','ALCHEMY_JOURNEYMAN_RESTART_PASSED:'] if args.alchemy_journeyman else [marker,'ALCHEMY_APPRENTICE_NATIVE_PASSED:','ALCHEMY_RESTART_PASSED:']
 if args.namespace == 'kingdom_smp_townhall_tests':
     markers = [marker, 'TOWN_HALL_RESTART_VERIFIED:']
