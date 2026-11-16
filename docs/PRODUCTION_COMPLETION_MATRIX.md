@@ -7,8 +7,10 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | Earned Tier1–6 transaction path | Actual full quantities/Hut/Hall/road/paid Bank/three new transitions and2JVM restore pass; resource/time/funds fixtures, not gathering-duration/full-client acceptance |
 | Aldric/workstation/Hall regression | Actual table conversion, native stair corner, original NPCs and Hall2JVM pass |
 | Six selected professions | 144 selected validated adapters; all six actual native 24-quest/4,800XP/Master loops pass. Library has explicit Tier6 alpha variants. Farmer24 unchanged; equipment/duration/client/combined-pack acceptance remains open |
+| FTB alpha guide | 175 actual loaded quests; 144 validated profession projections, 166 additive tasks, separate-reader refusal/reset/2JVM Root integrity pass; original chapter/customization preserved |
+| Combined required-mod scope | 29 exact pinned artifacts: actual fresh earnedTier1–6/2JVM and full paid Aerodrome/native use/repair/3JVM pass. Full277pack/client/default-duration acceptance remains open |
 | Six purchased usable Master rewards | Farmer verified; other5remain; unspecified Prospector/Librarian design question pending |
-| Economy | Existing transaction slices preserved; release-wide regression and natural balance remain |
+| Economy | Existing financial slices and current native service/Bank pending-transfer recovery/replay/save/permission checks pass; full release-wide balance/pack acceptance remains |
 | Aerodrome on earned Tier6 | Actual earned-Tier6/no-hangar refusal/paid plan/partial original-Aldric construction → complete furnished hangar/native boarding/damage refusal/exact repair/final restart pass; full flight/client/modpack acceptance remains |
 | Restricted sandbox | OP4/explicit test-world opt-in/supply grant/actor-bound confirmation/native save/replay/current inventory2JVM pass; other accelerators open |
 | Release package/client/required-mod acceptance | Not complete; no0.13release published |
