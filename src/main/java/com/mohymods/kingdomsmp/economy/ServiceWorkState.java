@@ -6,10 +6,11 @@ import java.util.*;
 
 /** Canonical replay projection only. Current ownership is explicitly granted, never inferred from a wearer. */
 public final class ServiceWorkState {
- public static final String SMITH="kingdom_smp:blacksmith/m05",LIBRARY="kingdom_smp:librarian/j06";
- public static boolean supported(String quest){return SMITH.equals(quest)||LIBRARY.equals(quest);}
+ public static final String SMITH="kingdom_smp:blacksmith/m05",LIBRARY="kingdom_smp:librarian/j06",LIBRARY_MASTER="kingdom_smp:librarian/m05";
+ public static boolean supported(String quest){return SMITH.equals(quest)||LIBRARY.equals(quest)||LIBRARY_MASTER.equals(quest);}
  public static Profession role(String quest){if(!supported(quest))throw new IllegalArgumentException("Unsupported service purpose");return SMITH.equals(quest)?Profession.BLACKSMITH:Profession.LIBRARIAN;}
- public static long xp(String quest){return SMITH.equals(quest)?300:200;}
+ public static long xp(String quest){return LIBRARY.equals(quest)?200:300;}
+ public static int goal(String quest){if(!supported(quest))throw new IllegalArgumentException("Unknown service purpose");return LIBRARY_MASTER.equals(quest)?4:3;}
  public record Consent(UUID id,UUID owner,UUID provider,String quest,UUID wearStore,UUID wear,CompoundTag input,boolean active,boolean returned){
   public Consent{Objects.requireNonNull(id);Objects.requireNonNull(owner);Objects.requireNonNull(provider);Objects.requireNonNull(wearStore);Objects.requireNonNull(wear);if(owner.equals(provider)||!supported(quest)||!RepairEvidence.eligible(input.getString("id"))||input.getInt("count")!=1||damage(input)<1)throw new IllegalArgumentException("Invalid current-owner service consent");var marker=input.getCompound("components").getCompound("minecraft:custom_data").getCompound(RepairService.KEY);if(!marker.hasUUID("store")||!marker.hasUUID("id")||!marker.getUUID("store").equals(wearStore)||!marker.getUUID("id").equals(wear))throw new IllegalArgumentException("Wear identity differs from the exact owner inventory item");input=input.copy();}
   @Override public CompoundTag input(){return input.copy();}

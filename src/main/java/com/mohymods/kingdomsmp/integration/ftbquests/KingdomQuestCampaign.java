@@ -27,10 +27,13 @@ public final class KingdomQuestCampaign {
         }
     }
 
-    static Result publish(Path questDirectory, byte[] content) throws IOException {
+    static Result publish(Path questDirectory, byte[] content) throws IOException { return publish(questDirectory,FILENAME,content); }
+
+    static Result publish(Path questDirectory,String filename,byte[] content) throws IOException {
+        if (!filename.matches("kingdom_smp_[a-z0-9_]+\\.snbt") || content.length < 128 || content.length > 128*1024) throw new IOException("Invalid bounded Kingdom chapter");
         Path chapters = questDirectory.resolve("chapters");
         Files.createDirectories(chapters);
-        Path target = chapters.resolve(FILENAME);
+        Path target = chapters.resolve(filename);
         if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) return existing(target, content);
         // The temporary suffix is deliberately not .snbt, so FTB never reads a partial chapter.
         Path temporary = Files.createTempFile(chapters, ".kingdom-smp-chapter-", ".tmp");

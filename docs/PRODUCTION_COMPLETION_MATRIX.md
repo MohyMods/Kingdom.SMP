@@ -6,7 +6,7 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | --- | --- |
 | Earned Tier1–6 transaction path | Actual full quantities/Hut/Hall/road/paid Bank/three new transitions and2JVM restore pass; resource/time/funds fixtures, not gathering-duration/full-client acceptance |
 | Aldric/workstation/Hall regression | Actual table conversion, native stair corner, original NPCs and Hall2JVM pass |
-| Six selected professions |137historical validated adapters; five24quest native Master loops and Library all16A/J native Master trials;144complete quests/six professions not yet satisfied; Farmer24unchanged |
+| Six selected professions | 144 selected validated adapters; all six actual native 24-quest/4,800XP/Master loops pass. Library has explicit Tier6 alpha variants. Farmer24 unchanged; equipment/duration/client/combined-pack acceptance remains open |
 | Six purchased usable Master rewards | Farmer verified; other5remain; unspecified Prospector/Librarian design question pending |
 | Economy | Existing transaction slices preserved; release-wide regression and natural balance remain |
 | Aerodrome on earned Tier6 | Actual earned-Tier6/no-hangar refusal/paid plan/partial original-Aldric construction → complete furnished hangar/native boarding/damage refusal/exact repair/final restart pass; full flight/client/modpack acceptance remains |
@@ -14,6 +14,8 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | Release package/client/required-mod acceptance | Not complete; no0.13release published |
 
 ---
+
+D109:194historical adapters/144selected; all six selected actual24quest/4800XP/Master loops pass, including explicit Tier6Library variants and canonical current-owner native service work. Full743JUnit/build passed before additive FTB work; new175quest native FTB guide/loading/all24earned Library projection/untrained refusal/reset/2JVM integrity passes. Five signatures, combined required-pack/client/duration/full release remain open.
 
 D108:187overall/137selected adapters;737JUnit/full build passes. Library j05actual four different native RARE scrolls/inspected permanent consumption/200XP/current claims/purpose/interface-close/refusals/restart pass. Cumulative Library real native books/Aether field guide/weekly service/live j08assessment→all16/2400XP/Master trials and2JVM restoration. Seven Master adapters and native Master daily acceptance/5gear paths/release remain open. See D108private sources/time-acceleration details.
 

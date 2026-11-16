@@ -15,11 +15,12 @@ class AlphaScopeTest {
   assertFalse(AlphaScope.serviceAvailable(9));assertFalse(AlphaScope.serviceAvailable(10));assertTrue(AlphaScope.serviceAvailable(6));
   assertFalse(AlphaScope.destinationAvailable(12,"ad_astra:moon"));assertTrue(AlphaScope.futureMessage().contains("Future Update"));
  }
- @Test void onlyTheValidatedOrdinaryLibraryMasterServiceMovesToAlphaSix(){
+ @Test void onlyValidatedLibraryAlphaVariantsMoveToSix(){
   assertEquals(8,ApprovedProfessionContent.get("kingdom_smp:librarian/m06").minimumTier());
   assertEquals(6,AlphaScope.questTier("kingdom_smp:librarian/m06"));assertFalse(AlphaScope.futureQuest("kingdom_smp:librarian/m06"));
   assertEquals(5,AlphaScope.questTier("kingdom_smp:blacksmith/m06"));assertEquals(8,AlphaScope.questTier("kingdom_smp:alchemist/m06"));
-  assertTrue(AlphaScope.futureQuest("kingdom_smp:librarian/m02"));assertTrue(AlphaScope.futureQuest("kingdom_smp:librarian/m04"));
+  for(var id:java.util.List.of("kingdom_smp:librarian/m01","kingdom_smp:librarian/m02","kingdom_smp:librarian/m03","kingdom_smp:librarian/m04","kingdom_smp:librarian/m05","kingdom_smp:librarian/m07","kingdom_smp:librarian/m08")){assertEquals(8,ApprovedProfessionContent.get(id).minimumTier());assertEquals(6,AlphaScope.questTier(id));assertFalse(AlphaScope.futureQuest(id));}
+  assertTrue(AlphaScope.futureQuest("kingdom_smp:mage/m08"));
  }
  @Test void unfinishedMasterMetadataIsNotAnAwardOrAClaimOfCompletion(){
   assertTrue(AlphaScope.futureQuest("kingdom_smp:alchemist/m01"));assertFalse(AlphaScope.futureQuest("kingdom_smp:miner/m01"));assertFalse(AlphaScope.futureQuest(null));

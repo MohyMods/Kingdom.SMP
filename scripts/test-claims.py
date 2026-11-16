@@ -9,6 +9,12 @@ import tempfile
 parser=argparse.ArgumentParser()
 parser.add_argument('--resume-alpha-aircraft',action='store_true',help='Resume a genuinely completed native partial alpha hangar phase')
 parser.add_argument('--seed-alpha-world',type=Path,help='Stopped earned Tier6 private fixture only')
+parser.add_argument('--alpha-guide',action='store_true',help='Native read-only FTB alpha campaign on an earned full24Library source')
+parser.add_argument('--library-services-restore',action='store_true',help='Native restart only after actual completed consenting-owner Library jobs')
+parser.add_argument('--library-master-final',action='store_true',help='Actual six-subject collection and final native Master Library assessment')
+parser.add_argument('--library-master-expedition-services',action='store_true',help='New native Master Twilight expedition and four explicit-owner service jobs')
+parser.add_argument('--library-master-archives',action='store_true',help='Actual alpha6Master native glyph/scroll archives from earned18source')
+parser.add_argument('--library-master-books',action='store_true',help='Actual Master compendium/native funded service on earned all16 Library world')
 parser.add_argument('--library-journey-final',action='store_true',help='Cumulative native Journeyman Library completion on genuine saved earlier objectives')
 parser.add_argument('--spell-catalogue',action='store_true',help='Actual native RARE scroll catalogue inspection/permanent receipt')
 parser.add_argument('--glyph-catalogue',action='store_true',help='Actual OP2 inspected native Tier2 glyph delivery and receipt recovery')
@@ -202,6 +208,37 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.alpha_guide or args.library_services_restore:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Alpha guide/service restore requires a guarded stopped actual profession source')
+    init=fixture/'alpha-guide.init.gradle'
+    prop='kingdom.testAlphaGuide' if args.alpha_guide else 'kingdom.testLibraryServices'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty '"+prop+"','true' } } }\n")
+    command += ['--init-script',str(init)]
+if args.library_master_final:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Final Master assessment requires the guarded actual22Library source and exact expedition mods')
+    init=fixture/'library-master-final.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testLibraryMasterFinal','true' } } }\n")
+    command += ['--init-script',str(init)]
+if args.library_master_expedition_services:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Master expedition/services require a guarded earned20Library source and exact expedition mods')
+    init=fixture/'library-master-expedition-services.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testLibraryMasterExpeditionServices','true' } } }\n")
+    command += ['--init-script',str(init)]
+if args.library_master_archives:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Master archives require a guarded real earned18Library source and exact expedition mods')
+    init=fixture/'library-master-archives.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testLibraryMasterArchives','true' } } }\n")
+    command += ['--init-script',str(init)]
+if args.library_master_books:
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
+        raise SystemExit('Master books require a guarded earned all16 Library source and exact mods')
+    init=fixture/'library-master-books.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testLibraryMasterBooks','true' } } }\n")
+    command += ['--init-script',str(init)]
 if args.library_journey_final:
     if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
         raise SystemExit('Final Library journey requires a guarded cumulative native source and its expedition mods')
@@ -485,6 +522,18 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.alpha_guide:
+    markers=["ALPHA_GUIDE_NATIVE_PASSED:","ALPHA_GUIDE_RESTART_PASSED:"]
+if args.library_services_restore:
+    markers=["LIBRARY_SERVICES_RESTART_PASSED:"]
+if args.library_master_final:
+    markers=["LIBRARY_MASTER_FINAL_NATIVE_PASSED:","LIBRARY_MASTER_FINAL_RESTART_PASSED:"]
+if args.library_master_expedition_services:
+    markers=["LIBRARY_MASTER_EXPEDITION_SERVICES_NATIVE_PASSED:","LIBRARY_MASTER_EXPEDITION_SERVICES_RESTART_PASSED:"]
+if args.library_master_archives:
+    markers=["LIBRARY_MASTER_ARCHIVES_NATIVE_PASSED:","LIBRARY_MASTER_ARCHIVES_RESTART_PASSED:"]
+if args.library_master_books:
+    markers=["LIBRARY_MASTER_BOOKS_NATIVE_PASSED:","LIBRARY_MASTER_BOOKS_RESTART_PASSED:"]
 if args.library_journey_final:
     markers=["LIBRARY_JOURNEY_NATIVE_PASSED:","LIBRARY_JOURNEY_RESTART_PASSED:"]
 if args.spell_catalogue:

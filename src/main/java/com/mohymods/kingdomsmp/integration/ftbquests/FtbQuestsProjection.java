@@ -33,7 +33,7 @@ final class FtbQuestsProjection {
     private static Optional<KingdomQuestGoal> binding(CustomTask task) {
         if (!task.getQuestFile().isServerSide()) return Optional.empty();
         List<String> projected = task.getTags().stream().filter(t -> t.startsWith(KingdomQuestGoal.TAG_PREFIX)).toList();
-        if (projected.size() != 1) return Optional.empty();
+        if (projected.size() != 1 || task.getTags().stream().anyMatch(t->t.startsWith(AlphaQuestCampaign.TAG_PREFIX))) return Optional.empty();
         return KingdomQuestGoal.parseTag(projected.getFirst()).filter(goal -> goal.taskId() == task.id
                 && goal.questId() == task.getQuest().id
                 && task.getQuestChapter().id == KingdomQuestGoal.CHAPTER_ID

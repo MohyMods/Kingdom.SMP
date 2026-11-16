@@ -25,7 +25,7 @@ class ApprovedProfessionContentTest {
         }
         assertEquals(304,rows.values().stream().mapToInt(d->d.prerequisites().size()).sum());
         assertEquals(24,FarmerQuests.catalog().definitions().size());
-        assertEquals(187,ProfessionQuestService.catalog().definitions().size());
+        assertEquals(194,ProfessionQuestService.catalog().definitions().size());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:mechanic/m08").isEmpty());
         assertTrue(ProfessionQuestService.catalog().definition("kingdom_smp:builder/a01").isPresent());
     }
@@ -44,11 +44,11 @@ class ApprovedProfessionContentTest {
     @Test void presentationOfUnfinishedSlotsDoesNotActivateThemOrGrantRank() {
         var presentation=ProfessionQuestService.presentationCatalog();
         assertEquals(288,presentation.definitions().size());
-        var id="kingdom_smp:librarian/m08";
+        var id="kingdom_smp:mage/m08";
         assertTrue(presentation.definition(id).isPresent());
         assertFalse(ProfessionQuestService.implemented(id));
         assertTrue(ProfessionQuestService.status(null,id).contains("COMING SOON"));
-        assertEquals("Master librarian assessment",ProfessionQuestService.title(id));
+        assertEquals(ApprovedProfessionContent.get(id).name(),ProfessionQuestService.title(id));
         assertFalse(ProfessionQuestService.ready(null,id));
         assertEquals(ProfessionRank.APPRENTICE,ProfessionQuestService.catalog().rank(Profession.LIBRARIAN,Set.of()));
     }
@@ -70,7 +70,7 @@ class ApprovedProfessionContentTest {
         assertThrows(IllegalArgumentException.class,()->ApprovedProfessionContent.parse(json.toString()));
     }
  @org.junit.jupiter.api.Test void unavailableProfessionPacketsNeverFallThroughIntoFarmerAuthority(){
-  for(String id:java.util.List.of("kingdom_smp:librarian/m08","client:invented")){org.junit.jupiter.api.Assertions.assertFalse(ProfessionQuestService.ready(null,id));org.junit.jupiter.api.Assertions.assertTrue(ProfessionQuestService.status(null,id).contains("no validated runtime"));org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->ProfessionQuestService.complete(null,java.util.UUID.randomUUID(),id));}
+  for(String id:java.util.List.of("kingdom_smp:mage/m08","client:invented")){org.junit.jupiter.api.Assertions.assertFalse(ProfessionQuestService.ready(null,id));org.junit.jupiter.api.Assertions.assertTrue(ProfessionQuestService.status(null,id).contains("no validated runtime"));org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->ProfessionQuestService.complete(null,java.util.UUID.randomUUID(),id));}
  }
  @org.junit.jupiter.api.Test void fullApproved288MetadataFitsPlayerMenuBudgetForEveryThreeProfessionCombination(){
   var definitions=new java.util.ArrayList<>(FarmerQuests.catalog().definitions().values());definitions.addAll(ApprovedProfessionContent.definitions().values().stream().map(ApprovedProfessionContent.Definition::slot).toList());var all=ProfessionQuestCatalog.approved(definitions);var roles=Profession.values();for(int a=0;a<roles.length;a++)for(int b=a+1;b<roles.length;b++)for(int c=b+1;c<roles.length;c++){var active=java.util.Set.of(roles[a],roles[b],roles[c]);var visible=all.visibleFor(active);org.junit.jupiter.api.Assertions.assertEquals(72,visible.size());org.junit.jupiter.api.Assertions.assertTrue(visible.stream().allMatch(d->active.contains(d.profession())));org.junit.jupiter.api.Assertions.assertTrue(visible.size()+12+27+2+3+3+9<=128,"Objectives, all roster rows, every switch and current gear fit unchanged packet budget");}org.junit.jupiter.api.Assertions.assertEquals(288,all.definitions().size());org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,()->all.visibleFor(java.util.Set.of(roles[0],roles[1],roles[2],roles[3])));

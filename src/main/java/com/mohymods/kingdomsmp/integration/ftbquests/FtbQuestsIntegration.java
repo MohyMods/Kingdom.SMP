@@ -40,6 +40,7 @@ public final class FtbQuestsIntegration {
         }
         // FTB-linked code is reached only after exact dependency presence/version checks.
         FtbQuestsProjection.register(provider);
+        AlphaQuestProjection.register(provider);
         gameBus.addListener(net.neoforged.bus.api.EventPriority.HIGHEST,FtbQuestsIntegration::prepareCampaign);
         status = "FTB Quests " + version + "; read-only Kingdom projection registered";
         LOGGER.info(status); return true;
@@ -49,6 +50,7 @@ public final class FtbQuestsIntegration {
         try {
             var result = KingdomQuestCampaign.install(FMLPaths.CONFIGDIR.get().resolve("ftbquests/quests"));
             LOGGER.info("Kingdom FTB chapter {}: {}", KingdomQuestCampaign.FILENAME, result);
+            LOGGER.info("Kingdom alpha guide chapters: {}", AlphaQuestCampaign.install(FMLPaths.CONFIGDIR.get().resolve("ftbquests/quests")));
             if (result == KingdomQuestCampaign.Result.EXISTING_DIFFERENT)
                 LOGGER.warn("Existing Kingdom FTB chapter differs; preserved without overwrite. Projection bindings require exact IDs and no rewards.");
         } catch (IOException | RuntimeException error) {
@@ -61,6 +63,6 @@ public final class FtbQuestsIntegration {
 
     public static List<String> inspect(MinecraftServer server) {
         if (!status.contains("projection registered")) return List.of(status);
-        return FtbQuestsProjection.inspect(server, status);
+        var lines=new java.util.ArrayList<>(FtbQuestsProjection.inspect(server,status));lines.addAll(AlphaQuestProjection.inspect(server));return java.util.List.copyOf(lines);
     }
 }
