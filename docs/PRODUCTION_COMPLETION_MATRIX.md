@@ -6,7 +6,7 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | --- | --- |
 | Earned Tier1–6 transaction path | Actual full quantities/Hut/Hall/road/paid Bank/three new transitions and2JVM restore pass; resource/time/funds fixtures, not gathering-duration/full-client acceptance |
 | Aldric/workstation/Hall regression | Actual table conversion, native stair corner, original NPCs and Hall2JVM pass |
-| Six selected professions |135historical validated adapters; five24quest native Master loops;144complete quests/six professions not yet satisfied; Farmer24unchanged |
+| Six selected professions |137historical validated adapters; five24quest native Master loops and Library all16A/J native Master trials;144complete quests/six professions not yet satisfied; Farmer24unchanged |
 | Six purchased usable Master rewards | Farmer verified; other5remain; unspecified Prospector/Librarian design question pending |
 | Economy | Existing transaction slices preserved; release-wide regression and natural balance remain |
 | Aerodrome on earned Tier6 | Actual earned-Tier6/no-hangar refusal/paid plan/partial original-Aldric construction → complete furnished hangar/native boarding/damage refusal/exact repair/final restart pass; full flight/client/modpack acceptance remains |
@@ -14,6 +14,8 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | Release package/client/required-mod acceptance | Not complete; no0.13release published |
 
 ---
+
+D108:187overall/137selected adapters;737JUnit/full build passes. Library j05actual four different native RARE scrolls/inspected permanent consumption/200XP/current claims/purpose/interface-close/refusals/restart pass. Cumulative Library real native books/Aether field guide/weekly service/live j08assessment→all16/2400XP/Master trials and2JVM restoration. Seven Master adapters and native Master daily acceptance/5gear paths/release remain open. See D108private sources/time-acceleration details.
 
 D107:185overall/135selected adapters; Library j04 actual four different native Tier2 glyphs/secured on-site source catalogue inspection/permanent native receipt/200XP/current independent claims/refusals/restart pass2JVMs, including exact combined Ars+Irons profile.734JUnit/full build pass; Irons native RARE spell component APIs verified but j05 remains disabled. Nine Library adapters/gear/full release acceptance remain. No client/fullpack/default-duration/acquisition claim or intermediate release.
 
