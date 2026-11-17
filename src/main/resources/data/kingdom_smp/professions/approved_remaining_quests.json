@@ -1,0 +1,4960 @@
+{
+  "schema": 1,
+  "approvedBaseline": "9004b3ea9e92dfeebcb8b7105ad6b440fb8f24e8",
+  "quests": [
+    {
+      "id": "kingdom_smp:blacksmith/a01",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Fuel the forge",
+      "objective": "Supply coal or charcoal for a commissioned forge batch",
+      "quantity": "64 fuel",
+      "validation": [
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a02",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Clean iron stock",
+      "objective": "Smelt and deliver personally processed iron ingots",
+      "quantity": "32 ingots",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a03",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Copper fittings",
+      "objective": "Craft and deliver lightning rods for public roofs",
+      "quantity": "8 rods",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a04",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Tools for settlers",
+      "objective": "Forge a varied iron tool commission",
+      "quantity": "1 pickaxe, axe, shovel and hoe",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/a02"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a02",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a05",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Shieldwright",
+      "objective": "Forge and deliver shields for expeditions",
+      "quantity": "4 shields",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a06",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "First repairs",
+      "objective": "Repair genuinely worn iron equipment using actual materials",
+      "quantity": "4 distinct items",
+      "validation": [
+        "REPAIR"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/a04"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a04",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a07",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Apprentice contracts",
+      "objective": "Complete smithing daily commissions in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/a08",
+      "profession": "blacksmith",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "A working smithy",
+      "objective": "Demonstrate a protected forge, anvil, fuel area and safe access",
+      "quantity": "1 inspected workshop",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/a01",
+        "kingdom_smp:blacksmith/a02",
+        "kingdom_smp:blacksmith/a03",
+        "kingdom_smp:blacksmith/a04",
+        "kingdom_smp:blacksmith/a05",
+        "kingdom_smp:blacksmith/a06",
+        "kingdom_smp:blacksmith/a07"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j01",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Golden workmanship",
+      "objective": "Forge and deliver a precision gold component commission",
+      "quantity": "16 gold ingots plus 2 clocks",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j02",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Diamond edge",
+      "objective": "Forge expedition-grade diamond tools without Master equipment",
+      "quantity": "1 pickaxe and 1 axe",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j03",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Armour commission",
+      "objective": "Supply a complete personally forged iron armour set",
+      "quantity": "1 four-piece set",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j04",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Tempered repairs",
+      "objective": "Repair worn enchanted gear without deleting enchantments",
+      "quantity": "4 distinct repair jobs",
+      "validation": [
+        "REPAIR"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/j02"
+      ],
+      "availability": "Tier 4; premises; active; open Journeyman band; j02",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j05",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Compatible enchantments",
+      "objective": "Combine compatible ordinary enchantments through legitimate anvils",
+      "quantity": "4 consumed commissioned tools",
+      "validation": [
+        "ENCHANT",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j06",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Pattern keeper",
+      "objective": "Duplicate and supply a discovered Overworld armour trim template",
+      "quantity": "2 copies of 1 template",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j07",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Workshop service week",
+      "objective": "Fulfil smithing contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/j08",
+      "profession": "blacksmith",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman forge",
+      "objective": "Demonstrate furnace workflow, storage, working anvil and customer access",
+      "quantity": "1 functional inspection",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/j01",
+        "kingdom_smp:blacksmith/j02",
+        "kingdom_smp:blacksmith/j03",
+        "kingdom_smp:blacksmith/j04",
+        "kingdom_smp:blacksmith/j05",
+        "kingdom_smp:blacksmith/j06",
+        "kingdom_smp:blacksmith/j07"
+      ],
+      "availability": "Tier 4; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m01",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Nether expedition fittings",
+      "objective": "Supply fire-resistance expedition hardware from refined Nether resources",
+      "quantity": "8 nether bricks and 4 gold boots",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m02",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Debris to alloy",
+      "objective": "Process ancient debris into a real netherite alloy commission",
+      "quantity": "1 netherite ingot",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m03",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Upgrade artisan",
+      "objective": "Apply an authentic netherite upgrade to ordinary diamond equipment",
+      "quantity": "1 registered upgraded item",
+      "validation": [
+        "SMITH"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/m02"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; m02; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m04",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Basalt and quartz orders",
+      "objective": "Supply refined volcanic masonry and precision quartz components",
+      "quantity": "32 polished basalt and 16 quartz blocks",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m05",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Veteran repair bench",
+      "objective": "Restore damaged equipment for different consenting players",
+      "quantity": "3 jobs for at least 2 players",
+      "validation": [
+        "REPAIR"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/m03"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; m03",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m06",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "A week of reliability",
+      "objective": "Complete distinct smithing contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m07",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Community forge project",
+      "objective": "Build an approved shared smelting and maintenance installation",
+      "quantity": "1 inspected civic project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/m01",
+        "kingdom_smp:blacksmith/m04"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; m01,m04",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:blacksmith/m08",
+      "profession": "blacksmith",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master smith assessment",
+      "objective": "Demonstrate forging, repairs and safe compatible enchantment handling",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:blacksmith/m01",
+        "kingdom_smp:blacksmith/m02",
+        "kingdom_smp:blacksmith/m03",
+        "kingdom_smp:blacksmith/m04",
+        "kingdom_smp:blacksmith/m05",
+        "kingdom_smp:blacksmith/m06",
+        "kingdom_smp:blacksmith/m07"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Extraction Anvil"
+    },
+    {
+      "id": "kingdom_smp:miner/a01",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Natural coal seam",
+      "objective": "Mine naturally generated coal rather than placed or recycled ore",
+      "quantity": "64 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a02",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Iron beneath the hills",
+      "objective": "Extract natural iron or deepslate iron ore",
+      "quantity": "48 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a03",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Copper survey",
+      "objective": "Extract natural copper in a separate working area",
+      "quantity": "64 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a04",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Safe descent",
+      "objective": "Reach working depth and return by a safe player-built access route",
+      "quantity": "1 descent below Y0 and return",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a05",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Stoneworker supply",
+      "objective": "Deliver cut stone for approved community building work",
+      "quantity": "128 stone bricks",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a06",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Mine lighting",
+      "objective": "Install legitimate lighting and protected access in the mine",
+      "quantity": "1 inspected route with 16 lights",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:miner/a04"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a04",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a07",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Mining commissions",
+      "objective": "Complete personal mining daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/a08",
+      "profession": "miner",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "An orderly mine",
+      "objective": "Demonstrate supported access, lighting, equipment and ore sorting",
+      "quantity": "1 Apprentice mine inspection",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:miner/a01",
+        "kingdom_smp:miner/a02",
+        "kingdom_smp:miner/a03",
+        "kingdom_smp:miner/a04",
+        "kingdom_smp:miner/a05",
+        "kingdom_smp:miner/a06",
+        "kingdom_smp:miner/a07"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:miner/j01",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Redstone seam",
+      "objective": "Extract naturally generated redstone ore",
+      "quantity": "48 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j02",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Lapis layer",
+      "objective": "Extract natural lapis ore for the kingdom's enchanters",
+      "quantity": "24 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j03",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Golden depth",
+      "objective": "Extract naturally generated Overworld gold ore",
+      "quantity": "24 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j04",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "First diamonds",
+      "objective": "Extract naturally generated diamond ore",
+      "quantity": "8 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j05",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Amethyst study",
+      "objective": "Harvest grown amethyst clusters without consuming budding blocks",
+      "quantity": "32 shards from verified clusters",
+      "validation": [
+        "GROW",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j06",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Geological diversity",
+      "objective": "Record distinct Overworld geology in personally visited working areas",
+      "quantity": "3 areas with different stone or cave settings",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j07",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained mining service",
+      "objective": "Complete mining contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/j08",
+      "profession": "miner",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman mine plan",
+      "objective": "Submit a safe mine plan with separate ore, access and support areas",
+      "quantity": "1 inspected working mine",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:miner/j01",
+        "kingdom_smp:miner/j02",
+        "kingdom_smp:miner/j03",
+        "kingdom_smp:miner/j04",
+        "kingdom_smp:miner/j05",
+        "kingdom_smp:miner/j06",
+        "kingdom_smp:miner/j07"
+      ],
+      "availability": "Tier 4; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:miner/m01",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Quartz expedition",
+      "objective": "Extract natural Nether quartz after Nether access unlocks",
+      "quantity": "64 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m02",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Nether gold survey",
+      "objective": "Extract naturally generated Nether gold ore",
+      "quantity": "32 ore blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m03",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Ancient debris survey",
+      "objective": "Locate and personally extract ancient debris",
+      "quantity": "4 natural debris blocks",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m04",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Preserved specimens",
+      "objective": "Supply naturally mined Silk Touch ore specimens using ordinary eligible tools",
+      "quantity": "1 iron, gold, redstone and lapis ore",
+      "validation": [
+        "NAT",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m05",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Rare seam record",
+      "objective": "Extract and document distinct natural diamond finds",
+      "quantity": "12 ore blocks across 3 chunk regions",
+      "validation": [
+        "NAT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:miner/j04"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; j04",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m06",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master supply service",
+      "objective": "Complete distinct mining contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m07",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Community excavation",
+      "objective": "Complete an authorized excavation while preserving protected structures",
+      "quantity": "1 inspected excavation and access project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:miner/m04",
+        "kingdom_smp:miner/m05"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:miner/m08",
+      "profession": "miner",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master prospecting assessment",
+      "objective": "Demonstrate geology, safety, valuable extraction and expedition records",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:miner/m01",
+        "kingdom_smp:miner/m02",
+        "kingdom_smp:miner/m03",
+        "kingdom_smp:miner/m04",
+        "kingdom_smp:miner/m05",
+        "kingdom_smp:miner/m06",
+        "kingdom_smp:miner/m07"
+      ],
+      "availability": "Tier 5; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Prospector's Pickaxe"
+    },
+    {
+      "id": "kingdom_smp:builder/a01",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Foundations by hand",
+      "objective": "Place supplied foundation blocks at an authorized personal project",
+      "quantity": "128 retained blocks",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a02",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Timber frame",
+      "objective": "Build a functional frame using actual supplied timber",
+      "quantity": "64 retained timber blocks",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a03",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Weatherproof roofing",
+      "objective": "Build a supported roof rather than placing and breaking the same cells",
+      "quantity": "64 retained roof blocks",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a04",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Working entrance",
+      "objective": "Install a clear doorway, stairs and practical navigation",
+      "quantity": "1 inspected entrance",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a05",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Masonry commission",
+      "objective": "Craft and supply varied basic masonry",
+      "quantity": "32 stone-brick stairs and 32 slabs",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a06",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Road starter",
+      "objective": "Build a continuous safe route to an existing kingdom service",
+      "quantity": "48 retained route blocks",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a07",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Builder commissions",
+      "objective": "Complete distinct Builder daily contracts",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/a08",
+      "profession": "builder",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice worksite",
+      "objective": "Present the completed authorized frame, roof and access work",
+      "quantity": "1 inspected project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [
+        "kingdom_smp:builder/a01",
+        "kingdom_smp:builder/a02",
+        "kingdom_smp:builder/a03",
+        "kingdom_smp:builder/a04",
+        "kingdom_smp:builder/a05",
+        "kingdom_smp:builder/a06",
+        "kingdom_smp:builder/a07"
+      ],
+      "availability": "Tier 2; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:builder/j01",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Supported bridge",
+      "objective": "Build a protected crossing with sound approaches and supports",
+      "quantity": "1 bridge spanning at least 12 blocks",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j02",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Window and wall craft",
+      "objective": "Complete a furnished facade using supplied glass and masonry",
+      "quantity": "64 wall blocks and 16 glass blocks retained",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j03",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Functional public access",
+      "objective": "Improve access to an approved existing kingdom building",
+      "quantity": "1 inspected access project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j04",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Interior plan",
+      "objective": "Furnish a usable meeting or workshop interior without adding a service unlock",
+      "quantity": "1 inspected room with 6 functional zones",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j05",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Drainage and grading",
+      "objective": "Build a safe graded route with drainage and no unauthorized terrain removal",
+      "quantity": "1 inspected route of 48 blocks",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j06",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Material variety",
+      "objective": "Complete different legitimate construction commissions",
+      "quantity": "3 commissions with timber, stone and glass",
+      "validation": [
+        "BUILD",
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j07",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "A reliable contractor",
+      "objective": "Complete Builder contracts in distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/j08",
+      "profession": "builder",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman handover",
+      "objective": "Document retained materials, access, furnishing and claim consent",
+      "quantity": "1 inspected handover",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:builder/j01",
+        "kingdom_smp:builder/j02",
+        "kingdom_smp:builder/j03",
+        "kingdom_smp:builder/j04",
+        "kingdom_smp:builder/j05",
+        "kingdom_smp:builder/j06",
+        "kingdom_smp:builder/j07"
+      ],
+      "availability": "Tier 3; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:builder/m01",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Large civic frame",
+      "objective": "Build an authorized larger project using supplied materials",
+      "quantity": "384 retained structural blocks",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m02",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Detailed masonry",
+      "objective": "Complete varied decorative masonry without affecting service restrictions",
+      "quantity": "96 retained stair, slab and wall blocks",
+      "validation": [
+        "BUILD"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m03",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Supplementary fittings",
+      "objective": "Install working Supplementaries furnishings appropriate to the project",
+      "quantity": "4 different registered fittings",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Master band; S4",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m04",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Layered interior",
+      "objective": "Furnish a connected multi-level player-built interior with safe circulation",
+      "quantity": "2 usable floors and 8 functional areas",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m05",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Civic route network",
+      "objective": "Connect existing services with safe, consented public routes",
+      "quantity": "2 inspected connections",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:builder/m01"
+      ],
+      "availability": "Tier 4; premises; active; open Master band; m01",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m06",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master builder service",
+      "objective": "Complete distinct Builder contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m07",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Settlement project",
+      "objective": "Deliver an approved public plaza or similar non-service civic project",
+      "quantity": "1 inspected furnished civic project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:builder/m02",
+        "kingdom_smp:builder/m03",
+        "kingdom_smp:builder/m04",
+        "kingdom_smp:builder/m05"
+      ],
+      "availability": "Tier 4; premises; active; open Master band; m02,m03,m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:builder/m08",
+      "profession": "builder",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master architect assessment",
+      "objective": "Demonstrate sound construction, supplied materials and protected-site planning",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:builder/m01",
+        "kingdom_smp:builder/m02",
+        "kingdom_smp:builder/m03",
+        "kingdom_smp:builder/m04",
+        "kingdom_smp:builder/m05",
+        "kingdom_smp:builder/m06",
+        "kingdom_smp:builder/m07"
+      ],
+      "availability": "Tier 4; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Architect's Wand"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a01",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Oak stewardship",
+      "objective": "Harvest legitimate natural or mature planted oak trees",
+      "quantity": "128 qualifying logs",
+      "validation": [
+        "TREE"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a02",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Birch stand",
+      "objective": "Harvest a second sustainable timber species",
+      "quantity": "64 birch logs",
+      "validation": [
+        "TREE"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a03",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Spruce timber",
+      "objective": "Supply mature spruce timber from legitimate trees",
+      "quantity": "64 spruce logs",
+      "validation": [
+        "TREE"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a04",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Replant the clearing",
+      "objective": "Plant and grow replacements for harvested trees",
+      "quantity": "24 verified replacement trees",
+      "validation": [
+        "GROW"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a05",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Usable timber stock",
+      "objective": "Craft and supply building timber",
+      "quantity": "128 planks and 32 stripped logs",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a06",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Safe forest access",
+      "objective": "Prepare a protected marked route and safe felling area",
+      "quantity": "1 inspected forest route",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a07",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Timber commissions",
+      "objective": "Complete distinct Lumberjack daily contracts",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [],
+      "availability": "Tier 2; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/a08",
+      "profession": "lumberjack",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice woodland",
+      "objective": "Demonstrate species diversity, harvest history and growing replacements",
+      "quantity": "1 woodland inspection",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 2,
+      "prerequisites": [
+        "kingdom_smp:lumberjack/a01",
+        "kingdom_smp:lumberjack/a02",
+        "kingdom_smp:lumberjack/a03",
+        "kingdom_smp:lumberjack/a04",
+        "kingdom_smp:lumberjack/a05",
+        "kingdom_smp:lumberjack/a06",
+        "kingdom_smp:lumberjack/a07"
+      ],
+      "availability": "Tier 2; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j01",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Hardwood survey",
+      "objective": "Harvest legitimate acacia and dark oak stands",
+      "quantity": "64 logs of each species",
+      "validation": [
+        "TREE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j02",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Tropical timber",
+      "objective": "Harvest legitimate jungle timber without counting placed-log structures",
+      "quantity": "96 jungle logs",
+      "validation": [
+        "TREE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j03",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Cherry renewal",
+      "objective": "Grow and sustainably harvest cherry trees",
+      "quantity": "16 mature planted trees",
+      "validation": [
+        "GROW",
+        "TREE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j04",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Mangrove nursery",
+      "objective": "Grow and harvest mangroves from real propagules",
+      "quantity": "12 mature planted mangroves",
+      "validation": [
+        "GROW",
+        "TREE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j05",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Charcoal commission",
+      "objective": "Process personally harvested timber into delivered charcoal",
+      "quantity": "64 charcoal",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j06",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Forest supply chain",
+      "objective": "Supply structural woodwork across several categories",
+      "quantity": "32 fences, 16 stairs and 16 trapdoors",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j07",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained timber service",
+      "objective": "Complete Lumberjack contracts in distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/j08",
+      "profession": "lumberjack",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman forestry plan",
+      "objective": "Demonstrate access, species variety and maintained replanting areas",
+      "quantity": "1 inspected managed woodland",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:lumberjack/j01",
+        "kingdom_smp:lumberjack/j02",
+        "kingdom_smp:lumberjack/j03",
+        "kingdom_smp:lumberjack/j04",
+        "kingdom_smp:lumberjack/j05",
+        "kingdom_smp:lumberjack/j06",
+        "kingdom_smp:lumberjack/j07"
+      ],
+      "availability": "Tier 3; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m01",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Mature forest mosaic",
+      "objective": "Grow and harvest a mixed managed woodland",
+      "quantity": "6 species with 8 mature trees each",
+      "validation": [
+        "GROW",
+        "TREE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m02",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Kingdom timber commission",
+      "objective": "Deliver personally harvested high-variety structural timber",
+      "quantity": "256 logs with at least 32 from 4 species",
+      "validation": [
+        "TREE",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m03",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Pollinator woodland",
+      "objective": "Establish a functioning Productive Bees forest pollination plot",
+      "quantity": "1 inspected flowering plot with 2 permitted pre-End resource-bee species",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band; B6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m04",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Forest products",
+      "objective": "Supply real resource combs from the documented productive apiary",
+      "quantity": "16 resource combs from each of its 2 eligible species",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:lumberjack/m03"
+      ],
+      "availability": "Tier 6; premises; active; open Master band; m03; B6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m05",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Renewal cycles",
+      "objective": "Complete repeated growing and harvesting cycles without tree-placement exploits",
+      "quantity": "24 verified mature replacement cycles",
+      "validation": [
+        "GROW",
+        "TREE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m06",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master timber service",
+      "objective": "Complete distinct Lumberjack contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m07",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Community forest reserve",
+      "objective": "Create an authorized accessible managed forest and pollinator reserve",
+      "quantity": "1 inspected community forestry project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:lumberjack/m01",
+        "kingdom_smp:lumberjack/m02",
+        "kingdom_smp:lumberjack/m03",
+        "kingdom_smp:lumberjack/m04",
+        "kingdom_smp:lumberjack/m05"
+      ],
+      "availability": "Tier 6; premises; active; open Master band; m01,m02,m03,m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:lumberjack/m08",
+      "profession": "lumberjack",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master forester assessment",
+      "objective": "Demonstrate renewable supply, conservation and community service",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:lumberjack/m01",
+        "kingdom_smp:lumberjack/m02",
+        "kingdom_smp:lumberjack/m03",
+        "kingdom_smp:lumberjack/m04",
+        "kingdom_smp:lumberjack/m05",
+        "kingdom_smp:lumberjack/m06",
+        "kingdom_smp:lumberjack/m07"
+      ],
+      "availability": "Tier 6; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Worldtree Axe"
+    },
+    {
+      "id": "kingdom_smp:merchant/a01",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Count the coinage",
+      "objective": "Demonstrate legitimate physical coin conversion without changing total value",
+      "quantity": "1 copper-to-silver and 1 silver-to-gold conversion",
+      "validation": [
+        "BANK"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a02",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Open the accounts",
+      "objective": "Deposit and withdraw a small personally funded bank amount",
+      "quantity": "50 coins deposited and withdrawn once",
+      "validation": [
+        "BANK"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a03",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "First public sale",
+      "objective": "Complete a genuine fixed-price sale to another player",
+      "quantity": "1 settled sale worth at least 50 coins",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a04",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "The buyer's side",
+      "objective": "Purchase a useful item from another player's funded listing",
+      "quantity": "1 settled purchase worth at least 50 coins",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a05",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Essentials supplier",
+      "objective": "Supply several distinct approved Essentials resources",
+      "quantity": "3 settled resource categories",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a06",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Fulfil an order",
+      "objective": "Fill another player's legitimate funded buy order",
+      "quantity": "1 settled order fill",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a07",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Daily merchant service",
+      "objective": "Complete Merchant daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/a08",
+      "profession": "merchant",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice trading desk",
+      "objective": "Demonstrate accurate accounts, mailbox delivery and truthful listing terms",
+      "quantity": "1 account and service inspection",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:merchant/a01",
+        "kingdom_smp:merchant/a02",
+        "kingdom_smp:merchant/a03",
+        "kingdom_smp:merchant/a04",
+        "kingdom_smp:merchant/a05",
+        "kingdom_smp:merchant/a06",
+        "kingdom_smp:merchant/a07"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:merchant/j01",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Timed auction seller",
+      "objective": "Complete a real competitive auction with escrow and final delivery",
+      "quantity": "1 settled timed sale to another player",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j02",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Timed auction buyer",
+      "objective": "Win and receive a funded timed auction legitimately",
+      "quantity": "1 settled winning auction",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j03",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Trading partners",
+      "objective": "Complete useful sales to different community members",
+      "quantity": "4 sales to at least 3 other players",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j04",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Varied commerce",
+      "objective": "Trade distinct practical resource or equipment categories",
+      "quantity": "4 categories with completed deliveries",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j05",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Funded procurement",
+      "objective": "Create a funded buy order and receive its requested goods",
+      "quantity": "1 completely filled order",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j06",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Account reconciliation",
+      "objective": "Reconcile sales, purchases, tax burns and unclaimed deliveries",
+      "quantity": "1 inspected personal ledger",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:merchant/j01",
+        "kingdom_smp:merchant/j02",
+        "kingdom_smp:merchant/j05"
+      ],
+      "availability": "Tier 4; premises; active; open Journeyman band; j01,j02,j05",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j07",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained market service",
+      "objective": "Complete Merchant contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/j08",
+      "profession": "merchant",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman market handover",
+      "objective": "Demonstrate safe escrow, honest terms and resolved deliveries",
+      "quantity": "1 commercial assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:merchant/j01",
+        "kingdom_smp:merchant/j02",
+        "kingdom_smp:merchant/j03",
+        "kingdom_smp:merchant/j04",
+        "kingdom_smp:merchant/j05",
+        "kingdom_smp:merchant/j06",
+        "kingdom_smp:merchant/j07"
+      ],
+      "availability": "Tier 4; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:merchant/m01",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Community procurement",
+      "objective": "Fulfil a real authorized multi-category community supply commission",
+      "quantity": "3 categories with 32 units each",
+      "validation": [
+        "DEL",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m02",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Responsible turnover",
+      "objective": "Complete genuine player trades with diverse counterparties",
+      "quantity": "2500 coins settled across at least 4 players",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m03",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Royal shipping supplies",
+      "objective": "Supply traceable goods for an approved Aerodrome cargo commission",
+      "quantity": "1 authenticated cargo delivery contribution",
+      "validation": [
+        "DEL",
+        "JOB"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band; AIR6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m04",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Market liquidity",
+      "objective": "Complete funded buy orders covering different resources",
+      "quantity": "3 fully settled orders",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m05",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Professional equipment broker",
+      "objective": "Broker a legitimately purchased Journeyman item while preserving its provenance",
+      "quantity": "1 settled certified Journeyman equipment sale",
+      "validation": [
+        "TRADE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m06",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master merchant service",
+      "objective": "Complete distinct Merchant contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m07",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Commercial charter project",
+      "objective": "Organize an authorized community supply event with auditable transactions",
+      "quantity": "1 inspected procurement project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:merchant/m01",
+        "kingdom_smp:merchant/m02",
+        "kingdom_smp:merchant/m03",
+        "kingdom_smp:merchant/m04",
+        "kingdom_smp:merchant/m05"
+      ],
+      "availability": "Tier 6; premises; active; open Master band; m01,m02,m03,m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:merchant/m08",
+      "profession": "merchant",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master merchant assessment",
+      "objective": "Demonstrate fair commerce, taxes, escrow and accurate accounts",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:merchant/m01",
+        "kingdom_smp:merchant/m02",
+        "kingdom_smp:merchant/m03",
+        "kingdom_smp:merchant/m04",
+        "kingdom_smp:merchant/m05",
+        "kingdom_smp:merchant/m06",
+        "kingdom_smp:merchant/m07"
+      ],
+      "availability": "Tier 6; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Royal Trade Ledger"
+    },
+    {
+      "id": "kingdom_smp:engineer/a01",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Andesite workshop",
+      "objective": "Produce a basic Create alloy commission",
+      "quantity": "32 andesite alloy",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; C4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a02",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Shafts and cogs",
+      "objective": "Produce distinct mechanical transmission components",
+      "quantity": "32 shafts,16 small cogs and 8 large cogs",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:engineer/a01"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a01; C4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a03",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Water-powered work",
+      "objective": "Build and operate a safe basic waterwheel drive",
+      "quantity": "1 operating drive",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; C4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a04",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Speed and direction",
+      "objective": "Demonstrate gear ratios, reversal and a controllable shutoff",
+      "quantity": "3 distinct mechanical functions",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:engineer/a02",
+        "kingdom_smp:engineer/a03"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a02,a03; C4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a05",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Press operator",
+      "objective": "Complete a personally started pressing commission",
+      "quantity": "32 pressed metal sheets",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; C4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a06",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Milling commission",
+      "objective": "Produce useful milled material from traceable supplied inputs",
+      "quantity": "64 milled outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; C4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a07",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Engineering service",
+      "objective": "Complete Engineer daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/a08",
+      "profession": "engineer",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice mechanical shop",
+      "objective": "Demonstrate safe power, transmission, processing and maintenance access",
+      "quantity": "1 inspected functional shop",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:engineer/a01",
+        "kingdom_smp:engineer/a02",
+        "kingdom_smp:engineer/a03",
+        "kingdom_smp:engineer/a04",
+        "kingdom_smp:engineer/a05",
+        "kingdom_smp:engineer/a06",
+        "kingdom_smp:engineer/a07"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07; C4",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:engineer/j01",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Brass production",
+      "objective": "Process a legitimate brass commission using correct native heating",
+      "quantity": "32 brass ingots",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; C6,N5",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j02",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Filtered movement",
+      "objective": "Move registered goods through controllable filtered transport",
+      "quantity": "3 independent filters handling 64 items each",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; C6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j03",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Washing and sorting",
+      "objective": "Run an attributable washing and sorting production batch",
+      "quantity": "64 verified processed outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; C6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j04",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Sequenced assembly",
+      "objective": "Complete real multi-step precision production without fabricated outputs",
+      "quantity": "8 precision mechanisms",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; C6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j05",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Useful mechanics",
+      "objective": "Build an approved contraption with safe controlled motion",
+      "quantity": "1 inspected contraption and 20 working cycles",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; C6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j06",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Workshop interoperability",
+      "objective": "Operate a real Slice and Dice or Central Kitchen food-processing batch",
+      "quantity": "32 delivered recipe outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; CK6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j07",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained engineering service",
+      "objective": "Complete Engineer contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/j08",
+      "profession": "engineer",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman production line",
+      "objective": "Demonstrate inputs, processing, output tracking and emergency stop",
+      "quantity": "1 inspected multi-step line",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:engineer/j01",
+        "kingdom_smp:engineer/j02",
+        "kingdom_smp:engineer/j03",
+        "kingdom_smp:engineer/j04",
+        "kingdom_smp:engineer/j05",
+        "kingdom_smp:engineer/j06",
+        "kingdom_smp:engineer/j07"
+      ],
+      "availability": "Tier 6; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07; C6",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:engineer/m01",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Steam power",
+      "objective": "Commission and safely operate a native Create boiler/steam-engine system",
+      "quantity": "1 tested working system",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; C8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m02",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Precision mechanisms order",
+      "objective": "Fulfil supervised precision mechanism production",
+      "quantity": "32 delivered mechanisms",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; C8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m03",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Parallel manufacturing",
+      "objective": "Coordinate different native processing operations without losing provenance",
+      "quantity": "3 different recipes with 32 outputs each",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; C8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m04",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Protected logistics",
+      "objective": "Deliver distinct goods between approved workshops without claim bypass",
+      "quantity": "3 routes with 32 goods each",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; C8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m05",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Aerodrome maintenance drive",
+      "objective": "Provide a functional authorized mechanical support installation at the Aerodrome",
+      "quantity": "1 inspected non-service support project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; C8,AIR6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m06",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master engineering service",
+      "objective": "Complete distinct Engineer contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m07",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Kingdom industrial commission",
+      "objective": "Deliver an approved integrated production project with measured output",
+      "quantity": "1 inspected line and 128 commissioned outputs",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:engineer/m01",
+        "kingdom_smp:engineer/m02",
+        "kingdom_smp:engineer/m03",
+        "kingdom_smp:engineer/m04",
+        "kingdom_smp:engineer/m05"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05; C8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:engineer/m08",
+      "profession": "engineer",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master engineer assessment",
+      "objective": "Demonstrate power accounting, reliable production and safe automation",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:engineer/m01",
+        "kingdom_smp:engineer/m02",
+        "kingdom_smp:engineer/m03",
+        "kingdom_smp:engineer/m04",
+        "kingdom_smp:engineer/m05",
+        "kingdom_smp:engineer/m06",
+        "kingdom_smp:engineer/m07"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07; C8",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Royal Machinery Core"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a01",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Osmium workshop",
+      "objective": "Process personally commissioned Mekanism base material",
+      "quantity": "32 osmium ingots",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band; K6",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a02",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Basic control",
+      "objective": "Produce genuine basic electronic control components",
+      "quantity": "16 basic control circuits",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band; K6",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a03",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Metallurgic infusion",
+      "objective": "Run an authenticated native infusion batch",
+      "quantity": "32 infused-alloy outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band; K6",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a04",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Crusher service",
+      "objective": "Operate a real crusher on traceable supplied inputs",
+      "quantity": "64 processed outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band; K6",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a05",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Safe electrical supply",
+      "objective": "Build a functioning generator, cable and safe load circuit",
+      "quantity": "1 inspected working circuit",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band; K6,KG6",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a06",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Energy buffer",
+      "objective": "Craft and demonstrate an ordinary accessible energy cube",
+      "quantity": "1 basic energy cube and charge/discharge cycle",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band; K6",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a07",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Mechanic commissions",
+      "objective": "Complete Mechanic daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/a08",
+      "profession": "mechanic",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice machine bay",
+      "objective": "Demonstrate machines, access, wiring and shutdown controls",
+      "quantity": "1 functional inspection",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:mechanic/a01",
+        "kingdom_smp:mechanic/a02",
+        "kingdom_smp:mechanic/a03",
+        "kingdom_smp:mechanic/a04",
+        "kingdom_smp:mechanic/a05",
+        "kingdom_smp:mechanic/a06",
+        "kingdom_smp:mechanic/a07"
+      ],
+      "availability": "Tier 6; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07; K6",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j01",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Advanced control batches",
+      "objective": "Produce a native advanced electronics commission",
+      "quantity": "16 advanced control circuits",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band; K8",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j02",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Refined alloys",
+      "objective": "Process two different legitimate advanced alloy families",
+      "quantity": "16 reinforced and 16 atomic-alloy outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band; K8",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j03",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Factory operation",
+      "objective": "Run a native factory batch with tracked inputs and outputs",
+      "quantity": "128 processed outputs",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band; K8",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j04",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Gas handling",
+      "objective": "Demonstrate controlled native gas production, storage and consumption",
+      "quantity": "1 inspected gas chain with 3 stages",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band; K8",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j05",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Ore-processing chain",
+      "objective": "Produce refined metal through a legitimate multi-step native chain",
+      "quantity": "64 delivered ingots from registered ore input",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band; K8",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j06",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Power maintenance",
+      "objective": "Diagnose and repair an authorized interrupted production circuit",
+      "quantity": "2 inspected faults resolved",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band; K8",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j07",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained machine service",
+      "objective": "Complete Mechanic contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/j08",
+      "profession": "mechanic",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman machinery line",
+      "objective": "Demonstrate reliable factories, gas safety and energy accounting",
+      "quantity": "1 inspected operational line",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:mechanic/j01",
+        "kingdom_smp:mechanic/j02",
+        "kingdom_smp:mechanic/j03",
+        "kingdom_smp:mechanic/j04",
+        "kingdom_smp:mechanic/j05",
+        "kingdom_smp:mechanic/j06",
+        "kingdom_smp:mechanic/j07"
+      ],
+      "availability": "Tier 8; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07; K8",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m01",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Elite control batch",
+      "objective": "Produce advanced native control circuitry",
+      "quantity": "16 elite control circuits",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; K10",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m02",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Ultimate production order",
+      "objective": "Produce a small genuine ultimate-circuit commission",
+      "quantity": "4 ultimate control circuits",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [
+        "kingdom_smp:mechanic/m01"
+      ],
+      "availability": "Tier 10; premises; active; open Master band; m01; K10",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m03",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Advanced energy storage",
+      "objective": "Commission an ordinary ultimate energy cube, never a creative cube",
+      "quantity": "1 ultimate cube and measured charge cycle",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; K10",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m04",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Efficient power network",
+      "objective": "Operate a safe generator mix with metered loads and storage",
+      "quantity": "1 inspected network with 3 load categories",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; K10,KG6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m05",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Precision machine integration",
+      "objective": "Supply advanced components for an authorized aerospace or industrial job",
+      "quantity": "3 component categories with 8 units each",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; K10,SPACE10",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m06",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master mechanic service",
+      "objective": "Complete distinct Mechanic contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m07",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Kingdom maintenance project",
+      "objective": "Commission an authorized recoverable industrial power installation",
+      "quantity": "1 inspected project with shutdown and recovery demonstration",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [
+        "kingdom_smp:mechanic/m01",
+        "kingdom_smp:mechanic/m02",
+        "kingdom_smp:mechanic/m03",
+        "kingdom_smp:mechanic/m04",
+        "kingdom_smp:mechanic/m05"
+      ],
+      "availability": "Tier 10; premises; active; open Master band; m01,m02,m03,m04,m05; K10",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mechanic/m08",
+      "profession": "mechanic",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master mechanic assessment",
+      "objective": "Demonstrate advanced machinery and safe recovery without creative machinery",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [
+        "kingdom_smp:mechanic/m01",
+        "kingdom_smp:mechanic/m02",
+        "kingdom_smp:mechanic/m03",
+        "kingdom_smp:mechanic/m04",
+        "kingdom_smp:mechanic/m05",
+        "kingdom_smp:mechanic/m06",
+        "kingdom_smp:mechanic/m07"
+      ],
+      "availability": "Tier 10; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07; K10",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy approved Mechanic equipment/services; Creative Energy Cube still separately requires Tier 12"
+    },
+    {
+      "id": "kingdom_smp:mage/a01",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Novice spellcraft",
+      "objective": "Create and commission a legitimate Ars Nouveau novice spellbook",
+      "quantity": "1 novice spellbook",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; A4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a02",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Source gathering",
+      "objective": "Operate a legitimate source-generation and storage setup",
+      "quantity": "1 inspected source chain",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; A4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a03",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Meaningful cantrips",
+      "objective": "Use novice utility magic successfully on distinct authorized targets",
+      "quantity": "16 distinct effective targets",
+      "validation": [
+        "MAGIC"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; A4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a04",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Elemental practice",
+      "objective": "Land legitimate novice combat effects on naturally spawned hostile mobs",
+      "quantity": "12 unique eligible enemies",
+      "validation": [
+        "MAGIC",
+        "COMBAT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; A4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a05",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Spell inscription",
+      "objective": "Learn and successfully use distinct native Tier 1 Ars glyph patterns",
+      "quantity": "4 different learned glyphs with useful effects",
+      "validation": [
+        "MAGIC"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; A4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a06",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Scribe's supplies",
+      "objective": "Supply native Iron's Spells novice casting components",
+      "quantity": "8 legitimate novice scrolls or equivalent outputs",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band; I4",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a07",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Daily magical service",
+      "objective": "Complete Mage daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/a08",
+      "profession": "mage",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice sanctum",
+      "objective": "Demonstrate safe source, casting, study and protected work areas",
+      "quantity": "1 inspected existing profession premises",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:mage/a01",
+        "kingdom_smp:mage/a02",
+        "kingdom_smp:mage/a03",
+        "kingdom_smp:mage/a04",
+        "kingdom_smp:mage/a05",
+        "kingdom_smp:mage/a06",
+        "kingdom_smp:mage/a07"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07; A4,I4",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:mage/j01",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Advanced spellbook work",
+      "objective": "Create an eligible native intermediate Ars spellbook",
+      "quantity": "1 intermediate spellbook",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; A6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j02",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Composed utility",
+      "objective": "Demonstrate distinct useful multi-effect spells without empty-cast credit",
+      "quantity": "4 compositions with 4 successful targets each",
+      "validation": [
+        "MAGIC"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; A6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j03",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Runic fieldwork",
+      "objective": "Record a legitimate magical expedition in Twilight Forest and return",
+      "quantity": "1 documented expedition",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; TF6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j04",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Experienced spellwright",
+      "objective": "Learn and successfully use distinct native Tier 2 Ars glyph patterns",
+      "quantity": "4 different learned glyphs with useful effects",
+      "validation": [
+        "MAGIC"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; A6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j05",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Protect the party",
+      "objective": "Provide effective healing or defensive spell assistance during real combat",
+      "quantity": "8 distinct legitimate assists",
+      "validation": [
+        "MAGIC",
+        "COMBAT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; A6,I6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j06",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Spell-powered work",
+      "objective": "Commission an actual Ars Creo-compatible source/mechanical interaction",
+      "quantity": "1 functional inspected demonstration",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; AC6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j07",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained magical service",
+      "objective": "Complete Mage contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/j08",
+      "profession": "mage",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman magic assessment",
+      "objective": "Demonstrate utility, combat, resource use and safe spell composition",
+      "quantity": "1 functional assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:mage/j01",
+        "kingdom_smp:mage/j02",
+        "kingdom_smp:mage/j03",
+        "kingdom_smp:mage/j04",
+        "kingdom_smp:mage/j05",
+        "kingdom_smp:mage/j06",
+        "kingdom_smp:mage/j07"
+      ],
+      "availability": "Tier 6; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07; A6,I6",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:mage/m01",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Archmage preparation",
+      "objective": "Produce an eligible advanced native spellbook without Master equipment",
+      "quantity": "1 advanced spellbook",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; A8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m02",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "High-order spellcraft",
+      "objective": "Learn and successfully use distinct native Tier 3 Ars glyph patterns",
+      "quantity": "4 different learned glyphs with useful effects",
+      "validation": [
+        "MAGIC"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; A8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m03",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Otherside field study",
+      "objective": "Enter the unlocked Otherside, record a native observation and return",
+      "quantity": "1 genuine expedition",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; DD8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m04",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Occult cooperation",
+      "objective": "Complete an authorized Occultism ritual with actual ingredients and outcome",
+      "quantity": "1 verified accessible ritual",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; O6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m05",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Expedition battle magic",
+      "objective": "Contribute meaningfully to an eligible Twilight Forest boss encounter",
+      "quantity": "1 qualified Naga or Lich victory",
+      "validation": [
+        "MAGIC",
+        "COMBAT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; TF6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m06",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master magical service",
+      "objective": "Complete distinct Mage contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m07",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Community spellwork",
+      "objective": "Deliver an approved source-powered utility installation with safe boundaries",
+      "quantity": "1 inspected working community project",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:mage/m01",
+        "kingdom_smp:mage/m02",
+        "kingdom_smp:mage/m03",
+        "kingdom_smp:mage/m04",
+        "kingdom_smp:mage/m05"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05; A8,AC6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:mage/m08",
+      "profession": "mage",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master mage assessment",
+      "objective": "Demonstrate advanced useful spellcraft, cooperation and protected casting",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:mage/m01",
+        "kingdom_smp:mage/m02",
+        "kingdom_smp:mage/m03",
+        "kingdom_smp:mage/m04",
+        "kingdom_smp:mage/m05",
+        "kingdom_smp:mage/m06",
+        "kingdom_smp:mage/m07"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07; A8,I8",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Archmage's Staff"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a01",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Survey the homeland",
+      "objective": "Personally visit different Overworld environments without teleport credit",
+      "quantity": "4 distinct biomes",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a02",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Safe expedition camp",
+      "objective": "Prepare an authorized navigable camp and return route",
+      "quantity": "1 inspected temporary expedition site",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a03",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Natural hostile encounters",
+      "objective": "Defeat varied naturally spawned hostile mobs",
+      "quantity": "24 enemies with at least 4 from 4 species",
+      "validation": [
+        "COMBAT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a04",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Dungeon reconnaissance",
+      "objective": "Complete a real accessible Overworld dungeon exploration",
+      "quantity": "1 documented non-End dungeon",
+      "validation": [
+        "EXPLORE",
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a05",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Expedition supplies",
+      "objective": "Supply consumed useful travel provisions through a real commission",
+      "quantity": "16 cooked food,16 torches and 1 compass",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a06",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "First bounty",
+      "objective": "Complete a real Royal Bounty Hall hunt with valid attribution",
+      "quantity": "1 settled eligible hunt",
+      "validation": [
+        "HUNT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band; BH3",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a07",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Daily expedition service",
+      "objective": "Complete Adventurer daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [],
+      "availability": "Tier 3; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/a08",
+      "profession": "adventurer",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice expedition report",
+      "objective": "Present actual route, encounter, supplies and return records",
+      "quantity": "1 reviewed expedition report",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 3,
+      "prerequisites": [
+        "kingdom_smp:adventurer/a01",
+        "kingdom_smp:adventurer/a02",
+        "kingdom_smp:adventurer/a03",
+        "kingdom_smp:adventurer/a04",
+        "kingdom_smp:adventurer/a05",
+        "kingdom_smp:adventurer/a06",
+        "kingdom_smp:adventurer/a07"
+      ],
+      "availability": "Tier 3; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j01",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Aether pathfinder",
+      "objective": "Enter unlocked Aether, record locations and return safely",
+      "quantity": "1 genuine expedition",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; AE4",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j02",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Nether reconnaissance",
+      "objective": "Explore different Nether settings and return through an authorized route",
+      "quantity": "2 Nether biomes",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; N5",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j03",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Twilight survey",
+      "objective": "Enter unlocked Twilight Forest and document safe navigation",
+      "quantity": "1 genuine expedition",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; TF6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j04",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Naga encounter",
+      "objective": "Participate meaningfully in a legitimate Twilight Forest Naga defeat",
+      "quantity": "1 qualified boss victory",
+      "validation": [
+        "COMBAT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; TF6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j05",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Dungeon variety",
+      "objective": "Explore different accessible Overworld or Twilight dungeon structures",
+      "quantity": "2 distinct structures",
+      "validation": [
+        "EXPLORE",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; TF6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j06",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Royal air dispatch",
+      "objective": "Complete a real registered powered-flight dispatch, own or shared aircraft",
+      "quantity": "1 canonical Corin dispatch reward",
+      "validation": [
+        "FLIGHT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; AIR6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j07",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained expedition service",
+      "objective": "Complete Adventurer contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/j08",
+      "profession": "adventurer",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman field report",
+      "objective": "Present genuine multi-dimension routes, encounters and return evidence",
+      "quantity": "1 reviewed field report",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:adventurer/j01",
+        "kingdom_smp:adventurer/j02",
+        "kingdom_smp:adventurer/j03",
+        "kingdom_smp:adventurer/j04",
+        "kingdom_smp:adventurer/j05",
+        "kingdom_smp:adventurer/j06",
+        "kingdom_smp:adventurer/j07"
+      ],
+      "availability": "Tier 6; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m01",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Otherside explorer",
+      "objective": "Enter the unlocked Otherside, survey native locations and return",
+      "quantity": "1 expedition with 3 observed regions",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; DD8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m02",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Lich expedition",
+      "objective": "Participate in an eligible Twilight Forest Lich encounter after native prerequisites",
+      "quantity": "1 qualified boss victory",
+      "validation": [
+        "COMBAT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; TF6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m03",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Royal reconnaissance",
+      "objective": "Complete a genuine new-region aircraft scouting report",
+      "quantity": "1 canonical shared-region report",
+      "validation": [
+        "FLIGHT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; AIR6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m04",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Lunar expedition",
+      "objective": "Visit the unlocked Moon through native space progression and return",
+      "quantity": "1 recorded Moon expedition",
+      "validation": [
+        "EXPLORE"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band; SPACE10",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m05",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Relic field guide",
+      "objective": "Catalogue genuine accessible relic finds from distinct approved structures",
+      "quantity": "3 verified non-End finds from 3 structures",
+      "validation": [
+        "EXPLORE",
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m06",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master expedition service",
+      "objective": "Complete distinct Adventurer contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [],
+      "availability": "Tier 10; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m07",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Community expedition",
+      "objective": "Organize an authorized group expedition with supplied access and return plan",
+      "quantity": "1 inspected expedition with 3 participants",
+      "validation": [
+        "EXPLORE",
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [
+        "kingdom_smp:adventurer/m01",
+        "kingdom_smp:adventurer/m02",
+        "kingdom_smp:adventurer/m03",
+        "kingdom_smp:adventurer/m04",
+        "kingdom_smp:adventurer/m05"
+      ],
+      "availability": "Tier 10; premises; active; open Master band; m01,m02,m03,m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:adventurer/m08",
+      "profession": "adventurer",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master adventurer assessment",
+      "objective": "Present verified achievements and demonstrate safe shared exploration",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 10,
+      "prerequisites": [
+        "kingdom_smp:adventurer/m01",
+        "kingdom_smp:adventurer/m02",
+        "kingdom_smp:adventurer/m03",
+        "kingdom_smp:adventurer/m04",
+        "kingdom_smp:adventurer/m05",
+        "kingdom_smp:adventurer/m06",
+        "kingdom_smp:adventurer/m07"
+      ],
+      "availability": "Tier 10; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Relic Hunter's Compass"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a01",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "A fueled laboratory",
+      "objective": "Commission legitimate brewing with working stand, water and blaze fuel",
+      "quantity": "1 inspected laboratory",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Apprentice band; N5",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a02",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Awkward foundations",
+      "objective": "Brew and deliver real awkward potions with consumed ingredients",
+      "quantity": "12 potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:alchemist/a01"
+      ],
+      "availability": "Tier 5; premises; active; open Apprentice band; a01; N5",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a03",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Healing commission",
+      "objective": "Brew and deliver legitimate healing potions",
+      "quantity": "12 potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:alchemist/a02"
+      ],
+      "availability": "Tier 5; premises; active; open Apprentice band; a02; N5",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a04",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "Swiftness commission",
+      "objective": "Brew and deliver legitimate swiftness potions",
+      "quantity": "12 potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:alchemist/a02"
+      ],
+      "availability": "Tier 5; premises; active; open Apprentice band; a02; N5",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a05",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Strength commission",
+      "objective": "Brew and deliver legitimate strength potions",
+      "quantity": "12 potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:alchemist/a02"
+      ],
+      "availability": "Tier 5; premises; active; open Apprentice band; a02; N5",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a06",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Fire-safe travellers",
+      "objective": "Brew and deliver legitimate fire resistance potions",
+      "quantity": "12 potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:alchemist/a02"
+      ],
+      "availability": "Tier 5; premises; active; open Apprentice band; a02; N5",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a07",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Daily apothecary service",
+      "objective": "Complete Alchemist daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [],
+      "availability": "Tier 5; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/a08",
+      "profession": "alchemist",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice apothecary",
+      "objective": "Demonstrate tracked ingredients, brewing, containers and safe storage",
+      "quantity": "1 inspected brewing assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 5,
+      "prerequisites": [
+        "kingdom_smp:alchemist/a01",
+        "kingdom_smp:alchemist/a02",
+        "kingdom_smp:alchemist/a03",
+        "kingdom_smp:alchemist/a04",
+        "kingdom_smp:alchemist/a05",
+        "kingdom_smp:alchemist/a06",
+        "kingdom_smp:alchemist/a07"
+      ],
+      "availability": "Tier 5; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07; N5",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j01",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Extended protection",
+      "objective": "Brew extended-duration legitimate protective potions",
+      "quantity": "12 extended fire-resistance potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; N5",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j02",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Empowered healing",
+      "objective": "Brew stronger native healing recipes with correct glowstone costs",
+      "quantity": "12 level-II healing potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; N5",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j03",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Water expeditions",
+      "objective": "Brew and deliver native underwater support potions",
+      "quantity": "8 water-breathing and 8 night-vision potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; N5",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j04",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Splashcraft",
+      "objective": "Produce legitimate splash potions while consuming actual gunpowder and brews",
+      "quantity": "12 beneficial splash potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; N5",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j05",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Bee reagents",
+      "objective": "Supply resource combs from supervised permitted Productive Bees work",
+      "quantity": "16 resource combs from eligible pre-End species",
+      "validation": [
+        "JOB",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; B6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j06",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Essence reagents",
+      "objective": "Grow and harvest Inferium as a legitimate magical reagent commission",
+      "quantity": "32 Inferium essence from verified mature crops",
+      "validation": [
+        "GROW",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; MA4",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j07",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained alchemy service",
+      "objective": "Complete Alchemist contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/j08",
+      "profession": "alchemist",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman apothecary",
+      "objective": "Demonstrate varied brewing, ingredient traceability and container accounting",
+      "quantity": "1 inspected functioning laboratory",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:alchemist/j01",
+        "kingdom_smp:alchemist/j02",
+        "kingdom_smp:alchemist/j03",
+        "kingdom_smp:alchemist/j04",
+        "kingdom_smp:alchemist/j05",
+        "kingdom_smp:alchemist/j06",
+        "kingdom_smp:alchemist/j07"
+      ],
+      "availability": "Tier 6; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m01",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Expedition elixirs",
+      "objective": "Deliver a varied legitimate beneficial potion commission",
+      "quantity": "8 healingII,8 swiftnessII and 8 fire-resistance potions",
+      "validation": [
+        "BREW",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m02",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Rare reagent expedition",
+      "objective": "Collect legitimate pre-End brewing reagents through real exploration",
+      "quantity": "4 ghast tears and 4 glowstone dust from recorded Nether work",
+      "validation": [
+        "EXPLORE",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; N5",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m03",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Spellbook reagents",
+      "objective": "Source and supply native Arcane Essence for magical reagent work",
+      "quantity": "32 Arcane Essence",
+      "validation": [
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; I8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m04",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Occult preparation",
+      "objective": "Prepare and complete an accessible authorized Occultism reagent ritual",
+      "quantity": "1 witnessed native recipe cycle",
+      "validation": [
+        "JOB",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; O6",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m05",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Beneficial field use",
+      "objective": "Apply legitimate beneficial brews during genuine group combat or exploration",
+      "quantity": "8 qualified distinct ally effects",
+      "validation": [
+        "BREW",
+        "COMBAT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m06",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master apothecary service",
+      "objective": "Complete distinct Alchemist contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m07",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Kingdom expedition pharmacy",
+      "objective": "Organize an inspected useful reagent and potion supply commission",
+      "quantity": "1 project covering 3 potion families",
+      "validation": [
+        "BREW",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:alchemist/m01",
+        "kingdom_smp:alchemist/m02",
+        "kingdom_smp:alchemist/m03",
+        "kingdom_smp:alchemist/m04",
+        "kingdom_smp:alchemist/m05"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:alchemist/m08",
+      "profession": "alchemist",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master alchemist assessment",
+      "objective": "Demonstrate strong legitimate brewing and nonduplicating container recovery",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:alchemist/m01",
+        "kingdom_smp:alchemist/m02",
+        "kingdom_smp:alchemist/m03",
+        "kingdom_smp:alchemist/m04",
+        "kingdom_smp:alchemist/m05",
+        "kingdom_smp:alchemist/m06",
+        "kingdom_smp:alchemist/m07"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy Philosopher's Brewing Stand"
+    },
+    {
+      "id": "kingdom_smp:librarian/a01",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 1,
+      "name": "Paper and bindings",
+      "objective": "Craft and commission personally produced books",
+      "quantity": "32 books",
+      "validation": [
+        "MAKE",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a02",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 2,
+      "name": "Reading room",
+      "objective": "Create an authorized readable area with practical shelves and light",
+      "quantity": "1 inspected room with 12 bookshelves",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a03",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 3,
+      "name": "Enchanting foundations",
+      "objective": "Commission a native enchanting setup with genuine lapis and XP costs",
+      "quantity": "1 working accessible enchanting area",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:librarian/a02"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a02",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a04",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 4,
+      "name": "First inscriptions",
+      "objective": "Enchant distinct useful items through actual native operations",
+      "quantity": "4 distinct commissioned items",
+      "validation": [
+        "ENCHANT",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:librarian/a03"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a03",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a05",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 5,
+      "name": "Compatible volumes",
+      "objective": "Combine compatible ordinary enchanted books with genuine inputs and XP",
+      "quantity": "4 commissioned resulting books",
+      "validation": [
+        "ENCHANT",
+        "DEL"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a06",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 6,
+      "name": "Truthful catalogue",
+      "objective": "Document registered ordinary enchantment compatibility and limits",
+      "quantity": "1 inspected catalogue covering 6 enchantments",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:librarian/a04",
+        "kingdom_smp:librarian/a05"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a04,a05",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a07",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 7,
+      "name": "Daily library service",
+      "objective": "Complete Librarian daily contracts in distinct periods",
+      "quantity": "3 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [],
+      "availability": "Tier 4; premises; active; open Apprentice band",
+      "xp": 100,
+      "rewards": "100 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/a08",
+      "profession": "librarian",
+      "rank": "apprentice",
+      "ordinal": 8,
+      "name": "Apprentice library",
+      "objective": "Demonstrate books, readable access, real enchanting and accurate records",
+      "quantity": "1 inspected library assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 4,
+      "prerequisites": [
+        "kingdom_smp:librarian/a01",
+        "kingdom_smp:librarian/a02",
+        "kingdom_smp:librarian/a03",
+        "kingdom_smp:librarian/a04",
+        "kingdom_smp:librarian/a05",
+        "kingdom_smp:librarian/a06",
+        "kingdom_smp:librarian/a07"
+      ],
+      "availability": "Tier 4; premises; active; open Apprentice band; a01,a02,a03,a04,a05,a06,a07",
+      "xp": 100,
+      "rewards": "100 profession XP; Journeyman rank/title and eligible Journeyman purchase rights"
+    },
+    {
+      "id": "kingdom_smp:librarian/j01",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 1,
+      "name": "Useful enchantment collection",
+      "objective": "Commission legitimate books from different enchantment families",
+      "quantity": "4 books across protection,tool,weapon anddurability families",
+      "validation": [
+        "ENCHANT",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j02",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 2,
+      "name": "Maximum ordinary craft",
+      "objective": "Combine ordinary books to native maximum levels without signature items",
+      "quantity": "2 legitimate maximum-native-level books",
+      "validation": [
+        "ENCHANT",
+        "DEL"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j03",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 3,
+      "name": "Author's field guide",
+      "objective": "Record personally visited approved dimension observations in a guide",
+      "quantity": "1 Aether or Twilight field guide",
+      "validation": [
+        "EXPLORE",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; AE4",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j04",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 4,
+      "name": "Ars research shelf",
+      "objective": "Source and catalogue legitimate native Tier 2 Ars glyph items",
+      "quantity": "4 different glyph items",
+      "validation": [
+        "DEL",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; A6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j05",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 5,
+      "name": "Spellbook indexing",
+      "objective": "Catalogue legitimate native RARE Iron spell scrolls",
+      "quantity": "4 different spell IDs at RARE rarity",
+      "validation": [
+        "DEL",
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band; I6",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j06",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 6,
+      "name": "Responsible restoration",
+      "objective": "Provide real compatible enchantment maintenance to other consenting players",
+      "quantity": "3 jobs across at least 2 players",
+      "validation": [
+        "ENCHANT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j07",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 7,
+      "name": "Sustained library service",
+      "objective": "Complete Librarian contracts across distinct weekly periods",
+      "quantity": "2 weekly periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [],
+      "availability": "Tier 6; premises; active; open Journeyman band",
+      "xp": 200,
+      "rewards": "200 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/j08",
+      "profession": "librarian",
+      "rank": "journeyman",
+      "ordinal": 8,
+      "name": "Journeyman library",
+      "objective": "Demonstrate safe books, research, compatibility and service records",
+      "quantity": "1 inspected functional library",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 6,
+      "prerequisites": [
+        "kingdom_smp:librarian/j01",
+        "kingdom_smp:librarian/j02",
+        "kingdom_smp:librarian/j03",
+        "kingdom_smp:librarian/j04",
+        "kingdom_smp:librarian/j05",
+        "kingdom_smp:librarian/j06",
+        "kingdom_smp:librarian/j07"
+      ],
+      "availability": "Tier 6; premises; active; open Journeyman band; j01,j02,j03,j04,j05,j06,j07",
+      "xp": 200,
+      "rewards": "200 profession XP; Master trials open"
+    },
+    {
+      "id": "kingdom_smp:librarian/m01",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 1,
+      "name": "Scholar's compendium",
+      "objective": "Commission varied legitimate high-level ordinary enchantment books",
+      "quantity": "6 books with at least 3 native enchantment families",
+      "validation": [
+        "ENCHANT",
+        "DEL"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m02",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 2,
+      "name": "Advanced glyph archive",
+      "objective": "Source and catalogue legitimate native Tier 3 Ars glyph items",
+      "quantity": "4 different glyph items",
+      "validation": [
+        "DEL",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; A8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m03",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 3,
+      "name": "Royal spell archive",
+      "objective": "Catalogue legitimate native EPIC Iron spell scrolls",
+      "quantity": "4 different spell IDs at EPIC rarity",
+      "validation": [
+        "DEL",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; I8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m04",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 4,
+      "name": "Otherside field volume",
+      "objective": "Visit unlocked Otherside and document actual native observations",
+      "quantity": "1 genuine expedition and field volume",
+      "validation": [
+        "EXPLORE",
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band; DD8",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m05",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 5,
+      "name": "Conservation services",
+      "objective": "Resolve legitimate compatibility or maintenance jobs without duplication",
+      "quantity": "4 distinct jobs for at least 2 players",
+      "validation": [
+        "ENCHANT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m06",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 6,
+      "name": "Master library service",
+      "objective": "Complete distinct Librarian contracts during Master trials",
+      "quantity": "5 daily periods",
+      "validation": [
+        "CONTRACT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [],
+      "availability": "Tier 8; premises; active; open Master band",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m07",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 7,
+      "name": "Kingdom reference collection",
+      "objective": "Create an authorized readable collection documenting accessible kingdom systems",
+      "quantity": "1 inspected collection with 6 useful subjects",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:librarian/m01",
+        "kingdom_smp:librarian/m02",
+        "kingdom_smp:librarian/m03",
+        "kingdom_smp:librarian/m04",
+        "kingdom_smp:librarian/m05"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05",
+      "xp": 300,
+      "rewards": "300 profession XP"
+    },
+    {
+      "id": "kingdom_smp:librarian/m08",
+      "profession": "librarian",
+      "rank": "master",
+      "ordinal": 8,
+      "name": "Master librarian assessment",
+      "objective": "Demonstrate accurate research, legitimate enchanting and safe preservation",
+      "quantity": "1 final assessment",
+      "validation": [
+        "INSPECT"
+      ],
+      "minimumTier": 8,
+      "prerequisites": [
+        "kingdom_smp:librarian/m01",
+        "kingdom_smp:librarian/m02",
+        "kingdom_smp:librarian/m03",
+        "kingdom_smp:librarian/m04",
+        "kingdom_smp:librarian/m05",
+        "kingdom_smp:librarian/m06",
+        "kingdom_smp:librarian/m07"
+      ],
+      "availability": "Tier 8; premises; active; open Master band; m01,m02,m03,m04,m05,m06,m07",
+      "xp": 300,
+      "rewards": "300 profession XP; Master rank/title; right to buy approved Librarian catalogue only; undefined signature reward remains a separate design blocker"
+    }
+  ]
+}

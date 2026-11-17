@@ -1,0 +1,17 @@
+package com.mohymods.kingdomsmp.profession;
+import java.util.*;
+import net.minecraft.nbt.*;
+import net.minecraft.core.BlockPos;
+/** Bounded actual native bud cycles and personally harvested shard totals share one saved boundary. */
+public final class AmethystEvidence {
+ public static final int LIMIT=8192;
+ public record Growth(long budding,int stage){public Growth{if(stage<1||stage>4)throw new IllegalArgumentException("Invalid amethyst stage");}}
+ private final Map<Long,Growth> growing=new HashMap<>();private final Map<UUID,Integer> counts=new HashMap<>();
+ public Growth at(long position){return growing.get(position);}
+ public void invalidate(long position){growing.remove(position);}
+ public void grow(long position,long budding,int before,int after,Growth prior){if(BlockPos.of(position).distManhattan(BlockPos.of(budding))!=1||after!=before+1||after<1||after>4)return;if(before>0&&(prior==null||prior.stage()!=before||prior.budding()!=budding))return;if(growing.containsKey(position)||growing.size()<LIMIT)growing.put(position,new Growth(budding,after));}
+ public int count(UUID player){return counts.getOrDefault(player,0);}
+ public void harvested(UUID player,int quantity){if(quantity<1||quantity>64)throw new IllegalArgumentException("Invalid native shard amount");if(!counts.containsKey(player)&&counts.size()>=128)throw new IllegalStateException("Amethyst player bound exceeded");counts.put(player,Math.min(1000000,Math.addExact(count(player),quantity)));}
+ public CompoundTag save(){var root=new CompoundTag();root.putInt("schema",1);var rows=new ListTag();growing.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e->{var row=new CompoundTag();row.putLong("position",e.getKey());row.putLong("budding",e.getValue().budding());row.putInt("stage",e.getValue().stage());rows.add(row);});root.put("growth",rows);var totals=new CompoundTag();counts.forEach((id,n)->totals.putInt(id.toString(),n));root.put("counts",totals);return root;}
+ public static AmethystEvidence load(CompoundTag root){if(!root.getAllKeys().equals(Set.of("schema","growth","counts"))||!root.contains("schema",Tag.TAG_INT)||root.getInt("schema")!=1||!(root.get("growth") instanceof ListTag rows)||rows.size()>LIMIT||!rows.isEmpty()&&rows.getElementType()!=Tag.TAG_COMPOUND||!root.contains("counts",Tag.TAG_COMPOUND))throw new IllegalArgumentException("Invalid amethyst evidence");var result=new AmethystEvidence();for(var value:rows){var row=(CompoundTag)value;if(!row.getAllKeys().equals(Set.of("position","budding","stage"))||!row.contains("position",Tag.TAG_LONG)||!row.contains("budding",Tag.TAG_LONG)||!row.contains("stage",Tag.TAG_INT))throw new IllegalArgumentException("Invalid amethyst growth");long position=row.getLong("position"),budding=row.getLong("budding");var growth=new Growth(budding,row.getInt("stage"));if(BlockPos.of(position).distManhattan(BlockPos.of(budding))!=1||result.growing.put(position,growth)!=null)throw new IllegalArgumentException("Duplicate or unsupported amethyst growth");}var totals=root.getCompound("counts");if(totals.size()>128)throw new IllegalArgumentException("Too many amethyst owners");for(String id:totals.getAllKeys()){var player=UUID.fromString(id);if(!id.equals(player.toString())||!totals.contains(id,Tag.TAG_INT)||totals.getInt(id)<1||totals.getInt(id)>1000000||result.counts.put(player,totals.getInt(id))!=null)throw new IllegalArgumentException("Invalid amethyst count");}return result;}
+}

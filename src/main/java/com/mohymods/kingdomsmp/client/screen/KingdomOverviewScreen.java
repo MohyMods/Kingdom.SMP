@@ -44,11 +44,19 @@ public final class KingdomOverviewScreen extends Screen {
             return;
         }
         layout = RoyalLayout.fit(width, height);
-        int tabWidth = Math.min(128, (layout.contentWidth() - 8) / 2);
+        var guide=new RoyalButton(layout.x()+layout.width()-104,layout.y()+7,90,20,
+                Component.literal("Quest Guide"),button->com.mohymods.kingdomsmp.client.FtbQuestGuide.open(),
+                com.mohymods.kingdomsmp.client.FtbQuestGuide.help());
+        guide.active=com.mohymods.kingdomsmp.client.FtbQuestGuide.available();
+        addRenderableWidget(guide);
+        int tabWidth = Math.min(128, (layout.contentWidth() - 16) / 3);
         addRenderableWidget(new RoyalTab(layout.contentX(), layout.y() + 48, tabWidth,
                 text("overview"), !progression, button -> selectTab(false), text("overview.help")));
         addRenderableWidget(new RoyalTab(layout.contentX() + tabWidth + 8, layout.y() + 48, tabWidth,
                 text("progression"), progression, button -> selectTab(true), text("progression.help")));
+        addRenderableWidget(new RoyalButton(layout.contentX()+2*(tabWidth+8),layout.y()+48,tabWidth,20,
+                Component.literal("Construction"),button->com.mohymods.kingdomsmp.client.ConstructionController.open(),
+                Component.literal("Blueprint claim, approved sites, Aldric's projects and the Royal construction administration.")));
         if (progression) {
             for (int tier = 1; tier <= 12; tier++) {
                 final int selected = tier;
@@ -57,8 +65,13 @@ public final class KingdomOverviewScreen extends Screen {
                         button -> selectTier(selected), tierTooltip(tier)).selected(tier == selectedTier));
             }
         }
-        refresh = addRenderableWidget(new RoyalButton(layout.contentX(), layout.footerY(), 100, 20,
+        int footerWidth=(layout.contentWidth()-12)/3;
+        int refreshWidth=Math.min(100,footerWidth);
+        refresh = addRenderableWidget(new RoyalButton(layout.contentX(), layout.footerY(), refreshWidth, 20,
                 text("refresh"), button -> ClientOverviewController.request(), text("refresh.help")));
+        addRenderableWidget(new RoyalButton(layout.contentX() + refreshWidth+6, layout.footerY(), Math.min(90,footerWidth), 20,
+                Component.literal("Contribute"), button -> com.mohymods.kingdomsmp.client.ContributionController.open(),
+                Component.literal("Donate resources and inspect the kingdom leaderboard.")));
         addRenderableWidget(new RoyalButton(layout.x() + layout.width() - 94, layout.footerY(), 80, 20,
                 text("close"), button -> onClose(), text("close.help")));
     }
@@ -78,6 +91,12 @@ public final class KingdomOverviewScreen extends Screen {
     private void rebuild() {
         clearWidgets();
         init();
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // This screen draws its own solid backdrop. Screen.render would otherwise
+        // blur the panels and text already drawn before the vanilla widgets.
     }
 
     @Override
@@ -129,9 +148,9 @@ public final class KingdomOverviewScreen extends Screen {
         Component state = Component.translatable("kingdomsmp.screen.selected", selectedTier, state(selectedTier));
         List<Component> paragraphs = new ArrayList<>();
         if (!ClientOverviewController.status().getString().isEmpty()) paragraphs.add(ClientOverviewController.status());
-        paragraphs.addAll(List.of(state, tierTitle(selectedTier), gate(selectedTier)));
-        if (selectedTier == 1) paragraphs.add(text("tier.first_hearth.targets"));
-        paragraphs.add(text("contributions.unavailable"));
+        paragraphs.add(state);
+        if(selectedTier==4||selectedTier==5||selectedTier==6||selectedTier==8||selectedTier==9||selectedTier==12)paragraphs.add(gate(selectedTier));
+        paragraphs.add(Component.literal(snapshot.milestoneDetails().get(selectedTier-1)));
         renderParagraphs(graphics, paragraphs,
                 layout.contentX() + 6, y + 5, layout.contentWidth() - 12, height - 10);
     }
@@ -148,7 +167,7 @@ public final class KingdomOverviewScreen extends Screen {
         graphics.enableScissor(x, y, x + width, y + height);
         for (int i = 0; i < lines.size(); i++) {
             int lineY = y + i * 12 - scroll;
-            if (lineY + 9 >= y && lineY < y + height) {
+            if (lineY >= y && lineY + font.lineHeight <= y + height) {
                 graphics.drawString(font, lines.get(i), x, lineY,
                         progression ? RoyalPalette.INK : RoyalPalette.TEXT, false);
             }
@@ -189,20 +208,15 @@ public final class KingdomOverviewScreen extends Screen {
         return text(tier < snapshot.tier() ? "state.attained" : tier == snapshot.tier() ? "state.current" : "state.locked");
     }
 
-    private Component tierTitle(int tier) {
-        return text(switch (tier) {
-            case 1 -> "tier.first_hearth";
-            case 2 -> "tier.roads_commerce";
-            default -> "tier.future";
-        });
-    }
-
     private Component gate(int tier) {
         return text(switch (tier) {
-            case 1 -> "gate.town_hall";
+            case 1, 2 -> "gate.founders_lodge";
+            case 4 -> "gate.aether";
             case 5 -> "gate.nether";
-            case 9 -> "gate.end";
-            case 12 -> "gate.cube";
+            case 6 -> "gate.twilight";
+            case 8 -> "gate.otherside";
+            case 9 -> "gate.waystones";
+            case 12 -> "gate.town_hall";
             default -> "gate.unspecified";
         });
     }

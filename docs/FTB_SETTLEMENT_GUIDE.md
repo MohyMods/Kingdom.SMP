@@ -1,0 +1,21 @@
+# Settlement quest guide
+
+With FTB Quests2101.1.37 installed on both sides and its server data loaded, K → Quest Guide opens the actual Kingdom settlement chapter. The Royal entry centers its overview; the normal FTB hotkey retains its own saved navigation. The button is disabled while unavailable/loading. Refresh the overview after data arrives.
+
+The nine shared objectives reflect actual Hut, contribution, Tier2, headquarters, paid purchase/building, Tier3, Bank and taxed public-trade records. They never grant another blueprint, coin, profession rank or tier. Different teams and late readers can recognize the same shared kingdom achievements. FTB team completion does not establish personal profession mastery. Full campaign/288profession-guide content remains unfinished.
+
+Fresh chapters use real compound item icons and a centered graph with stable quest/task IDs. Existing campaign files are preserved by the installer. Under exact known rewardless bindings, the runtime supplies only missing default icons and preserves nonempty customized icons and existing positions. FTB itself may normalize/save its own file format; this is not a byte-preservation promise for that separate mod’s serializer. The Kingdom installer’s no-overwrite behavior is independently disk-tested.
+
+Permission2 `/kingdom admin integrations ftbquests` reports adapter readiness, stable task IDs, binding validity, canonical predicates and up to10team records with actual0–9guide completion, next objective and lock status. Historical personal-team records can remain after a party forms; a record is not necessarily a currently online team. This diagnostic grants or resets nothing.
+
+## Executed verification
+
+- Full Gradle build402JUnit, zero failures/errors: `work/production-ftb-real-icons-build.log`; subsequent client-centering full build: `work/production-ftb-centered-guide-build.log`.
+- Exact six-mod optional fixture: `sources/QUEST_TEST_ARTIFACTS.json` and `scripts/download-quest-test-mods.py`; third-party JARs remain private and unbundled.
+- Actual two-JVM native loop passed `work/production-ftb-custom-icons-final-native.log`. It earns the settlement through real consumed contributions, progressive buildings, paid premises and an actual100coin taxed sale; verifies separate teams, a late joiner, actual quest reset/reprojection, ordinary invited-party formation and restart. Legacy layout and an explicit emerald custom icon survive the second boot, while missing real item icons are repaired. Global receipts, purses, entitlements, contribution and construction records stay unchanged by guide operations. Fixture resources/funds/construction acceleration are explicit.
+- Test peers reconnect as exact vanilla ServerPlayer because Architectury intentionally excludes subclasses. Their embedded channels do not run an accepted socket’s packet listener; the fixture drives actual native player ticks. No quest completion or rank proof is injected. Actual quest-reset API is used with reset=true; task-value removal alone is not a complete FTB reset. Earlier fixture failures are retained.
+- Real ordinary Survival GuideVisitor joined a clean copied test world, automatically received9/9 and opened the actual book from Royal Gilded. Purse stayed0/revision17 and all16Kingdom authority files retained their exact hashes. Raw proof/captures remain in ignored `work/quest-*` and `production-ftb-*-client/server.log`.
+
+This validates the settlement guide, not the full277pack, personal-profession FTB attribution, every reload/edited reward scenario or the complete release campaign.
+
+Final graphical checks: all nine actual item nodes fit after the Royal entry recenters at960×640 (`work/quest-guide-centered-compact.png`); the real first-objective detail is readable (`quest-guide-final-compact-detail.png`). The final copied world again preserved all16Kingdom authority files exactly (`quest-guide-final-authority-proof.json`). A separate actual core-only client and dedicated server, with FTB absent on both sides, opened K safely and showed the disabled guide/explanation; clicking it left Tier1/revision0 unchanged (`quest-guide-absent-core.png`, `production-guide-core-absence-client/server.log`). No optional class-loading failure or forced dependency.

@@ -1,0 +1,28 @@
+package com.mohymods.kingdomsmp.profession;
+
+import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import java.nio.file.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+class CraftDeliveryRulesTest {
+    @TempDir Path directory;
+    @Test void approvedQuantitiesAndOverridesArePreservedExactly()throws Exception{
+        var file=directory.resolve("craft.json");assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.MASONRY),CraftDeliveryRules.load(file).inputs(CraftDeliveryQuests.MASONRY));
+        String configured=Files.readString(file).replace(": 32",": 16");Files.writeString(file,configured);
+        assertEquals(16,CraftDeliveryRules.load(file).inputs(CraftDeliveryQuests.MASONRY).get("minecraft:stone_brick_stairs"));assertEquals(configured,Files.readString(file));
+    }
+    @Test void unknownMaterialsFractionalZeroAndUnreachableInventoryTotalsFailClosed()throws Exception{
+        var file=directory.resolve("craft.json");CraftDeliveryRules.load(file);String original=Files.readString(file);
+        for(String n:new String[]{"0","-1","1.5","2305","1200","\"32\""}){
+            Files.writeString(file,original.replace(": 32",": "+n));assertThrows(IOException.class,()->CraftDeliveryRules.load(file));
+        }
+        Files.writeString(file,original.replace("minecraft:stone_brick_stairs","minecraft:diamond"));assertThrows(IOException.class,()->CraftDeliveryRules.load(file));
+    }
+    @Test void oldBuilderOnlyConfigurationRemainsByteForByteAndNewTimberDefaultsAreAdditive()throws Exception{
+        var file=directory.resolve("legacy.json");String legacy="{\"schema\":1,\"deliveries\":{\"kingdom_smp:builder/a05\":{\"minecraft:stone_brick_stairs\":16,\"minecraft:stone_brick_slab\":20}}}";Files.writeString(file,legacy);
+        var rules=CraftDeliveryRules.load(file);assertEquals(16,rules.inputs(CraftDeliveryQuests.MASONRY).get("minecraft:stone_brick_stairs"));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.TIMBER),rules.inputs(CraftDeliveryQuests.TIMBER));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.CHARCOAL),rules.inputs(CraftDeliveryQuests.CHARCOAL));assertEquals(CraftDeliveryQuests.defaults(CraftDeliveryQuests.FITTINGS),rules.inputs(CraftDeliveryQuests.FITTINGS));assertEquals(legacy,Files.readString(file));
+    }
+
+}

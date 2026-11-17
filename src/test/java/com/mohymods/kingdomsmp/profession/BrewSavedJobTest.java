@@ -1,0 +1,11 @@
+package com.mohymods.kingdomsmp.profession;
+import static org.junit.jupiter.api.Assertions.*;
+import net.minecraft.nbt.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
+class BrewSavedJobTest {
+ static CompoundTag potion(String kind){var tag=new CompoundTag();tag.putString("id","minecraft:potion");tag.putInt("count",1);var components=new CompoundTag();var contents=new CompoundTag();contents.putString("potion","minecraft:"+kind);components.put("minecraft:potion_contents",contents);tag.put("components",components);return tag;}
+ static CompoundTag job(){var tag=new CompoundTag();tag.putInt("schema",1);tag.putString("dimension","minecraft:overworld");tag.putLong("position",new net.minecraft.core.BlockPos(0,64,0).asLong());tag.putUUID("owner",UUID.randomUUID());tag.putString("quest","kingdom_smp:alchemist/a02");tag.putInt("stage",1);var inputs=new ListTag();for(int n=0;n<3;n++)inputs.add(potion("water"));var reagent=new CompoundTag();reagent.putString("id","minecraft:nether_wart");reagent.putInt("count",1);inputs.add(reagent);tag.put("inputs",inputs);tag.put("outputs",new ListTag());return tag;}
+ @Test void pendingNativeOwnerAndExactInputsRoundTripWithoutRetrospectiveInference(){var actual=job();assertEquals(actual,BrewingEvidence.checked(actual.copy()));assertEquals(new CompoundTag(),BrewingEvidence.checked(new CompoundTag()));var malformed=actual.copy();malformed.putInt("stage",3);assertThrows(IllegalArgumentException.class,()->BrewingEvidence.checked(malformed));var wrong=actual.copy();wrong.getList("inputs",Tag.TAG_COMPOUND).getCompound(3).putString("id","minecraft:dirt");assertThrows(IllegalArgumentException.class,()->BrewingEvidence.checked(wrong));}
+ @Test void completedSourceCannotHaveMoreOutputsThanPaidInputsOrArbitraryPotionComponents(){var missing=job();missing.putInt("stage",2);assertThrows(IllegalArgumentException.class,()->BrewingEvidence.checked(missing));var extra=job();extra.getList("inputs",Tag.TAG_COMPOUND).getCompound(0).getCompound("components").getCompound("minecraft:potion_contents").put("custom_effects",new ListTag());assertThrows(IllegalArgumentException.class,()->BrewingEvidence.checked(extra));var oversized=job();oversized.getList("inputs",Tag.TAG_COMPOUND).getCompound(3).putInt("count",65);assertThrows(IllegalArgumentException.class,()->BrewingEvidence.checked(oversized));}
+}

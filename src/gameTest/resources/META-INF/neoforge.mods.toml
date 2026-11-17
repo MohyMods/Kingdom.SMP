@@ -1,0 +1,7 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="kingdom_smp_tests"
+version="1"
+displayName="Kingdom SMP runtime tests (development only)"

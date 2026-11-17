@@ -1,0 +1,16 @@
+# Verified Waystones travel boundary
+
+Waystones21.1.46 with Balm21.0.66 is optional. Its server interactions and native teleport paths require attained Tier9; destination realm restrictions still apply, especially End12. No automatic OP bypass, item confiscation, claim changes, entitlement conversion or permanent chunk tickets are introduced. Absent mods are safe; an installed unsupported version pair refuses world startup rather than silently exposing unverified travel. Exact artifacts/hashes and private downloader are in sources/WAYSTONE_TEST_ARTIFACTS.json and scripts/download-waystone-test-mods.py; third-party binaries are not distributed.
+
+The exact native start event is checked before normal XP/item requirement consumption. The native per-entity commit event also guards forceTeleport, which skips that start event. Denial overrides an existing successful result with the native failed result as well as cancelling, because the SDK otherwise prioritizes that override over cancellation. Allowed transfers do not clear another handler's veto or alter native prices/privacy/requirements. All decisions read current canonical server state. Off-thread requests fail closed. Early block/item interactions are refused server-side; the third-party client may briefly predict rune particles before denial.
+
+`/kingdom admin travel inspect` (permission2) reports actual installed adapter status. No new tier-grant command or client protocol is introduced. Royal progression descriptions show the approved Tier9 gate.
+
+## Executed acceptance
+
+- Full Gradle build:404JUnit, zero failures/errors, work/production-waystones-verified-build.log.
+- Actual two dedicated JVMs: work/production-waystones-security-final-native.log. Native activation, normal/force/async denial at8 without XP/item/location loss; adversarial cancelled-plus-success override denied; actual native3-level and4-iron costs at9; another handler's veto preserved; End9 normal/force denied before cost, actual arrival only at12; restart preserves three node UUIDs, inventory, XP and usable travel. Explicit isolated boundary-tier/XP/item seeds are not earned Tier1–12 progression.
+- Actual ordinary Survival client: Tier8 right-click reports locked, unchanged13levels/12iron. At9 actual Waystones menu and normal network travel work. After actual client/server restart both known destinations remain and another actual menu trip arrives at[44.5,-63,14.5], still13levels/12iron under native short-distance defaults. Explicit nonzero native costs are tested separately. Screens and proof: work/waystone-tier8-actual-message.png, waystone-client-tier9-selection.png, waystone-client-restart-menu.png, waystone-client-proof.json. Only the stopped private QA world copy was boundary-seeded; original native world remains intact.
+- Independent normal core-only dedicated startup, status inspection, save and clean stop succeeds without Waystones/Balm: work/production-waystones-core-absence-server.log. Actual graphical processes and matching dedicated server also saved/stopped cleanly.
+
+This verifies the pinned native boundary, not every third-party warp-item packet, plate/passenger combination, unsupported version pair or full277-entry pack. Existing node data are retained. Ad Astra split/early landing, aircraft and other integration closure remain separate work.

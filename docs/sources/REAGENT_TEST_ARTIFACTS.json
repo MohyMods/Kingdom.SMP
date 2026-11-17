@@ -1,0 +1,16 @@
+{
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.265",
+  "artifacts": [
+    {
+      "filename": "MysticalAgriculture-1.21.1-8.0.29.jar",
+      "url": "https://cdn.modrinth.com/data/C95ReXie/versions/4Wc9oVPI/MysticalAgriculture-1.21.1-8.0.29.jar",
+      "sha512": "022797a3b0dd2fd88d9ce7a16a1204ef5ae6412127807e414fa760e3b6711924a18ce596142b3819272af6fae84e810d4452c449e86f4e1ea4c6da86ca279d02"
+    },
+    {
+      "filename": "Cucumber-1.21.1-8.0.16.jar",
+      "url": "https://cdn.modrinth.com/data/Rw1NrDzF/versions/8421rqFF/Cucumber-1.21.1-8.0.16.jar",
+      "sha512": "fbc63f23f827061b2a45f33a3867e105268b5a51d9ca92ba3bacd2e2a0af847eb4c367e726a62a455b841e503f8ce73ea9e180285670ddf3ec18a8ba4e72da7d"
+    }
+  ]
+}

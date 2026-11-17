@@ -1,0 +1,19 @@
+package com.mohymods.kingdomsmp.gametest;
+import java.util.*;
+import net.minecraft.gametest.framework.*;
+import net.minecraft.server.level.*;
+import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.gametest.*;
+/** Actual native callbacks with a detached holder only; never change any real chunk's generation refs. */
+public final class ChunkUnloadRuntimeTests {
+ public static void cancelledAndMatchingPendingUnload(GameTestHelper h)throws Exception{
+  var level=h.getLevel();var path=level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("chunk-unload-runtime.nbt");var sentinel=new net.minecraft.core.BlockPos(448,92,448);level.getChunkAt(sentinel);if(java.nio.file.Files.exists(path)){h.assertTrue(level.getBlockState(sentinel).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK)&&com.mohymods.kingdomsmp.persistence.AtomicNbt.read(path).hasUUID("marker"),"Second real JVM restores the explicitly supplied dirty-chunk sentinel and paired saved test marker");com.mojang.logging.LogUtils.getLogger().info("CHUNK_UNLOAD_RESTART_PASSED: actual second JVM restores dirty real chunk/sentinel and saved marker after callback guard; native chunk reference/write checks retained");h.succeed();return;}h.assertTrue(level.getBlockState(sentinel).isAir(),"Fresh private sentinel never replaces real terrain/building");level.setBlockAndUpdate(sentinel,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState());var marker=new net.minecraft.nbt.CompoundTag();marker.putUUID("marker",java.util.UUID.randomUUID());com.mohymods.kingdomsmp.persistence.AtomicNbt.write(path,marker);var map=level.getChunkSource().chunkMap;var pendingField=ChunkMap.class.getDeclaredField("pendingUnloads");pendingField.setAccessible(true);@SuppressWarnings("unchecked")var pending=(Map<Long,ChunkHolder>)pendingField.get(map);var queueField=ChunkMap.class.getDeclaredField("unloadQueue");queueField.setAccessible(true);var queue=(Queue<?>)queueField.get(map);var callback=ChunkMap.class.getDeclaredMethod("lambda$scheduleUnload$12",ChunkHolder.class,long.class);callback.setAccessible(true);
+  var pos=new ChunkPos(27000,27000);long key=pos.toLong();h.assertTrue(!pending.containsKey(key),"Detached regression key never replaces an actual pending chunk");var holder=new ChunkHolder(pos,33,level,level.getChunkSource().getLightEngine(),(p,oldLevel,newLevel,changed)->{},(p,boundary)->List.of());h.assertTrue(holder.getGenerationRefCount()==0&&holder.getSaveSyncFuture().isDone()&&holder.getLatestChunk()==null,"Detached native holder starts with no world chunk or queued writes");holder.increaseGenerationRefCount();try{
+   int before=queue.size();callback.invoke(map,holder,key);h.assertTrue(queue.size()==before&&holder.getGenerationRefCount()==1,"Cancelled callback returns without requeueing or discarding a live generation reference");
+   pending.put(key,holder);callback.invoke(map,holder,key);h.assertTrue(pending.get(key)==holder&&queue.size()>before&&holder.getGenerationRefCount()==1,"Matching pending unload retains native wait/requeue and generation-reference checks");
+  }finally{holder.decreaseGenerationRefCount();}
+  callback.invoke(map,holder,key);h.assertTrue(!pending.containsKey(key)&&holder.getGenerationRefCount()==0,"Matching ready detached holder follows native removal; no actual chunk or world save was replaced");
+  // The earlier queued callback is now stale as well; normal server processing must ignore it safely.
+  h.runAfterDelay(40,()->{com.mojang.logging.LogUtils.getLogger().info("CHUNK_UNLOAD_NATIVE_PASSED: real cancelled native callback with held detached reference does not requeue; matching pending callback retains native ref wait, ready removal and queued-stale cleanup; real world chunk refs/data untouched");h.succeed();});
+ }
+}

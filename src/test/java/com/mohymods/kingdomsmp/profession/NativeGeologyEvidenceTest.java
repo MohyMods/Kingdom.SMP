@@ -1,0 +1,8 @@
+package com.mohymods.kingdomsmp.profession;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.*;
+import org.junit.jupiter.api.Test;
+class NativeGeologyEvidenceTest {
+ @Test void threeSettingsInOneAreaOrOneSettingInThreeAreasCannotFakeDiversity(){var p=UUID.randomUUID();var e=new NativeGeologyEvidence();for(String host:List.of("minecraft:stone","minecraft:granite","minecraft:andesite"))assertTrue(e.record(p,0,host));assertEquals(1,e.count(p));e.record(p,1,"minecraft:stone");e.record(p,2,"minecraft:stone");assertEquals(2,e.count(p));e.record(p,1,"minecraft:granite");assertEquals(3,e.count(p));assertEquals(0,e.count(UUID.randomUUID()));var r=NativeGeologyEvidence.load(e.save());assertEquals(3,r.count(p));assertEquals(e.save(),r.save());assertFalse(r.record(p,0,"client:stone"));assertFalse(NativeOreQuests.eligible("coal",ProfessionRank.JOURNEYMAN,12));assertFalse(NativeOreQuests.eligible("diamond",ProfessionRank.APPRENTICE,12));}
+ @Test void additiveHostAttachmentDoesNotAlterOldOreProofAndCorruptionCannotInventHosts(){var old=new NativeOreMarks();old.mark(1,"minecraft:iron_ore");var oldBytes=old.save();var hosts=new NativeGeologyMarks();assertNull(hosts.at(1));hosts.mark(2,"minecraft:granite");hosts=NativeGeologyMarks.load(hosts.save());assertEquals("minecraft:granite",hosts.at(2));hosts.invalidate(2);assertNull(hosts.at(2));assertEquals(oldBytes,old.save());var malformed=new net.minecraft.nbt.CompoundTag();malformed.putString("invalid","preserve me");hosts=NativeGeologyMarks.load(malformed);hosts.mark(1,"minecraft:stone");assertNull(hosts.at(1));assertEquals(malformed,hosts.save());}
+}

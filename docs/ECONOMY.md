@@ -1,4 +1,16 @@
+> **0.11.0 current slice:** [Dynamic NPC resource market](NPC_MARKET_CHECKPOINT.md) adds marginal prices, finite shared stock, safe Tier2 shop deliveries and real operator inspection. Prior auction modes remain. Profession bonuses/contracts and full1.0remain unfinished; see validation and D-032.
+
+> **0.9.0 current slice:** [Funded timed auctions](TIMED_AUCTION_CHECKPOINT.md) adds outbid refunds, rolling anti-sniping, due settlement and guarded QA commands. Fixed-price/Bank/building systems remain. Buyorders, dynamic economy and the full1.0 game remain incomplete.
+
+> **0.8.0 current slice:** [Fixed-price auctions and native item mail](AUCTION_CHECKPOINT.md) extends the 0.7 marketplace/Bank. [Public NPC claim setup](PUBLIC_NPC_CLAIM_SETUP.md) is explicit and optional. Timed bids, buy orders, dynamic economy and full1.0 remain unfinished; D-029 permanently removes auction taxes from circulation. Historical missing-status text below is superseded only for these verified slices.
+
+> **0.7.0 current checkpoint:** [Commerce and Tier3 Bank](COMMERCE_CHECKPOINT.md) implements the new approved Tier2 paid premises, resource income, recoverable plan mailbox, fresh-profile Tier2→3 and physical banking. [Validation](VALIDATION.md) / [current matrix](PRODUCTION_COMPLETION_MATRIX.md) qualify tested scope; historical missing-status text below is superseded only for these implemented slices. Full1.0 remains incomplete.
+
 # Economy
+
+> **D-023 — current implementation authority:** The [master directive](sources/MASTER_IMPLEMENTATION_DIRECTIVE_2026-10-31.md) authorizes incremental coding and supersedes the D-021/D-022 review-only hold. New-world Town Hall / existing-world Lodge profiles, owner Hut bootstrap, blueprint-market acquisition, automatic server-valid placement, supports up to four blocks, Tier 3 Bank (no new-world Storehouse), updated profession/economy/quest/admin scope apply. End remains Tier 12. The [full replacement mod snapshot](sources/MOD_SNAPSHOT_2026-10-31.txt) now reports FTB Quests installed. See [supersession and actual status](MASTER_SUPERSESSION_MATRIX.md); old descriptions below are historical where they conflict.
+
+> **Current authority — 2026-10-30 progression correction:** Town Hall and its blueprint are Tier 12 only. Tier 1 completion advances to Tier 2 and recognizes the highest contributor; its approved building reward is the Founders’ Lodge. No early Town Hall, Elara, Bank or Royal Trading dependency may be implemented from historical descriptions below. Earlier bank/trading locations and exact gates require separate approval; the Charter remains available after Tier 2 independently of the Town Hall. The existing hut, Aldric and Royal Gilded design are approved.
 
 ## Confirmed baseline
 
@@ -9,7 +21,7 @@
 | Gold | 100 |
 | Platinum | 1,000 |
 
-Physical coins coexist with virtual balances. Deposits and withdrawals require visiting the Town Hall Bank Counter. The auction house includes fixed-price listings, timed auctions, and buy orders. Normal auction sales tax is 5%; Master equipment tax is 10%. NPC resource purchases have shared budgets, resource quotas, and per-player daily limits. Master equipment purchases require the corresponding active Master profession; repeat price increases are described in [professions](PROFESSIONS.md).
+Physical coins coexist with virtual balances. Deposits and withdrawals require visiting an approved physical bank counter. An earlier counting house and market office are proposals; their premises and gates need approval independently of the Tier 12 Town Hall. The auction house includes fixed-price listings, timed auctions, and buy orders. Normal auction sales tax is 5%; Master equipment tax is 10%. NPC resource purchases have shared budgets, resource quotas, and per-player daily limits. Master equipment purchases require the corresponding active Master profession; repeat price increases are described in [professions](PROFESSIONS.md).
 
 Excluded: custom Player Trading and Economy Ledger features. Player-driven markets and NPC commerce remain required. Whether Player Trading means direct trade UI or a broader ban needs review. A player-facing economy ledger must not be reintroduced by naming internal recovery records a feature.
 
@@ -40,3 +52,5 @@ Need exact resource prices, buy/sell direction, budget funding/refill, quota sco
 ## Required future tests
 
 Money bounds and rounding; compounded price growth; duplicate requests; concurrent purchases/bids; insufficient balance/inventory; full inventory during withdrawal; counter removed or player moves; disconnect during transfer; restart and forced interruption at every durable transaction stage; escrow expiry/refunds; quota/budget races; failed writes and recovery replay. These tests have not run.
+
+The Tier3 Fishmonger uses `serverconfig/kingdomsmp-fishing-market.json` for six verified Aquaculture species, daily quotas, bounded marginal prices, basic iron-rod price and stock. Fish sales share the ordinary kingdom NPC daily budget/personal allowance with Essentials. Weekly partial provisions use `kingdomsmp-fishing-contracts.json`, a separate finite weekly pool and private coin mail. Existing schema-one community operations are extended with three fixed authenticated fish item mappings; legacy food records replay unchanged, food/fishing pools are isolated and fish grants no Farmer Master proof. Completed project terms and the first weekly pool are pinned; changing numerical files cannot retroactively alter a committed delivery. Use matching world/player backups, including the canonical economy and native player receipts. Downgrading to a binary that predates fishing records is not supported. No third-party mod JAR is bundled.

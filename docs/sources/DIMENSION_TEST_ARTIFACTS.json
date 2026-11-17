@@ -1,0 +1,62 @@
+[
+  {
+    "filename": "ftb-chunks-neoforge-2101.1.22.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-chunks-neoforge/2101.1.22/ftb-chunks-neoforge-2101.1.22.jar",
+    "size": 655807,
+    "sha256": "4ba1b3352184fa7f6e2aa4bca76edd074867697d62344dfa50dcccdb4dab5217"
+  },
+  {
+    "filename": "ftb-library-neoforge-2101.1.39.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-library-neoforge/2101.1.39/ftb-library-neoforge-2101.1.39.jar",
+    "size": 1477833,
+    "sha256": "ca64bd1b5f335406900f74eeafacea5a3580a3933d61de6b6600a64eb12a9a95"
+  },
+  {
+    "filename": "ftb-teams-neoforge-2101.1.11.jar",
+    "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-teams-neoforge/2101.1.11/ftb-teams-neoforge-2101.1.11.jar",
+    "size": 308236,
+    "sha256": "e6bcd670493624e6906df872a9c6af4a33fe6405cac57a32c59cd4cd5838c655"
+  },
+  {
+    "filename": "architectury-neoforge-13.0.11.jar",
+    "url": "https://maven.architectury.dev/dev/architectury/architectury-neoforge/13.0.11/architectury-neoforge-13.0.11.jar",
+    "size": 592446,
+    "sha256": "1295bfb3e23149904dd12da025319a9764fb2806dfd6f2f816753a61144cae46"
+  },
+  {
+    "filename": "open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "url": "https://cdn.modrinth.com/data/gF3BGWvG/versions/yWmXD7GW/open-parties-and-claims-neoforge-1.21.1-0.33.0.jar",
+    "size": 1903256,
+    "sha256": "77eadbbb7cbd7298d9a99070ebde552b765dd91bdad5054c9f845a17d2931765"
+  },
+  {
+    "filename": "aether-1.21.1-1.5.10-neoforge.jar",
+    "url": "https://cdn.modrinth.com/data/YhmgMVyu/versions/K5X5qMwG/aether-1.21.1-1.5.10-neoforge.jar",
+    "sha256": "a999a9265eb550a46a0f8eedfee7c3c75371d7f6cf34b7c09ff800e48633e9f8",
+    "size": 40223909
+  },
+  {
+    "filename": "deeperdarker-neoforge-1.21.1-1.4.1.jar",
+    "url": "https://cdn.modrinth.com/data/fnAffV0n/versions/TuD0Zvi3/deeperdarker-neoforge-1.21.1-1.4.1.jar",
+    "sha256": "eee3f51222b0bcc714def002ff089ac9e131d3cae4575b542fd0a7dd101fe0af",
+    "size": 3906057
+  },
+  {
+    "filename": "twilightforest-1.21.1-4.8.3345-universal.jar",
+    "url": "https://mediafilez.forgecdn.net/files/7797/302/twilightforest-1.21.1-4.8.3345-universal.jar",
+    "size": 27154121,
+    "sha256": "493da16d10210f9f53a3c33b3d8fcb4ae9b14016ee420d753c894562bd9aba35"
+  },
+  {
+    "filename": "owo-lib-neoforge-0.12.15.6-beta.1+1.21.jar",
+    "url": "https://cdn.modrinth.com/data/ccKDOlHs/versions/wbdHEItB/owo-lib-neoforge-0.12.15.6-beta.1%2B1.21.jar",
+    "size": 1223197,
+    "sha256": "5fc306ad3d42e1dc26812f2df856e7c232376405caab6af4f5aaffe89cd2b256"
+  },
+  {
+    "filename": "accessories-neoforge-1.1.0-beta.54+1.21.1.jar",
+    "url": "https://cdn.modrinth.com/data/jtmvUHXj/versions/dy9BbDEy/accessories-neoforge-1.1.0-beta.54%2B1.21.1.jar",
+    "size": 1086553,
+    "sha256": "cbecac21acbaf323349afa263b22cda67c3e836f928f6cf3f951ba460c196d15"
+  }
+]
