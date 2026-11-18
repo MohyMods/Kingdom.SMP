@@ -1,0 +1,32 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+Reusing configuration cache.
+> Task :jarJar NO-SOURCE
+> Task :downloadAssets UP-TO-DATE
+> Task :createMinecraftArtifacts UP-TO-DATE
+> Task :writeNeoForgeTestClasspath UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :prepareNeoForgeTestFiles UP-TO-DATE
+
+> Task :compileJava
+Note: /workspace/Kingdom.SMP/src/main/java/com/mohymods/kingdomsmp/equipment/MasterStationService.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :classes
+> Task :compileTestJava UP-TO-DATE
+> Task :testClasses UP-TO-DATE
+> Task :compileGameTestJava UP-TO-DATE
+> Task :jar
+> Task :assemble
+
+> Task :test
+Picked up JAVA_TOOL_OPTIONS:  -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+
+> Task :check
+> Task :build
+
+[Incubating] Problems report is available at: file:///workspace/Kingdom.SMP/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 37s
+10 actionable tasks: 3 executed, 7 up-to-date
+Configuration cache entry reused.

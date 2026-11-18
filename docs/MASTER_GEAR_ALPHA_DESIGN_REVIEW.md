@@ -1,3 +1,5 @@
+> **SUPERSEDED:** The owner approved the complete five-item specification in [ALPHA_MASTER_REWARDS_APPROVED.md](sources/ALPHA_MASTER_REWARDS_APPROVED.md), including the formerly undefined Miner and Librarian abilities. The text below is historical, not a pending approval request. Actual implementation/acceptance is recorded in the completion matrix and Alpha test report.
+
 # Alpha Master equipment — unresolved behavior review
 
 Approved identities are Extraction Anvil (Blacksmith), Architect's Wand (Builder), Worldtree Axe (Lumberjack), Prospector's Pickaxe (Miner), and a separately undefined Librarian signature. The reviewed directives name the first four but do not supply exact abilities. Farmer's existing Fortune X Hoe is implemented and stays unchanged. Purchasing requires the corresponding active Master at its maintained profession building, with private recoverable delivery and personal/item 50% compounded repeat pricing. Trading/use by other players remains allowed. Numerical prices, ranges and work budgets can be configured under existing owner authority.

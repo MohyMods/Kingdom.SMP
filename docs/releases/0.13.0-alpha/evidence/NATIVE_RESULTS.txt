@@ -1,0 +1,97 @@
+# Executed native assertion excerpts
+
+Excerpts report individual successful assertions; see TEST_REPORT.md for their scope.
+Native + resumed Librarian restart are paired across copied, session-locked saved records.
+All tests use private fixtures; no user save was modified.
+
+
+## master-librarian-modded-native.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.srj5ghjd
+[00:52:58] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_NATIVE_MOD_ENCHANTMENT CODEX ars_nouveau:mana_boost
+[00:52:59] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_NATIVE_PASSED: role=librarian actual saved24/4800Master/local purchase/exact price/private claim/replay/legitimate native pickup by non-Master/real signature use/materials-XP/native receipt; raw vanilla supplies/XP and terrain are explicit QA inputs; no profession XP/quest/rank/source evidence injection
+
+
+
+## master-librarian-modded-restore.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.i4hram2m
+[00:58:05] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_RESTART_PASSED: role=librarian exact purse/count/rank/original resident/guest native receipt and XP persist
+kingdom_smp_profession_production_tests SUITE_PASSED: 1 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## master-blacksmith-modded-native.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.iv7vgsym
+[00:59:48] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_NATIVE_MOD_ENCHANTMENT EXTRACTION ars_nouveau:mana_boost
+[00:59:49] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_NATIVE_PASSED: role=blacksmith actual saved24/4800Master/local purchase/exact price/private claim/replay/legitimate native pickup by non-Master/real signature use/materials-XP/native receipt; raw vanilla supplies/XP and terrain are explicit QA inputs; no profession XP/quest/rank/source evidence injection
+[01:01:33] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_RESTART_PASSED: role=blacksmith exact purse/count/rank/original resident/guest native receipt and XP persist
+kingdom_smp_profession_production_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## master-builder-claims-native.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.f3cvyn6v
+[01:17:19] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_NATIVE_PASSED: role=builder actual saved24/4800Master/local purchase/exact price/private claim/replay/legitimate native pickup by non-Master/real signature use/materials-XP/native receipt; raw vanilla supplies/XP and terrain are explicit QA inputs; no profession XP/quest/rank/source evidence injection
+[01:18:57] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_RESTART_PASSED: role=builder exact purse/count/rank/original resident/guest native receipt and XP persist
+kingdom_smp_profession_production_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## master-miner-claims-native.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.ej_xb8ze
+[01:10:23] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_NATIVE_PASSED: role=miner actual saved24/4800Master/local purchase/exact price/private claim/replay/legitimate native pickup by non-Master/real signature use/materials-XP/native receipt; raw vanilla supplies/XP and terrain are explicit QA inputs; no profession XP/quest/rank/source evidence injection
+[01:12:03] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_RESTART_PASSED: role=miner exact purse/count/rank/original resident/guest native receipt and XP persist
+kingdom_smp_profession_production_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## master-lumberjack-claims-native.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.qtxsb3gp
+[01:13:47] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_TREE_PLAN cells=4 root=BlockPos{x=800, y=80, z=800} sapling=minecraft:oak_sapling
+[01:13:49] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_TREE_PLAN cells=6 root=BlockPos{x=807, y=80, z=800} sapling=aether:skyroot_sapling
+[01:13:52] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_NATIVE_PASSED: role=lumberjack actual saved24/4800Master/local purchase/exact price/private claim/replay/legitimate native pickup by non-Master/real signature use/materials-XP/native receipt; raw vanilla supplies/XP and terrain are explicit QA inputs; no profession XP/quest/rank/source evidence injection
+[01:15:21] [Server thread/INFO] [co.mo.ki.ga.MasterRewardRuntime$Walk/]: MASTER_REWARD_RESTART_PASSED: role=lumberjack exact purse/count/rank/original resident/guest native receipt and XP persist
+kingdom_smp_profession_production_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## master-farmer-regression.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.k4s7jnhs
+[01:05:10] [Server thread/INFO] [co.mo.ki.ga.FarmerFullLoopRuntimeTests$Walk/]: FARMER_FULL_LOOP_ASSERTIONS_PASSED: actual24objective families, real seeds/harvests/births/recipes/food/container/contract/site/community proofs; earned Apprentice→Journeyman→Master, purchased both tools, preserved items and reopen; quantities/growth/AI waiting accelerated, supplies/funds explicitly seeded; no injected quest/XP/rank proof
+kingdom_smp_farmer_loop_tests SUITE_PASSED: 1 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## master-alpha-tier-six-regression.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.w8bikec3
+[01:07:37] [Server thread/INFO] [co.mo.ki.ga.EarlyTierRuntimeTests/]: EARLY_TIERS_NATIVE_PASSED: actual fresh Hut/Hall/fullTier1+2/road/paidBank, all24fullresourcefamilies/three real transitions/no forced tier/changedinventory/replay/damagedBankrefusals/native receipts/normalized recognition/no currency or blueprint mint; raw resource fixture, not gathering duration or full professions/Aerodrome acceptance
+[01:08:39] [Server thread/INFO] [co.mo.ki.ga.EarlyTierRuntimeTests/]: EARLY_TIERS_RESTART_PASSED: natural Tier6/all24resource goals/three pinned journals/native receipts/once-only winners/original buildings and residents restore
+kingdom_smp_early_tier_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## alpha-required-aerodrome-native.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.spw66ptx
+[09:17:32] [Server thread/INFO] [co.mo.ki.ga.AlphaAerodromeRuntime/]: ALPHA_AERODROME_PARTIAL_PASSED: earned Tier6/actual no-hangar mount+deployment denial/unique paid plan/rotated protected progressive original Aldric; private funds/terrain/time fixture only
+[09:20:02] [Server thread/INFO] [co.mo.ki.ga.AlphaAerodromeRuntime/]: ALPHA_AERODROME_COMPLETE_PASSED: actual partial restart/original prefix/progressive furnished hangar/sole Corin/native boarding/loaded-damage refusal/exact repair/no forced tier
+[09:22:27] [Server thread/INFO] [co.mo.ki.ga.AlphaAerodromeRuntime/]: ALPHA_AERODROME_RESTART_PASSED: earned Tier6/complete original hangar/sole Corin/native aircraft use/paid purse/native receipts restore; no forced tier
+kingdom_smp_alpha_aircraft_tests SUITE_PASSED: 3 normal dedicated startup(s), assertions, flush and clean stop(s)
+
+
+
+## alpha-ftb-native-current.log
+
+Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.y7xodmdf
+[08:56:51] [Server thread/INFO] [co.mo.ki.ga.AlphaGuideRuntime$Walk/]: ALPHA_GUIDE_NATIVE_PASSED: actual166tasks/all144real profession IDs/native icons/exact binding/24earned Library auto checks/unearned refusal/future locks/reset-reprojection/no Kingdom XP-rank-funds-receipt mutations
+[08:58:26] [Server thread/INFO] [co.mo.ki.ga.AlphaGuideRuntime$Walk/]: ALPHA_GUIDE_RESTART_PASSED: actual166native tasks/24earned Library tasks/future locks/independent untrained reader/private rank and Root unchanged across dedicated restart
+[08:58:26] [Server thread/INFO] [co.mo.ki.ga.AlphaGuideRuntime$Walk/]: ALPHA_GUIDE_RESTART_PASSED: actual166native tasks/24earned Library tasks/future locks/independent untrained reader/private rank and Root unchanged across dedicated restart
+kingdom_smp_profession_production_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
+

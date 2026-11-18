@@ -1,3 +1,15 @@
+# Kingdom SMP 0.13.0-alpha — Royal Gilded
+
+Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**.
+
+[Download the Alpha pre-release](https://github.com/MohyMods/Kingdom.SMP/releases/tag/v0.13.0-alpha) · [Install](docs/releases/0.13.0-alpha/INSTALL.md) · [Player guide](docs/releases/0.13.0-alpha/PLAYER_GUIDE.md) · [Actual tests and screenshots](docs/releases/0.13.0-alpha/TEST_REPORT.md) · [Known limitations](docs/releases/0.13.0-alpha/KNOWN_LIMITATIONS.md).
+
+Scope: Tier1–6, six selected professions/144 working quests, six paid usable Master signatures, economy, banking, contracts, auctions, mail and earned-Tier6 Aerodrome. Other professions and Tier7–12 remain visibly Coming Soon with existing progress preserved. **This is an Alpha, not the full1.0 release.**
+
+Full build754JUnit passes. Native gameplay/restart/protection tests and a real graphical Codex transaction pass on the29-artifact pinned compatibility profile. This does not certify the entire277-mod owner pack or multi-week balance. Back up complete worlds before upgrades; install matching client/server versions. Development remains on rebuild/royal-gilded; main is not merged.
+
+## Historical development records
+
 Latest **0.11.0-dev** — [download JAR, screenshots and evidence](docs/checkpoints/04b2e7d/CHECKPOINT.md): [dynamic NPC prices, finite stock and recoverable Tier2 purchases](docs/NPC_MARKET_CHECKPOINT.md). Matching protocol12 client/server required. Profession contracts/bonuses and the complete1.0game remain unfinished.
 
 Latest **0.10.0-dev** — [download JAR, actual screenshots and test evidence](docs/checkpoints/5899210/CHECKPOINT.md): [funded buy orders, partial fills, refunds and tested scope](docs/BUY_ORDER_CHECKPOINT.md). All three auction modes work in supported vanilla scope; dynamic shops/contracts and the complete1.0game remain unfinished. Matching protocol11 clients/server required.

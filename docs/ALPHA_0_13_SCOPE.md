@@ -1,3 +1,7 @@
+> **D111 release acceptance:** All six paid usable signatures now pass their executed native paths; full build754JUnit passes. Actual Codex client review/confirmation/scaling also passes. See [test report](releases/0.13.0-alpha/TEST_REPORT.md), [installation](releases/0.13.0-alpha/INSTALL.md) and known limitations. The Alpha scope is ready for pre-release; full1.0 and full277-pack certification remain deferred.
+
+> **Latest Master authority:** All five remaining signatures are now explicitly owner-approved in [the final directive](sources/ALPHA_MASTER_REWARDS_APPROVED.md). Earlier missing-design questions are resolved. All 144 selected quests already have native full-quantity Master loops; current work is equipment, final regression, client checks and release packaging. Historical NEXT paragraphs below do not reopen completed quests.
+
 # 0.13.0-alpha — current owner-directed release target
 
 The 2026-11-15 owner directive supersedes full-1.0 completion as the immediate target. Development stays on `rebuild/royal-gilded`; no main merge. No alpha release may be published until its acceptance passes.

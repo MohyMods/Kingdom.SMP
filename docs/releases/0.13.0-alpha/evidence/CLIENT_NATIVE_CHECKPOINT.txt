@@ -1,0 +1,4 @@
+Actual graphical client/integrated server confirmation; native player checkpoint inspected after successful UI operation.
+{'XP': 74, 'sourceItem': 'minecraft:diamond_helmet', 'sourceComponents': {'minecraft:enchantments': {'levels': {'ars_nouveau:mana_boost': 2}}, 'minecraft:damage': 23, 'minecraft:repair_cost': 2}, 'lapis': 4, 'books': 0}
+XP76->74;lapis8->4;real donor book1->0; helmet damage23 unchanged; native Ars mana_boost1->2.
+Private copied world only; ordinary QA book supplied through real /give, no profession XP/quest/rank proof injection.

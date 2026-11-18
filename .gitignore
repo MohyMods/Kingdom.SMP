@@ -48,3 +48,4 @@ work/
 # Local Python tooling caches
 __pycache__/
 *.pyc
+/dist/

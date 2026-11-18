@@ -1,6 +1,6 @@
 # Current release target: 0.13.0-alpha (owner scope reduction, 2026-11-15)
 
-The full1.0 tables below are historical backlog, not the current delivery target. See [alpha scope and executed evidence](ALPHA_0_13_SCOPE.md). Required now: earned Tier1–6 and six complete professions/144quests, usable purchased Master rewards, economy/Aerodrome/admin/security/client acceptance. Other roles and Tier7–12 are deferred with visible Coming Soon controls and preserved records. **Alpha release is not ready.**
+The full1.0 tables below are historical backlog, not the current delivery target. See [alpha scope and executed evidence](ALPHA_0_13_SCOPE.md). Required now: earned Tier1–6 and six complete professions/144quests, usable purchased Master rewards, economy/Aerodrome/admin/security/client acceptance. Other roles and Tier7–12 are deferred with visible Coming Soon controls and preserved records. **0.13.0-alpha core acceptance passes; scoped pre-release delivery with the documented limitations. Full1.0 remains deferred.**
 
 | Alpha requirement | Current acceptance |
 | --- | --- |
@@ -9,11 +9,11 @@ The full1.0 tables below are historical backlog, not the current delivery target
 | Six selected professions | 144 selected validated adapters; all six actual native 24-quest/4,800XP/Master loops pass. Library has explicit Tier6 alpha variants. Farmer24 unchanged; equipment/duration/client/combined-pack acceptance remains open |
 | FTB alpha guide | 175 actual loaded quests; 144 validated profession projections, 166 additive tasks, separate-reader refusal/reset/2JVM Root integrity pass; original chapter/customization preserved |
 | Combined required-mod scope | 29 exact pinned artifacts: actual fresh earnedTier1–6/2JVM and full paid Aerodrome/native use/repair/3JVM pass. Full277pack/client/default-duration acceptance remains open |
-| Six purchased usable Master rewards | Farmer verified; other5remain; unspecified Prospector/Librarian design question pending |
+| Six purchased usable Master rewards | All six have actual paid purchase/use acceptance. Five new signatures pass native trade/use/claims/repeat pricing/2-JVM restoration; approved specification in sources/ALPHA_MASTER_REWARDS_APPROVED.md |
 | Economy | Existing financial slices and current native service/Bank pending-transfer recovery/replay/save/permission checks pass; full release-wide balance/pack acceptance remains |
 | Aerodrome on earned Tier6 | Actual earned-Tier6/no-hangar refusal/paid plan/partial original-Aldric construction → complete furnished hangar/native boarding/damage refusal/exact repair/final restart pass; full flight/client/modpack acceptance remains |
 | Restricted sandbox | OP4/explicit test-world opt-in/supply grant/actor-bound confirmation/native save/replay/current inventory2JVM pass; other accelerators open |
-| Release package/client/required-mod acceptance | Not complete; no0.13release published |
+| Release package/client/required-mod acceptance | 754JUnit/full build pass; 29-artifact native profile, actual graphical Codex transaction/1440×900 and1280×720 inspection; release JAR/ZIP/docs/checksums prepared for v0.13.0-alpha pre-release. Full277-pack/natural-duration/full-flight acceptance remains open |
 
 ---
 
