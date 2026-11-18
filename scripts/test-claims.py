@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 
 parser=argparse.ArgumentParser()
+parser.add_argument('--master-reward-role',choices=['blacksmith','builder','lumberjack','miner','librarian'])
+parser.add_argument('--seed-master-world',type=Path,help='Stopped private genuinely earned24Master fixture only')
 parser.add_argument('--resume-alpha-aircraft',action='store_true',help='Resume a genuinely completed native partial alpha hangar phase')
 parser.add_argument('--seed-alpha-world',type=Path,help='Stopped earned Tier6 private fixture only')
 parser.add_argument('--alpha-guide',action='store_true',help='Native read-only FTB alpha campaign on an earned full24Library source')
@@ -94,6 +96,16 @@ if args.namespace == 'kingdom_smp_quest_tests':
 if args.namespace == 'kingdom_smp_travel_tests':
     subprocess.run(['python3', str(root / 'scripts/download-dimension-test-mods.py'), '--destination', args.mods], check=True)
 fixture = Path(tempfile.mkdtemp(prefix='claim-server.', dir=root / 'work'))
+if args.seed_master_world:
+    import fcntl,shutil
+    source=args.seed_master_world.resolve()
+    if args.namespace!='kingdom_smp_profession_production_tests' or not args.master_reward_role or args.seed_profession_world or args.seed_alpha_world or source.parent!=(root/'work').resolve() or not source.name.startswith('claim-server.'):
+        raise SystemExit('Master reward acceptance requires only a stopped private genuine earned Master fixture')
+    logs=(source/'logs/latest.log').read_text()
+    markers=['LIBRARY_MASTER_FINAL_RESTART_PASSED:','BUILDER_CIVIC_RESTART_PASSED:','FOREST_RESERVE_RESTART_PASSED:','MINE_EXCAVATION_RESTART_PASSED:','OWNER_REPAIR_SERVICE_RESTART_PASSED:','MASTER_REWARD_RESTART_PASSED:','MASTER_REWARD_NATIVE_PASSED:']
+    if not any(m in logs for m in markers):raise SystemExit('Source lacks actual native Master acceptance marker; no rank injection permitted')
+    with (source/'claims-fixture/session.lock').open('r+b') as lock:
+        fcntl.lockf(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);shutil.copytree(source,fixture,dirs_exist_ok=True);fcntl.lockf(lock,fcntl.LOCK_UN)
 if args.seed_alpha_world:
     import fcntl, shutil
     source=args.seed_alpha_world.resolve()
@@ -168,7 +180,7 @@ if args.seed_profession_world:
         fcntl.lockf(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         shutil.copytree(source,fixture,dirs_exist_ok=True)
         fcntl.lockf(lock, fcntl.LOCK_UN)
-elif args.namespace in ('kingdom_smp_profession_production_tests','kingdom_smp_alchemy_tests'):
+elif args.namespace in ('kingdom_smp_profession_production_tests','kingdom_smp_alchemy_tests') and not args.seed_master_world:
     raise SystemExit('Pass --seed-profession-world with a stopped verified private premises fixture')
 if args.seed_aircraft_restore_world:
     import fcntl, shutil
@@ -208,6 +220,11 @@ if args.namespace == 'kingdom_smp_aircraft_tests':
 command = [str(root / 'scripts/gradle-cloud.sh'), 'runServer',
     f'-PkingdomServerRunDir={fixture}', f'-PkingdomClaimTestMods={args.mods}',
     f'-PkingdomTestNamespace={args.namespace}', '--console=plain']
+if args.master_reward_role:
+    if not args.seed_master_world:raise SystemExit('A genuinely earned private Master source is mandatory')
+    init=fixture/'master-reward.init.gradle'
+    init.write_text("allprojects { plugins.withId('net.neoforged.moddev') { neoForge.runs.configureEach { systemProperty 'kingdom.testMasterReward','true'; systemProperty 'kingdom.testMasterRole','"+args.master_reward_role+"' } } }\n")
+    command += ['--init-script',str(init)]
 if args.alpha_guide or args.library_services_restore:
     if args.namespace!='kingdom_smp_profession_production_tests' or not args.seed_profession_world:
         raise SystemExit('Alpha guide/service restore requires a guarded stopped actual profession source')
@@ -522,6 +539,8 @@ restart_markers = {
     'kingdom_smp_hut_foundation_tests': ['HUT_FOUNDATION_PREPARED:', 'HUT_FOUNDATION_RESUMED:', 'HUT_FOUNDATION_VERIFIED:'],
 }
 markers = restart_markers.get(args.namespace, [marker])
+if args.master_reward_role:
+    markers=['MASTER_REWARD_RESTART_PASSED:'] if (fixture/'claims-fixture'/('master-reward-'+args.master_reward_role+'-proof.nbt')).is_file() else ['MASTER_REWARD_NATIVE_PASSED:','MASTER_REWARD_RESTART_PASSED:']
 if args.alpha_guide:
     markers=["ALPHA_GUIDE_NATIVE_PASSED:","ALPHA_GUIDE_RESTART_PASSED:"]
 if args.library_services_restore:

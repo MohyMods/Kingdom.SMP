@@ -50,7 +50,10 @@
     "NativeOreMutationMixin",
     "NativeOreMiningMixin",
     "NativeApiaryMixin",
-    "NativeMineMovementMixin"
+    "NativeMineMovementMixin",
+    "MasterToolMiningMixin",
+    "MasterTreeGrowerMixin",
+    "MasterTreeMutationMixin"
   ],
   "injectors": {
     "defaultRequire": 1

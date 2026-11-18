@@ -16,7 +16,7 @@ public final class ProfessionService {
     private static final ProfessionQuestCatalog QUESTS=ProfessionQuestService.catalog();
     private static final ProfessionQuestCatalog PRESENTATION=ProfessionQuestService.presentationCatalog();
     private ProfessionService(){ }
-    public static void close(ServerPlayer p){ServiceWorkService.close(p);QUOTES.remove(p);EnchantedToolService.close(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
+    public static void close(ServerPlayer p){com.mohymods.kingdomsmp.equipment.MasterGearShop.close(p);ServiceWorkService.close(p);QUOTES.remove(p);EnchantedToolService.close(p);FarmerDeliveryService.close(p);CraftDeliveryService.close(p);com.mohymods.kingdomsmp.equipment.FarmerGearService.close(p);}
     public static void initialize(MinecraftServer server){ProfessionRules.clear(server);LibraryQuestRules.clear(server);RepairQuestRules.clear(server);BuilderInspectionRules.clear(server);ContractService.initialize(server);CommissionQuestRules.clear(server);CraftDeliveryRules.clear(server);QUOTES.keySet().removeIf(p->p.server==server);}
     public static ProfessionQuestCatalog quests(){return QUESTS;}
     public static Optional<Quote> quote(ServerPlayer p){var q=QUOTES.get(p);if(q!=null&&(q.revision()!=CommerceService.store(p.server).revision()||System.nanoTime()-q.issued()>30_000_000_000L)){close(p);q=null;}return Optional.ofNullable(q);}
@@ -31,6 +31,7 @@ public final class ProfessionService {
         if(separator>=0&&com.mohymods.kingdomsmp.kingdom.AlphaScope.futureQuest(selected.substring(separator+1)))throw new IllegalStateException(com.mohymods.kingdomsmp.kingdom.AlphaScope.futureMessage());
         CommerceService.requireResidentCounter(p);var s=CommerceService.store(p.server);
         if(selected.startsWith("service_")){var service=ServiceWorkService.review(p,selected);var q=new Quote(service.nonce(),service.revision(),"service","",selected,0,service.issued(),service.text());QUOTES.put(p,q);return q;}
+        if(selected.startsWith("mastergear:")){var gear=com.mohymods.kingdomsmp.equipment.MasterGearShop.review(p,selected.substring(11));var q=new Quote(gear.nonce(),gear.revision(),"mastergear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;}
         if(selected.startsWith("gear:")){
             var gear=com.mohymods.kingdomsmp.equipment.FarmerGearService.review(p,selected.substring(5));var q=new Quote(gear.nonce(),gear.revision(),"gear","",gear.gear().id(),gear.price(),gear.issued(),gear.text());QUOTES.put(p,q);return q;
         }
@@ -67,6 +68,7 @@ public final class ProfessionService {
         if(q.action().equals("service"))return ServiceWorkService.confirm(p,q.nonce());
         if(q.action().equals("track_apiary")){ApiaryJobs.choose(p,q.to());return "Apiary purpose selected. Crouch-right-click a permitted native advanced hive with empty main hand; supervise its actual production within16blocks.";}
         if(q.action().equals("track_output")){NativeOutputQuests.choose(p,q.to());return "Future native book combinations are assigned to "+NativeOutputQuests.get(q.to()).name()+".";}
+        if(q.action().equals("mastergear"))return com.mohymods.kingdomsmp.equipment.MasterGearShop.confirm(p,q.nonce());
         if(q.action().equals("gear"))return com.mohymods.kingdomsmp.equipment.FarmerGearService.confirm(p,q.nonce());
         if(q.action().equals("enchanted"))return EnchantedToolService.confirm(p,q.nonce());
         if(q.action().equals("materials"))return CraftDeliveryService.confirm(p,q.nonce());
@@ -100,11 +102,12 @@ public final class ProfessionService {
             boolean ongoing=roster.isActive(role)&&QUESTS.mayAttempt(role,id,roster.track(role).completedQuestIds());
             result.add(new CommerceView.Entry((choose?(apiary?"track_apiary:":"track_output:"):smithing?"smithing:":enchanted?"enchanted:":materials?"materials:":delivery?"food:":"quest:")+id,name(role)+" · "+ProfessionQuestService.title(id),objectiveDetail(definition.rank(),definition.ordinal(),ProfessionQuestService.status(p,id)),0,done?"COMPLETE":choose?"PROF_TARGET":smithing?"PROF_REGISTRATION":delivery?"PROF_DELIVERY":ProfessionQuestService.ready(p,id)?"PROF_QUEST":ongoing?"IN_PROGRESS":"LOCKED"));
         }
-        for(var role:roster.active())if(role!=Profession.FARMER)result.add(new CommerceView.Entry(
+        for(var role:roster.active())if(role!=Profession.FARMER&&!com.mohymods.kingdomsmp.kingdom.AlphaScope.selected(role))result.add(new CommerceView.Entry(
             "equipment_future:"+role.id(),name(role)+" Master equipment",
             "MASTER EQUIPMENT — Coming Soon. Purchase and use are not implemented; no coins are accepted. Existing profession progress is retained.",0,"COMING_SOON"));
         result.addAll(ServiceWorkService.entries(p));
         result.addAll(com.mohymods.kingdomsmp.equipment.FarmerGearService.entries(p));
+        result.addAll(com.mohymods.kingdomsmp.equipment.MasterGearShop.entries(p));
         return List.copyOf(result);
     }
     /** Menu rows are bounded summaries. Server reviews retain the complete authoritative explanation. */

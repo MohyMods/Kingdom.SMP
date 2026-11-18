@@ -566,6 +566,7 @@ public final class ConstructionService {
     public static String activity(UUID project){return ACTIVITY.getOrDefault(project,"Waiting for loaded context and verification.");}
     private static void pause(Project p,String reason){ACTIVITY.put(p.id(),reason);}
     public static boolean protectedAt(ServerLevel level,BlockPos pos){
+        if(com.mohymods.kingdomsmp.equipment.MasterWorldWork.protectedAt(level,pos))return true;
         if(level.dimension()!=Level.OVERWORLD)return false;
         return store(level.getServer()).projects().stream().anyMatch(p->{
             if(p.phase()!=Phase.BUILDING)return false;

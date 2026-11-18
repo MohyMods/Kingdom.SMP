@@ -1,0 +1,19 @@
+package com.mohymods.kingdomsmp.equipment;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.*;
+import java.util.*;
+/** Only enchantment components change; all other source data is copied verbatim. */
+public final class MasterEnchanting {
+ public record Result(ItemStack equipment,ItemStack book,int cost){ }
+ private MasterEnchanting(){ }
+ private static void source(ItemStack item){if(item.isEmpty()||item.getCount()!=1||net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals("kingdom_smp")||!item.isEnchantable()&&EnchantmentHelper.getEnchantmentsForCrafting(item).isEmpty())throw new IllegalStateException("Use one ordinary eligible enchanted item; signature components are protected.");}
+ public static Result extract(ItemStack input,Holder<Enchantment> selected,int cost){source(input);if(selected.is(EnchantmentTags.CURSE))throw new IllegalStateException("Curses cannot be extracted");var enchants=EnchantmentHelper.getEnchantmentsForCrafting(input);int level=enchants.getLevel(selected);if(level<1||cost<1)throw new IllegalStateException("Selected enchantment is absent");var remaining=new ItemEnchantments.Mutable(enchants);remaining.set(selected,0);var result=input.copy();EnchantmentHelper.setEnchantments(result,remaining.toImmutable());var book=new ItemStack(Items.ENCHANTED_BOOK);var one=new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);one.set(selected,level);EnchantmentHelper.setEnchantments(book,one.toImmutable());return new Result(result,book,cost);}
+ public static Result combine(ItemStack input,ItemStack donor,int maxCost,int maxLevel){source(input);if(!donor.is(Items.ENCHANTED_BOOK)||donor.getCount()!=1||!input.isBookEnchantable(donor))throw new IllegalStateException("Use one compatible enchanted book in hotbar slot 2");var original=EnchantmentHelper.getEnchantmentsForCrafting(input);var incoming=EnchantmentHelper.getEnchantmentsForCrafting(donor);if(incoming.isEmpty())throw new IllegalStateException("The donor book has no enchantments");var changed=new ItemEnchantments.Mutable(original);long nativeCost=(long)input.getOrDefault(DataComponents.REPAIR_COST,0)+donor.getOrDefault(DataComponents.REPAIR_COST,0);boolean improved=false;
+  for(var entry:incoming.entrySet()){var enchant=entry.getKey();int old=changed.getLevel(enchant),given=entry.getIntValue();if(!input.supportsEnchantment(enchant))throw new IllegalStateException("Enchantment does not support this item");for(var existing:changed.keySet())if(!existing.equals(enchant)&&!Enchantment.areCompatible(existing,enchant))throw new IllegalStateException("Incompatible enchantments; no item or XP consumed");int ceiling=Math.max(enchant.value().getMaxLevel(),Math.min(maxLevel,enchant.value().getMaxLevel()+1));int next=Math.min(ceiling,old==given?Math.addExact(old,1):Math.max(old,given));if(given>ceiling||old>ceiling)throw new IllegalStateException("Existing level exceeds the configured advanced service limit");if(next>old){changed.set(enchant,next);nativeCost=Math.addExact(nativeCost,Math.multiplyExact((long)Math.max(1,enchant.value().getAnvilCost()/2),next));improved=true;}}
+  if(!improved)throw new IllegalStateException("This book would not improve the equipment");long price=Math.max(1,(nativeCost+1)/2);if(price>maxCost)throw new IllegalStateException("Discounted cost exceeds the configured Codex limit");var result=input.copy();EnchantmentHelper.setEnchantments(result,changed.toImmutable());result.set(DataComponents.REPAIR_COST,Math.min(100000,Math.max(input.getOrDefault(DataComponents.REPAIR_COST,0),donor.getOrDefault(DataComponents.REPAIR_COST,0))+1));return new Result(result,ItemStack.EMPTY,(int)price);
+ }
+}

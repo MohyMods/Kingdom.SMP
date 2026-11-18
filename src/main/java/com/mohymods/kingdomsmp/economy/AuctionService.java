@@ -56,12 +56,12 @@ public final class AuctionService {
         boolean fishingRod=com.mohymods.kingdomsmp.fishing.AquacultureAccess.plainRod(item);
         if(item.isEmpty()||item.getCount()>Math.min(64,item.getMaxStackSize())
                 ||item.getItem() instanceof BlockItem block&&block.getBlock() instanceof ShulkerBoxBlock
-                ||!BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals("minecraft")&&!com.mohymods.kingdomsmp.equipment.FarmerGearItems.known(item)&&!fishingRod
+                ||!BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals("minecraft")&&!com.mohymods.kingdomsmp.equipment.FarmerGearItems.known(item)&&!com.mohymods.kingdomsmp.equipment.MasterGearItems.known(item)&&!fishingRod
                 ||item.has(DataComponents.CONTAINER)&&!fishingRod||item.has(DataComponents.BUNDLE_CONTENTS)
                 ||item.has(DataComponents.BLOCK_ENTITY_DATA)||item.has(DataComponents.ENTITY_DATA)
                 ||item.has(DataComponents.CONTAINER_LOOT)||item.has(DataComponents.CUSTOM_DATA)
                 ||item.has(DataComponents.CHARGED_PROJECTILES))
-            throw new IllegalStateException("Use a vanilla stack, registered Farmer equipment or verified pristine fishing rod without stored items, entity data or custom ownership data. Kingdom plans and coins cannot be auctioned.");
+            throw new IllegalStateException("Use a vanilla stack, registered profession equipment or verified pristine fishing rod without stored items, entity data or custom ownership data. Kingdom plans and coins cannot be auctioned.");
     }
     private static ItemStack decode(ServerPlayer p,CompoundTag tag){
         var item=ItemStack.parse(p.registryAccess(),tag).orElseThrow(()->new IllegalStateException("Escrow item requires registry recovery."));
@@ -144,9 +144,9 @@ public final class AuctionService {
             if(requested<1||requested>2304)throw new IllegalArgumentException("Invalid listing quantity.");
             if(s.listings().stream().filter(EconomyStore.Listing::active).count()>=30)throw new IllegalStateException("The market holds 30 active listings. Wait for a sale/expiry or cancel your own listing.");
             item=p.getInventory().getItem(slot).copy();validateItem(item);item.setCount(Math.min(item.getCount(),Math.min(64,requested)));
-            long tax=EconomyStore.tax(price,com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item));
+            long tax=EconomyStore.tax(price,(com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item)||com.mohymods.kingdomsmp.equipment.MasterGearItems.known(item)));
             text="Escrow exactly "+item.getCount()+" × "+item.getHoverName().getString()+" from your held slot. TOTAL asking price: "+price+" coins. After a sale, "+tax+" tax leaves circulation and "+(price-tax)+" coins go to your private mailbox. Expires after 24 hours; cancellation returns the items. No payment is charged for listing.";
-            if(selected.equals("sell_timed"))text="Escrow exactly "+item.getCount()+" × "+item.getHoverName().getString()+" for a 24-hour TIMED auction. TOTAL starting price: "+price+" coins. Bids must be funded and rise by at least 5%. Bids in the last two minutes extend the deadline to two minutes after that bid. Seller cancellation ends after the first bid. Final "+(com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item)?10:5)+"% tax leaves circulation; proceeds and winner items go to private mail.";
+            if(selected.equals("sell_timed"))text="Escrow exactly "+item.getCount()+" × "+item.getHoverName().getString()+" for a 24-hour TIMED auction. TOTAL starting price: "+price+" coins. Bids must be funded and rise by at least 5%. Bids in the last two minutes extend the deadline to two minutes after that bid. Seller cancellation ends after the first bid. Final "+((com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item)||com.mohymods.kingdomsmp.equipment.MasterGearItems.known(item))?10:5)+"% tax leaves circulation; proceeds and winner items go to private mail.";
         }else{
             UUID id=listingId(selected);var l=s.listing(id).orElseThrow(()->new IllegalStateException("Listing no longer exists."));
             if(!l.active()||l.expires()<=System.currentTimeMillis())throw new IllegalStateException("Listing sold, cancelled or expired. Refresh the market.");
@@ -186,7 +186,7 @@ public final class AuctionService {
             }else{
                 var item=q.item();validateItem(item);long now=System.currentTimeMillis();
                 String title=bounded(item.getCount()+" × "+item.getHoverName().getString(),64);var encoded=(CompoundTag)item.save(p.registryAccess());
-                pending=q.selected().equals("sell_timed")?s.prepareTimedListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),title,q.price(),com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item),now,Math.addExact(now,DURATION),encoded):s.prepareListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),title,q.price(),com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item),now,Math.addExact(now,DURATION),encoded);
+                pending=q.selected().equals("sell_timed")?s.prepareTimedListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),title,q.price(),(com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item)||com.mohymods.kingdomsmp.equipment.MasterGearItems.known(item)),now,Math.addExact(now,DURATION),encoded):s.prepareListing(q.nonce(),p.getUUID(),p.getGameProfile().getName(),title,q.price(),(com.mohymods.kingdomsmp.equipment.FarmerGearItems.master(item)||com.mohymods.kingdomsmp.equipment.MasterGearItems.known(item)),now,Math.addExact(now,DURATION),encoded);
                 p.getInventory().getItem(q.slot()).shrink(item.getCount());
             }
             CommerceService.putReceipt(p,new EconomyStore.Receipt(s.id(),pending.sequence()));checkpointStarted=true;CommerceService.checkpoint(p);

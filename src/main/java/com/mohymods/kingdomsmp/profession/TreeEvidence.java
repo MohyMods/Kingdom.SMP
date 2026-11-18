@@ -32,6 +32,8 @@ public final class TreeEvidence {
     private final Map<Cell,Plant> plants=new HashMap<>();
     private final Map<UUID,Clearing> clearings=new HashMap<>();
     private final Map<UUID,Growth> growth=new HashMap<>();
+    public record Footprint(BlockPos origin,List<BlockPos> positions,String sapling){public Footprint{positions=List.copyOf(positions);}}
+    public Optional<Footprint> footprint(String dimension,BlockPos pos){var tree=trees.get(index.get(new Cell(dimension,pos.asLong())));if(tree==null)return Optional.empty();var species=tree.logs.values().stream().map(Log::species).distinct().toList();if(species.size()!=1)return Optional.empty();String name=species.getFirst();return Optional.of(new Footprint(BlockPos.of(tree.origin),tree.logs.keySet().stream().map(BlockPos::of).toList(),"minecraft:"+(name.equals("mangrove")?"mangrove_propagule":name+"_sapling")));}
     public List<Growth> growth(){return List.copyOf(growth.values());}
     public boolean confirmGrowth(UUID id,UUID player){var g=growth.get(id);if(g==null||!g.player().equals(player))return false;evidence.record(player,g.band(),"grown",1,id.toString());growth.remove(id);return true;}
     private int naturalLogs,naturalTrees;

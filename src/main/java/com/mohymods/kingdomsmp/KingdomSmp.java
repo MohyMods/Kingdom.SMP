@@ -28,6 +28,8 @@ public final class KingdomSmp {
         com.mohymods.kingdomsmp.profession.NativeOreProvenance.register(modBus);
         com.mohymods.kingdomsmp.profession.NetherOres.register(modBus);
         com.mohymods.kingdomsmp.equipment.FarmerGearItems.register(modBus);
+        com.mohymods.kingdomsmp.equipment.MasterGearItems.register(modBus);
+        NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.equipment.MasterToolService::tick);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.equipment.FarmerHarvestService::tick);
         NeoForge.EVENT_BUS.addListener(com.mohymods.kingdomsmp.profession.ServiceWorkService::closed);
         com.mohymods.kingdomsmp.economy.CurrencyItems.register(modBus);
@@ -69,6 +71,7 @@ public final class KingdomSmp {
 
     private void serverStarted(ServerStartedEvent event) {
         com.mohymods.kingdomsmp.progression.WorldProgression.get(event.getServer());
+        com.mohymods.kingdomsmp.equipment.MasterGrownTrees.initialize(event.getServer());
         com.mohymods.kingdomsmp.milestone.MilestoneService.reload(event.getServer());
         BuilderHutService.initialize(event.getServer());
         ContributionService.initialize(event.getServer());

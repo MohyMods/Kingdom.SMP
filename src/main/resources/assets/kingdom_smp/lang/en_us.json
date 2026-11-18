@@ -74,5 +74,12 @@
   "item.kingdom_smp.mage_blueprint": "Mage's Sanctum Blueprint",
   "item.kingdom_smp.librarian_blueprint": "Kingdom Library Blueprint",
   "item.kingdom_smp.alchemist_blueprint": "Alchemist's Laboratory Blueprint",
-  "item.kingdom_smp.mechanic_blueprint": "Mechanic's Workshop Blueprint"
+  "item.kingdom_smp.mechanic_blueprint": "Mechanic's Workshop Blueprint",
+  "item.kingdom_smp.extraction_anvil": "Extraction Anvil",
+  "block.kingdom_smp.extraction_anvil": "Extraction Anvil",
+  "item.kingdom_smp.enchanters_codex": "Enchanter’s Codex",
+  "block.kingdom_smp.enchanters_codex": "Enchanter’s Codex",
+  "item.kingdom_smp.architects_wand": "Architect’s Wand",
+  "item.kingdom_smp.worldtree_axe": "Worldtree Axe",
+  "item.kingdom_smp.prospectors_pickaxe": "Prospector’s Pickaxe"
 }
