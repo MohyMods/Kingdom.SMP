@@ -1,3 +1,15 @@
+# D112 — tested Alpha delivered locally; GitHub release-asset authentication blocks publication
+
+No further gameplay implementation is pending in this execution. Implementation947cb0a, documentation/packageb5d74f0 remain the tested baseline;754JUnit/full build, all5new paid/traded/native signatures+restarts, unchanged Farmer24 and fresh earnedTier1–6 pass. Actual final graphical Codex transaction/scaling/native checkpoint also passes. See D111 and docs/releases/0.13.0-alpha/TEST_REPORT.md. Do NOT rerun completed professions or expand the scope.
+
+GitHub publication remains genuinely blocked. API auth identifies MohyMods and branch pushes work; asset POSTs to the official uploads.github.com endpoint failHTTP401 Bad credentials through both standard CLI and explicit standard authenticated HTTPS. Current connected environment observations are running/unrestricted/enforced. No network-policy denial or missing Java/dependency blocker. No credential values exposed. Initial CLI asset failure cleaned up its incomplete draft. Current retained empty unpublished PRE-release draft is449518920 / requestedv0.13.0-alpha / targetb5d74f072e45aa19f9c3b845bfda3eda2448d652 / URLhttps://github.com/MohyMods/Kingdom.SMP/releases/tag/untagged-be2867b2efb84eb9c6de. Do not create another draft or publish it empty. Fresh inventory query with a harmless unique query parameter was needed to avoid stale API read results.
+
+Installable files persist in dist/0.13.0-alpha and can be delivered directly by absolute-path links. JAR SHA2563b582c5e7f57becf91ca94a683b072882fd39ca54990d67214205dd3b65f88b1. ZIP and SHA256SUMS are regenerated together by scripts/package-alpha.py. No third-party JARs, QA worlds or test configs are packaged. Source is committed/pushed on rebuild/royal-gilded only; main untouched. No automation/continuation is enabled or scheduled.
+
+NEXT is ONLY external publication recovery: obtain a connection credential accepted for intended GitHub release-asset uploads (never expose/paste tokens in logs), inspect existing draft449518920, upload JAR+ZIP+SHA256SUMS, verify all three, then publish PRE-release. User can instead upload files in the owner draft UI. Do not claim a public download or full277pack/1.0 acceptance. Exact blocker/status/owner link are in docs/releases/0.13.0-alpha/PUBLICATION_STATUS.md. Keep all original saves/source/private fixtures.
+
+---
+
 # D111 — 0.13.0-alpha Master rewards, final native regression and actual graphical acceptance
 
 Current target remains the owner-approved Tier1–6 Alpha, NOT full1.0. Implementation source947cb0a (parent7239a9d) on rebuild/royal-gilded contains the five explicitly approved signatures in docs/sources/ALPHA_MASTER_REWARDS_APPROVED.md. Former Prospector/Librarian design questions are resolved. All144selected quest producers and earned24/4800XP/Master histories remain; Farmer24/FortuneX unchanged. No deferred-profession or Tier7–12 expansion, no main merge. Deferred content stays visible Coming Soon. No automatic continuation is enabled or scheduled.

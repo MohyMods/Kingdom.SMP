@@ -94,4 +94,3 @@ Isolated claim fixture: /workspace/Kingdom.SMP/work/claim-server.y7xodmdf
 [08:58:26] [Server thread/INFO] [co.mo.ki.ga.AlphaGuideRuntime$Walk/]: ALPHA_GUIDE_RESTART_PASSED: actual166native tasks/24earned Library tasks/future locks/independent untrained reader/private rank and Root unchanged across dedicated restart
 [08:58:26] [Server thread/INFO] [co.mo.ki.ga.AlphaGuideRuntime$Walk/]: ALPHA_GUIDE_RESTART_PASSED: actual166native tasks/24earned Library tasks/future locks/independent untrained reader/private rank and Root unchanged across dedicated restart
 kingdom_smp_profession_production_tests SUITE_PASSED: 2 normal dedicated startup(s), assertions, flush and clean stop(s)
-

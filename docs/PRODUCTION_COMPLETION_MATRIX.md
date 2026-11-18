@@ -1,6 +1,6 @@
 # Current release target: 0.13.0-alpha (owner scope reduction, 2026-11-15)
 
-The full1.0 tables below are historical backlog, not the current delivery target. See [alpha scope and executed evidence](ALPHA_0_13_SCOPE.md). Required now: earned Tier1–6 and six complete professions/144quests, usable purchased Master rewards, economy/Aerodrome/admin/security/client acceptance. Other roles and Tier7–12 are deferred with visible Coming Soon controls and preserved records. **0.13.0-alpha core acceptance passes; scoped pre-release delivery with the documented limitations. Full1.0 remains deferred.**
+The full1.0 tables below are historical backlog, not the current delivery target. See [alpha scope and executed evidence](ALPHA_0_13_SCOPE.md). Required now: earned Tier1–6 and six complete professions/144quests, usable purchased Master rewards, economy/Aerodrome/admin/security/client acceptance. Other roles and Tier7–12 are deferred with visible Coming Soon controls and preserved records. **0.13.0-alpha core acceptance passes; tested files are built. Public GitHub asset upload is blocked by HTTP401; the pre-release draft remains unpublished. Full1.0 remains deferred.**
 
 | Alpha requirement | Current acceptance |
 | --- | --- |

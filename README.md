@@ -2,7 +2,7 @@
 
 Minecraft **1.21.1**, NeoForge **21.1.265**, Java **21**.
 
-[Download the Alpha pre-release](https://github.com/MohyMods/Kingdom.SMP/releases/tag/v0.13.0-alpha) · [Install](docs/releases/0.13.0-alpha/INSTALL.md) · [Player guide](docs/releases/0.13.0-alpha/PLAYER_GUIDE.md) · [Actual tests and screenshots](docs/releases/0.13.0-alpha/TEST_REPORT.md) · [Known limitations](docs/releases/0.13.0-alpha/KNOWN_LIMITATIONS.md).
+[Alpha publication status](docs/releases/0.13.0-alpha/PUBLICATION_STATUS.md) · [Install](docs/releases/0.13.0-alpha/INSTALL.md) · [Player guide](docs/releases/0.13.0-alpha/PLAYER_GUIDE.md) · [Actual tests and screenshots](docs/releases/0.13.0-alpha/TEST_REPORT.md) · [Known limitations](docs/releases/0.13.0-alpha/KNOWN_LIMITATIONS.md).
 
 Scope: Tier1–6, six selected professions/144 working quests, six paid usable Master signatures, economy, banking, contracts, auctions, mail and earned-Tier6 Aerodrome. Other professions and Tier7–12 remain visibly Coming Soon with existing progress preserved. **This is an Alpha, not the full1.0 release.**
 
